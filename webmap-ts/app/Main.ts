@@ -71,14 +71,14 @@ class MapExample {
       console.error("ApplicationBase is not defined");
       return;
     }
-    console.log("Config", base.config);
-    
+    // console.log("Config", base.config);
+
     this.base = base;
 
     const { config, results, settings } = base;
     const { find, marker } = config;
     const { webMapItems } = results;
-debugger;
+
     setPageLocale(base.locale);
     setPageDirection(base.direction);
 
