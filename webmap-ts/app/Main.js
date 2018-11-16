@@ -22,17 +22,18 @@
 var __assign = (this && this.__assign) || Object.assign || function(t) {
     for (var s, i = 1, n = arguments.length; i < n; i++) {
         s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
+        for (var p in s)
+            if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
     }
     return t;
 };
-define(["require", "exports", "ApplicationBase/support/itemUtils", "ApplicationBase/support/domHelper"], function (require, exports, itemUtils_1, domHelper_1) {
+define(["require", "exports", "ApplicationBase/support/itemUtils", "ApplicationBase/support/domHelper"], function(require, exports, itemUtils_1, domHelper_1) {
     "use strict";
     var CSS = {
         loading: "configurable-application--loading"
     };
-    var MapExample = /** @class */ (function () {
+    var MapExample = /** @class */ (function() {
         function MapExample() {
             //--------------------------------------------------------------------------
             //
@@ -49,18 +50,23 @@ define(["require", "exports", "ApplicationBase/support/itemUtils", "ApplicationB
         //  Public Methods
         //
         //--------------------------------------------------------------------------
-        MapExample.prototype.init = function (base) {
+        MapExample.prototype.init = function(base) {
             if (!base) {
                 console.error("ApplicationBase is not defined");
                 return;
             }
+            // console.log("Config", base.config);
             domHelper_1.setPageLocale(base.locale);
             domHelper_1.setPageDirection(base.direction);
             this.base = base;
-            var config = base.config, results = base.results, settings = base.settings;
-            var find = config.find, marker = config.marker;
+            var config = base.config,
+                results = base.results,
+                settings = base.settings;
+            var find = config.find,
+                marker = config.marker;
             var webMapItems = results.webMapItems;
-            var validWebMapItems = webMapItems.map(function (response) {
+
+            var validWebMapItems = webMapItems.map(function(response) {
                 return response.value;
             });
             var firstItem = validWebMapItems[0];
@@ -72,21 +78,21 @@ define(["require", "exports", "ApplicationBase/support/itemUtils", "ApplicationB
             domHelper_1.setPageTitle(config.title);
             var portalItem = this.base.results.applicationItem
                 .value;
-            var appProxies = portalItem && portalItem.applicationProxies
-                ? portalItem.applicationProxies
-                : null;
+            var appProxies = portalItem && portalItem.applicationProxies ?
+                portalItem.applicationProxies :
+                null;
             var viewContainerNode = document.getElementById("viewContainer");
             var defaultViewProperties = itemUtils_1.getConfigViewProperties(config);
-            validWebMapItems.forEach(function (item) {
+            validWebMapItems.forEach(function(item) {
                 var viewNode = document.createElement("div");
                 viewContainerNode.appendChild(viewNode);
                 var container = {
                     container: viewNode
                 };
                 var viewProperties = __assign({}, defaultViewProperties, container);
-                itemUtils_1.createMapFromItem({ item: item, appProxies: appProxies }).then(function (map) {
-                    return itemUtils_1.createView(__assign({}, viewProperties, { map: map })).then(function (view) {
-                        return itemUtils_1.findQuery(find, view).then(function () { return itemUtils_1.goToMarker(marker, view); });
+                itemUtils_1.createMapFromItem({ item: item, appProxies: appProxies }).then(function(map) {
+                    return itemUtils_1.createView(__assign({}, viewProperties, { map: map })).then(function(view) {
+                        itemUtils_1.findQuery(find, view).then(function() { return itemUtils_1.goToMarker(marker, view); });
                     });
                 });
             });
