@@ -71,15 +71,16 @@ class MapExample {
       console.error("ApplicationBase is not defined");
       return;
     }
-
-    setPageLocale(base.locale);
-    setPageDirection(base.direction);
+    console.log("Config", base.config);
 
     this.base = base;
 
     const { config, results, settings } = base;
     const { find, marker } = config;
     const { webMapItems } = results;
+
+    setPageLocale(base.locale);
+    setPageDirection(base.direction);
 
     const validWebMapItems = webMapItems.map(response => {
       return response.value;
@@ -122,8 +123,9 @@ class MapExample {
         createView({
           ...viewProperties,
           map
-        }).then(view =>
+        }).then(view => {
           findQuery(find, view).then(() => goToMarker(marker, view))
+        }
         )
       );
     });
