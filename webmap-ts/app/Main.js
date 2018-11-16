@@ -54,13 +54,14 @@ define(["require", "exports", "ApplicationBase/support/itemUtils", "ApplicationB
                 console.error("ApplicationBase is not defined");
                 return;
             }
-            // console.log("Config", base.config);
-            domHelper_1.setPageLocale(base.locale);
-            domHelper_1.setPageDirection(base.direction);
+            console.log("Config", base.config);
             this.base = base;
             var config = base.config, results = base.results, settings = base.settings;
             var find = config.find, marker = config.marker;
             var webMapItems = results.webMapItems;
+            debugger;
+            domHelper_1.setPageLocale(base.locale);
+            domHelper_1.setPageDirection(base.direction);
             var validWebMapItems = webMapItems.map(function (response) {
                 return response.value;
             });
