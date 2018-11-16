@@ -54,12 +54,14 @@ define(["require", "exports", "ApplicationBase/support/itemUtils", "ApplicationB
                 console.error("ApplicationBase is not defined");
                 return;
             }
-            domHelper_1.setPageLocale(base.locale);
-            domHelper_1.setPageDirection(base.direction);
+            console.log("Config", base.config);
             this.base = base;
             var config = base.config, results = base.results, settings = base.settings;
             var find = config.find, marker = config.marker;
             var webMapItems = results.webMapItems;
+            debugger;
+            domHelper_1.setPageLocale(base.locale);
+            domHelper_1.setPageDirection(base.direction);
             var validWebMapItems = webMapItems.map(function (response) {
                 return response.value;
             });
@@ -86,7 +88,7 @@ define(["require", "exports", "ApplicationBase/support/itemUtils", "ApplicationB
                 var viewProperties = __assign({}, defaultViewProperties, container);
                 itemUtils_1.createMapFromItem({ item: item, appProxies: appProxies }).then(function (map) {
                     return itemUtils_1.createView(__assign({}, viewProperties, { map: map })).then(function (view) {
-                        return itemUtils_1.findQuery(find, view).then(function () { return itemUtils_1.goToMarker(marker, view); });
+                        itemUtils_1.findQuery(find, view).then(function () { return itemUtils_1.goToMarker(marker, view); });
                     });
                 });
             });
