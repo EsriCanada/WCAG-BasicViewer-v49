@@ -107,9 +107,14 @@ class MapExample {
           id: "configurableStyles"
           }, document.head);
 
+          const focusColor = config.focusColor;
+          const hoverColor = config.hoverColor;
+          const activeColor = config.activeColor;
+
           configurableStyles.innerHTML = `
   .bg { background: ${config.theme};}
   .fc { color: ${config.color}; }
+  :focus { outline-color: ${focusColor}; }
           `;
       })(config);
 
