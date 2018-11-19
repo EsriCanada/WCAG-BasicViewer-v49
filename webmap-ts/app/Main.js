@@ -69,7 +69,6 @@ define(["require", "exports", "ApplicationBase/support/itemUtils", "ApplicationB
                 console.error("Could not load an item to display");
                 return;
             }
-            config.title = !config.title ? itemUtils_1.getItemTitle(firstItem) : "";
             domHelper_1.setPageTitle(config.title);
             var portalItem = this.base.results.applicationItem
                 .value;
@@ -91,6 +90,44 @@ define(["require", "exports", "ApplicationBase/support/itemUtils", "ApplicationB
                     });
                 });
             });
+            // _saveLeftPanelWidth: -1,
+            // Create UI
+            // _createUI:
+            // const borderContainer = new BorderContainer(
+            //     {
+            //         gutters: false,
+            //         liveSplitters: true,
+            //         id: "borderContainer"
+            //     }
+            // );
+            // const contentPaneTop = new ContentPane({
+            //     region: "top",
+            //     splitter: false,
+            //     style: "padding:0;",
+            //     content: document.getElementById("panelTitle")
+            // });
+            // borderContainer.addChild(contentPaneTop);
+            // const contentPaneLeft = new ContentPane({
+            //     region: "leading",
+            //     splitter: "true",
+            //     style: "width:425px; padding:0; overflow: none;",
+            //     content: document.getElementById("leftPanel"),
+            //     class: "splitterContent"
+            // });
+            // borderContainer.addChild(contentPaneLeft);
+            // const contentPaneRight = new ContentPane({
+            //     style: "padding:1px; background-color:white;",
+            //     region: "center",
+            //     splitter: "true",
+            //     // class: "bg",
+            //     content: document.getElementById("mapPlace")
+            // });
+            // borderContainer.addChild(contentPaneRight);
+            // borderContainer.placeAt(document.body);
+            // borderContainer.startup();
+            // const borderContainer = registry.byId("borderContainer");
+            // debugger;
+            // borderContainer.startup();
             document.body.classList.remove(CSS.loading);
         };
         return MapExample;
