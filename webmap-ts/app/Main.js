@@ -27,7 +27,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-define(["require", "exports", "dijit/layout/BorderContainer", "dojox/layout/ContentPane", "ApplicationBase/support/itemUtils", "ApplicationBase/support/domHelper"], function (require, exports, BorderContainer, ContentPane, itemUtils_1, domHelper_1) {
+define(["require", "exports", "dijit/layout/BorderContainer", "dojox/layout/ContentPane", "dojo/dom-construct", "ApplicationBase/support/itemUtils", "ApplicationBase/support/domHelper"], function (require, exports, BorderContainer, ContentPane, domConstruct, itemUtils_1, domHelper_1) {
     "use strict";
     var CSS = {
         loading: "configurable-application--loading"
@@ -71,6 +71,12 @@ define(["require", "exports", "dijit/layout/BorderContainer", "dojox/layout/Cont
             }
             domHelper_1.setPageTitle(config.title);
             document.getElementById("panelText").innerHTML = config.title;
+            var colors = (function (config) {
+                var configurableStyles = domConstruct.create("style", {
+                    id: "configurableStyles"
+                }, document.head);
+                configurableStyles.innerHTML = "\n  .bg { background: " + config.theme + ";}\n  .fc { color: " + config.color + "; }\n          ";
+            })(config);
             var portalItem = this.base.results.applicationItem
                 .value;
             var appProxies = portalItem && portalItem.applicationProxies
@@ -120,8 +126,6 @@ define(["require", "exports", "dijit/layout/BorderContainer", "dojox/layout/Cont
             });
             borderContainer.addChild(contentPaneRight);
             borderContainer.placeAt(document.body);
-            // contentPaneRight.startup();
-            // contentPaneLeft.startup();
             borderContainer.startup();
             document.body.classList.remove(CSS.loading);
         };

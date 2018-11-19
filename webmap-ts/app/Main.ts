@@ -28,6 +28,7 @@ import BorderContainer = require("dijit/layout/BorderContainer");
 import ContentPane = require("dojox/layout/ContentPane");
 
 import registry = require("dijit/registry");
+import domConstruct = require("dojo/dom-construct");
 
 const CSS = {
   loading: "configurable-application--loading"
@@ -101,6 +102,17 @@ class MapExample {
     setPageTitle(config.title);
     document.getElementById("panelText").innerHTML = config.title;
 
+    const colors = ((config) => {
+      const configurableStyles = domConstruct.create("style", {
+          id: "configurableStyles"
+          }, document.head);
+
+          configurableStyles.innerHTML = `
+  .bg { background: ${config.theme};}
+  .fc { color: ${config.color}; }
+          `;
+      })(config);
+
     const portalItem: __esri.PortalItem = this.base.results.applicationItem
       .value;
     const appProxies =
@@ -171,8 +183,6 @@ class MapExample {
 
     borderContainer.placeAt(document.body);
 
-    // contentPaneRight.startup();
-    // contentPaneLeft.startup();
     borderContainer.startup();
 
 
