@@ -247,7 +247,7 @@ header.top-nav {
     height: 100%;
 }
 
-.claro .dijitSplitterV {
+.dijitSplitterV {
     background: white;
     border-color: white;
     border-width: 1.5px;
@@ -259,8 +259,8 @@ header.top-nav {
     -webkit-tap-highlight-color: transparent;
 }
 
-.claro .dijitSplitterH,
-.claro .dijitGutterH {
+.dijitSplitterH,
+.dijitGutterH {
     background: white;
     border-color: white;
     border-width: 1.5px;
@@ -271,12 +271,12 @@ header.top-nav {
     margin: 0;
 }
 
-.claro .dijitSplitterCover {
+.dijitSplitterCover {
     background: black;
     opacity: 0.25;
 }
 
-.claro .dijitSplitterV .dijitSplitterThumb {
+.dijitSplitterV .dijitSplitterThumb {
     background: gray none;
     height: 20%;
     left: 0.5px;
@@ -288,7 +288,7 @@ header.top-nav {
     border-radius: 5px;
 }
 
-.claro .dijitSplitterH .dijitSplitterThumb {
+.dijitSplitterH .dijitSplitterThumb {
     width: 20%;
     left: 40%;
     margin: 0;
@@ -312,6 +312,136 @@ header.top-nav {
     border-right: 1px solid #d3d3d3 !important;
 }
 
-.claro .dijitSplitter {
+.dijitSplitter {
     background-color: #fff;
+}
+
+#panelSearch {
+    margin: 2px;
+    width: 100%;
+    position: relative;
+    width: calc(100% - 4px);
+}
+
+#panelSearch .searchLabel {
+    padding: 4px 2px;
+    float: left;
+    font-size: 12px;
+    margin-bottom: 0 !important;
+}
+
+.arcgisSearch .searchIcon {
+    font-size: 16px;
+    width: auto;
+    height: auto;
+    line-height: 10px;
+    display: inline-block;
+}
+
+.arcgisSearch .searchIcon img {
+    width: 14px;
+    height: 14px;
+}
+
+.arcgisSearch .searchBtn {
+    padding: 0;
+}
+
+.arcgisSearch .searchGroup .searchInput {
+    height: 14px;
+    width: 155px;
+    padding: 3px 20px 3px 6px;
+    font-size: 12px;
+    line-height: 16px;
+}
+
+.arcgisSearch .searchGroup .searchInput {
+    background-color: rgba(0, 0, 0, 0.3);
+    // filter: progid: DXImageTransform.Microsoft.gradient(startColorstr=#4D000000, endColorstr=#4D000000);
+    zoom: 1;
+    color: #fff;
+}
+
+
+/*@media only screen and (min-width: 800px) {*/
+
+.arcgisSearch .searchGroup .searchInput {
+    display: block;
+}
+
+
+/*}*/
+
+.arcgisSearch .searchClose,
+.arcgisSearch .searchSpinner {
+    position: absolute;
+    width: 19px;
+    height: 19px;
+    line-height: 1px;
+}
+
+.arcgisSearch .searchSpinner {
+    opacity: 1;
+}
+
+.arcgisSearch .searchSpinner {
+    display: none;
+    color: white;
+    left: 0;
+    opacity: 1 !important;
+}
+
+.arcgisSearch .hasMultipleSources .searchToggle {
+    display: inline-block;
+    float: left;
+}
+
+.arcgisSearch .hasValue .searchClear {
+    background-color: transparent;
+    display: -webkit-inline-box;
+    width: 20px;
+    height: 20px;
+    /*right: 33px;*/
+    top: 1px;
+}
+
+@media only screen and (min-width: 720px) {
+    #panelSearch .searchLabel {
+        padding: 8px 4px;
+        float: left;
+        font-size: 14px;
+    }
+    .arcgisSearch .searchIcon {
+        width: auto;
+        height: auto;
+    }
+    .arcgisSearch .searchIcon img {
+        width: 20px;
+        height: 20px;
+    }
+    .arcgisSearch .searchBtn {
+        padding: 6px;
+    }
+    .arcgisSearch .searchGroup .searchInput {
+        height: 20px;
+        width: 200px;
+        padding: 6px 28px 6px 12px;
+        font-size: 14px;
+        line-height: 20px;
+    }
+    .arcgisSearch .searchClose,
+    .arcgisSearch .searchSpinner {
+        opacity: 0.75;
+        padding: 6px;
+        right: 0;
+    }
+    .searchClose:focus,
+    .searchClose:hover {
+        background-color: rgba(0, 0, 0, 0.701961);
+        opacity: 1;
+    }
+    .arcgisSearch .hasValue .searchClear {
+        width: 32px;
+        height: 32px;
+    }
 }

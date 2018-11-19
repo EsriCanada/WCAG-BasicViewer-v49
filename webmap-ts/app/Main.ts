@@ -99,6 +99,7 @@ class MapExample {
     }
 
     setPageTitle(config.title);
+    document.getElementById("panelText").innerHTML = config.title;
 
     const portalItem: __esri.PortalItem = this.base.results.applicationItem
       .value;
@@ -128,7 +129,7 @@ class MapExample {
           ...viewProperties,
           map
         }).then(view => {
-          findQuery(find, view).then(() => goToMarker(marker, view))
+          findQuery(find, view).then(() => goToMarker(marker, view));
         }
         )
       );
@@ -169,7 +170,11 @@ class MapExample {
     borderContainer.addChild(contentPaneRight);
 
     borderContainer.placeAt(document.body);
+
+    // contentPaneRight.startup();
+    // contentPaneLeft.startup();
     borderContainer.startup();
+
 
 
     document.body.classList.remove(CSS.loading);

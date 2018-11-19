@@ -70,6 +70,7 @@ define(["require", "exports", "dijit/layout/BorderContainer", "dojox/layout/Cont
                 return;
             }
             domHelper_1.setPageTitle(config.title);
+            document.getElementById("panelText").innerHTML = config.title;
             var portalItem = this.base.results.applicationItem
                 .value;
             var appProxies = portalItem && portalItem.applicationProxies
@@ -119,6 +120,8 @@ define(["require", "exports", "dijit/layout/BorderContainer", "dojox/layout/Cont
             });
             borderContainer.addChild(contentPaneRight);
             borderContainer.placeAt(document.body);
+            // contentPaneRight.startup();
+            // contentPaneLeft.startup();
             borderContainer.startup();
             document.body.classList.remove(CSS.loading);
         };
