@@ -27,7 +27,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-define(["require", "exports", "ApplicationBase/support/itemUtils", "ApplicationBase/support/domHelper"], function (require, exports, itemUtils_1, domHelper_1) {
+define(["require", "exports", "dijit/layout/BorderContainer", "dojox/layout/ContentPane", "ApplicationBase/support/itemUtils", "ApplicationBase/support/domHelper"], function (require, exports, BorderContainer, ContentPane, itemUtils_1, domHelper_1) {
     "use strict";
     var CSS = {
         loading: "configurable-application--loading"
@@ -90,44 +90,36 @@ define(["require", "exports", "ApplicationBase/support/itemUtils", "ApplicationB
                     });
                 });
             });
-            // _saveLeftPanelWidth: -1,
-            // Create UI
-            // _createUI:
-            // const borderContainer = new BorderContainer(
-            //     {
-            //         gutters: false,
-            //         liveSplitters: true,
-            //         id: "borderContainer"
-            //     }
-            // );
-            // const contentPaneTop = new ContentPane({
-            //     region: "top",
-            //     splitter: false,
-            //     style: "padding:0;",
-            //     content: document.getElementById("panelTitle")
-            // });
-            // borderContainer.addChild(contentPaneTop);
-            // const contentPaneLeft = new ContentPane({
-            //     region: "leading",
-            //     splitter: "true",
-            //     style: "width:425px; padding:0; overflow: none;",
-            //     content: document.getElementById("leftPanel"),
-            //     class: "splitterContent"
-            // });
-            // borderContainer.addChild(contentPaneLeft);
-            // const contentPaneRight = new ContentPane({
-            //     style: "padding:1px; background-color:white;",
-            //     region: "center",
-            //     splitter: "true",
-            //     // class: "bg",
-            //     content: document.getElementById("mapPlace")
-            // });
-            // borderContainer.addChild(contentPaneRight);
-            // borderContainer.placeAt(document.body);
-            // borderContainer.startup();
-            // const borderContainer = registry.byId("borderContainer");
-            // debugger;
-            // borderContainer.startup();
+            var borderContainer = new BorderContainer({
+                gutters: false,
+                liveSplitters: true,
+                id: "borderContainer"
+            });
+            var contentPaneTop = new ContentPane({
+                region: "top",
+                splitter: false,
+                style: "padding:0;",
+                content: document.getElementById("panelTitle")
+            });
+            borderContainer.addChild(contentPaneTop);
+            var contentPaneLeft = new ContentPane({
+                region: "leading",
+                splitter: "true",
+                style: "width:425px; padding:0; overflow: none;",
+                content: document.getElementById("leftPanel"),
+                class: "splitterContent"
+            });
+            borderContainer.addChild(contentPaneLeft);
+            var contentPaneRight = new ContentPane({
+                style: "padding:1px; background-color:white;",
+                region: "center",
+                splitter: "true",
+                // class: "bg",
+                content: document.getElementById("mapPlace")
+            });
+            borderContainer.addChild(contentPaneRight);
+            borderContainer.placeAt(document.body);
+            borderContainer.startup();
             document.body.classList.remove(CSS.loading);
         };
         return MapExample;
