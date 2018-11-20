@@ -78,17 +78,12 @@ class MapExample {
       return;
     }
     console.log("Config", base.config);
-<<<<<<< HEAD
-
-=======
-    
->>>>>>> LegacyFrame
     this.base = base;
 
     const { config, results, settings } = base;
     const { find, marker } = config;
     const { webMapItems } = results;
-debugger;
+
     setPageLocale(base.locale);
     setPageDirection(base.direction);
 
@@ -165,11 +160,7 @@ debugger;
           ...viewProperties,
           map
         }).then(view => {
-<<<<<<< HEAD
-          findQuery(find, view).then(() => goToMarker(marker, view));
-=======
           findQuery(find, view).then(() => goToMarker(marker, view))
->>>>>>> LegacyFrame
         }
         )
       );
