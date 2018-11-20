@@ -50,6 +50,8 @@ import {
 class MapExample {
   base: ApplicationBase = null;
 
+  config: ApplicationConfig;
+
   public init(base: ApplicationBase): void {
     if (!base) {
       console.error("ApplicationBase is not defined");
@@ -76,7 +78,9 @@ class MapExample {
       return;
     }
 
-    this.createUI(config);
+    this.config = config;
+
+    this.createUI();
 
     const portalItem: __esri.PortalItem = this.base.results.applicationItem
       .value;
@@ -115,45 +119,45 @@ class MapExample {
     document.body.classList.remove(CSS.loading);
   }
 
-  colors = (config) => {
+  colors = () => {
     const configurableStyles = domConstruct.create("style", {
         id: "configurableStyles"
         }, document.head);
 
-        const focusColor = config.focusColor;
-        const hoverColor = config.hoverColor;
-        const activeColor = config.activeColor;
+        const focusColor = this.config.focusColor;
+        const hoverColor = this.config.hoverColor;
+        const activeColor = this.config.activeColor;
 
         configurableStyles.innerHTML = `
-.bg { background: ${config.theme}; }
-.fc { color: ${config.color}; }
+.bg { background: ${this.config.theme}; }
+.fc { color: ${this.config.color}; }
 :focus { outline-color: ${focusColor}; }
 .dijitSplitterV {
-  background: ${config.color};
-  border-color: ${config.theme};
+  background: ${this.config.color};
+  border-color: ${this.config.theme};
 }
 .esri-widget--button {
-  background: ${config.theme};
-  color: ${config.color};
+  background: ${this.config.theme};
+  color: ${this.config.color};
   margin: 1px !important;
 }
 .esri-widget--button:hover {
   background: ${hoverColor};
-  color: ${config.color};
+  color: ${this.config.color};
 }`;
   }
 
-  logo = (config) => {
-    if (config.logo) {
-      let altText = (config.logoAltText && config.logoAltText !== "") ? config.logoAltText : "Logo";
-      if (!altText || altText === "") { altText = config.title; }
+  logo = () => {
+    if (this.config.logo) {
+      let altText = (this.config.logoAltText && this.config.logoAltText !== "") ? this.config.logoAltText : "Logo";
+      if (!altText || altText === "") { altText = this.config.title; }
       const panelLogo = domConstruct.create(
           "div",
           {
               id: "panelLogo",
               // TabIndex: 0,
               innerHTML:
-                  `<img id="logo" src="${config.logo}" alt="${altText}" aria-label="${altText}">`
+                  `<img id="logo" src="${this.config.logo}" alt="${altText}" aria-label="${altText}">`
           },
           dom.byId("panelTitle")
       ); //, "first");
@@ -166,12 +170,12 @@ class MapExample {
     }
   }
 
-  createUI = (config) => {
-    this.logo(config);
-    setPageTitle(config.title);
-    document.getElementById("panelText").innerHTML = config.title;
+  createUI = () => {
+    this.logo();
+    setPageTitle(this.config.title);
+    document.getElementById("panelText").innerHTML = this.config.title;
 
-    this.colors(config);
+    this.colors();
 
     const borderContainer = new BorderContainer({
       gutters: false,
@@ -207,7 +211,7 @@ class MapExample {
     borderContainer.addChild(contentPaneRight);
     borderContainer.placeAt(document.body);
     borderContainer.startup();
-  }
+  };
 }
 
 export = MapExample;

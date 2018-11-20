@@ -84,12 +84,6 @@ header.top-nav {
     text-transform: uppercase;
 }
 
-// .fc {
-//     color: white;
-// }
-// .bg {
-//     background: navy;
-// }
 #panelTitle h1 {
     font-family: 'Roboto Condensed', sans-serif;
     padding: 6px;
@@ -98,6 +92,7 @@ header.top-nav {
     -webkit-margin-after: 0;
     -webkit-margin-start: 0px;
     -webkit-margin-end: 0px;
+    font-size: 28px;
 }
 
 #panelText.nosearch {
@@ -332,6 +327,10 @@ header.top-nav {
 #panelLogo img {
     max-height: 24px;
     padding: 2px;
+}
+
+#panelTitle {
+    height: 28px;
 }
 
 @media only screen and (min-width: 720px) {
