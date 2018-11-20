@@ -1,22 +1,14 @@
 /*
   Copyright 2017 Esri
-
   Licensed under the Apache License, Version 2.0 (the "License");
-
   you may not use this file except in compliance with the License.
-
   You may obtain a copy of the License at
-
     http://www.apache.org/licenses/LICENSE-2.0
 
   Unless required by applicable law or agreed to in writing, software
-
   distributed under the License is distributed on an "AS IS" BASIS,
-
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-
   See the License for the specific language governing permissions and
-
   limitations under the License.​
 */
 
@@ -28,6 +20,7 @@ import BorderContainer = require("dijit/layout/BorderContainer");
 import ContentPane = require("dojox/layout/ContentPane");
 
 import registry = require("dijit/registry");
+import dom = require("dojo/dom");
 import domConstruct = require("dojo/dom-construct");
 
 const CSS = {
@@ -55,22 +48,7 @@ import {
 } from "ApplicationBase/interfaces";
 
 class MapExample {
-  //--------------------------------------------------------------------------
-  //
-  //  Properties
-  //
-  //--------------------------------------------------------------------------
-
-  //----------------------------------
-  //  ApplicationBase
-  //----------------------------------
   base: ApplicationBase = null;
-
-  //--------------------------------------------------------------------------
-  //
-  //  Public Methods
-  //
-  //--------------------------------------------------------------------------
 
   public init(base: ApplicationBase): void {
     if (!base) {
@@ -87,9 +65,6 @@ class MapExample {
     setPageLocale(base.locale);
     setPageDirection(base.direction);
 
-    setPageLocale(base.locale);
-    setPageDirection(base.direction);
-
     const validWebMapItems = webMapItems.map(response => {
       return response.value;
     });
@@ -101,11 +76,7 @@ class MapExample {
       return;
     }
 
-    setPageTitle(config.title);
-    document.getElementById("panelText").innerHTML = config.title;
-
-    this.colors(config);
-    this.createUI();
+    this.createUI(config);
 
     const portalItem: __esri.PortalItem = this.base.results.applicationItem
       .value;
@@ -172,44 +143,70 @@ class MapExample {
 }`;
   }
 
-  createUI = () => {
-    const borderContainer = new BorderContainer(
-      {
-          gutters: false,
-          liveSplitters: true,
-          id: "borderContainer"
-      }
-  );
+  logo = (config) => {
+    if (config.logo) {
+      let altText = (config.logoAltText && config.logoAltText !== "") ? config.logoAltText : "Logo";
+      if (!altText || altText === "") { altText = config.title; }
+      const panelLogo = domConstruct.create(
+          "div",
+          {
+              id: "panelLogo",
+              // TabIndex: 0,
+              innerHTML:
+                  `<img id="logo" src="${config.logo}" alt="${altText}" aria-label="${altText}">`
+          },
+          dom.byId("panelTitle")
+      ); //, "first");
+      //domClass.add("panelTop", "largerTitle");
+      domConstruct.place(
+          panelLogo,
+          dom.byId("panelText"),
+          "before"
+      );
+    }
+  }
 
-  const contentPaneTop = new ContentPane({
+  createUI = (config) => {
+    this.logo(config);
+    setPageTitle(config.title);
+    document.getElementById("panelText").innerHTML = config.title;
+
+    this.colors(config);
+
+    const borderContainer = new BorderContainer({
+      gutters: false,
+      liveSplitters: true,
+      id: "borderContainer"
+    });
+
+    const contentPaneTop = new ContentPane({
       region: "top",
       splitter: false,
       style: "padding:0;",
       content: document.getElementById("panelTitle")
-  });
-  borderContainer.addChild(contentPaneTop);
+    });
+    borderContainer.addChild(contentPaneTop);
 
-  const contentPaneLeft = new ContentPane({
+    const contentPaneLeft = new ContentPane({
       region: "leading",
       splitter: "true",
       style: "width:425px; padding:0; overflow: none;",
       content: document.getElementById("leftPanel"),
       class: "splitterContent"
-  });
-  borderContainer.addChild(contentPaneLeft);
+    });
+    borderContainer.addChild(contentPaneLeft);
 
-  const contentPaneRight = new ContentPane({
+    const contentPaneRight = new ContentPane({
       style: "padding:1px; background-color:white;",
       region: "center",
       splitter: "true",
       // class: "bg",
       content: document.getElementById("mapPlace")
-  });
-  borderContainer.addChild(contentPaneRight);
+    });
 
-  borderContainer.placeAt(document.body);
-
-  borderContainer.startup();
+    borderContainer.addChild(contentPaneRight);
+    borderContainer.placeAt(document.body);
+    borderContainer.startup();
   }
 }
 

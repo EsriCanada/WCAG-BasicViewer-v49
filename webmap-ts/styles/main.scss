@@ -221,6 +221,14 @@ header.top-nav {
     overflow-y: hidden !important;
 }
 
+.borderBottom {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.borderTop {
+    border-top: 1px solid rgba(255, 255, 255, 0.5);
+}
+
 #leftPanel {
     height: 100%;
     width: 100%;
@@ -314,11 +322,34 @@ header.top-nav {
     background-color: #fff;
 }
 
+#panelLogo {
+    overflow: hidden;
+    line-height: 0;
+    margin: 1px;
+    display: inline-block;
+}
+
+#panelLogo img {
+    max-height: 24px;
+    padding: 2px;
+}
+
+@media only screen and (min-width: 720px) {
+    #panelLogo img {
+        max-height: 32px;
+        padding: 6px 3px;
+    }
+    #panelTitle {
+        height: 46px;
+    }
+}
+
 #panelSearch {
     margin: 2px;
     width: 100%;
     position: relative;
     width: calc(100% - 4px);
+    display: flex;
 }
 
 #panelSearch .searchLabel {
