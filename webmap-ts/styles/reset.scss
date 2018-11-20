@@ -23,7 +23,7 @@ blockquote {
     font-style: italic;
 }
 
-.claro .dijitArrowButtonInner {
+.dijitArrowButtonInner {
     width: auto;
     height: auto;
     margin: auto;
@@ -31,10 +31,10 @@ blockquote {
     background-repeat: no-repeat;
 }
 
-.claro .dijitButton .dijitButtonNode,
-.claro .dijitDropDownButton .dijitButtonNode,
-.claro .dijitComboButton .dijitButtonNode,
-.claro .dijitToggleButton .dijitButtonNode {
+.dijitButton .dijitButtonNode,
+.dijitDropDownButton .dijitButtonNode,
+.dijitComboButton .dijitButtonNode,
+.dijitToggleButton .dijitButtonNode {
     color: #000000;
     -webkit-box-shadow: 0 0 0;
     -moz-box-shadow: 0 0 0;
@@ -44,7 +44,7 @@ blockquote {
     background-image: none;
 }
 
-.claro .dijitButtonText {
+.dijitButtonText {
     padding: 4px 8px;
     font-weight: bold;
 }

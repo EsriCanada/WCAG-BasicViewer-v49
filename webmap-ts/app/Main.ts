@@ -112,10 +112,22 @@ class MapExample {
           const activeColor = config.activeColor;
 
           configurableStyles.innerHTML = `
-  .bg { background: ${config.theme};}
+  .bg { background: ${config.theme}; }
   .fc { color: ${config.color}; }
   :focus { outline-color: ${focusColor}; }
-          `;
+  .dijitSplitterV {
+    background: ${config.color};
+    border-color: ${config.theme};
+  }
+  .esri-widget--button {
+    background: ${config.theme};
+    color: ${config.color};
+    margin: 1px !important;
+  }
+  .esri-widget--button:hover {
+    background: ${hoverColor};
+    color: ${config.color};
+}`;
       })(config);
 
     const portalItem: __esri.PortalItem = this.base.results.applicationItem
