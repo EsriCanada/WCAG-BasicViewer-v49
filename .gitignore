@@ -11,3 +11,25 @@ webmap-ts/styles/reset\.css
 *.map
 
 webmap-ts/app/customizeColors\.js
+
+group-ts/app/dojo\.js
+
+group-ts/app/init\.js
+
+group-ts/app/Main\.js
+
+hub-auth-ts/app/dojo\.js
+
+hub-auth-ts/app/init\.js
+
+hub-auth-ts/app/Main\.js
+
+webmap-ts/app/dojo\.js
+
+webmap-ts/app/init\.js
+
+webscene-ts/app/dojo\.js
+
+webscene-ts/app/init\.js
+
+webscene-ts/app/Main\.js
