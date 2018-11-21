@@ -190,6 +190,14 @@ class MapExample {
     });
   }
 
+  contactUs = () => {
+    require([
+      "./widgets/contactUs/contactUs"
+    ], function(
+      ContactUs
+    ) {
+      new ContactUs({ container: "contactUsNode" });
+    });  }
 
   createUI = () => {
     this.logo();
@@ -233,6 +241,7 @@ class MapExample {
     borderContainer.placeAt(document.body);
     borderContainer.startup();
 
+    this.contactUs();
     this.languageMenu();
     this.createTools();
   };
