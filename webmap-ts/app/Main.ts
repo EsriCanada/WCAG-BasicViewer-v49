@@ -170,6 +170,16 @@ class MapExample {
     }
   }
 
+  createTools = () => {
+    require([
+      "./widgets/toolbar/toolbar"
+    ], function(
+      Toolbar
+    ) {
+      new Toolbar({ container: "panelTools" });
+    });
+  }
+
   createUI = () => {
     this.logo();
     setPageTitle(this.config.title);
@@ -211,6 +221,8 @@ class MapExample {
     borderContainer.addChild(contentPaneRight);
     borderContainer.placeAt(document.body);
     borderContainer.startup();
+
+    this.createTools();
   };
 }
 
