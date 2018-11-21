@@ -180,6 +180,17 @@ class MapExample {
     });
   }
 
+  languageMenu = () => {
+    require([
+      "./widgets/languages/languages"
+    ], function(
+      Languages
+    ) {
+      new Languages({ container: "languageSelectNode" });
+    });
+  }
+
+
   createUI = () => {
     this.logo();
     setPageTitle(this.config.title);
@@ -222,6 +233,7 @@ class MapExample {
     borderContainer.placeAt(document.body);
     borderContainer.startup();
 
+    this.languageMenu();
     this.createTools();
   };
 }
