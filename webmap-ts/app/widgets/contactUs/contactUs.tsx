@@ -54,6 +54,11 @@ const CSS = {
 
         // console.log("button", button);
 
+        const focusNode: HTMLElement = button.domNode.querySelector(".dijitReset.dijitStretch.dijitButtonContents");
+        if(focusNode) {
+            domAttr.remove(focusNode,"aria-labelledby");
+            domAttr.remove(focusNode,"tabindex");
+        }
         const focusElement: HTMLElement = button.domNode.querySelector(".dijitReset.dijitInline.dijitButtonText");
         console.log("focusElement", focusElement);
         if(focusElement) {

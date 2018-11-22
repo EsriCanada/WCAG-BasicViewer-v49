@@ -39,3 +39,5 @@ webmap-ts/app/widgets/toolbar/Toolbar\.js
 webmap-ts/app/widgets/languages/Languages\.js
 
 webmap-ts/app/widgets/contactUs/contactUs\.js
+
+webmap-ts/app/utils\.js
