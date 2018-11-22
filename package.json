@@ -6,6 +6,7 @@
     "homepage": "https://github.com/Esri/configurable-app-examples-4x-js",
     "license": "SEE LICENSE IN license.txt",
     "main": "webmap-ts/index.html",
+    "types": "webmap-ts/app/utils.d.ts",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/Esri/configurable-app-examples-4x-js.git"
@@ -33,6 +34,11 @@
         "postcss-normalize-charset": "^1.1.0",
         "tslint": "^5.11.0",
         "typescript": "^2.9.2"
+    },
+    "dependencies": {
+        "browserify": "latest",
+        "@types/browserify": "latest",
+        "typescript": "next"
     },
     "scripts": {
         "start": "npm-run-all --parallel watch:grunt watch:ts",

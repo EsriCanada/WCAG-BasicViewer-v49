@@ -1,0 +1,5 @@
+define(
+    ({
+        contactUs: "Contactez nous",
+    })
+);

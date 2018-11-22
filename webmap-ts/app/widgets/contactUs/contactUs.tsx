@@ -14,14 +14,16 @@ import registry = require("dijit/registry");
 import on = require("dojo/on");
 import lang = require("dojo/_base/lang");
 
+import i18n = require("dojo/i18n!./nls/resources");
+
 import Button = require("dijit/form/Button");
 
 const CSS = {
     base: "contactUs",
-  };
+};
 
-  @subclass("esri.widgets.ContactUs")
-  class ContactUs extends declared(Widget) {
+@subclass("esri.widgets.ContactUs")
+class ContactUs extends declared(Widget) {
   
     @property()
     config: ApplicationConfig;
@@ -45,7 +47,7 @@ const CSS = {
 
     private _addLinkButton(element: Element) {
         const button = new Button({
-            label: "Contact Us",
+            label: i18n.contactUs,
             onClick: lang.hitch(this.config, function(){
                 window.open(`${this.contactUsURL}`, "_blank").focus();
             })          
