@@ -144,7 +144,15 @@ class MapExample {
 .esri-widget--button:hover {
   background: ${hoverColor};
   color: ${this.config.color};
-}`;
+}
+
+.headerButton {
+  border: 1px solid ${this.config.activeColor};
+}
+.headerButton .dijitButtonText {
+  color: ${this.config.color};
+}
+`;
   }
 
   logo = () => {
@@ -190,14 +198,15 @@ class MapExample {
     });
   }
 
-  contactUs = () => {
+  contactUs = (config: ApplicationConfig) => {
     require([
       "./widgets/contactUs/contactUs"
     ], function(
       ContactUs
     ) {
-      new ContactUs({ container: "contactUsNode" });
-    });  }
+      new ContactUs({ config: config, container: "contactUsNode" });
+    });  
+  }
 
   createUI = () => {
     this.logo();
@@ -241,7 +250,7 @@ class MapExample {
     borderContainer.placeAt(document.body);
     borderContainer.startup();
 
-    this.contactUs();
+    this.contactUs(this.config);
     this.languageMenu();
     this.createTools();
   };

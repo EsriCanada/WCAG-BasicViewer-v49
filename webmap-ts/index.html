@@ -22,6 +22,7 @@
     <script src="./app/dojo.js"></script>
     <script src="https://js.arcgis.com/4.9/"></script>
     <script>
+        // require(["Application/utils.d.ts", "Application/utils.js"]);
         require(["Application/init"]);
     </script>
 
@@ -43,7 +44,7 @@
             <a accesskey="8" href="#" aria-hidden="true" style="display:none;" id="skip-tableHeader">8. Skip to Table Header</a>
             <a accesskey="9" href="#" aria-hidden="true" style="display:none;" id="skip-table">9. Skip to Table</a>
         </div>
-        <div id="contactUsNode" class="headerButton"></div>
+        <div id="contactUsNode"></div>
         <div id="languageSelectNode" class="headerButton"></div>
     </header>
 
@@ -58,7 +59,7 @@
                 <div id="panelGeocoder"></div>
             </div>
         </div>
-        <div id="panelPages" tabindex="0" class="leftContent">
+        <div id="panelPages" class="leftContent">
         </div>
         <footer id="panelBottom" class="fc bg">
             <span id="panelBottomSpan">Press <strong>ALT + 0 to 9</strong> keys for fast navigation</span>

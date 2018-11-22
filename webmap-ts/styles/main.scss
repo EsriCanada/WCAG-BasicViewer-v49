@@ -476,8 +476,16 @@ header.top-nav {
 
 .headerButton {
     margin: 8px;
-    padding: 4px 8px;
+    padding: 0;
     font-size: 16px;
-    border: 1px solid rgb(117, 157, 192);
     border-radius: 4px;
+    span.dijitReset.dijitToggleButtonIconChar,
+    input.dijitOffScreen {
+        display: none;
+    }
+    .dijitButtonText {
+        padding: 5px 8px;
+        font-weight: normal;
+        display: block;
+    }
 }

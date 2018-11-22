@@ -6,6 +6,15 @@ import {subclass, declared, property} from "esri/core/accessorSupport/decorators
 import Widget = require("esri/widgets/Widget");
 
 import { renderable, tsx } from "esri/widgets/support/widget";
+import dom = require("dojo/dom");
+import domAttr = require("dojo/dom-attr");
+import domStyle = require("dojo/dom-style");
+import { ApplicationConfig } from "ApplicationBase/interfaces";
+import registry = require("dijit/registry");
+import on = require("dojo/on");
+import lang = require("dojo/_base/lang");
+
+import Button = require("dijit/form/Button");
 
 const CSS = {
     base: "contactUs",
@@ -14,25 +23,60 @@ const CSS = {
   @subclass("esri.widgets.ContactUs")
   class ContactUs extends declared(Widget) {
   
-    // @property()
-    // @renderable()
-    // emphasized: boolean = false;
+    @property()
+    config: ApplicationConfig;
   
     render() {
-        const greeting = this._getGreeting();
-        const classes = {
-        
-        };
+        const config: ApplicationConfig = this.config;
     
         return (
-        <div class={this.classes(CSS.base, classes)}>
-            {greeting}
-        </div>
+            <div class="headerButton fc" tabindex="0">
+                <div afterCreate={lang.hitch(this, this._addLinkButton)}></div>
+            </div>
         );
     }
 
-    private _getGreeting(): string {
-        return `Contact Us`;
+    postInitialize() {
+        if (this.isNullOrEmpty(this.config.contactUsURL)) {
+        // if (!this.contactUsURL.isNullOrEmpty()) {
+            domStyle.set(dom.byId('contactUsNode'), 'display', 'none');
+        }
+    }
+
+    private _addLinkButton(element: Element) {
+        const button = new Button({
+            label: "Contact Us",
+            onClick: lang.hitch(this.config, function(){
+                window.open(`${this.contactUsURL}`, "_blank").focus();
+            })          
+        }, element);
+        button.startup();
+
+        // console.log("button", button);
+
+        const focusElement: HTMLElement = button.domNode.querySelector(".dijitReset.dijitInline.dijitButtonText");
+        console.log("focusElement", focusElement);
+        if(focusElement) {
+            domAttr.set(focusElement, "tabindex", "0");
+            const inputElement: HTMLElement = element.querySelector(".dijitReset.dijitInline.dijitButtonText+input");
+            console.log("inputElement", inputElement);
+            if(inputElement) {
+
+                focusElement.addEventListener('keydown', (event) => {
+                    // alert("key press");
+                    // debugger;
+                    if(event.key === "Enter") {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        inputElement[0].click();
+                    }
+                });
+            }
+        }
+    }
+
+    private isNullOrEmpty(val:string): boolean {
+        return (val === undefined || val === null || val.trim() === '');
     }
         
 }
