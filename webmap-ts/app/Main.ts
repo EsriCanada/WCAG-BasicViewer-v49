@@ -146,9 +146,6 @@ class MapExample {
   color: ${this.config.color};
 }
 
-.headerButton {
-  border: 1px solid ${this.config.activeColor};
-}
 .headerButton .dijitButtonText {
   color: ${this.config.color};
 }
