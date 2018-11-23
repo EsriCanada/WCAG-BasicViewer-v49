@@ -188,13 +188,13 @@ class MapExample {
     });
   }
 
-  languageMenu = () => {
+  languageMenu = (config: ApplicationConfig) => {
     require([
       "./widgets/languages/languages"
     ], function(
       Languages
     ) {
-      new Languages({ container: "languageSelectNode" });
+      new Languages({ config: config, container: "languageSelectNode" });
     });
   }
 
@@ -251,7 +251,7 @@ class MapExample {
     borderContainer.startup();
 
     this.contactUs(this.config);
-    this.languageMenu();
+    this.languageMenu(this.config);
     this.createTools();
   };
 }

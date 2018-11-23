@@ -486,6 +486,6 @@ header.top-nav {
     .dijitButtonText {
         padding: 5px 8px;
         font-weight: normal;
-        display: block;
+        display: -webkit-inline-box;
     }
 }

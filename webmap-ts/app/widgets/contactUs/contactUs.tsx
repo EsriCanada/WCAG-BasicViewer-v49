@@ -14,9 +14,11 @@ import registry = require("dijit/registry");
 import on = require("dojo/on");
 import lang = require("dojo/_base/lang");
 
-import i18n = require("dojo/i18n!./nls/resources");
+import i18n = require("dojo/i18n!../nls/resources");
 
 import Button = require("dijit/form/Button");
+
+import { isNullOrWhiteSpace} from "../../utils";
 
 const CSS = {
     base: "contactUs",
@@ -29,8 +31,6 @@ class ContactUs extends declared(Widget) {
     config: ApplicationConfig;
   
     render() {
-        const config: ApplicationConfig = this.config;
-    
         return (
             <div class="headerButton fc" tabindex="0">
                 <div afterCreate={lang.hitch(this, this._addLinkButton)}></div>
@@ -39,7 +39,7 @@ class ContactUs extends declared(Widget) {
     }
 
     postInitialize() {
-        if (this.isNullOrEmpty(this.config.contactUsURL)) {
+        if (isNullOrWhiteSpace(this.config.contactUsURL)) {
         // if (!this.contactUsURL.isNullOrEmpty()) {
             domStyle.set(dom.byId('contactUsNode'), 'display', 'none');
         }
@@ -62,7 +62,7 @@ class ContactUs extends declared(Widget) {
             domAttr.remove(focusNode,"tabindex");
         }
         const focusElement: HTMLElement = button.domNode.querySelector(".dijitReset.dijitInline.dijitButtonText");
-        console.log("focusElement", focusElement);
+        // console.log("focusElement", focusElement);
         if(focusElement) {
             domAttr.set(focusElement, "tabindex", "0");
             const inputElement: HTMLElement = element.querySelector(".dijitReset.dijitInline.dijitButtonText+input");
@@ -81,11 +81,6 @@ class ContactUs extends declared(Widget) {
             }
         }
     }
-
-    private isNullOrEmpty(val:string): boolean {
-        return (val === undefined || val === null || val.trim() === '');
-    }
-        
 }
 
 export = ContactUs;

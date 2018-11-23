@@ -1,5 +1,0 @@
-define(
-    ({
-        contactUs: "Contactez nous",
-    })
-);

@@ -1,6 +1,15 @@
 define({
     root: ({
         contactUs: "Contact Us",
+        language: ({
+            aria: ({
+                changeLanguage: "Change the language to ",
+                currentLanguage: "Current language is ",
+            }),
+            language: "Language: ",
+            changeHere: "Change the language here.",
+            flag: "_ Flag"
+        })
     }),
     "ar": 1,
     "cs": 1,
