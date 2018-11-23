@@ -32,7 +32,7 @@ class ContactUs extends declared(Widget) {
   
     render() {
         return (
-            <div class="headerButton fc" tabindex="0">
+            <div class="headerButton fc">
                 <div afterCreate={lang.hitch(this, this._addLinkButton)}></div>
             </div>
         );
@@ -59,26 +59,6 @@ class ContactUs extends declared(Widget) {
         const focusNode: HTMLElement = button.domNode.querySelector(".dijitReset.dijitStretch.dijitButtonContents");
         if(focusNode) {
             domAttr.remove(focusNode,"aria-labelledby");
-            domAttr.remove(focusNode,"tabindex");
-        }
-        const focusElement: HTMLElement = button.domNode.querySelector(".dijitReset.dijitInline.dijitButtonText");
-        // console.log("focusElement", focusElement);
-        if(focusElement) {
-            domAttr.set(focusElement, "tabindex", "0");
-            const inputElement: HTMLElement = element.querySelector(".dijitReset.dijitInline.dijitButtonText+input");
-            console.log("inputElement", inputElement);
-            if(inputElement) {
-
-                focusElement.addEventListener('keydown', (event) => {
-                    // alert("key press");
-                    // debugger;
-                    if(event.key === "Enter") {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        inputElement[0].click();
-                    }
-                });
-            }
         }
     }
 }

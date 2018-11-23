@@ -39,7 +39,7 @@ const CSS = {
   
     render() {
         return (
-            <div class="headerButton fc" tabindex="0">
+            <div class="headerButton fc">
                 <div afterCreate={lang.hitch(this, lang.hitch(this, this._addLanguageMenu))}></div>
             </div>
         );
