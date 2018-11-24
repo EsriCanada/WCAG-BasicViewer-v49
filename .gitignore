@@ -41,3 +41,5 @@ webmap-ts/app/widgets/languages/Languages\.js
 webmap-ts/app/widgets/contactUs/contactUs\.js
 
 webmap-ts/app/utils\.js
+
+webmap-ts/app/widgets/toolbar/tool\.js

@@ -10,42 +10,33 @@ import domConstruct = require("dojo/dom-construct");
 
 import { renderable, tsx } from "esri/widgets/support/widget";
 
-import Tool = require("./Tool");
-
 const CSS = {
-    base: "toolbar",
+    base: "tool",
   };
 
-  @subclass("esri.widgets.Toolbar")
-  class Toolbar extends declared(Widget) {
+  @subclass("esri.widgets.Tool")
+  class Tool extends declared(Widget) {
   
     @property()
     config: ApplicationConfig;
   
     @property()
-    tools: Array<string>;
-  
+    tool: string;
+    
     render() {
         const classes = {
         };
         return (
-        <div class={this.classes(CSS.base, classes)} afterCreate={lang.hitch(this, lang.hitch(this, this._addTools))}>
+        <div class={this.classes(CSS.base, classes)} afterCreate={lang.hitch(this, lang.hitch(this, this._addTool))}>
         </div>
         );
     }
 
-    private _addTools(element: Element) {
-        console.log("tools");
-        const config = this.config;
-        this.tools.forEach((tool:string) => {
-            // console.log(tool);
-            // domConstruct.create("span", {innerHTML: tool+" "}, this.container);
-            new Tool({config: config, tool: tool, container: "panelTools" })
-        })
+    private _addTool(element: Element) {
+        console.log("tool");
+        domConstruct.create("span", {innerHTML: this.tool+" "}, this.container);
     }
 
 }
 
-export = Toolbar;
-
-
+export = Tool;

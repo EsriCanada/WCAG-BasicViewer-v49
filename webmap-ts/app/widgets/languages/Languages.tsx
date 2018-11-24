@@ -138,7 +138,7 @@ const CSS = {
 
         let currentHint = i18n.language.aria.currentLanguage+" "+(currentLanguage ? currentLanguage : document.documentElement.lang);
         let btnLbl = this.config.languageLabel ? i18n.language.language : "";
-        console.log("btnLbl", btnLbl);
+
         if(!currentIcon) {
             let shortName = document.documentElement.lang.substring(0,2).toUpperCase();
             let selectLang = languages.filter(function(l) {return l.shortName == shortName;});

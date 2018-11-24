@@ -52,7 +52,30 @@ class MapExample {
 
   config: ApplicationConfig;
 
+  tools: Array<string> = [
+    "instructions",
+    "details", 
+    "directions",
+    "overview",
+    "legend",
+    "layerManager",
+    "layers",
+    "mapKeyboardNavigation",
+    "infoPanel",
+    "geoCoding",
+    "basemap",
+    "features",
+    "filter",
+    "measure",
+    "edit",
+    "share",
+    "bookmarks",
+    "navigation",
+    "print"
+  ];
+
   public init(base: ApplicationBase): void {
+    // console.log("init");
     if (!base) {
       console.error("ApplicationBase is not defined");
       return;
@@ -175,13 +198,14 @@ class MapExample {
     }
   }
 
-  createTools = () => {
+  createTools = (config: ApplicationConfig, tools: Array<string>) => {
+    // console.log("createTools");
     require([
       "./widgets/toolbar/toolbar"
     ], function(
       Toolbar
     ) {
-      new Toolbar({ container: "panelTools" });
+      new Toolbar({ config: config, tools: tools, container: "panelTools" });
     });
   }
 
@@ -249,7 +273,7 @@ class MapExample {
 
     this.contactUs(this.config);
     this.languageMenu(this.config);
-    this.createTools();
+    this.createTools(this.config, this.tools);
   };
 }
 
