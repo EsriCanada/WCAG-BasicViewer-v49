@@ -189,8 +189,8 @@ const CSS = {
     }
 
     private Click(e) {
-        //console.log(e.target.parentElement);
-        const menuItemDataSet = e.target.closest('.dijitMenuItem')[0].dataset;
+        console.log(e.target, e.target.parentElement);
+        const menuItemDataSet = e.target.closest('.dijitMenuItem').dataset;
         const docLocale = query('html')[0]["lang"];
         let locale = menuItemDataSet.code;
         if(!locale || locale==='' || locale === "undefined" || locale === undefined)
