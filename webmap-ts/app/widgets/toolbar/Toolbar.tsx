@@ -10,8 +10,6 @@ import domConstruct = require("dojo/dom-construct");
 
 import { renderable, tsx } from "esri/widgets/support/widget";
 
-import Tool = require("./Tool");
-
 const CSS = {
     base: "toolbar",
   };
@@ -29,19 +27,48 @@ const CSS = {
         const classes = {
         };
         return (
-        <div class={this.classes(CSS.base, classes)} afterCreate={lang.hitch(this, lang.hitch(this, this._addTools))}>
+        <div class={this.classes(CSS.base, classes)} afterCreate={lang.hitch(this, this._addTools)}>
         </div>
         );
     }
 
     private _addTools(element: Element) {
-        console.log("tools");
-        const config = this.config;
-        this.tools.forEach((tool:string) => {
+        const link = document.createElement("link");
+        link.href = './app/widgets/toolbar/toolbar.css';
+        link.type = "text/css";
+        link.rel = "stylesheet";
+        link.id="ToolbarStyles";
+        document.head.appendChild(link);
+        
+        console.log("tools *");
+        const config:ApplicationConfig = this.config;
+        this.tools.forEach((tool:String) => {
             // console.log(tool);
-            // domConstruct.create("span", {innerHTML: tool+" "}, this.container);
-            new Tool({config: config, tool: tool, container: "panelTools" })
+            this._addTool(element, tool);
+            
         })
+    }
+
+    private _addTool(element: Element, tool:String) {
+        // console.log(tool, this.config);
+        const toolBtnId:string = `toolButton_${tool}`;
+        const icon:string = `images/icons_${this.config.icons}/${tool}.png`;
+        const tip=tool;
+        const toolFrame = domConstruct.create("div", {
+            class: "panelTool",
+            autofocus:true,
+            tabindex:0,
+            // title:tip
+            // aria-label="${tip}"
+            // data-tip="${tip}"
+        }, element)
+        domConstruct.create("input", {
+            // innerHTML:tool+" ", 
+            id:toolBtnId,
+            type:"image",
+            title:tip,
+            src:icon    
+        }, toolFrame);
     }
 
 }

@@ -60,7 +60,7 @@ class MapExample {
     "legend",
     "layerManager",
     "layers",
-    "mapKeyboardNavigation",
+    // "mapKeyboardNavigation",
     "infoPanel",
     "geoCoding",
     "basemap",
@@ -70,7 +70,7 @@ class MapExample {
     "edit",
     "share",
     "bookmarks",
-    "navigation",
+    // "navigation",
     "print"
   ];
 
@@ -155,8 +155,10 @@ class MapExample {
 .bg { background: ${this.config.theme}; }
 .fc { color: ${this.config.color}; }
 :focus { outline-color: ${focusColor}; }
-.dijitSplitterV {
-  background: ${this.config.color};
+.claro .dijitSplitterV,
+.claro .dijitSplitterH
+{
+  background: white;
   border-color: ${this.config.theme};
 }
 .esri-widget--button {
