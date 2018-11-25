@@ -47,13 +47,6 @@ const CSS = {
 
     private _addLanguageMenu(element: Element) {
 
-        const link = document.createElement("link");
-        link.href = "./app/widgets/languages/Languages.css";
-        link.type = "text/css";
-        link.rel = "stylesheet";
-        link.id="LanguagesStyles";
-        query('head')[0].appendChild(link);
-
         const menu = new DropDownMenu({
             style: "display: none;",
             //id: 'languageMenu',
