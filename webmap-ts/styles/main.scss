@@ -123,13 +123,11 @@ header.top-nav {
 }
 
 .panelTool {
-    float: left;
     padding: 1px;
     border-color: transparent;
     background-color: transparent;
-    position: relative;
     cursor: pointer;
-    background: transparent;
+    display: contents;
 }
 
 .panelTool input[type="image"] {

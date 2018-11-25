@@ -23,6 +23,8 @@ import registry = require("dijit/registry");
 import dom = require("dojo/dom");
 import domConstruct = require("dojo/dom-construct");
 
+import { LightenDarkenColor } from "./utils";
+
 const CSS = {
   loading: "configurable-application--loading"
 };
@@ -150,6 +152,7 @@ class MapExample {
         const focusColor = this.config.focusColor;
         const hoverColor = this.config.hoverColor;
         const activeColor = this.config.activeColor;
+        const borderActiveColor = LightenDarkenColor(this.config.activeColor, 75);
 
         configurableStyles.innerHTML = `
 .bg { background: ${this.config.theme}; }
@@ -174,6 +177,15 @@ class MapExample {
 .headerButton .dijitButtonText {
   color: ${this.config.color};
 }
+
+.panelTool input[type="image"]:active {
+  background-color: ${activeColor};
+  outline-color: ${borderActiveColor};
+}
+.panelTool input[type="image"]:hover {
+  background-color: ${hoverColor};
+}
+
 `;
   }
 

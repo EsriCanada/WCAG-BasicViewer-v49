@@ -33,13 +33,6 @@ const CSS = {
     }
 
     private _addTools(element: Element) {
-        const link = document.createElement("link");
-        link.href = './app/widgets/toolbar/toolbar.css';
-        link.type = "text/css";
-        link.rel = "stylesheet";
-        link.id="ToolbarStyles";
-        document.head.appendChild(link);
-        
         console.log("tools *");
         const config:ApplicationConfig = this.config;
         this.tools.forEach((tool:String) => {
