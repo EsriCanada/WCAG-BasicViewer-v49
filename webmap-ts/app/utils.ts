@@ -6,7 +6,7 @@ export function stripTags(val:string): string {
     return val.replace(/<[^>]*>/g, "", );
 }
 
-export function LightenDarkenColor(col, amt) {
+export function LightenDarkenColor(col: string, amt: number): string {
     var usePound = false;
   
     if (col[0] == "#") {

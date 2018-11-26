@@ -17,6 +17,12 @@ const CSS = {
     base: "toolbar",
   };
 
+  interface Badge {
+    toolBadgeEvn: string;
+    toolBadgeImg: string;
+    toolBadgeTip: string
+    }
+
   @subclass("esri.widgets.Toolbar")
   class Toolbar extends declared(Widget) {
   
@@ -38,33 +44,73 @@ const CSS = {
     private _addTools(element: Element) {
         console.log("tools *");
         const config:ApplicationConfig = this.config;
-        this.tools.forEach((tool:String) => {
+        this.tools.forEach((tool:string) => {
             // console.log(tool);
-            this._addTool(element, tool);
+            switch (tool) {
+                case "details" :
+                    break;
+                    case "instructions" :
+                    this._addInstructions(element, tool);
+                    break;
+                case "directions" :
+                    this._addDirections(element, tool);
+                    break;
+                default:
+                    this._addTool(element, tool);
+                    break;
+            }
             
         })
     }
 
-    private _addTool(element: Element, tool:String) {
+    private _addTool(element: Element, tool:string, loader: boolean=false, toolBadge? : Badge) {
         // console.log(tool, this.config);
         const toolBtnId:string = `toolButton_${tool}`;
         const icon:string = `images/icons_${this.config.icons}/${tool}.png`;
         const tip = i18n.tooltips[tool] || tool;
         const toolFrame = domConstruct.create("div", {
             class: "panelTool",
-            autofocus:true,
-            tabindex:0,
-            // title:tip
-            // aria-label="${tip}"
-            // data-tip="${tip}"
+            // autofocus:true,
+            // tabindex:0,
+            // title: tip,
+            // "aria-label": tip,
+            // "data-tip": tip
         }, element)
         domConstruct.create("input", {
             // innerHTML:tool+" ", 
             id:toolBtnId,
             type:"image",
             title:tip,
-            src:icon    
+            src:icon,
+            "aria-label": tip, 
         }, toolFrame);
+        if(toolBadge) {
+            // if(typeof(toolBadge) === "Badge")
+            domConstruct.create("img",{
+                class: "setIndicator",
+                // style: "display:none;",
+                src: toolBadge.toolBadgeImg,
+                tabindex: "0",
+                id: `badge_${toolBadge.toolBadgeEvn}`,
+                    // toolBadgeImg: string;
+                    // toolBadgeTip: string}',
+                alt: toolBadge.toolBadgeTip,
+                title: toolBadge.toolBadgeTip
+                },toolFrame
+            )
+        }
+    }
+
+    private _addInstructions(element: Element, tool:string): void {
+        this._addTool(element, tool);
+    }
+
+    private _addDirections(element: Element, tool:string): void {
+        this._addTool(element, tool, true, { 
+            toolBadgeEvn: "route",
+            toolBadgeImg: "images/Route.png",
+            toolBadgeTip: i18n.badgesTips.directions,
+        });
     }
 
 }

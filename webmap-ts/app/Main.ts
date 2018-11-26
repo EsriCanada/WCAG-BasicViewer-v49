@@ -184,7 +184,6 @@ class MapExample {
 .panelTool input[type="image"]:hover {
   background-color: ${hoverColor};
 }
-
 `;
   }
 

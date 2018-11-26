@@ -32,7 +32,15 @@ define({
             "directions": "Directions",
             "share": "Share",
             "vsplitter": "Click and drag or focus and use left/right arrows to resize. \nDouble-click or type Enter for optimal size."
-        })
+        }),
+        badgesTips: {
+            "reverseLocation": "Showing Location",
+            "directions": "Showing Itinerary",
+            "featureSelected": "Feature Selected",
+            "someFilters": "Some Filters Apply",
+            "searchResultInfo": "Shows Search Result Info",
+            "followTheMap": "Follow The Map Mode",
+        }
     }),
     "ar": 1,
     "cs": 1,

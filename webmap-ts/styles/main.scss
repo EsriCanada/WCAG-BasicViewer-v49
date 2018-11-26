@@ -127,7 +127,8 @@ header.top-nav {
     border-color: transparent;
     background-color: transparent;
     cursor: pointer;
-    display: contents;
+    position: relative;
+    display: inline-block;
 }
 
 .panelTool input[type="image"] {
@@ -521,4 +522,13 @@ header.top-nav {
     .langMenuItemIcon {
         height: 20px;
     }
+}
+
+.setIndicator {
+    width: 15px;
+    height: 15px;
+    top: -1px;
+    right: -6px;
+    position: absolute;
+    z-index: 1000;
 }

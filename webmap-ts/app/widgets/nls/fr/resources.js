@@ -32,6 +32,14 @@ define(
             "filter": "Filtres",
             "features": "Liste de caractéristiques",
             "vsplitter": "Cliquer et déplacer avec la souris ou utiliser le flèches gauche droite quand cet outil est activé. \nDouble-cliquer ou presser ‘Entrer’ pour ajuster à la taille optimale."
-        })
+        }),
+        badgesTips: {
+            "reverseLocation": "Afficher l'adresse du lieu",
+            "directions": "Montrer l'itinéraire",
+            "featureSelected": "Caractéristique sélectionnée",
+            "someFilters": "Appliqué quelques filtres",
+            "searchResultInfo": "Montre Recherche Résultat",
+            "followTheMap": "Mode Suivez la carte",
+        }
     })
 );
