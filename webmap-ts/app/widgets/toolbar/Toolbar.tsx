@@ -10,6 +10,9 @@ import domConstruct = require("dojo/dom-construct");
 
 import { renderable, tsx } from "esri/widgets/support/widget";
 
+import i18n = require("dojo/i18n!../nls/resources");
+
+
 const CSS = {
     base: "toolbar",
   };
@@ -46,7 +49,7 @@ const CSS = {
         // console.log(tool, this.config);
         const toolBtnId:string = `toolButton_${tool}`;
         const icon:string = `images/icons_${this.config.icons}/${tool}.png`;
-        const tip=tool;
+        const tip = i18n.tooltips[tool] || tool;
         const toolFrame = domConstruct.create("div", {
             class: "panelTool",
             autofocus:true,

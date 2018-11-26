@@ -152,6 +152,7 @@ class MapExample {
         const focusColor = this.config.focusColor;
         const hoverColor = this.config.hoverColor;
         const activeColor = this.config.activeColor;
+
         const borderActiveColor = LightenDarkenColor(this.config.activeColor, 75);
 
         configurableStyles.innerHTML = `
@@ -173,11 +174,9 @@ class MapExample {
   background: ${hoverColor};
   color: ${this.config.color};
 }
-
 .headerButton .dijitButtonText {
   color: ${this.config.color};
 }
-
 .panelTool input[type="image"]:active {
   background-color: ${activeColor};
   outline-color: ${borderActiveColor};
