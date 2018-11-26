@@ -7,10 +7,12 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Widget = require("esri/widgets/Widget");
 import lang = require("dojo/_base/lang");
 import domConstruct = require("dojo/dom-construct");
+import registry = require("dijit/registry");
 
 import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
+import ToolPage = require("./ToolPage");
 
 
 const CSS = {
@@ -36,13 +38,19 @@ const CSS = {
         const classes = {
         };
         return (
-        <div class={this.classes(CSS.base, classes)} afterCreate={lang.hitch(this, this._addTools)}>
+        <div class={this.classes(CSS.base, classes)} afterCreate={this._addTools}>
         </div>
         );
     }
 
-    private _addTools(element: Element) {
-        console.log("tools *");
+    private has = (tool:string) : boolean => {
+        // console.log("has", tool, this.config[`tool_${tool}`]);
+        const hasTool = this.config[`tool_${tool}`]
+        return hasTool != 'undefined' && hasTool;
+    }
+
+    private _addTools = (element: Element) : void => {
+        // console.log("tools *");
         const config:ApplicationConfig = this.config;
         this.tools.forEach((tool:string) => {
             // console.log(tool);
@@ -51,10 +59,10 @@ const CSS = {
                     case "details" :
                         break;
                         case "instructions" :
-                        this._addInstructions(element, tool);
+                        this._addInstructions(element);
                         break;
                     case "directions" :
-                        this._addDirections(element, tool);
+                        this._addDirections(element);
                         break;
                     default:
                         this._addTool(element, tool);
@@ -65,7 +73,7 @@ const CSS = {
         })
     }
 
-    private _addTool(element: Element, tool:string, loader: boolean=false, toolBadge? : Badge) {
+    private _addTool = (element: Element, tool:string, loader: boolean=false, toolBadge? : Badge) => {
         // console.log(tool, this.config);
         const toolBtnId:string = `toolButton_${tool}`;
         const icon:string = `images/icons_${this.config.icons}/${tool}.png`;
@@ -103,22 +111,30 @@ const CSS = {
         }
     }
 
-    private has = (tool:string) : boolean => {
-        // console.log("has", tool, this.config[`tool_${tool}`]);
-        const hasTool = this.config[`tool_${tool}`]
-        return hasTool != 'undefined' && hasTool;
+    private _addPage = (tool: string, loader?: boolean) : void => {
+        require([
+            "./ToolPage"
+          ], lang.hitch(this, function(
+            ToolPage
+          ) {
+            // console.log("_addPage");
+            new ToolPage({ config: this.config, tool: tool, container: "panelPages" });
+          }));
     }
 
-    private _addInstructions(element: Element, tool:string): void {
-        this._addTool(element, tool);
+    private _addInstructions = (element: Element): void => {
+        this._addTool(element, "instructions");
     }
 
-    private _addDirections(element: Element, tool:string): void {
-        this._addTool(element, tool, true, { 
+    private _addDirections = (element: Element): void => {
+        this._addTool(element, "directions", true, { 
             toolBadgeEvn: "route",
             toolBadgeImg: "images/Route.png",
             toolBadgeTip: i18n.badgesTips.directions,
         });
+        this._addPage("directions");
+        setTimeout(
+        () => console.log("directionsPage", document.getElementById("pagetitle_directions")), 1000);
     }
 
 }
