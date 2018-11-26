@@ -144,7 +144,7 @@ class MapExample {
     document.body.classList.remove(CSS.loading);
   }
 
-  colors = () => {
+  private colors = () : void => {
     const configurableStyles = domConstruct.create("style", {
         id: "configurableStyles"
         }, document.head);
@@ -187,7 +187,7 @@ class MapExample {
 `;
   }
 
-  logo = () => {
+  private logo = () : void => {
     if (this.config.logo) {
       let altText = (this.config.logoAltText && this.config.logoAltText !== "") ? this.config.logoAltText : "Logo";
       if (!altText || altText === "") { altText = this.config.title; }
@@ -210,7 +210,7 @@ class MapExample {
     }
   }
 
-  createTools = (config: ApplicationConfig, tools: Array<string>) => {
+  private createTools = (config: ApplicationConfig, tools: Array<string>) => {
     // console.log("createTools");
     require([
       "./widgets/toolbar/toolbar"
@@ -221,7 +221,7 @@ class MapExample {
     });
   }
 
-  languageMenu = (config: ApplicationConfig) => {
+  private languageMenu = (config: ApplicationConfig) : void => {
     require([
       "./widgets/languages/languages"
     ], function(
@@ -231,7 +231,7 @@ class MapExample {
     });
   }
 
-  contactUs = (config: ApplicationConfig) => {
+  private contactUs = (config: ApplicationConfig) : void => {
     require([
       "./widgets/contactUs/contactUs"
     ], function(
@@ -241,7 +241,7 @@ class MapExample {
     });  
   }
 
-  createUI = () => {
+  private createUI = () : void => {
     this.logo();
     setPageTitle(this.config.title);
     document.getElementById("panelText").innerHTML = this.config.title;

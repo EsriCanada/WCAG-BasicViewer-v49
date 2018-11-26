@@ -46,18 +46,20 @@ const CSS = {
         const config:ApplicationConfig = this.config;
         this.tools.forEach((tool:string) => {
             // console.log(tool);
-            switch (tool) {
-                case "details" :
-                    break;
-                    case "instructions" :
-                    this._addInstructions(element, tool);
-                    break;
-                case "directions" :
-                    this._addDirections(element, tool);
-                    break;
-                default:
-                    this._addTool(element, tool);
-                    break;
+            if(this.has(tool)) {
+                switch (tool) {
+                    case "details" :
+                        break;
+                        case "instructions" :
+                        this._addInstructions(element, tool);
+                        break;
+                    case "directions" :
+                        this._addDirections(element, tool);
+                        break;
+                    default:
+                        this._addTool(element, tool);
+                        break;
+                }
             }
             
         })
@@ -99,6 +101,12 @@ const CSS = {
                 },toolFrame
             )
         }
+    }
+
+    private has = (tool:string) : boolean => {
+        // console.log("has", tool, this.config[`tool_${tool}`]);
+        const hasTool = this.config[`tool_${tool}`]
+        return hasTool != 'undefined' && hasTool;
     }
 
     private _addInstructions(element: Element, tool:string): void {
