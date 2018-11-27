@@ -7,7 +7,9 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Widget = require("esri/widgets/Widget");
 import lang = require("dojo/_base/lang");
 import domConstruct = require("dojo/dom-construct");
-import registry = require("dijit/registry");
+import query = require("dojo/query");
+import domClass = require("dojo/dom-class");
+
 
 import { renderable, tsx } from "esri/widgets/support/widget";
 
@@ -36,28 +38,31 @@ const CSS = {
     toolBadge : Badge = null;
 
     @property()
-    id: string;
+    myPanelTool: Element;
   
     @property()
     @renderable()
     hide: boolean;
   
+    @property()
+    @renderable()
+    active: boolean;
+  
     constructor() {
         super();
         this.hide=false;
-        this.id=`toolButton_${this.tool}`;
+        this.active=false;
+        // this.id=`toolButton_${this.tool}`;
     }
             
     render() {
-        // const classes = {
-        //     [CSS.hideAttr]: hide;
-        // };
+        const active = this.active? "panelTool active" : "panelTool";
         const dynamicStyles = {
             display: this.hide ? "none" : ""
           };
         return (
         <div 
-            class={this.classes(CSS.base)} 
+            class={active}
             styles={dynamicStyles} 
             afterCreate={this._addTool} 
             bind={this} 
@@ -67,7 +72,7 @@ const CSS = {
     }
 
     private _addTool = (element: Element) => {
-        console.log(this.tool, this.config);
+        // console.log(this.tool, this.config);
         const toolBtnId:string = `toolButton_${this.tool}`;
         const icon:string = `images/icons_${this.config.icons}/${this.tool}.png`;
         const tip = i18n.tooltips[this.tool] || this.tool;
@@ -78,6 +83,7 @@ const CSS = {
             title:tip,
             src:icon,
             "aria-label": tip, 
+            click: this._execute
         }, element);
         if(this.toolBadge) {
             // if(typeof(toolBadge) === "Badge")
@@ -85,7 +91,7 @@ const CSS = {
                 class: "setIndicator",
                 // style: "display:none;",
                 src: this.toolBadge.toolBadgeImg,
-                tabindex: "0",
+                // tabindex: "0",
                 id: `badge_${this.toolBadge.toolBadgeEvn}`,
                     // toolBadgeImg: string;
                     // toolBadgeTip: string}',
@@ -93,6 +99,23 @@ const CSS = {
                 title: this.toolBadge.toolBadgeTip
                 }, element
             )
+        }
+    }
+
+    private _execute = (evn) => {
+        const panelsTool = query(".panelTool", "panelTools");
+        // console.log("execute", evn, panelsTool);
+        panelsTool.forEach((panel) => {
+            if(this.myPanelTool != panel)
+                domClass.remove(panel, "active");
+        })
+            
+        this.active = !this.active;
+        if(!this.active) {
+            const instructionsBtn = document.getElementById("toolButton_instructions");
+            if(instructionsBtn) {
+                setTimeout(() => instructionsBtn.click() ,100);
+            }
         }
     }
 

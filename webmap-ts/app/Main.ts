@@ -177,7 +177,7 @@ class MapExample {
 .headerButton .dijitButtonText {
   color: ${this.config.color};
 }
-.panelTool input[type="image"]:active {
+.panelTool.active input[type="image"] {
   background-color: ${activeColor};
   outline-color: ${borderActiveColor};
 }
