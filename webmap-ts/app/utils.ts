@@ -1,3 +1,5 @@
+import { ApplicationConfig } from "ApplicationBase/interfaces";
+
 export function isNullOrWhiteSpace (val:string): boolean {
     return (val === undefined || val === null || val.trim() === '');
 }
@@ -29,4 +31,10 @@ export function LightenDarkenColor(col: string, amt: number): string {
     else if (g < 0) g = 0;
  
     return (usePound?"#":"") + (g | (b << 8) | (r << 16)).toString(16);
+}
+
+export function Has(config: ApplicationConfig, tool:string) : boolean {
+    // console.log("has", tool, this.config[`tool_${tool}`]);
+    const hasTool = config[`tool_${tool}`]
+    return hasTool != 'undefined' && hasTool;
 }

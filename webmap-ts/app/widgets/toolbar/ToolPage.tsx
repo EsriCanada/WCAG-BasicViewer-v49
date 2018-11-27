@@ -12,14 +12,20 @@ import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
 
+import { Has } from "../../utils";
+
   @subclass("esri.widgets.ToolPage")
-  class ToolPage extends declared(Widget) {
+    class ToolPage extends declared(Widget) {
   
     @property()
     config: ApplicationConfig;
   
     @property()
     tool: string;
+
+    constructor() {
+        super();
+    }    
   
     render() {
         const classes = {

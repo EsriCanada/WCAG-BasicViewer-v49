@@ -12,18 +12,14 @@ import registry = require("dijit/registry");
 import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
+import Tool = require("./Tool");
+import { Badge } from  "./Badge";
 import ToolPage = require("./ToolPage");
-
+import { Has } from "../../utils";
 
 const CSS = {
     base: "toolbar",
   };
-
-  interface Badge {
-    toolBadgeEvn: string;
-    toolBadgeImg: string;
-    toolBadgeTip: string
-    }
 
   @subclass("esri.widgets.Toolbar")
   class Toolbar extends declared(Widget) {
@@ -34,6 +30,10 @@ const CSS = {
     @property()
     tools: Array<string>;
   
+    constructor() {
+        super();
+    }
+            
     render() {
         const classes = {
         };
@@ -43,18 +43,12 @@ const CSS = {
         );
     }
 
-    private has = (tool:string) : boolean => {
-        // console.log("has", tool, this.config[`tool_${tool}`]);
-        const hasTool = this.config[`tool_${tool}`]
-        return hasTool != 'undefined' && hasTool;
-    }
-
     private _addTools = (element: Element) : void => {
         // console.log("tools *");
         const config:ApplicationConfig = this.config;
         this.tools.forEach((tool:string) => {
             // console.log(tool);
-            if(this.has(tool)) {
+            if(Has(this.config, tool)) {
                 switch (tool) {
                     case "details" :
                         break;
@@ -75,41 +69,18 @@ const CSS = {
 
     private _addTool = (element: Element, tool:string, loader: boolean=false, toolBadge? : Badge) => {
         // console.log(tool, this.config);
-        const toolBtnId:string = `toolButton_${tool}`;
-        const icon:string = `images/icons_${this.config.icons}/${tool}.png`;
-        const tip = i18n.tooltips[tool] || tool;
-        const toolFrame = domConstruct.create("div", {
-            class: "panelTool",
-            // autofocus:true,
-            // tabindex:0,
-            // title: tip,
-            // "aria-label": tip,
-            // "data-tip": tip
-        }, element)
-        domConstruct.create("input", {
-            // innerHTML:tool+" ", 
-            id:toolBtnId,
-            type:"image",
-            title:tip,
-            src:icon,
-            "aria-label": tip, 
-        }, toolFrame);
-        if(toolBadge) {
-            // if(typeof(toolBadge) === "Badge")
-            domConstruct.create("img",{
-                class: "setIndicator",
-                // style: "display:none;",
-                src: toolBadge.toolBadgeImg,
-                tabindex: "0",
-                id: `badge_${toolBadge.toolBadgeEvn}`,
-                    // toolBadgeImg: string;
-                    // toolBadgeTip: string}',
-                alt: toolBadge.toolBadgeTip,
-                title: toolBadge.toolBadgeTip
-                },toolFrame
-            )
-        }
+
+        require([
+            "./Tool"
+          ], lang.hitch(this, function(
+            Tool
+          ) {
+            // console.log("_addPage");
+            new Tool({ config: this.config, tool: tool, loader: loader, toolBadge: toolBadge, 
+                container: domConstruct.create("div", {}, element) });
+          }));
     }
+    
 
     private _addPage = (tool: string, loader?: boolean) : void => {
         require([
