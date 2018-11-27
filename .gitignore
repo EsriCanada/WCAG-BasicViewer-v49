@@ -43,3 +43,7 @@ webmap-ts/app/widgets/contactUs/contactUs\.js
 webmap-ts/app/utils\.js
 
 webmap-ts/app/widgets/toolbar/tool\.js
+
+webmap-ts/app/widgets/toolbar/ToolPage\.js
+
+webmap-ts/app/widgets/toolbar/Badge\.js
