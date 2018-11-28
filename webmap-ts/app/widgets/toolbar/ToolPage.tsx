@@ -23,20 +23,27 @@ import { Has } from "../../utils";
     @property()
     tool: string;
 
+    @property()
+    @renderable()
+    hide: boolean = true;
+
     constructor() {
         super();
     }    
   
     render() {
-        const classes = {
-        };
+        const dynamicStyles = {
+            display: this.hide ? "none" : ""
+          };
+        
         const pageTitle: string = i18n.tooltips[this.tool] || this.tool;
         const pageId = `page_${this.tool}`;
         const name=this.tool;
         const panelClass="";
         return (
-<div class="page hideAttr">
-	<div 
+<div class="page">
+    <div 
+        styles={dynamicStyles}
 		class="pageContent"
         role="dialog"
         id={pageId}

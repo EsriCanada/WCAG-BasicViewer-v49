@@ -76,36 +76,36 @@ const CSS = {
             Tool
           ) {
             // console.log("_addPage");
-            new Tool({ config: this.config, tool: tool, loader: loader, toolBadge: toolBadge, 
+            new Tool({ config: this.config, tool: tool, toolBar: this, toolBadge: toolBadge, 
                 container: domConstruct.create("div", {}, element) });
           }));
     }
     
 
-    private _addPage = (tool: string, loader?: boolean) : void => {
-        require([
-            "./ToolPage"
-          ], lang.hitch(this, function(
-            ToolPage
-          ) {
-            // console.log("_addPage");
-            new ToolPage({ config: this.config, tool: tool, container: "panelPages" });
-          }));
-    }
+    // private _addPage = (tool: string, loader?: boolean) : void => {
+    //     require([
+    //         "./ToolPage"
+    //       ], lang.hitch(this, function(
+    //         ToolPage
+    //       ) {
+    //         // console.log("_addPage");
+    //         new ToolPage({ config: this.config, tool: tool, container: "panelPages" });
+    //       }));
+    // }
 
     private _addInstructions = (element: Element): void => {
         this._addTool(element, "instructions");
     }
 
     private _addDirections = (element: Element): void => {
-        this._addTool(element, "directions", true, { 
+        var directions = this._addTool(element, "directions", true, { 
             toolBadgeEvn: "route",
             toolBadgeImg: "images/Route.png",
             toolBadgeTip: i18n.badgesTips.directions,
         });
-        this._addPage("directions");
-        setTimeout(
-        () => console.log("directionsPage", document.getElementById("pagetitle_directions")), 1000);
+        // this._addPage("directions");
+        // setTimeout(
+        // () => console.log("directionsPage", document.getElementById("pagetitle_directions")), 1000);
     }
 
 }
