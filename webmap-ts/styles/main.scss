@@ -628,3 +628,68 @@ header.top-nav {
         justify-content: space-evenly;
     }
 }
+
+.more_help {
+    display: block;
+    float: right;
+}
+
+#instructionsDiv {
+    padding: 0 5px;
+    overflow-y: auto;
+    width: calc(100% - 10px);
+}
+
+@media only screen and (min-width: 720px) {
+    #instructionsDiv {
+        padding: 0 10px;
+        width: calc(100% - 20px);
+    }
+}
+
+.instructionsTitle {
+    padding: 0;
+    margin: 2px;
+    font-size: 14px;
+}
+
+@media only screen and (min-width: 720px) {
+    .instructionsTitle {
+        margin: 4px;
+        font-size: 18px;
+    }
+}
+
+#instructionsList {
+    margin: 0;
+    -webkit-padding-start: 16px;
+    font-size: 12px;
+}
+
+@media only screen and (min-width: 720px) {
+    #instructionsList {
+        -webkit-padding-start: 20px;
+        font-size: 14px;
+    }
+}
+
+myKey {
+    display: inline;
+    text-transform: uppercase;
+    border: #a1a1a1 1px solid;
+    border-radius: 3px;
+    padding: 0 4px;
+    background: #dbdbdb;
+    color: black;
+    font-weight: bold;
+    font-size: 12px;
+    font-family: arial;
+    margin: 0 1px;
+    filter: drop-shadow(1px 1px 2px rgba(127, 127, 127, 0.9));
+}
+
+myKey img {
+    display: inline-block;
+    height: 13px;
+    margin-bottom: -2px;
+}
