@@ -8,6 +8,7 @@ import Widget = require("esri/widgets/Widget");
 import lang = require("dojo/_base/lang");
 import domConstruct = require("dojo/dom-construct");
 import registry = require("dijit/registry");
+import Deferred = require("dojo/Deferred");
 
 import { renderable, tsx } from "esri/widgets/support/widget";
 
@@ -67,32 +68,43 @@ const CSS = {
         })
     }
 
-    private _addTool = (element: Element, tool:string, loader: boolean=false, toolBadge? : Badge) => {
+    private _addTool = (element: Element, tool:string) : any => {
         // console.log(tool, this.config);
+        const deferrer = new Deferred();
 
         require([
             "./Tool"
-          ], lang.hitch(this, function(
-            Tool
-          ) {
-            new Tool({ config: this.config, tool: tool, toolBar: this, toolBadge: toolBadge, 
-                container: domConstruct.create("div", {}, element) });
-          }));
+            ], lang.hitch(this, function(
+                Tool
+            ) {
+                const t = new Tool({ 
+                    config: this.config, 
+                    tool: tool,
+                    container: domConstruct.create("div", {}, element) });
+                deferrer.resolve(t);
+            }));
+        return deferrer.promise;
     }
     
     private _addInstructions = (element: Element): void => {
-        this._addTool(element, "instructions");
+        this._addTool(element, "instructions").then((instructions) => {
+            instructions.pageReady.then((tool) => {
+                instructions.active = true;
+                // instructions.myToolPage
+            })
+        });
     }
 
     private _addDirections = (element: Element): void => {
-        var directions = this._addTool(element, "directions", true, { 
-            toolBadgeEvn: "route",
-            toolBadgeImg: "images/Route.png",
-            toolBadgeTip: i18n.badgesTips.directions,
+        this._addTool(element, "directions").then((directions) => {
+            const badge = directions.addBadge({ 
+                toolBadgeEvn: "route",
+                toolBadgeImg: "images/Route.png",
+                toolBadgeTip: i18n.badgesTips.directions,
+            });
+            directions.showBadge(badge);
+            directions.hideBadge(badge);
         });
-        // this._addPage("directions");
-        // setTimeout(
-        // () => console.log("directionsPage", document.getElementById("pagetitle_directions")), 1000);
     }
 
 }

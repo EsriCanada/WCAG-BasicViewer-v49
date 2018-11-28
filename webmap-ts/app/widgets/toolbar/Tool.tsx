@@ -14,7 +14,6 @@ import domClass = require("dojo/dom-class");
 import domStyle = require("dojo/dom-style");
 import Deferred = require("dojo/Deferred");
 
-
 import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
@@ -40,50 +39,44 @@ const CSS = {
     toolBar: ToolBar;
     
     @property()
-    toolBadge : Badge = null;
-
-    @property()
     myPanelTool: Element;
   
     @property()
     myToolPage : ToolPage;
 
-    // @property()
-    // @renderable()
-    // hide: boolean;
-  
     @property()
     @renderable()
     active: boolean;
   
     constructor() {
         super();
-        // this.hide=false;
         this.active=false;
-        // this.id=`toolButton_${this.tool}`;
     }
             
     render() {
         const active = this.active? "panelTool active" : "panelTool";
-        // const dynamicStyles = {
-        //     display: this.hide ? "none" : ""
-        //   };
         return (
         <div 
             class={active}
             afterCreate={this._addTool} 
-            bind={this} 
             >
         </div>
         );
     }
 
+    private rootNode : Element = null;
+    private inputNode : Element = null;
+
+    public pageReady : any = null;
+    
     private _addTool = (element: Element) => {
         // console.log(this.tool, this.config);
+        this.rootNode = element;
         const toolBtnId:string = `toolButton_${this.tool}`;
         const icon:string = `images/icons_${this.config.icons}/${this.tool}.png`;
         const tip = i18n.tooltips[this.tool] || this.tool;
-        domConstruct.create("input", {
+        // const ariaTip = `${tip}${this.toolBadge?(". Has badge: "+this.toolBadge.toolBadgeTip):""}`;
+        this.inputNode = domConstruct.create("input", {
             // innerHTML:tool+" ", 
             id:toolBtnId,
             type:"image",
@@ -92,23 +85,39 @@ const CSS = {
             "aria-label": tip, 
             click: lang.hitch(this, this._execute)
         }, element);
-        if(this.toolBadge) {
-            // if(typeof(toolBadge) === "Badge")
-            domConstruct.create("img",{
-                class: "setIndicator",
-                // style: "display:none;",
-                src: this.toolBadge.toolBadgeImg,
-                // tabindex: "0",
-                id: `badge_${this.toolBadge.toolBadgeEvn}`,
-                    // toolBadgeImg: string;
-                    // toolBadgeTip: string}',
-                alt: this.toolBadge.toolBadgeTip,
-                title: this.toolBadge.toolBadgeTip
-                }, element
-            )
-        };
-        this._addPage(this.tool).then((toolPage) => this.myToolPage = toolPage);
+
+        this.pageReady = this._addPage(this.tool).then((toolPage) => this.myToolPage = toolPage);
         // console.log("_addPage", this);
+    }
+
+    public addBadge = (toolBadge: Badge) : Element => {
+        return domConstruct.create("img",{
+            class: "setIndicator",
+            style: "display:none;",
+            src: toolBadge.toolBadgeImg,
+            // tabindex: "0",
+            id: `badge_${toolBadge.toolBadgeEvn}`,
+                // toolBadgeImg: string;
+                // toolBadgeTip: string}',
+            alt: toolBadge.toolBadgeTip,
+            title: toolBadge.toolBadgeTip
+            }, this.rootNode
+        )
+    }
+
+    public showBadge = (badgeElement: Element) : void => {
+
+        // const ariaTip = `${tip}${this.toolBadge?(". Has badge: "+this.toolBadge.toolBadgeTip):""}`;
+
+        domStyle.set(badgeElement, "display", "");
+        // console.log("showBadge", badgeElement);
+    }
+
+    public hideBadge = (badgeElement: Element) : void => {
+
+        // const ariaTip = `${tip}`;
+
+        domStyle.set(badgeElement, "display", "none");
     }
 
     private _execute = (evn) => {

@@ -50,15 +50,14 @@ import { Has } from "../../utils";
         aria-labelledby={"pagetitle_"+name}>
         <div
         	id={"pageHeader_"+name}
-            class="pageHeader fc bg"
-            data-dojo-attach-point="pageHeader">
+            class="pageHeader fc bg">
             <h2
             	class="pageTitle fc"
                 id={"pagetitle_"+name}>{pageTitle}</h2>
             <div
             	id={"loading_"+name}
                 class="hideLoading small-loading"
-                data-dojo-attach-point="LoadingIndicator">
+                >
             </div>
         </div>
 
@@ -66,7 +65,7 @@ import { Has } from "../../utils";
         	class={"pageBody"+panelClass}
             tabindex="0"
             id={"pageBody_"+name}
-            data-dojo-attach-point="pageBody">
+            >
 
         </div>
     </div>
