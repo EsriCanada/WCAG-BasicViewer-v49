@@ -27,6 +27,9 @@ import { Has } from "../../utils";
     @renderable()
     hide: boolean = true;
 
+    @property()
+    pageContent: Element;
+
     constructor() {
         super();
     }    
@@ -65,6 +68,7 @@ import { Has } from "../../utils";
         	class={"pageBody"+panelClass}
             tabindex="0"
             id={"pageBody_"+name}
+            afterCreate={this._pageContentReady}
             >
 
         </div>
@@ -73,7 +77,9 @@ import { Has } from "../../utils";
         );
     }
 
-    
+    private _pageContentReady = (element: Element) : void => {
+        this.pageContent = element;
+    }
 }
 
 export = ToolPage;

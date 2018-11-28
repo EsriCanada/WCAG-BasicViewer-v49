@@ -1,5 +1,16 @@
 define({
     root: ({
+        search: "Search: ",
+        searchPlaceholder: "Find address or place",
+        searchEnterCriteria: "Enter search term for",
+        pressAlt: "Press ALT + digit keys for fast navigation",
+        instructions: "instructions",
+        moreHelp: "More Help",
+        wcagViewer: "Accessible Viewer",
+        leftCollapse: "Collapse Left Panel",
+        leftExpand: "Expand Left Panel",
+        moreHelp: "More Help",
+        totalCount: "Total Count: {0}",
         contactUs: "Contact Us",
         language: ({
             aria: ({

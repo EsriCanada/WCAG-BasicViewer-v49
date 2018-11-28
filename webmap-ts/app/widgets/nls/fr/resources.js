@@ -1,5 +1,16 @@
 define(
     ({
+        search: "Recherche : ",
+        searchPlaceholder: "Trouver une adresse ou un lieu",
+        searchEnterCriteria: "Terme recherché pour",
+        pressAlt: "Appuyer sur ALT + chiffre pour naviguer rapidement",
+        instructions: "instructions.french",
+        moreHelp: "Plus d'aide",
+        wcagViewer: "Visualiseur Accessible",
+        leftCollapse: "Réduire le panneau gauche",
+        leftExpand: "Révéler le panneau gauche",
+        moreHelp: "Plus d'aide",
+        totalCount: "Le compte total : {0}",
         contactUs: "Contactez nous",
         language: ({
             aria: ({

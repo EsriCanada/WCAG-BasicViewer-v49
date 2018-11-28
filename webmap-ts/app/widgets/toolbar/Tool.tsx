@@ -59,10 +59,17 @@ const CSS = {
         <div 
             class={active}
             afterCreate={this._addTool} 
+            // afterUpdate={this._updateTool} 
             >
         </div>
         );
     }
+
+    // private _updateTool = (element: Element) => {
+    //     this.pageReady.then((page) => {
+    //         console.log("_updateTool", this.tool, this.active, element);
+    //     })
+    // }
 
     private rootNode : Element = null;
     private inputNode : Element = null;
@@ -83,7 +90,7 @@ const CSS = {
             title:tip,
             src:icon,
             "aria-label": tip, 
-            click: lang.hitch(this, this._execute)
+            click: lang.hitch(this, this._toggle)
         }, element);
 
         this.pageReady = this._addPage(this.tool).then((toolPage) => this.myToolPage = toolPage);
@@ -120,18 +127,21 @@ const CSS = {
         domStyle.set(badgeElement, "display", "none");
     }
 
-    private _execute = (evn) => {
+    private _toggle = (evn) => {
+        this.active = !this.active;
+        console.log("_toggle", this.tool, this.active);
+
         const panelsTool = query(".panelTool", "panelTools");
         // console.log("execute", evn, panelsTool);
         panelsTool.forEach((panel) => {
             if(this.myPanelTool != panel)
                 domClass.remove(panel, "active");
         })
-            
-        this.active = !this.active;
+        
         if(!this.active) {
             const instructionsBtn = document.getElementById("toolButton_instructions");
             if(instructionsBtn) {
+                console.log("instructionsBtn", instructionsBtn)
                 setTimeout(() => instructionsBtn.click() ,100);
             }
         }
