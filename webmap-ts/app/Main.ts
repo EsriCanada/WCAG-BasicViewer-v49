@@ -22,7 +22,6 @@ import ContentPane = require("dojox/layout/ContentPane");
 import registry = require("dijit/registry");
 import dom = require("dojo/dom");
 import domConstruct = require("dojo/dom-construct");
-import { isNullOrWhiteSpace, stripTags } from "./utils";
 
 
 import { LightenDarkenColor } from "./utils";
@@ -57,8 +56,8 @@ class MapExample {
   config: ApplicationConfig;
 
   tools: Array<string> = [
-    "instructions",
     "details", 
+    "instructions",
     "directions",
     "overview",
     // "layerManager",

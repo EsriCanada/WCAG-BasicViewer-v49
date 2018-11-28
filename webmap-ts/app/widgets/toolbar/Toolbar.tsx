@@ -7,7 +7,10 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Widget = require("esri/widgets/Widget");
 import lang = require("dojo/_base/lang");
 import domConstruct = require("dojo/dom-construct");
-import registry = require("dijit/registry");
+import query = require("dojo/query");
+import domAttr = require("dojo/dom-attr");
+import domClass = require("dojo/dom-class");
+import domStyle = require("dojo/dom-style");
 import Deferred = require("dojo/Deferred");
 
 import { renderable, tsx } from "esri/widgets/support/widget";
@@ -44,14 +47,16 @@ class Toolbar extends declared(Widget) {
         );
     }
 
-    private _addTools = (element: Element): void => {
+        private _addTools = (element: Element): void => {
         // console.log("tools *");
         const config: ApplicationConfig = this.config;
+        const deferredDetails = new Deferred();
         this.tools.forEach((tool: string) => {
             // console.log(tool);
             if (Has(this.config, tool)) {
                 switch (tool) {
                     case "details":
+                        this._addDetaills(element, deferredDetails);
                         break;
                     case "instructions":
                         this._addInstructions(element);
@@ -86,6 +91,43 @@ class Toolbar extends declared(Widget) {
         }));
         return deferrer.promise;
     }
+
+    private _addDetaills = (element: Element, deferred: any) : any => {
+        if(Has(this.config, "details")) {
+            const description =
+            this.config.description ||
+            this.config.response.itemInfo.item.description ||
+            this.config.response.itemInfo.item.snippet ||
+            " ";
+            console.log("_addDetaills", description);
+
+        if (description) {
+            const hasInstructions = Has(this.config, "instructions");
+            this._addTool(element, "details").then((details) => {
+                console.log("details 1", details);
+                details.pageReady.then((tool) => {
+                    console.log("details 2", tool);
+                    const detailDiv = tool.pageContent;
+                    console.log("details 2", detailDiv);
+                    detailDiv.innerHTML =
+                        `<div id="detailDiv" tabindex=0>${description}</div>`;
+                    // detailDiv = dom.byId("detailDiv");
+                    if (!hasInstructions) {
+                        domClass.add(detailDiv, "detailFull");
+                    }
+                    else {
+                        domClass.add(detailDiv, "detailHalf");
+                    }
+
+                    const detailBtn = query("#toolButton_details", tool)[0];
+                    domClass.add(detailBtn, "panelToolDefault");
+                });
+            });
+        }
+        }
+        deferred.resolve(true);
+
+    };
 
     private _addInstructions = (element: Element): void => {
         this._addTool(element, "instructions").then((instructions) => {

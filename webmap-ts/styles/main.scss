@@ -693,3 +693,11 @@ myKey img {
     height: 13px;
     margin-bottom: -2px;
 }
+
+.detailFull {
+    height: calc(100% - 10px);
+}
+
+.detailHalf {
+    height: auto;
+}

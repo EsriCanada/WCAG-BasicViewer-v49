@@ -129,7 +129,7 @@ const CSS = {
 
     private _toggle = (evn) => {
         this.active = !this.active;
-        console.log("_toggle", this.tool, this.active);
+        // console.log("_toggle", this.tool, this.active);
 
         const panelsTool = query(".panelTool", "panelTools");
         // console.log("execute", evn, panelsTool);
@@ -141,7 +141,7 @@ const CSS = {
         if(!this.active) {
             const instructionsBtn = document.getElementById("toolButton_instructions");
             if(instructionsBtn) {
-                console.log("instructionsBtn", instructionsBtn)
+                // console.log("instructionsBtn", instructionsBtn)
                 setTimeout(() => instructionsBtn.click() ,100);
             }
         }
