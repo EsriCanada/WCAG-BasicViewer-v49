@@ -108,7 +108,7 @@ const CSS = {
             )
         };
         this._addPage(this.tool).then((toolPage) => this.myToolPage = toolPage);
-        console.log("_addPage", this);
+        // console.log("_addPage", this);
     }
 
     private _execute = (evn) => {
@@ -129,7 +129,7 @@ const CSS = {
 
         // console.log("myToolPage", this);
         const pagesContent: dojo.NodeList<Element> = query(".pageContent", "panelPages");
-        console.log("pagesContent", pagesContent);
+        // console.log("pagesContent", pagesContent);
         pagesContent.forEach((page) => {
             domStyle.set(page, "display", "none");
         })
@@ -149,7 +149,7 @@ const CSS = {
         ) {
             page = new ToolPage({ config: config, tool: tool, container: "panelPages" });
             deferrer.resolve(page);
-            console.log("_addPage", page, this);
+            // console.log("_addPage", page, this);
         });
         return deferrer.promise;
     }

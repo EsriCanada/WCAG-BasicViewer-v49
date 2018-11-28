@@ -75,24 +75,11 @@ const CSS = {
           ], lang.hitch(this, function(
             Tool
           ) {
-            // console.log("_addPage");
             new Tool({ config: this.config, tool: tool, toolBar: this, toolBadge: toolBadge, 
                 container: domConstruct.create("div", {}, element) });
           }));
     }
     
-
-    // private _addPage = (tool: string, loader?: boolean) : void => {
-    //     require([
-    //         "./ToolPage"
-    //       ], lang.hitch(this, function(
-    //         ToolPage
-    //       ) {
-    //         // console.log("_addPage");
-    //         new ToolPage({ config: this.config, tool: tool, container: "panelPages" });
-    //       }));
-    // }
-
     private _addInstructions = (element: Element): void => {
         this._addTool(element, "instructions");
     }
