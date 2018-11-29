@@ -138,7 +138,12 @@ const CSS = {
                 domClass.remove(panel, "active");
         })
         
-        if(!this.active) {
+        if(this.active) {
+            this.toolBar.emit("updateTool", this.tool);
+            this.toolBar.emit(`updateTool_${this.tool}`, null);
+        }
+        else
+        {
             const instructionsBtn = document.getElementById("toolButton_instructions");
             if(instructionsBtn) {
                 // console.log("instructionsBtn", instructionsBtn)

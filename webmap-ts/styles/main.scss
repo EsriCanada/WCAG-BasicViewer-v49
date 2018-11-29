@@ -694,8 +694,16 @@ myKey img {
     margin-bottom: -2px;
 }
 
+#detailDiv {
+    background: white;
+    overflow-y: auto;
+    color: black;
+    width: calc(100% - 20px);
+    padding: 10px;
+}
+
 .detailFull {
-    height: calc(100% - 10px);
+    height: calc(100% - 26px);
 }
 
 .detailHalf {
