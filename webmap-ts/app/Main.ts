@@ -14,7 +14,7 @@
 
 import ApplicationBase = require("ApplicationBase/ApplicationBase");
 
-import i18n = require("dojo/i18n!./nls/resources");
+import i18n = require("dojo/i18n!./widgets/nls/resources");
 
 import BorderContainer = require("dijit/layout/BorderContainer");
 import ContentPane = require("dojox/layout/ContentPane");
@@ -141,6 +141,7 @@ class MapExample {
           findQuery(find, view).then(() => goToMarker(marker, view));
           
           require(["esri/widgets/Search"], function(Search) {
+            document.getElementById("searchLabel").innerHTML = i18n.search;
             const searchWidget = new Search({
               view: view,
               container: domConstruct.create("div",{},document.getElementById("panelSearch"))

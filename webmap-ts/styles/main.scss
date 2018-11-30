@@ -351,6 +351,7 @@ header.top-nav {
     position: relative;
     align-items: stretch;
     flex: 0;
+    white-space: nowrap;
 }
 
 .arcgisSearch .searchIcon {
