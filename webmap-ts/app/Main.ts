@@ -140,13 +140,13 @@ class MapExample {
         }).then(view => {
           findQuery(find, view).then(() => goToMarker(marker, view));
           
-          // require(["esri/widgets/Search"], function(Search) {
+          require(["esri/widgets/Search"], function(Search) {
             const searchWidget = new Search({
               view: view,
-              container: document.getElementById("panelSearch")
+              container: domConstruct.create("div",{},document.getElementById("panelSearch"))
             });
             console.log("Search", searchWidget)
-          // });
+          });
           
 
         }
