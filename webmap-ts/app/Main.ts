@@ -197,6 +197,11 @@ class MapExample {
 .panelTool input[type="image"]:hover {
   background-color: ${hoverColor};
 }
+
+.esri-menu li:hover, .esri-menu li:focus {
+  background-color: ${hoverColor};
+  color: ${this.config.color};
+}
 `;
   }
 
