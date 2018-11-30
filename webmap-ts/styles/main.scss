@@ -346,9 +346,11 @@ header.top-nav {
 
 #panelSearch .searchLabel {
     padding: 4px 2px;
-    float: left;
     font-size: 12px;
     margin-bottom: 0 !important;
+    position: relative;
+    align-items: stretch;
+    flex: 0;
 }
 
 .arcgisSearch .searchIcon {
@@ -708,4 +710,8 @@ myKey img {
 
 .detailHalf {
     height: auto;
+}
+
+.esri-search__container {
+    flex: 1 0 80% !important;
 }

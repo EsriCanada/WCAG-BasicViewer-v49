@@ -23,6 +23,8 @@ import registry = require("dijit/registry");
 import dom = require("dojo/dom");
 import domConstruct = require("dojo/dom-construct");
 
+import Search = require("esri/widgets/Search");
+
 
 import { LightenDarkenColor } from "./utils";
 
@@ -136,7 +138,17 @@ class MapExample {
           ...viewProperties,
           map
         }).then(view => {
-          findQuery(find, view).then(() => goToMarker(marker, view))
+          findQuery(find, view).then(() => goToMarker(marker, view));
+          
+          // require(["esri/widgets/Search"], function(Search) {
+            const searchWidget = new Search({
+              view: view,
+              container: document.getElementById("panelSearch")
+            });
+            console.log("Search", searchWidget)
+          // });
+          
+
         }
         )
       );

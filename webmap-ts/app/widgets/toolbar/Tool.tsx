@@ -42,6 +42,9 @@ const CSS = {
     myPanelTool: Element;
   
     @property()
+    myInputBtn: Element;
+  
+    @property()
     myToolPage : ToolPage;
 
     @property()
@@ -71,19 +74,18 @@ const CSS = {
     //     })
     // }
 
-    private rootNode : Element = null;
-    private inputNode : Element = null;
+    // private inputNode : Element = null;
 
     public pageReady : any = null;
     
     private _addTool = (element: Element) => {
         // console.log(this.tool, this.config);
-        this.rootNode = element;
+        this.myPanelTool = element;
         const toolBtnId:string = `toolButton_${this.tool}`;
         const icon:string = `images/icons_${this.config.icons}/${this.tool}.png`;
         const tip = i18n.tooltips[this.tool] || this.tool;
         // const ariaTip = `${tip}${this.toolBadge?(". Has badge: "+this.toolBadge.toolBadgeTip):""}`;
-        this.inputNode = domConstruct.create("input", {
+        this.myInputBtn = domConstruct.create("input", {
             // innerHTML:tool+" ", 
             id:toolBtnId,
             type:"image",
@@ -108,7 +110,7 @@ const CSS = {
                 // toolBadgeTip: string}',
             alt: toolBadge.toolBadgeTip,
             title: toolBadge.toolBadgeTip
-            }, this.rootNode
+            }, this.myPanelTool
         )
     }
 

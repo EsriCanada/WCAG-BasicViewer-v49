@@ -113,10 +113,11 @@ class Toolbar extends declared(Widget) {
                         const detailDiv = tool.pageContent;
                         detailDiv.innerHTML = `<div id="detailDiv" tabindex=0>${description}</div>`;
                         domClass.add(detailDiv, (hasInstructions ? "" : "detailHalf"));
-                        console.log("details 3", detailDiv);
+                        // console.log("details 3", detailDiv);
 
-                        // const detailBtn = query("#toolButton_details", tool)[0];
-                        // domClass.add(detailBtn, "panelToolDefault");
+                        // const detailBtn = query("#toolButton_details")[0];
+                        // console.log("detailBtn", details, details.myPanelTool);
+                        domClass.add(details.myPanelTool, "defaultTool");
                         this.deferredDetails.resolve(tool.pageContent);
                     });
                 });
@@ -141,7 +142,7 @@ class Toolbar extends declared(Widget) {
 <a href="${moreHelpUrl}" target="blank" class="more_help">${i18n.moreHelp}</a>
 `;
                 }
-                console.log("instructionsText", instructionsText);
+                // console.log("instructionsText", instructionsText);
                 deffer.resolve(instructionsText)
             });
             return deffer.promise;
