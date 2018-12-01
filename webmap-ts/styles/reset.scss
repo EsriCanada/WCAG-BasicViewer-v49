@@ -96,6 +96,12 @@ blockquote {
 
 .esri-menu li {
     border-top: solid 1px black;
+    background-color: white;
+    color: black;
+}
+
+.esri-menu li:focus {
+    background-color: white;
 }
 
 .esri-menu {

@@ -12,6 +12,7 @@ define(
         moreHelp: "Plus d'aide",
         totalCount: "Le compte total : {0}",
         contactUs: "Contactez nous",
+        EsriWorldGeocoder: "Géocodeur Mondial Esri",
         language: ({
             aria: ({
                 changeLanguage: "Changer la langue en",

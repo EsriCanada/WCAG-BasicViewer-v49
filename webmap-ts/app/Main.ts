@@ -194,7 +194,7 @@ class MapExample {
   background-color: ${hoverColor};
 }
 
-.esri-menu li:hover, .esri-menu li:focus {
+.esri-menu li:hover {
   background-color: ${hoverColor};
   color: ${this.config.color};
 }
