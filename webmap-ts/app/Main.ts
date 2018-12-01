@@ -18,6 +18,8 @@ import i18n = require("dojo/i18n!./widgets/nls/resources");
 
 import BorderContainer = require("dijit/layout/BorderContainer");
 import ContentPane = require("dojox/layout/ContentPane");
+import lang = require("dojo/_base/lang");
+
 
 import registry = require("dijit/registry");
 import dom = require("dojo/dom");
@@ -140,18 +142,11 @@ class MapExample {
         }).then(view => {
           findQuery(find, view).then(() => goToMarker(marker, view));
           
-          require(["esri/widgets/Search"], function(Search) {
-            document.getElementById("searchLabel").innerHTML = i18n.search;
-            const searchWidget = new Search({
-              view: view,
-              container: domConstruct.create("div",{},document.getElementById("panelSearch"))
-            });
-            console.log("Search", searchWidget)
-          });
-          
+          require(["./widgets/MySearch/MySearch"], lang.hitch(this, function(MySearch) {
+            MySearch({config: this.config, mapView: view, container:"panelSearch"});
+          }));
 
-        }
-        )
+        })
       );
     });
 
