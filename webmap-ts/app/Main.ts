@@ -62,22 +62,22 @@ class MapExample {
   tools: Array<string> = [
     "details", 
     "instructions",
-    "directions",
     "overview",
     // "layerManager",
+    "basemap",
     "legend",
     "layers",
+    "filter",
+    "features",
+    "directions",
     // "mapKeyboardNavigation",
     "infoPanel",
     "geoCoding",
-    "basemap",
-    "features",
-    "filter",
     "measure",
-    "edit",
-    "share",
+    // "edit",
     "bookmarks",
     // "navigation",
+    "share",
     "print"
   ];
 
