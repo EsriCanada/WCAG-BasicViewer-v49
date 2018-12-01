@@ -135,19 +135,17 @@ class MapExample {
         ...container
       };
 
-      createMapFromItem({ item, appProxies }).then(map =>
+      
+      createMapFromItem({ item, appProxies }).then(map => {
         createView({
           ...viewProperties,
           map
         }).then(view => {
           findQuery(find, view).then(() => goToMarker(marker, view));
           
-          require(["./widgets/MySearch/MySearch"], lang.hitch(this, function(MySearch) {
-            MySearch({config: this.config, mapView: view, container:"panelSearch"});
-          }));
-
+          this.addSearch(this.config, view);
         })
-      );
+      });
     });
 
     document.body.classList.remove(CSS.loading);
@@ -222,6 +220,12 @@ class MapExample {
           "before"
       );
     }
+  }
+
+  private addSearch = (config: ApplicationConfig, mapView: __esri.MapView | __esri.SceneView) => {
+    require(["./widgets/MySearch/MySearch"], lang.hitch(this, function(MySearch) {
+      MySearch({config: this.config, mapView: mapView, container:"panelSearch"});
+    }));
   }
 
   private createTools = (config: ApplicationConfig, tools: Array<string>) => {
