@@ -96,11 +96,13 @@ import {
                     // Animate the MapView to a zoomed-out scale so we get a nice overview.
                     // We use the "progress" callback of the goTo promise to update
                     // the overview extent while animating
-                    overviewView.goTo({
-                        center: this.mainView.center,
-                        scale: this.mainView.scale * 5 * Math.max(this.mainView.width / overviewView.width,
-                        this.mainView.height / overviewView.height)
-                    });
+                    if(overviewView.ready) {
+                        overviewView.goTo({
+                            center: this.mainView.center,
+                            scale: this.mainView.scale * 5 * Math.max(this.mainView.width / overviewView.width,
+                            this.mainView.height / overviewView.height)
+                        });
+                    }
                 }
     
                 function updateOverviewExtent() {
