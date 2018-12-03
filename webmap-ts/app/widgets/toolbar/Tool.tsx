@@ -13,6 +13,7 @@ import domAttr = require("dojo/dom-attr");
 import domClass = require("dojo/dom-class");
 import domStyle = require("dojo/dom-style");
 import Deferred = require("dojo/Deferred");
+import on = require("dojo/on");
 
 import { renderable, tsx } from "esri/widgets/support/widget";
 
@@ -36,13 +37,16 @@ const CSS = {
     tool: string;
 
     @property()
+    deferrer : Deferred<Tool>;
+
+    @property()
     toolBar: ToolBar;
     
     @property()
     myPanelTool: Element;
   
     @property()
-    myInputBtn: Element;
+    myInputBtn: HTMLElement;
   
     @property()
     myToolPage : ToolPage;
@@ -78,7 +82,11 @@ const CSS = {
 
     public pageReady : any = null;
     
-    private _addTool = (element: Element) => {
+    private _addTool = lang.hitch(this, (element: Element): dojo.promise.Promise<Tool> => {
+        if(!this.deferrer) {
+            this.deferrer = new Deferred();
+        }
+
         // console.log(this.tool, this.config);
         this.myPanelTool = element;
         const toolBtnId:string = `toolButton_${this.tool}`;
@@ -95,9 +103,19 @@ const CSS = {
             click: lang.hitch(this, this._toggle)
         }, element);
 
-        this.pageReady = this._addPage(this.tool).then((toolPage) => this.myToolPage = toolPage);
+        this.pageReady = this._addPage(this.tool);
+        this.pageReady.then((toolPage) => {
+            this.myToolPage = toolPage;
+            this.deferrer.resolve(this);
+        });
+
+        // on(this.myPanelTool, "click", (event) => {
+        //     (this.myPanelTool.querySelector("input") as HTMLElement).click();
+        // });
+
+        return this.deferrer.promise;
         // console.log("_addPage", this);
-    }
+    });
 
     public addBadge = (toolBadge: Badge) : Element => {
         return domConstruct.create("img",{
@@ -164,8 +182,8 @@ const CSS = {
         }
     }
 
-    private _addPage = (tool: string) : any => {
-        const deferrer = new Deferred();
+    private _addPage = (tool: string) : dojo.promise.Promise<ToolPage> => {
+        const deferrer = new Deferred<ToolPage>();
         const config = this.config;
         let page = null;
         require([

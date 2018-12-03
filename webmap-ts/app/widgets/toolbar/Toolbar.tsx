@@ -12,6 +12,7 @@ import domAttr = require("dojo/dom-attr");
 import domClass = require("dojo/dom-class");
 import domStyle = require("dojo/dom-style");
 import Deferred = require("dojo/Deferred");
+import All = require("dojo/promise/all");
 import on = require("dojo/on");
 
 import { renderable, tsx } from "esri/widgets/support/widget";
@@ -35,6 +36,12 @@ class Toolbar extends declared(Widget) {
     @property()
     tools: Array<string>;
 
+    @property()
+    defaultButton:HTMLElement;
+    
+    @property()
+    deferred: any;
+
     constructor() {
         super();
     }
@@ -49,29 +56,44 @@ class Toolbar extends declared(Widget) {
     }
 
     private deferredDetails = new Deferred();
-    private _addTools = (element: Element): void => {
+    private _addTools = (element: Element): dojo.promise.Promise<any> => {
         // console.log("tools *");
+        if(!this.deferred) {
+            this.deferred = new Deferred();
+        }
         const config: ApplicationConfig = this.config;
+        const toolList = [];
         this.tools.forEach((tool: string) => {
             // console.log(tool);
             if (Has(this.config, tool)) {
                 switch (tool) {
                     case "details":
-                        this._addDetaills(element, this.deferredDetails);
+                        toolList.push(this._addDetaills(element, this.deferredDetails));
                         break;
                     case "instructions":
-                        this._addInstructions(element);
+                        toolList.push(this._addInstructions(element));
                         break;
-                    case "directions":
-                        this._addDirections(element);
-                        break;
+                    // case "directions":
+                    //     toolList.push(this._addDirections(element));
+                    //     break;
                     default:
-                        this._addTool(element, tool);
+                        toolList.push(this._addTool(element, tool));
                         break;
                 }
             }
 
-        })
+        });
+
+        All(toolList).then(()=> {
+            console.log("All", this);
+            if(this.defaultButton) {
+                console.log("defaultButton", this.defaultButton);
+                this.defaultButton.click();
+            }
+            this.deferred.resolve(this);
+        });
+
+        return this.deferred.promise;
     }
 
     private _addTool = (element: Element, tool: string): any => {
@@ -115,9 +137,10 @@ class Toolbar extends declared(Widget) {
                         domClass.add(detailDiv, (hasInstructions ? "" : "detailHalf"));
                         // console.log("details 3", detailDiv);
 
-                        // const detailBtn = query("#toolButton_details")[0];
-                        // console.log("detailBtn", details, details.myPanelTool);
-                        domClass.add(details.myPanelTool, "defaultTool");
+                        // domClass.add(details.defaultButton, "defaultButton");
+                        this.defaultButton = details.myInputBtn;
+                        // this.defaultButton.click();
+
                         this.deferredDetails.resolve(tool.pageContent);
                     });
                 });
@@ -126,6 +149,10 @@ class Toolbar extends declared(Widget) {
                 this.deferredDetails.reject();
             }
         }
+        else {
+            this.deferredDetails.reject();
+        }
+        return this.deferredDetails.promise;
     };
 
     private _addInstructions = (element: Element): void => {
@@ -143,6 +170,8 @@ class Toolbar extends declared(Widget) {
 `;
                 }
                 // console.log("instructionsText", instructionsText);
+                // this.defaultButton = instructionsText.myInputBtn;
+
                 deffer.resolve(instructionsText)
             });
             return deffer.promise;
@@ -160,6 +189,9 @@ class Toolbar extends declared(Widget) {
                             domConstruct.create("div", {}, instructions.myToolPage.pageContent)
                         );
                         instructions.active = true;
+
+                        this.defaultButton = instructions.myInputBtn;
+                        // this.defaultButton.click();
                     })
                 })
             }

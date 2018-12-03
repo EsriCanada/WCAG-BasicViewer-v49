@@ -19,6 +19,8 @@ import i18n = require("dojo/i18n!./widgets/nls/resources");
 import BorderContainer = require("dijit/layout/BorderContainer");
 import ContentPane = require("dojox/layout/ContentPane");
 import lang = require("dojo/_base/lang");
+import Deferred = require("dojo/Deferred");
+
 
 
 import registry = require("dijit/registry");
@@ -144,6 +146,8 @@ class MapExample {
           findQuery(find, view).then(() => goToMarker(marker, view));
           
           this.addSearch(this.config, view);
+          this.createTools(this.config, this.tools);
+
         })
       });
     });
@@ -303,7 +307,7 @@ class MapExample {
 
     this.contactUs(this.config);
     this.languageMenu(this.config);
-    this.createTools(this.config, this.tools);
+    // this.createTools(this.config, this.tools);
   };
 }
 

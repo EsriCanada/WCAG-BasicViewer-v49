@@ -7,6 +7,7 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Widget = require("esri/widgets/Widget");
 import lang = require("dojo/_base/lang");
 import domConstruct = require("dojo/dom-construct");
+import on = require("dojo/on");
 
 import { renderable, tsx } from "esri/widgets/support/widget";
 
@@ -79,6 +80,19 @@ import { Has } from "../../utils";
 
     private _pageContentReady = (element: Element) : void => {
         this.pageContent = element;
+        on(element, "keydown", lang.hitch(this, (event): void => {
+            switch (event.key) {
+                case "Esc":
+                case "Escape":
+                const id = element.id.replace(
+                    "pageBody",
+                    "toolButton"
+                );
+                document.getElementById(id).focus();
+                console.log("Esc", id);
+                break;
+            }
+        }))
     }
 }
 
