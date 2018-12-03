@@ -42,6 +42,9 @@ class Toolbar extends declared(Widget) {
     @property()
     deferred: any;
 
+    @property()
+    mapView: __esri.MapView |__esri.SceneView;
+
     constructor() {
         super();
     }

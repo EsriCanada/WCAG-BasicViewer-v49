@@ -142,11 +142,11 @@ class MapExample {
         createView({
           ...viewProperties,
           map
-        }).then(view => {
-          findQuery(find, view).then(() => goToMarker(marker, view));
+        }).then(mapView => {
+          findQuery(find, mapView).then(() => goToMarker(marker, mapView));
           
-          this.addSearch(this.config, view);
-          this.createTools(this.config, this.tools);
+          this.addSearch(this.config, mapView);
+          this.createTools(this.config, this.tools, mapView);
 
         })
       });
@@ -232,14 +232,14 @@ class MapExample {
     }));
   }
 
-  private createTools = (config: ApplicationConfig, tools: Array<string>) => {
+  private createTools = (config: ApplicationConfig, tools: Array<string>, mapView: __esri.MapView |__esri.SceneView) => {
     // console.log("createTools");
     require([
       "./widgets/toolbar/toolbar"
     ], function(
       Toolbar
     ) {
-      new Toolbar({ config: config, tools: tools, container: "panelTools" });
+      new Toolbar({ config: config, tools: tools, mapView: mapView, container: "panelTools" });
     });
   }
 
