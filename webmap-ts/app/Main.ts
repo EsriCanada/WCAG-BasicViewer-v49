@@ -114,7 +114,7 @@ class MapExample {
         ...defaultViewProperties, 
         ...container
       };
-      console.log("viewProperties", viewProperties);
+      // console.log("viewProperties", viewProperties);
 
       
       createMapFromItem({ item, appProxies }).then(map => {
@@ -130,7 +130,7 @@ class MapExample {
                 view: mapView
               });
               // Add widget to the bottom left corner of the view
-              (mapView as __esri.MapView).ui.add(scaleBar, {position: "bottom-right"});
+              (mapView as __esri.MapView).ui.add(scaleBar, "bottom-right");
             })
           }
 

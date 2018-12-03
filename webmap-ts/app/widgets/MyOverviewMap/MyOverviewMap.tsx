@@ -18,6 +18,12 @@ import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
 
+import {
+    createMapFromItem,
+    createView,
+  } from "ApplicationBase/support/itemUtils";
+  
+
 @subclass("esri.widgets.MyOverviewMap")
   class MyOverviewMap extends declared(Widget) {
   
@@ -52,13 +58,15 @@ import i18n = require("dojo/i18n!../nls/resources");
             "esri/views/SceneView",
             "esri/views/MapView",
             "esri/core/watchUtils"
-          ], function(Map, SceneView, MapView, watchUtils) {
+        ], lang.hitch(this, function(Map, SceneView, MapView, watchUtils) {
             
-            const overviewMap = new Map({
+            const overviewMap = new Map ({
                 basemap: "topo"
             });
-        
-            const overviewView = new MapView({
+
+            
+
+            const overviewView: __esri.MapView = new MapView({
                 container: domConstruct.create("div", {
                     id: "overviewDiv",
                     
@@ -69,46 +77,53 @@ import i18n = require("dojo/i18n!../nls/resources");
                 }
               });
 
-              overviewView.ui.components = [];
-              var extentDiv = document.getElementById("overviewDiv");
+            overviewView.ui.components = [];
+            var extentDiv = document.getElementById("extentDiv");
 
-              overviewView.when(function() {
+            // overviewView.when(function() {
+                
                 // Update the overview extent whenever the MapView or SceneView extent changes
-                overviewView.watch("extent", updateOverviewExtent);
-                overviewView.watch("extent", updateOverviewExtent);
-        
+                // console.log("overviewView.when", this, this.mainView);
+
+                overviewView.watch("extent", lang.hitch(this, updateOverviewExtent));
+                this.mainView.watch("extent", lang.hitch(this, updateOverviewExtent));
+    
                 // Update the minimap overview when the main view becomes stationary
-                watchUtils.when(overviewView, "stationary", updateOverview);
-        
+                watchUtils.when(overviewView, "stationary", lang.hitch(this, updateOverview));
+    
                 function updateOverview() {
-                  // Animate the MapView to a zoomed-out scale so we get a nice overview.
-                  // We use the "progress" callback of the goTo promise to update
-                  // the overview extent while animating
-                  overviewView.goTo({
-                    center: this.mainView.center,
-                    scale: this.mainView.scale * 2 * Math.max(this.mainView.width /
-                      overviewView.width,
-                      this.mainView.height / overviewView.height)
-                  });
+                    // console.log("updateOverviewt");
+                    // Animate the MapView to a zoomed-out scale so we get a nice overview.
+                    // We use the "progress" callback of the goTo promise to update
+                    // the overview extent while animating
+                    overviewView.goTo({
+                        center: this.mainView.center,
+                        scale: this.mainView.scale * 5 * Math.max(this.mainView.width / overviewView.width,
+                        this.mainView.height / overviewView.height)
+                    });
                 }
-        
+    
                 function updateOverviewExtent() {
-                  // Update the overview extent by converting the SceneView extent to the
-                  // MapView screen coordinates and updating the extentDiv position.
-                  var extent = this.mapView.extent;
+                    // console.log("updateOverviewExtent");
+                    // Update the overview extent by converting the SceneView extent to the
+                    // MapView screen coordinates and updating the extentDiv position.
+                    var extent = this.mainView.extent;
         
-                  var bottomLeft = overviewView.toScreen(extent.xmin, extent.ymin);
-                  var topRight = overviewView.toScreen(extent.xmax, extent.ymax);
+                    var bottomLeft = overviewView.toScreen(extent.xmin, extent.ymin);
+                    var topRight = overviewView.toScreen(extent.xmax, extent.ymax);
         
-                  extentDiv.style.top = topRight.y + "px";
-                  extentDiv.style.left = bottomLeft.x + "px";
+                    extentDiv.style.top = topRight.y + "px";
+                    extentDiv.style.left = bottomLeft.x + "px";
         
-                  extentDiv.style.height = (bottomLeft.y - topRight.y) + "px";
-                  extentDiv.style.width = (topRight.x - bottomLeft.x) + "px";
+                    extentDiv.style.height = (bottomLeft.y - topRight.y) + "px";
+                    extentDiv.style.width = (topRight.x - bottomLeft.x) + "px";
                 }
-            });
-        });
-}
+            // },
+            // function(error) {
+            //     console.log("error", error);
+            // })
+        }));
+    }
 }
 
 export = MyOverviewMap;

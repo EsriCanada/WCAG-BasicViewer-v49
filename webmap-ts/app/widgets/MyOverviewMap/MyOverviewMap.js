@@ -19,7 +19,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/core/tsSupport/decorateHelper", "esri/core/accessorSupport/decorators", "esri/widgets/Widget", "dojo/dom-construct", "esri/widgets/support/widget"], function (require, exports, __extends, __decorate, decorators_1, Widget, domConstruct, widget_1) {
+define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/core/tsSupport/decorateHelper", "esri/core/accessorSupport/decorators", "esri/widgets/Widget", "dojo/_base/lang", "dojo/dom-construct", "esri/widgets/support/widget"], function (require, exports, __extends, __decorate, decorators_1, Widget, lang, domConstruct, widget_1) {
     "use strict";
     var MyOverviewMap = /** @class */ (function (_super) {
         __extends(MyOverviewMap, _super);
@@ -38,7 +38,7 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                     "esri/views/SceneView",
                     "esri/views/MapView",
                     "esri/core/watchUtils"
-                ], function (Map, SceneView, MapView, watchUtils) {
+                ], lang.hitch(_this, function (Map, SceneView, MapView, watchUtils) {
                     var overviewMap = new Map({
                         basemap: "topo"
                     });
@@ -52,36 +52,41 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                         }
                     });
                     overviewView.ui.components = [];
-                    var extentDiv = document.getElementById("overviewDiv");
-                    overviewView.when(function () {
-                        // Update the overview extent whenever the MapView or SceneView extent changes
-                        overviewView.watch("extent", updateOverviewExtent);
-                        overviewView.watch("extent", updateOverviewExtent);
-                        // Update the minimap overview when the main view becomes stationary
-                        watchUtils.when(overviewView, "stationary", updateOverview);
-                        function updateOverview() {
-                            // Animate the MapView to a zoomed-out scale so we get a nice overview.
-                            // We use the "progress" callback of the goTo promise to update
-                            // the overview extent while animating
-                            overviewView.goTo({
-                                center: this.mainView.center,
-                                scale: this.mainView.scale * 2 * Math.max(this.mainView.width /
-                                    overviewView.width, this.mainView.height / overviewView.height)
-                            });
-                        }
-                        function updateOverviewExtent() {
-                            // Update the overview extent by converting the SceneView extent to the
-                            // MapView screen coordinates and updating the extentDiv position.
-                            var extent = this.mapView.extent;
-                            var bottomLeft = overviewView.toScreen(extent.xmin, extent.ymin);
-                            var topRight = overviewView.toScreen(extent.xmax, extent.ymax);
-                            extentDiv.style.top = topRight.y + "px";
-                            extentDiv.style.left = bottomLeft.x + "px";
-                            extentDiv.style.height = (bottomLeft.y - topRight.y) + "px";
-                            extentDiv.style.width = (topRight.x - bottomLeft.x) + "px";
-                        }
-                    });
-                });
+                    var extentDiv = document.getElementById("extentDiv");
+                    // overviewView.when(function() {
+                    // Update the overview extent whenever the MapView or SceneView extent changes
+                    // console.log("overviewView.when", this, this.mainView);
+                    overviewView.watch("extent", lang.hitch(this, updateOverviewExtent));
+                    this.mainView.watch("extent", lang.hitch(this, updateOverviewExtent));
+                    // Update the minimap overview when the main view becomes stationary
+                    watchUtils.when(overviewView, "stationary", lang.hitch(this, updateOverview));
+                    function updateOverview() {
+                        // console.log("updateOverviewt");
+                        // Animate the MapView to a zoomed-out scale so we get a nice overview.
+                        // We use the "progress" callback of the goTo promise to update
+                        // the overview extent while animating
+                        overviewView.goTo({
+                            center: this.mainView.center,
+                            scale: this.mainView.scale * 5 * Math.max(this.mainView.width / overviewView.width, this.mainView.height / overviewView.height)
+                        });
+                    }
+                    function updateOverviewExtent() {
+                        // console.log("updateOverviewExtent");
+                        // Update the overview extent by converting the SceneView extent to the
+                        // MapView screen coordinates and updating the extentDiv position.
+                        var extent = this.mainView.extent;
+                        var bottomLeft = overviewView.toScreen(extent.xmin, extent.ymin);
+                        var topRight = overviewView.toScreen(extent.xmax, extent.ymax);
+                        extentDiv.style.top = topRight.y + "px";
+                        extentDiv.style.left = bottomLeft.x + "px";
+                        extentDiv.style.height = (bottomLeft.y - topRight.y) + "px";
+                        extentDiv.style.width = (topRight.x - bottomLeft.x) + "px";
+                    }
+                    // },
+                    // function(error) {
+                    //     console.log("error", error);
+                    // })
+                }));
             };
             return _this;
         }
