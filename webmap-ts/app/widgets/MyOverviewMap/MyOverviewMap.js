@@ -66,7 +66,7 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                             overviewView.goTo({
                                 center: this.mainView.center,
                                 scale: this.mainView.scale * 2 * Math.max(this.mainView.width /
-                                    overviewView.width, mainView.height / overviewView.height)
+                                    overviewView.width, this.mainView.height / overviewView.height)
                             });
                         }
                         function updateOverviewExtent() {
@@ -86,7 +86,8 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
             return _this;
         }
         MyOverviewMap.prototype.render = function () {
-            return (widget_1.tsx("div", { id: "overviewDiv", afterCreate: this._addOverviewMap },
+            return (widget_1.tsx("div", { afterCreate: this._addOverviewMap },
+                widget_1.tsx("div", { id: "overviewDiv" }),
                 widget_1.tsx("div", { id: "extentDiv" })));
         };
         __decorate([

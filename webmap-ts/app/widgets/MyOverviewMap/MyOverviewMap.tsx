@@ -39,7 +39,8 @@ import i18n = require("dojo/i18n!../nls/resources");
             
     render() {
         return (
-        <div id="overviewDiv" afterCreate={this._addOverviewMap}>
+        <div afterCreate={this._addOverviewMap}>
+            <div id="overviewDiv"></div> 
             <div id="extentDiv"></div>
         </div>
         );
@@ -87,7 +88,7 @@ import i18n = require("dojo/i18n!../nls/resources");
                     center: this.mainView.center,
                     scale: this.mainView.scale * 2 * Math.max(this.mainView.width /
                       overviewView.width,
-                      mainView.height / overviewView.height)
+                      this.mainView.height / overviewView.height)
                   });
                 }
         
