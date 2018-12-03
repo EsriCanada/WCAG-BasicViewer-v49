@@ -711,3 +711,20 @@ myKey img {
 .detailHalf {
     height: auto;
 }
+
+#overviewDiv {
+    position: absolute;
+    top: 12px;
+    margin: 12px;
+    width: calc(100% - 24px);
+    height: 200px;
+    border: 1px solid black;
+    z-index: 1;
+    overflow: hidden;
+}
+
+#extentDiv {
+    background-color: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    z-index: 2;
+}

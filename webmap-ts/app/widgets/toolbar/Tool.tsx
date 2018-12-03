@@ -176,7 +176,7 @@ const CSS = {
             this.myToolPage.hide = !this.active;
             if(!this.myToolPage.hide) {
                 const tabbedElements = query(`[tabindex="0"]`, this.myToolPage.pageContent);
-                console.log("Page", this.myToolPage, tabbedElements);
+                // console.log("Page", this.myToolPage, tabbedElements);
                 if(tabbedElements.length>0) {
                     // console.log("tabbedElements[0]", tabbedElements[0], (tabbedElements[0] as HTMLElement));
                     setTimeout(() => (tabbedElements[0]as HTMLElement).focus(), 200);

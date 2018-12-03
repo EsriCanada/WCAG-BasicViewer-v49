@@ -61,28 +61,6 @@ class MapExample {
 
   config: ApplicationConfig;
 
-  tools: Array<string> = [
-    "details", 
-    "instructions",
-    "overview",
-    // "layerManager",
-    "basemap",
-    "legend",
-    "layers",
-    "filter",
-    "features",
-    "directions",
-    // "mapKeyboardNavigation",
-    "infoPanel",
-    "geoCoding",
-    "measure",
-    // "edit",
-    "bookmarks",
-    // "navigation",
-    "share",
-    "print"
-  ];
-
   public init(base: ApplicationBase): void {
     // console.log("init");
     if (!base) {
@@ -146,7 +124,7 @@ class MapExample {
           findQuery(find, mapView).then(() => goToMarker(marker, mapView));
           
           this.addSearch(this.config, mapView);
-          this.createTools(this.config, this.tools, mapView);
+          this.createTools(this.config, mapView);
 
         })
       });
@@ -228,18 +206,18 @@ class MapExample {
 
   private addSearch = (config: ApplicationConfig, mapView: __esri.MapView | __esri.SceneView) => {
     require(["./widgets/MySearch/MySearch"], lang.hitch(this, function(MySearch) {
-      MySearch({config: this.config, mapView: mapView, container:"panelSearch"});
+      new MySearch({config: this.config, mapView: mapView, container:"panelSearch"});
     }));
   }
 
-  private createTools = (config: ApplicationConfig, tools: Array<string>, mapView: __esri.MapView |__esri.SceneView) => {
+  private createTools = (config: ApplicationConfig, mapView: __esri.MapView |__esri.SceneView) => {
     // console.log("createTools");
     require([
       "./widgets/toolbar/toolbar"
     ], function(
       Toolbar
     ) {
-      new Toolbar({ config: config, tools: tools, mapView: mapView, container: "panelTools" });
+      new Toolbar({ config: config, mapView: mapView, container: "panelTools" });
     });
   }
 

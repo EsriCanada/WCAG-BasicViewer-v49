@@ -22,6 +22,7 @@ import Tool = require("./Tool");
 import { Badge } from "./Badge";
 import ToolPage = require("./ToolPage");
 import { Has, isNullOrWhiteSpace } from "../../utils";
+import MyOverviewMap = require("../MyOverviewMap/MyOverviewMap");
 
 const CSS = {
     base: "toolbar",
@@ -32,9 +33,6 @@ class Toolbar extends declared(Widget) {
 
     @property()
     config: ApplicationConfig;
-
-    @property()
-    tools: Array<string>;
 
     @property()
     defaultButton:HTMLElement;
@@ -66,7 +64,29 @@ class Toolbar extends declared(Widget) {
         }
         const config: ApplicationConfig = this.config;
         const toolList = [];
-        this.tools.forEach((tool: string) => {
+        const tools: Array<string> = [
+            "details", 
+            "instructions",
+            "overview",
+            // "layerManager",
+            "basemap",
+            "legend",
+            "layers",
+            "filter",
+            "features",
+            "directions",
+            // "mapKeyboardNavigation",
+            "infoPanel",
+            "geoCoding",
+            "measure",
+            // "edit",
+            "bookmarks",
+            // "navigation",
+            "share",
+            "print"
+          ];
+                
+        tools.forEach(lang.hitch(this, (tool: string) => {
             // console.log(tool);
             if (Has(this.config, tool)) {
                 switch (tool) {
@@ -79,13 +99,15 @@ class Toolbar extends declared(Widget) {
                     // case "directions":
                     //     toolList.push(this._addDirections(element));
                     //     break;
+                    case "overview" :
+                        toolList.push(this._addOverview(element, this.mapView));
+                        break
                     default:
                         toolList.push(this._addTool(element, tool));
                         break;
                 }
             }
-
-        });
+        }));
 
         All(toolList).then(()=> {
             // console.log("All", this);
@@ -223,6 +245,26 @@ class Toolbar extends declared(Widget) {
             directions.showBadge(badge);
             directions.hideBadge(badge);
         });
+    }
+
+    private _addOverview = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.promise.Promise<Tool> => {
+        if(Has(this.config, "overview")) {
+            const deferred = this._addTool(element, "overview");
+            deferred.then((details) => {
+                require(["../MyOverviewMap/MyOverviewMap"], lang.hitch(this, function(MyOverviewMap) {
+                    new MyOverviewMap({
+                        mainView:mainView,
+                        container: domConstruct.create("div", {}, "pageBody_overview")
+                    });
+                }));
+            });
+            return deferred.promise;
+        }
+        else {
+            const deferred = new Deferred<Tool>();
+            deferred.reject();
+            return deferred.promise;
+        }
     }
 
 }

@@ -84,13 +84,13 @@ import { Has } from "../../utils";
             switch (event.key) {
                 case "Esc":
                 case "Escape":
-                const id = element.id.replace(
-                    "pageBody",
-                    "toolButton"
-                );
-                document.getElementById(id).focus();
-                console.log("Esc", id);
-                break;
+                    const id = element.id.replace(
+                        "pageBody",
+                        "toolButton"
+                    );
+                    document.getElementById(id).focus();
+                    console.log("Esc", id);
+                    break;
             }
         }))
     }
