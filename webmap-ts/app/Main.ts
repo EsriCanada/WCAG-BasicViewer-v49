@@ -146,6 +146,19 @@ class MapExample {
               mapView.ui.add(homeBtn, "top-left");
             });
           }
+
+          if(Has(this.config, 'locate')) {
+            require([
+              "esri/widgets/Locate"
+            ], function(Locate) {
+              var locateBtn = new Locate({
+                view: mapView
+              });
+        
+              // Add the home button to the top left corner of the view
+              mapView.ui.add(locateBtn, "top-left");
+            });
+          }
           this.addSearch(this.config, mapView);
           this.createTools(this.config, mapView);
 
