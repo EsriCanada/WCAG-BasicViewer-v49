@@ -85,9 +85,9 @@ class Toolbar extends declared(Widget) {
         });
 
         All(toolList).then(()=> {
-            console.log("All", this);
+            // console.log("All", this);
             if(this.defaultButton) {
-                console.log("defaultButton", this.defaultButton);
+                // console.log("defaultButton", this.defaultButton);
                 this.defaultButton.click();
             }
             this.deferred.resolve(this);
@@ -139,7 +139,6 @@ class Toolbar extends declared(Widget) {
 
                         // domClass.add(details.defaultButton, "defaultButton");
                         this.defaultButton = details.myInputBtn;
-                        // this.defaultButton.click();
 
                         this.deferredDetails.resolve(tool.pageContent);
                     });
@@ -191,7 +190,6 @@ class Toolbar extends declared(Widget) {
                         instructions.active = true;
 
                         this.defaultButton = instructions.myInputBtn;
-                        // this.defaultButton.click();
                     })
                 })
             }

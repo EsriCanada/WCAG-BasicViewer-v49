@@ -167,7 +167,7 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                         container: domConstruct.create("div", {}, element),
                         sources: defaultSources
                     });
-                    console.log("Search", searchWidget);
+                    // console.log("Search", searchWidget)
                 }));
             };
             return _this;

@@ -214,7 +214,7 @@ class Search extends declared(Widget) {
               container: domConstruct.create("div",{},element),
               sources: defaultSources
             });
-            console.log("Search", searchWidget)
+            // console.log("Search", searchWidget)
           }));
     }
 
