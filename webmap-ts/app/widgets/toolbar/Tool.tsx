@@ -104,7 +104,7 @@ const CSS = {
         }, element);
 
         this.pageReady = this._addPage(this.tool);
-        this.pageReady.then((toolPage) => {
+        this.pageReady.then((toolPage: ToolPage) => {
             this.myToolPage = toolPage;
             this.deferrer.resolve(this);
         });
@@ -149,8 +149,7 @@ const CSS = {
 
     private _toggle = (evn) => {
         this.active = !this.active;
-        // console.log("_toggle", this.tool, this.active);
-
+        
         const panelsTool = query(".panelTool", "panelTools");
         // console.log("execute", evn, panelsTool);
         panelsTool.forEach((panel) => {
@@ -164,11 +163,7 @@ const CSS = {
         }
         else
         {
-            const instructionsBtn = document.getElementById("toolButton_instructions");
-            if(instructionsBtn) {
-                // console.log("instructionsBtn", instructionsBtn)
-                setTimeout(() => instructionsBtn.click() ,100);
-            }
+            setTimeout(() => this.toolBar.defaultButton.click(), 100); 
         }
 
         // console.log("myToolPage", this);
@@ -179,6 +174,18 @@ const CSS = {
         })
         if(this.myToolPage) {
             this.myToolPage.hide = !this.active;
+            if(!this.myToolPage.hide) {
+                const tabbedElements = query(`[tabindex="0"]`, this.myToolPage.pageContent);
+                console.log("Page", this.myToolPage, tabbedElements);
+                if(tabbedElements.length>0) {
+                    // console.log("tabbedElements[0]", tabbedElements[0], (tabbedElements[0] as HTMLElement));
+                    setTimeout(() => (tabbedElements[0]as HTMLElement).focus(), 200);
+                }
+                else {
+                    // console.log("this.myToolPage.pageContent", this.myToolPage.pageContent, (this.myToolPage.pageContent as HTMLElement));
+                    setTimeout(() => (this.myToolPage.pageContent as HTMLElement).focus(), 200);
+                }
+            }
         }
     }
 
