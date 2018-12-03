@@ -30,7 +30,7 @@ import domConstruct = require("dojo/dom-construct");
 import Search = require("esri/widgets/Search");
 
 
-import { LightenDarkenColor } from "./utils";
+import { LightenDarkenColor, Has } from "./utils";
 
 const CSS = {
   loading: "configurable-application--loading"
@@ -111,9 +111,10 @@ class MapExample {
       };
 
       const viewProperties = {
-        ...defaultViewProperties,
+        ...defaultViewProperties, 
         ...container
       };
+      console.log("viewProperties", viewProperties);
 
       
       createMapFromItem({ item, appProxies }).then(map => {
@@ -132,7 +133,19 @@ class MapExample {
               (mapView as __esri.MapView).ui.add(scaleBar, {position: "bottom-right"});
             })
           }
-          
+
+          if(Has(this.config, 'home')) {
+            require([
+              "esri/widgets/Home"
+            ], function(Home) {
+              var homeBtn = new Home({
+                view: mapView
+              });
+        
+              // Add the home button to the top left corner of the view
+              mapView.ui.add(homeBtn, "top-left");
+            });
+          }
           this.addSearch(this.config, mapView);
           this.createTools(this.config, mapView);
 
