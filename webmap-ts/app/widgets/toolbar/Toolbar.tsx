@@ -137,7 +137,7 @@ class Toolbar extends declared(Widget) {
                 toolBar: this,
                 container: domConstruct.create("div", {}, element)
             });
-            deferrer.resolve(t);
+            t.pageReady.then(() => deferrer.resolve(t));
         }));
         return deferrer.promise;
     }

@@ -209,6 +209,9 @@ class MapExample {
 .panelTool input[type="image"]:hover {
   background-color: ${hoverColor};
 }
+.panelTool.active input[type="image"]:hover {
+  background-color: ${borderActiveColor};
+}
 
 .esri-menu li:hover {
   background-color: ${hoverColor};

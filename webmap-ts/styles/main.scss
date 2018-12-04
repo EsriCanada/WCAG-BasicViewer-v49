@@ -725,7 +725,9 @@ myKey img {
 }
 
 #extentDiv {
-    background-color: rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(31, 31, 31, 1);
+    background-color: rgba(31, 31, 31, 0.2);
     position: absolute;
     z-index: 2;
+    display: block;
 }
