@@ -712,15 +712,16 @@ myKey img {
     height: auto;
 }
 
-#overviewDiv {
+#overviewDiv,
+.overviewDiv {
     position: absolute;
-    top: 12px;
-    margin: 12px;
-    width: calc(100% - 24px);
-    height: 300px;
-    border: 1px solid black;
+    top: calc(50% - 200px);
+    left: calc(50% - 200px);
+    width: 400px;
+    height: 400px;
     z-index: 1;
     overflow: hidden;
+    border-radius: 50%;
 }
 
 #extentDiv {

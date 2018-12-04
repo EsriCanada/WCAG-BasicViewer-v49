@@ -45,9 +45,8 @@ import {
             
     render() {
         return (
-        <div afterCreate={this._addOverviewMap}>
-            <div id="overviewDiv"></div> 
-            <div id="extentDiv"></div>
+        <div class="overviewDiv" afterCreate={this._addOverviewMap}>
+            <div id="extentDiv" tabindex="0"></div>
         </div>
         );
     }
@@ -70,7 +69,7 @@ import {
                 container: domConstruct.create("div", {
                     id: "overviewDiv",
                     
-                }, domConstruct.create("div", {}, element)),
+                }, element),
                 map: overviewMap,
                 constraints: {
                   rotationEnabled: false
@@ -99,7 +98,7 @@ import {
                     if(overviewView.ready) {
                         overviewView.goTo({
                             center: this.mainView.center,
-                            scale: this.mainView.scale * 5 * Math.max(this.mainView.width / overviewView.width,
+                            scale: this.mainView.scale * 3 * Math.max(this.mainView.width / overviewView.width,
                             this.mainView.height / overviewView.height)
                         });
                     }

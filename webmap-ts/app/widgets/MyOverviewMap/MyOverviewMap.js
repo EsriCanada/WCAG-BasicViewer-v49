@@ -45,7 +45,7 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                     var overviewView = new MapView({
                         container: domConstruct.create("div", {
                             id: "overviewDiv",
-                        }, domConstruct.create("div", {}, element)),
+                        }, element),
                         map: overviewMap,
                         constraints: {
                             rotationEnabled: false
@@ -68,7 +68,7 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                         if (overviewView.ready) {
                             overviewView.goTo({
                                 center: this.mainView.center,
-                                scale: this.mainView.scale * 5 * Math.max(this.mainView.width / overviewView.width, this.mainView.height / overviewView.height)
+                                scale: this.mainView.scale * 3 * Math.max(this.mainView.width / overviewView.width, this.mainView.height / overviewView.height)
                             });
                         }
                     }
@@ -93,9 +93,8 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
             return _this;
         }
         MyOverviewMap.prototype.render = function () {
-            return (widget_1.tsx("div", { afterCreate: this._addOverviewMap },
-                widget_1.tsx("div", { id: "overviewDiv" }),
-                widget_1.tsx("div", { id: "extentDiv" })));
+            return (widget_1.tsx("div", { class: "overviewDiv", afterCreate: this._addOverviewMap },
+                widget_1.tsx("div", { id: "extentDiv", tabindex: "0" })));
         };
         __decorate([
             decorators_1.property()
