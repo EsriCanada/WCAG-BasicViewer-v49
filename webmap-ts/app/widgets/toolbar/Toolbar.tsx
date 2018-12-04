@@ -265,7 +265,7 @@ class Toolbar extends declared(Widget) {
                             min:1, max:4,
                             class:"header__numberInput",
                         },
-                        domConstruct.create("label", {innerHTML:`Scale Factor: `}, overviewTool.myToolPage.myControls));
+                        domConstruct.create("label", {innerHTML:`Aspect Ratio: `}, overviewTool.myToolPage.myControls));
 
                         on(overviewMapScale, "keyup", lang.hitch(this, function(event) {
                             // console.log("keyup",  event.target.value);

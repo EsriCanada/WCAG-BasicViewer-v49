@@ -9,6 +9,7 @@ import Widget = require("esri/widgets/Widget");
 import lang = require("dojo/_base/lang");
 import domConstruct = require("dojo/dom-construct");
 import query = require("dojo/query");
+import on = require("dojo/on");
 import domAttr = require("dojo/dom-attr");
 import domClass = require("dojo/dom-class");
 import domStyle = require("dojo/dom-style");
@@ -30,20 +31,18 @@ import {
     @property()
     mainView: __esri.MapView | __esri.SceneView;
 
-    // @property()
-    // config: ApplicationConfig;
   
     @property()
     @renderable()
     scaleFactor: number = 2;
   
+    private extentDiv: HTMLElement;
+    private conversionScale = {1:2, 2:3, 3:6, 4:12};
+            
     constructor() {
         super();
     }
 
-    @property()
-    conversionScale = {1:2, 2:3, 3:6, 4:12};
-            
     render() {
         // console.log("render", this.scaleFactor);
         return (
@@ -60,7 +59,12 @@ import {
         );
     }
 
+    // private _drag = (event) => {};
+    // private _allowDrop = (event) => {};
+    // private _drop = (event) => {};
+
     private _addOverviewMap = (element: Element) => {
+        this.extentDiv = element as HTMLElement;
         require([
             "esri/Map",
             "esri/views/SceneView",
@@ -99,8 +103,17 @@ import {
                 //   domConstruct.create("span",{innerHTML: overviewView.scale}, scaleContainer);
                 //   // Add widget to the bottom left corner of the view
                 //   (overviewView as __esri.MapView).ui.add(scaleBar, "bottom-left");
+                on(this.extentDiv, 'dragstart', lang.hitch(this, (event) => {
+                    console.log("dragstart", event, this);
+                }));
+                on(this.extentDiv, 'dragover', lang.hitch(this, (event) => {
+                    console.log("dragover", event, this);
+                }));
+                on(this.extentDiv, 'dragend', lang.hitch(this, (event) => {
+                    console.log("dragend", event, this);
+                }));
             });
-
+            
             const extentDiv = document.getElementById("extentDiv");
 
             // overviewView.when(function() {
