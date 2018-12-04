@@ -177,21 +177,23 @@ class MapExample {
         const focusColor = this.config.focusColor;
         const hoverColor = this.config.hoverColor;
         const activeColor = this.config.activeColor;
+        const bgColor = this.config.theme;
+        const bgLightenColor = LightenDarkenColor(this.config.theme, 50);
 
         const borderActiveColor = LightenDarkenColor(this.config.activeColor, 75);
 
         configurableStyles.innerHTML = `
-.bg { background: ${this.config.theme}; }
+.bg { background: ${bgColor}; }
 .fc { color: ${this.config.color}; }
 :focus { outline-color: ${focusColor}; }
 .claro .dijitSplitterV,
 .claro .dijitSplitterH
 {
   background: white;
-  border-color: ${this.config.theme};
+  border-color: ${bgColor};
 }
 .esri-widget--button {
-  background: ${this.config.theme};
+  background: ${bgColor};
   color: ${this.config.color};
   margin: 1px !important;
 }
@@ -215,6 +217,11 @@ class MapExample {
 
 .esri-menu li:hover {
   background-color: ${hoverColor};
+  color: ${this.config.color};
+}
+
+.header__numberInput {
+  background: ${bgLightenColor};
   color: ${this.config.color};
 }
 `;

@@ -731,3 +731,28 @@ myKey img {
     z-index: 2;
     display: block;
 }
+
+.headerPanel {
+    width: auto;
+    height: 24px;
+    display: inline-block;
+    margin-bottom: -1px;
+    margin-top: -2px;
+    vertical-align: bottom;
+}
+
+.headerControls {
+    float: right;
+    margin-top: 1px;
+    font-size: 16px;
+    font-family: 'Raleway', sans-serif;
+    font-weight: normal;
+    margin-top: 0;
+}
+
+.header__numberInput {
+    width: 30px;
+    background: transparent;
+    color: white;
+    border: none;
+}

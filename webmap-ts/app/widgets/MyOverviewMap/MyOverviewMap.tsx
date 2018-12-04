@@ -29,21 +29,20 @@ import {
   
     @property()
     mainView: __esri.MapView | __esri.SceneView;
+
     // @property()
     // config: ApplicationConfig;
   
-    // @property()
-    // myToolPage : ToolPage;
-
-    // @property()
-    // @renderable()
-    // active: boolean;
+    @property()
+    @renderable()
+    scaleFactor: number = 3;
   
     constructor() {
         super();
     }
             
     render() {
+        // console.log("render", this.scaleFactor);
         return (
         <div class="overviewDiv">
             <div 
@@ -70,8 +69,6 @@ import {
                 basemap: "topo"
             });
 
-            
-
             const overviewView: __esri.MapView = new MapView({
                 container: domConstruct.create("div", {
                     id: "overviewDiv"
@@ -87,8 +84,8 @@ import {
             overviewView.when(function() {
                 const viewSurface = overviewView.container.querySelector(".esri-view-surface");
                 domAttr.remove(viewSurface, "tabindex");
-                console.log("viewSurface", viewSurface);
-                });
+                // console.log("viewSurface", viewSurface);
+            });
 
             const extentDiv = document.getElementById("extentDiv");
 
@@ -102,6 +99,11 @@ import {
     
                 // Update the minimap overview when the main view becomes stationary
                 watchUtils.when(overviewView, "stationary", lang.hitch(this, updateOverview));
+                this.watch("scaleFactor", lang.hitch(this, function(event) {
+                    // console.log("scaleFactor", this.scaleFactor);
+                    lang.hitch(this, updateOverview);
+                    // lang.hitch(this, updateOverviewExtent);
+                }));
     
                 function updateOverview() {
                     // console.log("updateOverviewt");
@@ -109,10 +111,12 @@ import {
                     // We use the "progress" callback of the goTo promise to update
                     // the overview extent while animating
                     if(overviewView.ready) {
+                        const scale = this.mainView.scale * this.scaleFactor * Math.max(this.mainView.width / overviewView.width,
+                            this.mainView.height / overviewView.height);
+                        // console.log("updateOverview", this.scaleFactor, scale);
                         overviewView.goTo({
                             center: this.mainView.center,
-                            scale: this.mainView.scale * 3 * Math.max(this.mainView.width / overviewView.width,
-                            this.mainView.height / overviewView.height)
+                            scale: scale
                         });
                     }
                 }

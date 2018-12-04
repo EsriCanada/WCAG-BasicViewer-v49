@@ -250,13 +250,36 @@ class Toolbar extends declared(Widget) {
     private _addOverview = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.promise.Promise<Tool> => {
         if(Has(this.config, "overview")) {
             const deferred = this._addTool(element, "overview");
-            deferred.then((details) => {
+            deferred.then((overviewTool) => {
                 require(["../MyOverviewMap/MyOverviewMap"], lang.hitch(this, function(MyOverviewMap) {
-                    new MyOverviewMap({
+                    const overviewMap = new MyOverviewMap({
                         mainView:mainView,
                         container: domConstruct.create("div", {}, "pageBody_overview")
                     });
-                }));
+
+                    ;
+                    const overviewMapScale = domConstruct.create("input", {
+                            id: "overviewMapScale", 
+                            type:"number", 
+                            value: overviewMap.scaleFactor,
+                            min:2, max:12,
+                            class:"header__numberInput",
+                        },
+                        domConstruct.create("label", {innerHTML:`Scale Factor: `}, overviewTool.myToolPage.myControls));
+
+                        on(overviewMapScale, "keyup", lang.hitch(this, function(event) {
+                            // console.log("keyup",  event.target.value);
+                            overviewMap.scaleFactor = event.target.value;
+                        }));
+                        on(overviewMapScale, "change", lang.hitch(this, function(event) {
+                            // console.log("change", event.target.value);
+                            overviewMap.scaleFactor = event.target.value;
+                        }));
+                        on(overviewMapScale, "input", lang.hitch(this, function(event) {
+                            // console.log("input", event.target.value);
+                            overviewMap.scaleFactor = event.target.value;
+                        }));
+                            }));
             });
             return deferred.promise;
         }

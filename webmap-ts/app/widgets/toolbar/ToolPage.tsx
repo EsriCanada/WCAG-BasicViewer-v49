@@ -8,6 +8,8 @@ import Widget = require("esri/widgets/Widget");
 import lang = require("dojo/_base/lang");
 import domConstruct = require("dojo/dom-construct");
 import on = require("dojo/on");
+import Deferred = require("dojo/Deferred");
+
 
 import { renderable, tsx } from "esri/widgets/support/widget";
 
@@ -30,6 +32,9 @@ import { Has } from "../../utils";
 
     @property()
     pageContent: Element;
+
+    @property()
+    myControls: HTMLElement;
 
     constructor() {
         super();
@@ -60,7 +65,15 @@ import { Has } from "../../utils";
                 id={"pagetitle_"+name}>{pageTitle}</h2>
             <div
             	id={"loading_"+name}
-                class="hideLoading small-loading"
+                class="headerPanel"
+                style="display:none;"
+                >
+                <img src="/webmap-ts/images/reload1.gif" alt="Reloading" title="Reloading"/>
+            </div>
+            <div 
+                id={"controls_"+name}
+                class="headerPanel headerControls"
+                afterCreate={this._controlsReady}
                 >
             </div>
         </div>
@@ -76,6 +89,10 @@ import { Has } from "../../utils";
     </div>
 </div>
         );
+    }
+
+    private _controlsReady = (element: HTMLElement) : void => {
+        this.myControls = element;    
     }
 
     private _pageContentReady = (element: Element) : void => {
@@ -94,6 +111,8 @@ import { Has } from "../../utils";
             }
         }))
     }
+
+    
 }
 
 export = ToolPage;
