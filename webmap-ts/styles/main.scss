@@ -744,10 +744,11 @@ myKey img {
 .headerControls {
     float: right;
     margin-top: 1px;
-    font-size: 16px;
+    font-size: 14px;
     font-family: 'Raleway', sans-serif;
     font-weight: normal;
-    margin-top: 0;
+    margin-top: 2px;
+    margin-bottom: -3px;
 }
 
 .header__numberInput {

@@ -262,7 +262,7 @@ class Toolbar extends declared(Widget) {
                             id: "overviewMapScale", 
                             type:"number", 
                             value: overviewMap.scaleFactor,
-                            min:2, max:12,
+                            min:1, max:4,
                             class:"header__numberInput",
                         },
                         domConstruct.create("label", {innerHTML:`Scale Factor: `}, overviewTool.myToolPage.myControls));
