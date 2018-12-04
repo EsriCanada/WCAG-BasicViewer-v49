@@ -45,8 +45,15 @@ import {
             
     render() {
         return (
-        <div class="overviewDiv" afterCreate={this._addOverviewMap}>
-            <div id="extentDiv" tabindex="0"></div>
+        <div class="overviewDiv">
+            <div 
+                id="extentDiv" 
+                tabindex="0" 
+                role="application"
+                title="Map Extent"
+                afterCreate={this._addOverviewMap}>
+                <span class="esri-icon-font-fallback-text">Move Extent Instructions</span>
+            </div>
         </div>
         );
     }
@@ -67,9 +74,8 @@ import {
 
             const overviewView: __esri.MapView = new MapView({
                 container: domConstruct.create("div", {
-                    id: "overviewDiv",
-                    
-                }, element),
+                    id: "overviewDiv"
+                }, element, "before"),
                 map: overviewMap,
                 constraints: {
                   rotationEnabled: false
@@ -77,7 +83,14 @@ import {
               });
 
             overviewView.ui.components = [];
-            var extentDiv = document.getElementById("extentDiv");
+
+            overviewView.when(function() {
+                const viewSurface = overviewView.container.querySelector(".esri-view-surface");
+                domAttr.remove(viewSurface, "tabindex");
+                console.log("viewSurface", viewSurface);
+                });
+
+            const extentDiv = document.getElementById("extentDiv");
 
             // overviewView.when(function() {
                 

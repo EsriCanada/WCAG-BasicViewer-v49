@@ -19,7 +19,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/core/tsSupport/decorateHelper", "esri/core/accessorSupport/decorators", "esri/widgets/Widget", "dojo/_base/lang", "dojo/dom-construct", "esri/widgets/support/widget"], function (require, exports, __extends, __decorate, decorators_1, Widget, lang, domConstruct, widget_1) {
+define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/core/tsSupport/decorateHelper", "esri/core/accessorSupport/decorators", "esri/widgets/Widget", "dojo/_base/lang", "dojo/dom-construct", "dojo/dom-attr", "esri/widgets/support/widget"], function (require, exports, __extends, __decorate, decorators_1, Widget, lang, domConstruct, domAttr, widget_1) {
     "use strict";
     var MyOverviewMap = /** @class */ (function (_super) {
         __extends(MyOverviewMap, _super);
@@ -44,14 +44,19 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                     });
                     var overviewView = new MapView({
                         container: domConstruct.create("div", {
-                            id: "overviewDiv",
-                        }, element),
+                            id: "overviewDiv"
+                        }, element, "before"),
                         map: overviewMap,
                         constraints: {
                             rotationEnabled: false
                         }
                     });
                     overviewView.ui.components = [];
+                    overviewView.when(function () {
+                        var viewSurface = overviewView.container.querySelector(".esri-view-surface");
+                        domAttr.remove(viewSurface, "tabindex");
+                        console.log("viewSurface", viewSurface);
+                    });
                     var extentDiv = document.getElementById("extentDiv");
                     // overviewView.when(function() {
                     // Update the overview extent whenever the MapView or SceneView extent changes
@@ -93,8 +98,9 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
             return _this;
         }
         MyOverviewMap.prototype.render = function () {
-            return (widget_1.tsx("div", { class: "overviewDiv", afterCreate: this._addOverviewMap },
-                widget_1.tsx("div", { id: "extentDiv", tabindex: "0" })));
+            return (widget_1.tsx("div", { class: "overviewDiv" },
+                widget_1.tsx("div", { id: "extentDiv", tabindex: "0", role: "application", title: "Map Extent", afterCreate: this._addOverviewMap },
+                    widget_1.tsx("span", { class: "esri-icon-font-fallback-text" }, "Move Extent Instructions"))));
         };
         __decorate([
             decorators_1.property()
