@@ -91,7 +91,7 @@ import {
 
                 overviewView.ui.add(extentDiv);
 
-                extentDiv.onmousedown = function(event) {
+                extentDiv.onmousedown = lang.hitch(this, function(event) {
                     // overviewView.ui.add(extentDiv);
                     // centers the extentDiv at (pageX, pageY) coordinates
                     const overviewDiv = dom.byId("overviewDiv");
@@ -112,7 +112,8 @@ import {
                     }
 
                     let mouseOn = false;
-                    function releaseMouse() {
+                    function releaseMouse(mainView) {
+                        console.log("releaseMouse", mainView);
                         document.removeEventListener('mousemove', onMouseMove);
                         extentDiv.onmouseup = null;
                         
@@ -120,6 +121,9 @@ import {
                         extentDiv.style.left = (x-offsetX) + 'px';
                         extentDiv.style.top = (y-offsetY) + 'px';
                         overviewView.ui.add(extentDiv);
+
+                        // console.log("this.mainView 1", this.mainView);
+                        updateMainView(mainView, extentDiv)
                     }
                 
 
@@ -132,15 +136,16 @@ import {
                                 moveAt(event.pageX, event.pageY);
                             } 
                             else {
-                                releaseMouse();
+                                console.log("this.mainView", this.mainView);
+                                releaseMouse(this.mainView);
                             }
                         }
                     }
                 
                     if(event.button === 0) {
                         mouseOn = true;
-                        console.log("mouseDown", event);
-                        console.log("offset", offsetX, offsetY);
+                        // console.log("mouseDown", event);
+                        // console.log("offset", offsetX, offsetY);
                         // extentDiv.style.position = 'absolute';
                         document.body.append(extentDiv);
                     
@@ -150,13 +155,14 @@ import {
                         document.addEventListener('mousemove', onMouseMove);
                     
                         // (4) drop the extentDiv, remove unneeded handlers
-                        extentDiv.onmouseup = function() {
-                            releaseMouse();
+                        extentDiv.onmouseup = lang.hitch(this, function() {
+                            // console.log("this.mainView", this.mainView);
+                            releaseMouse(this.mainView);
                             mouseOn = false;
-                        };
+                        });
                     
                     }
-                }
+                })
 
                 overviewView.watch("extent", lang.hitch(this, updateOverviewExtent));
                 this.mainView.watch("extent", lang.hitch(this, updateOverviewExtent));
@@ -202,6 +208,17 @@ import {
         
                     extentDiv.style.height = (bottomLeft.y - topRight.y) + "px";
                     extentDiv.style.width = (topRight.x - bottomLeft.x) + "px";
+                }
+
+                function updateMainView(mainView, extentDiv) {
+
+                    const overviewDiv = document.getElementById("overviewDiv");
+                    const overv = overviewDiv.getBoundingClientRect();
+                    const bound = extentDiv.getBoundingClientRect();
+                    console.log("bound", bound);
+                    const mapCenter = overviewView.toMap({x:bound.left - overv.left + bound.width/2, y:bound.top  - overv.top + bound.height/2});
+                    console.log("center", mapCenter);
+                    mainView.goTo({center: [mapCenter.longitude, mapCenter.latitude]});
                 }
             }));
         }));
