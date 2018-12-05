@@ -69,7 +69,7 @@ import {
                 constraints: {
                   rotationEnabled: false
                 }
-              }).when(lang.hitch(this, function(overviewView) {
+            }).when(lang.hitch(this, function(overviewView) {
                 const scaleBar = new ScaleBar({
                     view: overviewView,
                     container: element
@@ -94,6 +94,9 @@ import {
                 extentDiv.onmousedown = function(event) {
                     // overviewView.ui.add(extentDiv);
                     // centers the extentDiv at (pageX, pageY) coordinates
+                    const overviewDiv = dom.byId("overviewDiv");
+                    const offsetX = overviewDiv.getBoundingClientRect().left;
+                    const offsetY = overviewDiv.getBoundingClientRect().top;
                     const shiftX = event.clientX - extentDiv.getBoundingClientRect().left;
                     const shiftY = event.clientY - extentDiv.getBoundingClientRect().top;
                 
@@ -104,20 +107,38 @@ import {
                         extentDiv.style.top = (y = (pageY - shiftY)) + 'px';
                     }
                 
-                    let currentDroppable = null;
-                    function onMouseMove(event) {
+                    function dropable(x, y) {
+                        return document.elementsFromPoint(x, y).filter(el => el.id == "overviewDiv").length > 0;
+                    }
 
-                        const elemsBelow = document.elementsFromPoint(event.clientX, event.clientY).filter(el => el.id == "overviewDiv");
+                    let mouseOn = false;
+                    function releaseMouse() {
+                        document.removeEventListener('mousemove', onMouseMove);
+                        extentDiv.onmouseup = null;
+                        
+                        // console.log("offest", x, y, offsetX, offsetY);
+                        extentDiv.style.left = (x-offsetX) + 'px';
+                        extentDiv.style.top = (y-offsetY) + 'px';
+                        overviewView.ui.add(extentDiv);
+                    }
+                
+
+                    function onMouseMove(event) {
+                        // const elemsBelow = document.elementsFromPoint(event.clientX, event.clientY).filter(el => el.id == "overviewDiv");
                         // console.log("elemsBelow", elemsBelow);
-                        if(elemsBelow.length > 0) {
-                            moveAt(event.pageX, event.pageY);
+                        if(mouseOn) {
+                            if(dropable(event.clientX, event.clientY)) {
+                                // console.log("MouseMove", event);
+                                moveAt(event.pageX, event.pageY);
+                            } 
+                            else {
+                                releaseMouse();
+                            }
                         }
                     }
                 
                     if(event.button === 0) {
-                        const overviewDiv = dom.byId("overviewDiv");
-                        const offsetX = overviewDiv.getBoundingClientRect().left;
-                        const offsetY = overviewDiv.getBoundingClientRect().top;
+                        mouseOn = true;
                         console.log("mouseDown", event);
                         console.log("offset", offsetX, offsetY);
                         // extentDiv.style.position = 'absolute';
@@ -130,65 +151,20 @@ import {
                     
                         // (4) drop the extentDiv, remove unneeded handlers
                         extentDiv.onmouseup = function() {
-                            document.removeEventListener('mousemove', onMouseMove);
-                            extentDiv.onmouseup = null;
-                            
-                            console.log("offest", x, y, offsetX, offsetY);
-                            extentDiv.style.left = (x-offsetX) + 'px';
-                            extentDiv.style.top = (y-offsetY) + 'px';
-                            overviewView.ui.add(extentDiv);
+                            releaseMouse();
+                            mouseOn = false;
                         };
                     
                     }
-            };
-                  
-                //   extentDiv.ondragstart = function() {
-                //     return false;
-                //   };
-                // on(dom.byId("extentDiv"), 'dragstart', lang.hitch(this, (ev) => {
-                //     const data = {id: ev.target.id, clientX: ev.clientX, clientY: ev.clientY, clientLeft: ev.target.clientLeft, clientTop: ev.target.clientTop, x: ev.x, y: ev.y};
-                //     console.log("dragstart", "ev", ev);
-                //     console.log("data", data);
-                //     ev.dataTransfer.setData("overviewDiv", JSON.stringify(data));
-                // }));
-                // on(dom.byId("overviewDiv"), 'dragover', lang.hitch(this, (ev) => {
-                //     // console.log("dragover", ev);
-                //     ev.preventDefault();
-                // }));
-                // on(dom.byId("overviewDiv"), 'drop', lang.hitch(this, (ev) => {
-                //     ev.preventDefault();
-                //     var data = JSON.parse(ev.dataTransfer.getData("overviewDiv"));
-                //     const Obj = {id: ev.target.id, x: ev.x, y: ev.y};
-                //     console.log("drop", "ev", ev);
-                //     console.log("data", data);
-                //     console.log("Obj", Obj);
-                //     const pageBody_overview= dom.byId("pageBody_overview");
-                //     const overviewDiv = dom.byId("overviewDiv");
-                //     // const compStyle = domStyle.getComputedStyle(overviewDiv);
-                //     const Height = Number(domStyle.get(pageBody_overview, "height"));
-                //     const height = Number(domStyle.get(overviewDiv, "height"));
-                //     const Width = Number(domStyle.get(pageBody_overview, "width"));
-                //     const width = Number(domStyle.get(overviewDiv, "width"));
-                //     const left = (Width-width)/2;
-                //     const top = (Height-height)/2;
-                //     console.log("top", top, "Height", Height, "Y", Obj.y);
-                //     console.log("left", left, "Width", Width, "X", Obj.x);
-                //     const target = dom.byId(data.id);
-                //     domStyle.set(target, "left", `${left+Obj.x}px`);
-                //     // domStyle.set(target, "top", `${Height-top+Obj.y}px`);
-                //     console.log("target", target);
-                //     // debugger;
-                // }));
-            
+                }
+
                 overviewView.watch("extent", lang.hitch(this, updateOverviewExtent));
                 this.mainView.watch("extent", lang.hitch(this, updateOverviewExtent));
     
                 // Update the minimap overview when the main view becomes stationary
                 watchUtils.when(overviewView, "stationary", lang.hitch(this, updateOverview));
                 this.watch("scaleFactor", lang.hitch(this, function(event) {
-                    // console.log("scaleFactor", this.scaleFactor);
                     lang.hitch(this, updateOverview);
-                    // lang.hitch(this, updateOverviewExtent);
                 }));
         
                 function updateOverview() {
@@ -229,9 +205,9 @@ import {
                 }
             }));
         }));
+    
     }
 }
 
+
 export = MyOverviewMap;
-
-
