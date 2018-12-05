@@ -9,6 +9,7 @@ import Widget = require("esri/widgets/Widget");
 import lang = require("dojo/_base/lang");
 import domConstruct = require("dojo/dom-construct");
 import query = require("dojo/query");
+import dom = require("dojo/dom");
 import on = require("dojo/on");
 import domAttr = require("dojo/dom-attr");
 import domClass = require("dojo/dom-class");
@@ -31,12 +32,10 @@ import {
     @property()
     mainView: __esri.MapView | __esri.SceneView;
 
-  
     @property()
     @renderable()
     scaleFactor: number = 2;
   
-    private extentDiv: HTMLElement;
     private conversionScale = {1:2, 2:3, 3:6, 4:12};
             
     constructor() {
@@ -44,27 +43,12 @@ import {
     }
 
     render() {
-        // console.log("render", this.scaleFactor);
         return (
-        <div class="overviewDiv">
-            <div 
-                id="extentDiv" 
-                tabindex="0" 
-                role="application"
-                title="Map Extent"
-                afterCreate={this._addOverviewMap}>
-                <span class="esri-icon-font-fallback-text">Move Extent Instructions</span>
-            </div>
-        </div>
+        <div afterCreate={this._addOverviewMap} style="position:absolute; bottom:20px; left:20px; z-index:2;"></div>
         );
     }
 
-    // private _drag = (event) => {};
-    // private _allowDrop = (event) => {};
-    // private _drop = (event) => {};
-
     private _addOverviewMap = (element: Element) => {
-        this.extentDiv = element as HTMLElement;
         require([
             "esri/Map",
             "esri/views/SceneView",
@@ -77,50 +61,71 @@ import {
                 basemap: "topo"
             });
 
-            const overviewView: __esri.MapView = new MapView({
+            new MapView({
                 container: domConstruct.create("div", {
                     id: "overviewDiv"
-                }, element, "before"),
+                }, element.parentNode),
                 map: overviewMap,
                 constraints: {
                   rotationEnabled: false
                 }
-              });
+              }).when(lang.hitch(this, function(overviewView) {
+                const scaleBar = new ScaleBar({
+                    view: overviewView,
+                    container: element
+                });
+                  
+                // console.log("overviewView", overviewView);
+                const extentDiv = domConstruct.create("div", {
+                    id: "extentDiv",
+                    tabindex: 0,
+                    role: "application",
+                    title: "Map Extent",
+                    draggable: "true",
+                });
 
-            overviewView.ui.components = [];
+                overviewView.ui.components = [];
 
-            overviewView.when(function() {
+                overviewView.ui.add(extentDiv);
+
                 const viewSurface = overviewView.container.querySelector(".esri-view-surface");
                 domAttr.remove(viewSurface, "tabindex");
-                // console.log("viewSurface", viewSurface);
 
-                // const scaleContainer = domConstruct.create("div", {style:"position:absolute; bottom:20px; left:20px;"}, "pageBody_overview");
-                // const scaleBar = new ScaleBar({
-                //     view: overviewView,
-                //     container: scaleContainer
-                //   });
-                  
-                //   domConstruct.create("span",{innerHTML: overviewView.scale}, scaleContainer);
-                //   // Add widget to the bottom left corner of the view
-                //   (overviewView as __esri.MapView).ui.add(scaleBar, "bottom-left");
-                on(this.extentDiv, 'dragstart', lang.hitch(this, (event) => {
-                    console.log("dragstart", event, this);
+                on(dom.byId("extentDiv"), 'dragstart', lang.hitch(this, (ev) => {
+                    const data = {id: ev.target.id, clientX: ev.clientX, clientY: ev.clientY, clientLeft: ev.target.clientLeft, clientTop: ev.target.clientTop, x: ev.x, y: ev.y};
+                    console.log("dragstart", "ev", ev);
+                    console.log("data", data);
+                    ev.dataTransfer.setData("overviewDiv", JSON.stringify(data));
                 }));
-                on(this.extentDiv, 'dragover', lang.hitch(this, (event) => {
-                    console.log("dragover", event, this);
+                on(dom.byId("overviewDiv"), 'dragover', lang.hitch(this, (ev) => {
+                    // console.log("dragover", ev);
+                    ev.preventDefault();
                 }));
-                on(this.extentDiv, 'dragend', lang.hitch(this, (event) => {
-                    console.log("dragend", event, this);
+                on(dom.byId("overviewDiv"), 'drop', lang.hitch(this, (ev) => {
+                    ev.preventDefault();
+                    var data = JSON.parse(ev.dataTransfer.getData("overviewDiv"));
+                    const Obj = {id: ev.target.id, x: ev.x, y: ev.y};
+                    console.log("drop", "ev", ev);
+                    console.log("data", data);
+                    console.log("Obj", Obj);
+                    const pageBody_overview= dom.byId("pageBody_overview");
+                    const overviewDiv = dom.byId("overviewDiv");
+                    // const compStyle = domStyle.getComputedStyle(overviewDiv);
+                    const Height = Number(domStyle.get(pageBody_overview, "height"));
+                    const height = Number(domStyle.get(overviewDiv, "height"));
+                    const Width = Number(domStyle.get(pageBody_overview, "width"));
+                    const width = Number(domStyle.get(overviewDiv, "width"));
+                    const left = (Width-width)/2;
+                    const top = (Height-height)/2;
+                    console.log("top", top, "Height", Height, "Y", Obj.y);
+                    console.log("left", left, "Width", Width, "X", Obj.x);
+                    const target = dom.byId(data.id);
+                    domStyle.set(target, "left", `${left+Obj.x}px`);
+                    // domStyle.set(target, "top", `${Height-top+Obj.y}px`);
+                    console.log("target", target);
+                    // debugger;
                 }));
-            });
             
-            const extentDiv = document.getElementById("extentDiv");
-
-            // overviewView.when(function() {
-                
-                // Update the overview extent whenever the MapView or SceneView extent changes
-                // console.log("overviewView.when", this, this.mainView);
-
                 overviewView.watch("extent", lang.hitch(this, updateOverviewExtent));
                 this.mainView.watch("extent", lang.hitch(this, updateOverviewExtent));
     
@@ -131,7 +136,7 @@ import {
                     lang.hitch(this, updateOverview);
                     // lang.hitch(this, updateOverviewExtent);
                 }));
-    
+        
                 function updateOverview() {
                     // console.log("updateOverviewt");
                     // Animate the MapView to a zoomed-out scale so we get a nice overview.
@@ -168,10 +173,7 @@ import {
                     extentDiv.style.height = (bottomLeft.y - topRight.y) + "px";
                     extentDiv.style.width = (topRight.x - bottomLeft.x) + "px";
                 }
-            // },
-            // function(error) {
-            //     console.log("error", error);
-            // })
+            }));
         }));
     }
 }
