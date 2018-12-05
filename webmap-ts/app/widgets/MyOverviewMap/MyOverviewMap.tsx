@@ -104,8 +104,14 @@ import {
                         extentDiv.style.top = (y = (pageY - shiftY)) + 'px';
                     }
                 
+                    let currentDroppable = null;
                     function onMouseMove(event) {
-                        moveAt(event.pageX, event.pageY);
+
+                        const elemsBelow = document.elementsFromPoint(event.clientX, event.clientY).filter(el => el.id == "overviewDiv");
+                        // console.log("elemsBelow", elemsBelow);
+                        if(elemsBelow.length > 0) {
+                            moveAt(event.pageX, event.pageY);
+                        }
                     }
                 
                     if(event.button === 0) {
