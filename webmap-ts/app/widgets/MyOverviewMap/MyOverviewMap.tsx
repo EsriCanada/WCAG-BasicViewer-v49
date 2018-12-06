@@ -199,7 +199,7 @@ import {
                                     left > -extentDiv.clientWidth / 2
                                 ) {
                                     domStyle.set(extentDiv, "left", `${++left}px`);
-                                    domStyle.set(extentDiv, "top", --top + "px");
+                                    domStyle.set(extentDiv, "top", `${--top}px`);
                                 }
                                 break;
                             case 34: //pgdn
@@ -210,7 +210,7 @@ import {
                                     left > -extentDiv.clientWidth / 2
                                 ) {
                                     domStyle.set(extentDiv, "left", `${++left}px`);
-                                    domStyle.set(extentDiv, "top", ++top + "px");
+                                    domStyle.set(extentDiv, "top", `${++top}px`);
                                 }
                                 break;
                             case 36: //home
@@ -220,8 +220,8 @@ import {
                                         extentDiv.parentElement.offsetWidth -
                                             extentDiv.clientWidth / 2
                                 ) {
-                                    domStyle.set(extentDiv, "left", --left + "px");
-                                    domStyle.set(extentDiv, "top", --top + "px");
+                                    domStyle.set(extentDiv, "left", `${--left}px`);
+                                    domStyle.set(extentDiv, "top", `${--top}px`);
                                 }
                                 break;
                             case 35: //end
@@ -233,8 +233,8 @@ import {
                                         extentDiv.parentElement.offsetWidth -
                                             extentDiv.clientWidth / 2
                                 ) {
-                                    domStyle.set(extentDiv, "left", --left + "px");
-                                    domStyle.set(extentDiv, "top", ++top + "px");
+                                    domStyle.set(extentDiv, "left", `${--left}px`);
+                                    domStyle.set(extentDiv, "top", `${++top}px`);
                                 }
                                 break;
                         }
@@ -254,6 +254,8 @@ import {
     
                 on(extentDiv, "keyup",
                     lang.hitch(this, function(event) {
+                        // console.log('key', event.keyCode);
+                        const overviewMapScale = dom.byId("overviewMapScale");
                         switch (event.keyCode) {
                             case 38: // up
                             case 40: // down
@@ -266,6 +268,16 @@ import {
                                 // console.log("call updateMainView", updateMainView)
                                 updateMainView(this.mainView); 
                                 break;
+                            case 107 : //+
+                            case 187 :
+                                if(this.scaleFactor < 4)
+                                    domAttr.set(overviewMapScale, "value", ++this.scaleFactor); 
+                                break;
+                            case 109 : //-
+                            case 189 :
+                                if(this.scaleFactor > 1)
+                                    domAttr.set(overviewMapScale, "value", --this.scaleFactor); 
+                        break;
                         }
                         switch (event.keyCode) {
                             case 9: // tab
