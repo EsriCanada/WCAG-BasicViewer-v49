@@ -341,7 +341,7 @@ import {
 
                 function updateMainView(mainView) {
                     console.log("updateMainView", this);
-                    const extentDiv = dom.byId("extentDiv");
+                    const extentDiv = dom.byId("extentDiv") as HTMLElement;
                     const overviewDiv = dom.byId("overviewDiv");
                     const overv = overviewDiv.getBoundingClientRect();
                     const bound = extentDiv.getBoundingClientRect();
@@ -349,6 +349,7 @@ import {
                     const mapCenter = overviewView.toMap({x:bound.left - overv.left + bound.width/2, y:bound.top  - overv.top + bound.height/2});
                     // console.log("center", mapCenter);
                     mainView.goTo({center: [mapCenter.longitude, mapCenter.latitude]});
+                    extentDiv.focus();
                 }
             }));
         }));
