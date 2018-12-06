@@ -120,7 +120,10 @@ class MapExample {
       createMapFromItem({ item, appProxies }).then(map => {
         createView({
           ...viewProperties,
-          map
+          map,
+          constraints: {
+            rotationEnabled: false
+          }
         }).then(mapView => {
           findQuery(find, mapView).then(() => goToMarker(marker, mapView));
 
