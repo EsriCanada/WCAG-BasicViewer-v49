@@ -36,7 +36,7 @@ import {
     @renderable()
     scaleFactor: number = 2;
   
-    private conversionScale = {1:2, 2:3, 3:6, 4:12};
+    private conversionScale = {1:1.75, 2:4, 3:8, 4:15};
             
     constructor() {
         super();
@@ -72,6 +72,7 @@ import {
             }).when(lang.hitch(this, function(overviewView) {
                 const scaleBar = new ScaleBar({
                     view: overviewView,
+                    unit: "metric",
                     container: element
                 });
                   
