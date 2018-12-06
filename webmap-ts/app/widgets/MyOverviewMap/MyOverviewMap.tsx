@@ -36,8 +36,6 @@ import {
     @renderable()
     scaleFactor: number = 2;
   
-    private conversionScale = {1:1.75, 2:4, 3:8, 4:15};
-            
     constructor() {
         super();
     }
@@ -57,6 +55,11 @@ import {
             "esri/core/watchUtils"
         ], lang.hitch(this, function(Map, SceneView, MapView, ScaleBar, watchUtils) {
             
+            const conversionScale = {1:1.75, 2:4, 3:8, 4:15};
+
+            const scaleFactor = this.scaleFactor;
+            
+            const mainView = this.mainView;
             const overviewMap = new Map ({
                 basemap: "topo"
             });
@@ -114,7 +117,7 @@ import {
 
                     let mouseOn = false;
                     function releaseMouse(mainView) {
-                        console.log("releaseMouse", mainView);
+                        // console.log("releaseMouse", mainView);
                         document.removeEventListener('mousemove', onMouseMove);
                         extentDiv.onmouseup = null;
                         
@@ -124,7 +127,7 @@ import {
                         overviewView.ui.add(extentDiv);
 
                         // console.log("this.mainView 1", this.mainView);
-                        updateMainView(mainView, extentDiv)
+                        updateMainView(mainView)
                     }
                 
 
@@ -153,7 +156,7 @@ import {
                         moveAt(event.pageX, event.pageY);
                     
                        // (3) move the extentDiv on mousemove
-                        document.addEventListener('mousemove', onMouseMove);
+                        on(document, 'mousemove', onMouseMove);
                     
                         // (4) drop the extentDiv, remove unneeded handlers
                         extentDiv.onmouseup = lang.hitch(this, function() {
@@ -164,6 +167,119 @@ import {
                     
                     }
                 })
+
+                on(extentDiv, "keydown", lang.hitch(this, function(event) {
+                        let top:any  = domStyle.get(extentDiv, "top");
+                        let left:any = domStyle.get(extentDiv, "left");
+                        // console.log("top left", top, left);
+                        switch (event.keyCode) {
+                            case 38: // up
+                                if (top > -extentDiv.clientHeight / 2) {
+                                    domStyle.set(extentDiv, "top", `${--top}px`);
+                                }
+                                break;
+                            case 40: // down
+                                if (top < extentDiv.parentElement.offsetHeight - extentDiv.clientHeight / 2) {
+                                    domStyle.set(extentDiv, "top", `${++top}px`);
+                                }
+                                break;
+                            case 37: // left
+                                if (left > -extentDiv.clientWidth / 2) {
+                                    domStyle.set(extentDiv, "left", `${--left}px`);
+                                }
+                                break;
+                            case 39: // right
+                                if (left < extentDiv.parentElement.offsetWidth - extentDiv.clientWidth / 2) {
+                                    domStyle.set(extentDiv, "left", `${++left}px`);
+                                }
+                                break;
+                            // case 33: //pgup
+                            //     if (
+                            //         top > -extentDiv.clientHeight / 2 &&
+                            //         left > -extentDiv.clientWidth / 2
+                            //     ) {
+                            //         dojo.style(extentDiv, "left", ++left + "px");
+                            //         dojo.style(extentDiv, "top", --top + "px");
+                            //     }
+                            //     break;
+                            // case 34: //pgdn
+                            //     if (
+                            //         top <
+                            //             extentDiv.parentElement.offsetHeight -
+                            //                 extentDiv.clientHeight / 2 &&
+                            //         left > -extentDiv.clientWidth / 2
+                            //     ) {
+                            //         dojo.style(extentDiv, "left", ++left + "px");
+                            //         dojo.style(extentDiv, "top", ++top + "px");
+                            //     }
+                            //     break;
+                            // case 36: //home
+                            //     if (
+                            //         top > -extentDiv.clientHeight / 2 &&
+                            //         left <
+                            //             extentDiv.parentElement.offsetWidth -
+                            //                 extentDiv.clientWidth / 2
+                            //     ) {
+                            //         dojo.style(extentDiv, "left", --left + "px");
+                            //         dojo.style(extentDiv, "top", --top + "px");
+                            //     }
+                            //     break;
+                            // case 35: //end
+                            //     if (
+                            //         top <
+                            //             extentDiv.parentElement.offsetHeight -
+                            //                 extentDiv.clientHeight / 2 &&
+                            //         left <
+                            //             extentDiv.parentElement.offsetWidth -
+                            //                 extentDiv.clientWidth / 2
+                            //     ) {
+                            //         dojo.style(extentDiv, "left", --left + "px");
+                            //         dojo.style(extentDiv, "top", ++top + "px");
+                            //     }
+                            //     break;
+                        }
+                        switch (event.keyCode) {
+                            case 9: // tab
+                            // case 33: // PgUp
+                            // case 34: // PgDn
+                            case 27: // Esc
+                                break;
+                            default:
+                                event.stopPropagation();
+                                event.preventDefault();
+                                break;
+                        }
+                    })
+                );
+    
+                on(extentDiv, "keyup",
+                    lang.hitch(this, function(event) {
+                        switch (event.keyCode) {
+                            case 38: // up
+                            case 40: // down
+                            case 37: // left
+                            case 39: // right
+                            // case 34: //pgdn
+                            // case 33: //pgup
+                            // case 36: //home
+                            // case 35: //end
+                                // console.log("call updateMainView", updateMainView)
+                                updateMainView(this.mainView); 
+                                break;
+                        }
+                        switch (event.keyCode) {
+                            case 9: // tab
+                            // case 33: // PgUp
+                            // case 34: // PgDn
+                            case 27: // Esc
+                                break;
+                            default:
+                                event.stopPropagation();
+                                event.preventDefault();
+                                break;
+                        }
+                    })
+                );
 
                 overviewView.watch("extent", lang.hitch(this, updateOverviewExtent));
                 this.mainView.watch("extent", lang.hitch(this, updateOverviewExtent));
@@ -181,7 +297,7 @@ import {
                     // the overview extent while animating
                     if(overviewView.ready) {
                         
-                        const scale = this.mainView.scale * this.conversionScale[this.scaleFactor] * Math.max(this.mainView.width / overviewView.width,
+                        const scale = this.mainView.scale * conversionScale[this.scaleFactor] * Math.max(this.mainView.width / overviewView.width,
                             this.mainView.height / overviewView.height);
                         // console.log("updateOverview", this.scaleFactor, scale);
                         // overviewView.map.l;
@@ -211,14 +327,15 @@ import {
                     extentDiv.style.width = (topRight.x - bottomLeft.x) + "px";
                 }
 
-                function updateMainView(mainView, extentDiv) {
-
-                    const overviewDiv = document.getElementById("overviewDiv");
+                function updateMainView(mainView) {
+                    console.log("updateMainView", this);
+                    const extentDiv = dom.byId("extentDiv");
+                    const overviewDiv = dom.byId("overviewDiv");
                     const overv = overviewDiv.getBoundingClientRect();
                     const bound = extentDiv.getBoundingClientRect();
-                    console.log("bound", bound);
+                    // console.log("bound", bound);
                     const mapCenter = overviewView.toMap({x:bound.left - overv.left + bound.width/2, y:bound.top  - overv.top + bound.height/2});
-                    console.log("center", mapCenter);
+                    // console.log("center", mapCenter);
                     mainView.goTo({center: [mapCenter.longitude, mapCenter.latitude]});
                 }
             }));
