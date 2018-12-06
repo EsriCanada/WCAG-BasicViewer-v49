@@ -167,6 +167,19 @@ import {
                     
                     }
                 })
+                
+                on(extentDiv, "wheel", lang.hitch(this, function(event) {
+                    if(document.activeElement === extentDiv) {
+                        // console.log("wheel", event);
+                        const overviewMapScale = dom.byId("overviewMapScale");
+                        if(event.deltaY > 10 && this.scaleFactor < 4) {
+                            domAttr.set(overviewMapScale, "value", ++this.scaleFactor); 
+                        }
+                        else if(event.deltaY < 10 && this.scaleFactor > 1) {
+                                domAttr.set(overviewMapScale, "value", --this.scaleFactor); 
+                        }
+                    }
+                }))
 
                 on(extentDiv, "keydown", lang.hitch(this, function(event) {
                         let top:any  = domStyle.get(extentDiv, "top");
