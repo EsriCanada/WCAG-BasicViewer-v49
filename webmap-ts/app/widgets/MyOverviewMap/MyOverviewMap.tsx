@@ -193,50 +193,50 @@ import {
                                     domStyle.set(extentDiv, "left", `${++left}px`);
                                 }
                                 break;
-                            // case 33: //pgup
-                            //     if (
-                            //         top > -extentDiv.clientHeight / 2 &&
-                            //         left > -extentDiv.clientWidth / 2
-                            //     ) {
-                            //         dojo.style(extentDiv, "left", ++left + "px");
-                            //         dojo.style(extentDiv, "top", --top + "px");
-                            //     }
-                            //     break;
-                            // case 34: //pgdn
-                            //     if (
-                            //         top <
-                            //             extentDiv.parentElement.offsetHeight -
-                            //                 extentDiv.clientHeight / 2 &&
-                            //         left > -extentDiv.clientWidth / 2
-                            //     ) {
-                            //         dojo.style(extentDiv, "left", ++left + "px");
-                            //         dojo.style(extentDiv, "top", ++top + "px");
-                            //     }
-                            //     break;
-                            // case 36: //home
-                            //     if (
-                            //         top > -extentDiv.clientHeight / 2 &&
-                            //         left <
-                            //             extentDiv.parentElement.offsetWidth -
-                            //                 extentDiv.clientWidth / 2
-                            //     ) {
-                            //         dojo.style(extentDiv, "left", --left + "px");
-                            //         dojo.style(extentDiv, "top", --top + "px");
-                            //     }
-                            //     break;
-                            // case 35: //end
-                            //     if (
-                            //         top <
-                            //             extentDiv.parentElement.offsetHeight -
-                            //                 extentDiv.clientHeight / 2 &&
-                            //         left <
-                            //             extentDiv.parentElement.offsetWidth -
-                            //                 extentDiv.clientWidth / 2
-                            //     ) {
-                            //         dojo.style(extentDiv, "left", --left + "px");
-                            //         dojo.style(extentDiv, "top", ++top + "px");
-                            //     }
-                            //     break;
+                            case 33: //pgup
+                                if (
+                                    top > -extentDiv.clientHeight / 2 &&
+                                    left > -extentDiv.clientWidth / 2
+                                ) {
+                                    domStyle.set(extentDiv, "left", `${++left}px`);
+                                    domStyle.set(extentDiv, "top", --top + "px");
+                                }
+                                break;
+                            case 34: //pgdn
+                                if (
+                                    top <
+                                        extentDiv.parentElement.offsetHeight -
+                                            extentDiv.clientHeight / 2 &&
+                                    left > -extentDiv.clientWidth / 2
+                                ) {
+                                    domStyle.set(extentDiv, "left", `${++left}px`);
+                                    domStyle.set(extentDiv, "top", ++top + "px");
+                                }
+                                break;
+                            case 36: //home
+                                if (
+                                    top > -extentDiv.clientHeight / 2 &&
+                                    left <
+                                        extentDiv.parentElement.offsetWidth -
+                                            extentDiv.clientWidth / 2
+                                ) {
+                                    domStyle.set(extentDiv, "left", --left + "px");
+                                    domStyle.set(extentDiv, "top", --top + "px");
+                                }
+                                break;
+                            case 35: //end
+                                if (
+                                    top <
+                                        extentDiv.parentElement.offsetHeight -
+                                            extentDiv.clientHeight / 2 &&
+                                    left <
+                                        extentDiv.parentElement.offsetWidth -
+                                            extentDiv.clientWidth / 2
+                                ) {
+                                    domStyle.set(extentDiv, "left", --left + "px");
+                                    domStyle.set(extentDiv, "top", ++top + "px");
+                                }
+                                break;
                         }
                         switch (event.keyCode) {
                             case 9: // tab
@@ -259,10 +259,10 @@ import {
                             case 40: // down
                             case 37: // left
                             case 39: // right
-                            // case 34: //pgdn
-                            // case 33: //pgup
-                            // case 36: //home
-                            // case 35: //end
+                            case 34: //pgdn
+                            case 33: //pgup
+                            case 36: //home
+                            case 35: //end
                                 // console.log("call updateMainView", updateMainView)
                                 updateMainView(this.mainView); 
                                 break;
