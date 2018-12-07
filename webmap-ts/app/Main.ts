@@ -229,22 +229,47 @@ class MapExample {
 .esri-basemap-gallery__item.esri-basemap-gallery__item--selected:hover, 
 .esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus {
   border-left-color: ${borderActiveColor};
-  background-color: ${bgColor};
+  background-color: ${activeColor};
 }
 
 .esri-basemap-gallery__item--selected .esri-basemap-gallery__item-title, 
 .esri-basemap-gallery__item.esri-basemap-gallery__item--selected:hover .esri-basemap-gallery__item-title, 
 .esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus .esri-basemap-gallery__item-title,
 .esri-basemap-gallery__item:hover .esri-basemap-gallery__item-title {
-  background-color: ${bgColor};
   color: ${this.config.color};
 }
 
-.esri-basemap-gallery__item:hover 
+.esri-basemap-gallery__item:hover,
+.esri-basemap-gallery__item:focus
 {
   /* outline: none; */
   background-color: ${hoverColor};
   border-left-color: ${this.config.color};
+} 
+
+.esri-basemap-gallery__item:focus {
+  outline-width: 2px;
+  outline-offset: -1px;
+  outline-style: solid;
+  outline-color: ${focusColor};
+  border-left-color: ${focusColor};
+  background-color: transparent;
+}
+
+.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus {
+  outline-width: 2px;
+  outline-offset: -1px;
+  outline-style: solid;
+  outline-color: ${borderActiveColor}; 
+}
+
+.esri-basemap-gallery__item:hover:focus .esri-basemap-gallery__item-title,
+.esri-basemap-gallery__item:focus  .esri-basemap-gallery__item-title {
+  color: black;
+}
+
+.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus .esri-basemap-gallery__item-title {
+  color:white;
 }
 `;
   }

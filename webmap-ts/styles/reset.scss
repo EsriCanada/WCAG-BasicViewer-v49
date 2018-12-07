@@ -127,5 +127,14 @@ input.esri-input.esri-search__input::-webkit-input-placeholder {
     word-break: break-word;
     color: black;
     padding: 8px;
-    margin-left: 8px;
+}
+
+.esri-basemap-gallery {
+    color: black;
+    width: auto;
+    max-width: none;
+}
+
+.esri-basemap-gallery__item-thumbnail {
+    height: 56px;
 }
