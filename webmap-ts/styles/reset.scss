@@ -171,3 +171,48 @@ input.esri-input.esri-search__input::-webkit-input-placeholder {
 .esri-legend__layer-cell {
     padding: 2px;
 }
+
+.esri-print__header-title {
+    display: none;
+}
+
+.esri-print__layout-tab[aria-selected="true"],
+.esri-print__layout-tab[aria-selected="true"]:hover {
+    background-color: #fff;
+    color: black;
+    border-color: black;
+    border-bottom-color: #fff;
+    border-radius: 5px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.esri-print__layout-tab {
+    color: black;
+}
+
+.esri-print__layout-section,
+.esri-print__map-only-section {
+    border-top: 1px solid black;
+}
+
+.esri-widget {
+    color: black;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.esri-print__exported-file-link {
+    color: black;
+    font-size: 18px;
+}
+
+.esri-print__layout-tab:focus {
+    outline-offset: -6px;
+}
+
+.esri-input,
+.esri-select {
+    background-color: #fff;
+    border: 1px solid black;
+}

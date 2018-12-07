@@ -102,11 +102,17 @@ class Toolbar extends declared(Widget) {
                     case "overview" :
                         toolList.push(this._addOverview(element, this.mapView));
                         break;
-                        case "basemap" :
+                    case "basemap" :
                         toolList.push(this._addBasemap(element, this.mapView));
                         break;
-                        case "legend" :
+                    case "legend" :
                         toolList.push(this._addLegend(element, this.mapView));
+                        break;
+                    case "bookmarks" :
+                        toolList.push(this._addBookmarks(element, this.mapView));
+                        break;
+                    case "print" :
+                        toolList.push(this._addPrint(element, this.mapView));
                         break;
                     default:
                         toolList.push(this._addTool(element, tool));
@@ -326,6 +332,52 @@ class Toolbar extends declared(Widget) {
                                 view:mainView,
                                 container: domConstruct.create("div", {}, toolPage.pageContent)
                             })
+                        });
+                    });
+                return deferred.promise;
+            })
+        }
+        else {
+            const deferred = new Deferred<Tool>();
+            deferred.reject();
+            return deferred.promise;
+        }
+    }
+
+    private _addBookmarks = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.promise.Promise<Tool> => {
+        if(Has(this.config, "bookmarks") /*&& this.config.response.itemInfo.itemData.bookmarks*/) {
+            const deferred = this._addTool(element, "bookmarks");
+                deferred.then((overviewTool) => {
+                    require(["esri/widgets/Bookmarks"], (Bookmarks) => {
+                        overviewTool.pageReady.then((toolPage) => {
+                            const basemap = new Bookmarks({
+                                view:mainView,
+                                container: domConstruct.create("div", {}, toolPage.pageContent)
+                            })
+                        });
+                    });
+                return deferred.promise;
+            })
+        }
+        else {
+            const deferred = new Deferred<Tool>();
+            deferred.reject();
+            return deferred.promise;
+        }
+    }
+
+    private _addPrint = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.promise.Promise<Tool> => {
+        if(Has(this.config, "print")) {
+            const deferred = this._addTool(element, "print");
+                deferred.then((overviewTool) => {
+                    require(["esri/widgets/Print"], (Print) => {
+                        overviewTool.pageReady.then((toolPage) => {
+                            const print = new Print({
+                                view:mainView,
+                                printServiceUrl: "https://utility.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task",
+                                container: domConstruct.create("div", {}, toolPage.pageContent)
+                            });
+                            console.log("print", print);
                         });
                     });
                 return deferred.promise;

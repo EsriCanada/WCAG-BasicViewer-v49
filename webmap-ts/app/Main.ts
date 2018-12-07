@@ -276,6 +276,17 @@ class MapExample {
   color: ${this.config.color};
   background: ${bgColor};
 }
+
+.esri-button {
+  background-color: ${bgColor};
+  border: 1px solid ${bgColor};
+  color: ${this.config.color};
+  border-radius: 5px;
+}
+
+.esri-button:hover {
+  background-color:  ${hoverColor};
+}
 `;
   }
 
