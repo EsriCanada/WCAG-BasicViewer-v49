@@ -128,10 +128,10 @@ class MapExample {
           findQuery(find, mapView).then(() => goToMarker(marker, mapView));
 
           if(this.config.scalebar) {
-            require(["esri/widgets/ScaleBar"], function(ScaleBar) {
+            require(["esri/widgets/ScaleBar"], (ScaleBar) => {
               var scaleBar = new ScaleBar({
                 view: mapView,
-                unit: "metric"
+                unit: this.config.scaleUnits
               });
               // Add widget to the bottom left corner of the view
               (mapView as __esri.MapView).ui.add(scaleBar, "bottom-right");
@@ -139,9 +139,7 @@ class MapExample {
           }
 
           if(Has(this.config, 'home')) {
-            require([
-              "esri/widgets/Home"
-            ], function(Home) {
+            require(["esri/widgets/Home"], (Home) => {
               var homeBtn = new Home({
                 view: mapView
               });
@@ -152,9 +150,7 @@ class MapExample {
           }
 
           if(Has(this.config, 'locate')) {
-            require([
-              "esri/widgets/Locate"
-            ], function(Locate) {
+            require(["esri/widgets/Locate"], (Locate) => {
               var locateBtn = new Locate({
                 view: mapView
               });

@@ -13,16 +13,16 @@ define({
         totalCount: "Total Count: {0}",
         contactUs: "Contact Us",
         EsriWorldGeocoder: "Esri World Geocoder",
-        language: ({
-            aria: ({
+        language: {
+            aria: {
                 changeLanguage: "Change the language to ",
                 currentLanguage: "Current language is ",
-            }),
+            },
             language: "Language: ",
             changeHere: "Change the language here.",
             flag: "_ Flag"
-        }),
-        tooltips: ({
+        },
+        tooltips: {
             "home": "Default Extent",
             "locate": "Find my Location",
             "features": "Feature List",
@@ -44,7 +44,7 @@ define({
             "directions": "Directions",
             "share": "Share",
             "vsplitter": "Click and drag or focus and use left/right arrows to resize. \nDouble-click or type Enter for optimal size."
-        }),
+        },
         badgesTips: {
             "reverseLocation": "Showing Location",
             "directions": "Showing Itinerary",
@@ -52,6 +52,10 @@ define({
             "someFilters": "Some Filters Apply",
             "searchResultInfo": "Shows Search Result Info",
             "followTheMap": "Follow The Map Mode",
+        },
+        overview: {
+            mapExtent: "Map Extent",
+            instructions: "Drag to change the Map Extent,\nor focus and use Arrow keys.",
         }
     }),
     "ar": 1,

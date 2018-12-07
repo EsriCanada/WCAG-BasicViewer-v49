@@ -13,16 +13,16 @@ define(
         totalCount: "Le compte total : {0}",
         contactUs: "Contactez nous",
         EsriWorldGeocoder: "Géocodeur Mondial Esri",
-        language: ({
-            aria: ({
+        language: {
+            aria: {
                 changeLanguage: "Changer la langue en",
                 currentLanguage: "La langue actuelle est"
-            }),
+            },
             language: "Langue : ",
             changeHere: "Changer la langue ici.",
             flag: "Drapeau _"
-        }),
-        tooltips: ({
+        },
+        tooltips: {
             "home": "Etendue par Défaut",
             "locate": "Rechercher mon Site",
             "legend": "Légende",
@@ -44,7 +44,7 @@ define(
             "filter": "Filtres",
             "features": "Liste de caractéristiques",
             "vsplitter": "Cliquer et déplacer avec la souris ou utiliser le flèches gauche droite quand cet outil est activé. \nDouble-cliquer ou presser ‘Entrer’ pour ajuster à la taille optimale."
-        }),
+        },
         badgesTips: {
             "reverseLocation": "Afficher l'adresse du lieu",
             "directions": "Montrer l'itinéraire",
@@ -52,6 +52,10 @@ define(
             "someFilters": "Appliqué quelques filtres",
             "searchResultInfo": "Montre Recherche Résultat",
             "followTheMap": "Mode Suivez la carte",
+        },
+        overview: {
+            mapExtent: "Étendue de la carte",
+            instructions: "Faites glisser pour modifier l'étendue de la carte, \nou mise au point et utiliser les touches fléchées.",
         }
     })
 );

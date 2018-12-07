@@ -36,6 +36,10 @@ import {
     @renderable()
     scaleFactor: number = 2;
   
+    @property()
+    @renderable()
+    scaleUnits: string = "metric";
+  
     constructor() {
         super();
     }
@@ -75,7 +79,7 @@ import {
             }).when(lang.hitch(this, function(overviewView) {
                 const scaleBar = new ScaleBar({
                     view: overviewView,
-                    unit: "metric",
+                    unit: this.scaleUnits,
                     container: element
                 });
                   
@@ -89,7 +93,8 @@ import {
                     id: "extentDiv",
                     tabindex: 0,
                     role: "application",
-                    title: "Map Extent",
+                    title: i18n.overview.mapExtent,
+                    "aria-label": `${i18n.overview.mapExtent}. ${i18n.overview.instructions}`
                     // draggable: "true",
                 });
 
@@ -353,7 +358,7 @@ import {
                 }
 
                 function updateMainView(mainView) {
-                    console.log("updateMainView", this);
+                    // console.log("updateMainView", this);
                     const extentDiv = dom.byId("extentDiv") as HTMLElement;
                     const overviewDiv = dom.byId("overviewDiv");
                     const overv = overviewDiv.getBoundingClientRect();

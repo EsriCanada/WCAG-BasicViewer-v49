@@ -251,35 +251,33 @@ class Toolbar extends declared(Widget) {
         if(Has(this.config, "overview")) {
             const deferred = this._addTool(element, "overview");
             deferred.then((overviewTool) => {
-                require(["../MyOverviewMap/MyOverviewMap"], lang.hitch(this, function(MyOverviewMap) {
+                require(["../MyOverviewMap/MyOverviewMap"], (MyOverviewMap) => {
                     const overviewMap = new MyOverviewMap({
                         mainView:mainView,
+                        scaleUnits: this.config.scaleUnits,
                         container: domConstruct.create("div", {}, "pageBody_overview")
                     });
-
-                    ;
                     const overviewMapScale = domConstruct.create("input", {
                             id: "overviewMapScale", 
                             type:"number", 
                             value: overviewMap.scaleFactor,
                             min:1, max:4,
                             class:"header__numberInput",
-                        },
-                        domConstruct.create("label", {innerHTML:`Aspect Ratio: `}, overviewTool.myToolPage.myControls));
+                    }, domConstruct.create("label", {innerHTML:`Aspect Ratio: `}, overviewTool.myToolPage.myControls));
 
-                        on(overviewMapScale, "keyup", lang.hitch(this, function(event) {
-                            // console.log("keyup",  event.target.value);
-                            overviewMap.scaleFactor = event.target.value;
-                        }));
-                        on(overviewMapScale, "change", lang.hitch(this, function(event) {
-                            // console.log("change", event.target.value);
-                            overviewMap.scaleFactor = event.target.value;
-                        }));
-                        on(overviewMapScale, "input", lang.hitch(this, function(event) {
-                            // console.log("input", event.target.value);
-                            overviewMap.scaleFactor = event.target.value;
-                        }));
-                            }));
+                    on(overviewMapScale, "keyup", (event) =>  {
+                        // console.log("keyup",  event.target.value);
+                        overviewMap.scaleFactor = event.target.value;
+                    });
+                    on(overviewMapScale, "change", (event) => {
+                        // console.log("change", event.target.value);
+                        overviewMap.scaleFactor = event.target.value;
+                    });
+                    on(overviewMapScale, "input", (event) => {
+                        // console.log("input", event.target.value);
+                        overviewMap.scaleFactor = event.target.value;
+                    });
+                });
             });
             return deferred.promise;
         }
