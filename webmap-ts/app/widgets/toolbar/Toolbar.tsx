@@ -7,7 +7,7 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Widget = require("esri/widgets/Widget");
 import lang = require("dojo/_base/lang");
 import domConstruct = require("dojo/dom-construct");
-import query = require("dojo/query");
+import dom = require("dojo/dom");
 import domAttr = require("dojo/dom-attr");
 import domClass = require("dojo/dom-class");
 import domStyle = require("dojo/dom-style");
@@ -101,6 +101,9 @@ class Toolbar extends declared(Widget) {
                     //     break;
                     case "overview" :
                         toolList.push(this._addOverview(element, this.mapView));
+                        break
+                    case "basemap" :
+                        toolList.push(this._addBasemap(element, this.mapView));
                         break
                     default:
                         toolList.push(this._addTool(element, tool));
@@ -286,6 +289,33 @@ class Toolbar extends declared(Widget) {
             deferred.reject();
             return deferred.promise;
         }
+    }
+
+    private _addBasemap = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.promise.Promise<Tool> => {
+        if(Has(this.config, "basemap")) {
+            const deferred = this._addTool(element, "basemap");
+                deferred.then((overviewTool) => {
+                    // import BasemapGallery from "esri/widgets/BasemapGallery";
+                    // import ContentPane = require("dojox/layout/ContentPane");
+
+                    require(["esri/widgets/BasemapGallery", "dojox/layout/ContentPane"], (BasemapGallery, ContentPane) => {
+                        overviewTool.pageReady.then((toolPage) => {
+                            const basemap = new BasemapGallery({
+                                view:mainView,
+                                container: domConstruct.create("div", {}, toolPage.pageContent)
+                            })
+                        });
+                    });
+                return deferred.promise;
+            })
+        }
+            
+        else {
+            const deferred = new Deferred<Tool>();
+            deferred.reject();
+            return deferred.promise;
+        }
+        
     }
 
 }

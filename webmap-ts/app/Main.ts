@@ -224,6 +224,28 @@ class MapExample {
   background: ${bgLightenColor};
   color: ${this.config.color};
 }
+
+.esri-basemap-gallery__item--selected, 
+.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:hover, 
+.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus {
+  border-left-color: ${borderActiveColor};
+  background-color: ${bgColor};
+}
+
+.esri-basemap-gallery__item--selected .esri-basemap-gallery__item-title, 
+.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:hover .esri-basemap-gallery__item-title, 
+.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus .esri-basemap-gallery__item-title,
+.esri-basemap-gallery__item:hover .esri-basemap-gallery__item-title {
+  background-color: ${bgColor};
+  color: ${this.config.color};
+}
+
+.esri-basemap-gallery__item:hover 
+{
+  /* outline: none; */
+  background-color: ${hoverColor};
+  border-left-color: ${this.config.color};
+}
 `;
   }
 
