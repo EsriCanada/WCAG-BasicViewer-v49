@@ -271,6 +271,11 @@ class MapExample {
 .esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus .esri-basemap-gallery__item-title {
   color:white;
 }
+
+.esri-legend .esri-widget__heading {
+  color: ${this.config.color};
+  background: ${bgColor};
+}
 `;
   }
 

@@ -138,3 +138,36 @@ input.esri-input.esri-search__input::-webkit-input-placeholder {
 .esri-basemap-gallery__item-thumbnail {
     height: 56px;
 }
+
+.esri-widget__heading {
+    color: black;
+}
+
+.esri-legend__service {
+    padding: 4px 4px;
+    border-bottom: 0;
+}
+
+.esri-legend .esri-widget__heading {
+    padding: 2px 8px;
+}
+
+.esri-legend__layer-caption {
+    padding: 0 0 4px 0;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.esri-legend__layer-cell--info {
+    font-size: 16px;
+    padding-left: 7px;
+    padding-right: 7px;
+    word-wrap: normal;
+    word-break: normal;
+    max-width: inherit;
+    font-weight: normal;
+}
+
+.esri-legend__layer-cell {
+    padding: 2px;
+}

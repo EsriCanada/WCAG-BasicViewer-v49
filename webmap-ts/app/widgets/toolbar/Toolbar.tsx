@@ -101,10 +101,13 @@ class Toolbar extends declared(Widget) {
                     //     break;
                     case "overview" :
                         toolList.push(this._addOverview(element, this.mapView));
-                        break
-                    case "basemap" :
+                        break;
+                        case "basemap" :
                         toolList.push(this._addBasemap(element, this.mapView));
-                        break
+                        break;
+                        case "legend" :
+                        toolList.push(this._addLegend(element, this.mapView));
+                        break;
                     default:
                         toolList.push(this._addTool(element, tool));
                         break;
@@ -295,10 +298,7 @@ class Toolbar extends declared(Widget) {
         if(Has(this.config, "basemap")) {
             const deferred = this._addTool(element, "basemap");
                 deferred.then((overviewTool) => {
-                    // import BasemapGallery from "esri/widgets/BasemapGallery";
-                    // import ContentPane = require("dojox/layout/ContentPane");
-
-                    require(["esri/widgets/BasemapGallery", "dojox/layout/ContentPane"], (BasemapGallery, ContentPane) => {
+                    require(["esri/widgets/BasemapGallery"], (BasemapGallery) => {
                         overviewTool.pageReady.then((toolPage) => {
                             const basemap = new BasemapGallery({
                                 view:mainView,
@@ -309,13 +309,33 @@ class Toolbar extends declared(Widget) {
                 return deferred.promise;
             })
         }
-            
         else {
             const deferred = new Deferred<Tool>();
             deferred.reject();
             return deferred.promise;
         }
-        
+    }
+
+    private _addLegend = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.promise.Promise<Tool> => {
+        if(Has(this.config, "legend")) {
+            const deferred = this._addTool(element, "legend");
+                deferred.then((overviewTool) => {
+                    require(["esri/widgets/Legend"], (Legend) => {
+                        overviewTool.pageReady.then((toolPage) => {
+                            const basemap = new Legend({
+                                view:mainView,
+                                container: domConstruct.create("div", {}, toolPage.pageContent)
+                            })
+                        });
+                    });
+                return deferred.promise;
+            })
+        }
+        else {
+            const deferred = new Deferred<Tool>();
+            deferred.reject();
+            return deferred.promise;
+        }
     }
 
 }
