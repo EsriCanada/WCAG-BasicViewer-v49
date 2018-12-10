@@ -4,6 +4,22 @@
     outline-offset: -2px;
 }
 
+$placeholder-color: #000000cf;
+.esri-input::placeholder {
+    /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: $placeholder-color;
+}
+
+.esri-input:-ms-input-placeholder {
+    /* Internet Explorer 10-11 */
+    color: $placeholder-color;
+}
+
+.esri-input::-ms-input-placeholder {
+    /* Microsoft Edge */
+    color: $placeholder-color;
+}
+
 html,
 body {
     font-family: Arial, Helvetica, sans-serif;
@@ -215,4 +231,16 @@ input.esri-input.esri-search__input::-webkit-input-placeholder {
 .esri-select {
     background-color: #fff;
     border: 1px solid black;
+    color: black;
+}
+
+.esri-print__advanced-options-button-title,
+.esri-print__advanced-options-container {
+    font-size: 16px;
+    color: black;
+}
+
+.esri-print__advanced-options-section [class*="esri-icon"],
+.esri-print__size-container [class*="esri-icon"] {
+    color: black;
 }

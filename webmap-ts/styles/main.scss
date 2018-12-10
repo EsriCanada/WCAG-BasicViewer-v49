@@ -28,6 +28,23 @@ body {
     height: 100%;
 }
 
+*::placeholder {
+    /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: #000000cf;
+    opacity: 1;
+    /* Firefox */
+}
+
+*:-ms-input-placeholder {
+    /* Internet Explorer 10-11 */
+    color: #000000cf;
+}
+
+*::-ms-input-placeholder {
+    /* Microsoft Edge */
+    color: #000000cf;
+}
+
 .configurable-application__view-container {
     padding: 0;
     margin: 0;
