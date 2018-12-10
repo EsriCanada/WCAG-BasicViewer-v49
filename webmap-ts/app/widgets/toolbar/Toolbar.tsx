@@ -374,10 +374,21 @@ class Toolbar extends declared(Widget) {
                         overviewTool.pageReady.then((toolPage) => {
                             const print = new Print({
                                 view:mainView,
-                                printServiceUrl: "https://utility.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task",
+                                printServiceUrl: this.config.printService,
+                                // "https://utility.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task",
                                 container: domConstruct.create("div", {}, toolPage.pageContent)
                             });
                             console.log("print", print);
+                            require(["esri/core/watchUtils"], (watchUtils) => {
+                                console.log("exportedLinks", print.exportedLinks);
+                                watchUtils.watch(print.exportedLinks, "length", (newValue) => {
+                                    console.log("exportedLinks lenght", newValue, print.exportedLinks.items[newValue-1]);
+                                    overviewTool.showLoading();
+                                    watchUtils.once(print.exportedLinks.items[newValue-1], "state", () => {
+                                        overviewTool.hideLoading();
+                                    })
+                                });
+                            });
                         });
                     });
                 return deferred.promise;

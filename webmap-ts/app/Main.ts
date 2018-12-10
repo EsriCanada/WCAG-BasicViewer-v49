@@ -286,6 +286,12 @@ class MapExample {
 
 .esri-button:hover {
   background-color:  ${hoverColor};
+  color: ${this.config.color};
+}
+
+.esri-bookmarks__bookmark:hover {
+  background-color: ${hoverColor};
+  color: ${this.config.color};
 }
 `;
   }

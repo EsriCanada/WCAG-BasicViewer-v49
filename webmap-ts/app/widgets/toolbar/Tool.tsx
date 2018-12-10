@@ -14,6 +14,7 @@ import domClass = require("dojo/dom-class");
 import domStyle = require("dojo/dom-style");
 import Deferred = require("dojo/Deferred");
 import on = require("dojo/on");
+import dom = require("dojo/dom");
 
 import { renderable, tsx } from "esri/widgets/support/widget";
 
@@ -145,6 +146,16 @@ const CSS = {
         // const ariaTip = `${tip}`;
 
         domStyle.set(badgeElement, "display", "none");
+    }
+
+    public showLoading = () : void => {
+        const loadingImg = dom.byId(`loading_${this.tool}`);
+        domStyle.set(loadingImg, "display", "");
+    }
+
+    public hideLoading = () : void => {
+        const loadingImg = dom.byId(`loading_${this.tool}`);
+        domStyle.set(loadingImg, "display", "none");
     }
 
     private _toggle = (evn) => {
