@@ -57,7 +57,7 @@ import {
             "esri/views/MapView",
             "esri/widgets/ScaleBar",
             "esri/core/watchUtils"
-        ], lang.hitch(this, function(Map, SceneView, MapView, ScaleBar, watchUtils) {
+        ], (Map, SceneView, MapView, ScaleBar, watchUtils) => {
             
             const conversionScale = {1:1.75, 2:4, 3:8, 4:15};
 
@@ -76,10 +76,11 @@ import {
                 constraints: {
                   rotationEnabled: false
                 }
-            }).when(lang.hitch(this, function(overviewView) {
+            }).when((overviewView) => {
                 const scaleBar = new ScaleBar({
                     view: overviewView,
                     unit: this.scaleUnits,
+                    style: "ruler",
                     container: element
                 });
                   
@@ -100,7 +101,7 @@ import {
 
                 overviewView.ui.add(extentDiv);
 
-                extentDiv.onmousedown = lang.hitch(this, function(event) {
+                extentDiv.onmousedown = (event) => {
                     // overviewView.ui.add(extentDiv);
                     // centers the extentDiv at (pageX, pageY) coordinates
                     const overviewDiv = dom.byId("overviewDiv");
@@ -164,16 +165,16 @@ import {
                         on(document, 'mousemove', onMouseMove);
                     
                         // (4) drop the extentDiv, remove unneeded handlers
-                        extentDiv.onmouseup = lang.hitch(this, function() {
+                        extentDiv.onmouseup = () => {
                             // console.log("this.mainView", this.mainView);
                             releaseMouse(this.mainView);
                             mouseOn = false;
-                        });
+                        };
                     
                     }
-                })
+                }
                 
-                on(extentDiv, "wheel", lang.hitch(this, function(event) {
+                on(extentDiv, "wheel", (event) => {
                     if(document.activeElement === extentDiv) {
                         // console.log("wheel", event);
                         const overviewMapScale = dom.byId("overviewMapScale");
@@ -184,141 +185,137 @@ import {
                                 domAttr.set(overviewMapScale, "value", --this.scaleFactor); 
                         }
                     }
-                }))
+                })
 
-                on(extentDiv, "keydown", lang.hitch(this, function(event) {
-                        let top:any  = domStyle.get(extentDiv, "top");
-                        let left:any = domStyle.get(extentDiv, "left");
-                        // console.log("top left", top, left);
-                        switch (event.keyCode) {
-                            case 38: // up
-                                if (top > -extentDiv.clientHeight / 2) {
-                                    domStyle.set(extentDiv, "top", `${--top}px`);
-                                }
-                                break;
-                            case 40: // down
-                                if (top < extentDiv.parentElement.offsetHeight - extentDiv.clientHeight / 2) {
-                                    domStyle.set(extentDiv, "top", `${++top}px`);
-                                }
-                                break;
-                            case 37: // left
-                                if (left > -extentDiv.clientWidth / 2) {
-                                    domStyle.set(extentDiv, "left", `${--left}px`);
-                                }
-                                break;
-                            case 39: // right
-                                if (left < extentDiv.parentElement.offsetWidth - extentDiv.clientWidth / 2) {
-                                    domStyle.set(extentDiv, "left", `${++left}px`);
-                                }
-                                break;
-                            case 33: //pgup
-                                if (
-                                    top > -extentDiv.clientHeight / 2 &&
-                                    left > -extentDiv.clientWidth / 2
-                                ) {
-                                    domStyle.set(extentDiv, "left", `${++left}px`);
-                                    domStyle.set(extentDiv, "top", `${--top}px`);
-                                }
-                                break;
-                            case 34: //pgdn
-                                if (
-                                    top <
-                                        extentDiv.parentElement.offsetHeight -
-                                            extentDiv.clientHeight / 2 &&
-                                    left > -extentDiv.clientWidth / 2
-                                ) {
-                                    domStyle.set(extentDiv, "left", `${++left}px`);
-                                    domStyle.set(extentDiv, "top", `${++top}px`);
-                                }
-                                break;
-                            case 36: //home
-                                if (
-                                    top > -extentDiv.clientHeight / 2 &&
-                                    left <
-                                        extentDiv.parentElement.offsetWidth -
-                                            extentDiv.clientWidth / 2
-                                ) {
-                                    domStyle.set(extentDiv, "left", `${--left}px`);
-                                    domStyle.set(extentDiv, "top", `${--top}px`);
-                                }
-                                break;
-                            case 35: //end
-                                if (
-                                    top <
-                                        extentDiv.parentElement.offsetHeight -
-                                            extentDiv.clientHeight / 2 &&
-                                    left <
-                                        extentDiv.parentElement.offsetWidth -
-                                            extentDiv.clientWidth / 2
-                                ) {
-                                    domStyle.set(extentDiv, "left", `${--left}px`);
-                                    domStyle.set(extentDiv, "top", `${++top}px`);
-                                }
-                                break;
-                        }
-                        switch (event.keyCode) {
-                            case 9: // tab
-                            // case 33: // PgUp
-                            // case 34: // PgDn
-                            case 27: // Esc
-                                break;
-                            default:
-                                event.stopPropagation();
-                                event.preventDefault();
-                                break;
-                        }
-                    })
-                );
+                on(extentDiv, "keydown", (event) => {
+                    let top:any  = domStyle.get(extentDiv, "top");
+                    let left:any = domStyle.get(extentDiv, "left");
+                    // console.log("top left", top, left);
+                    switch (event.keyCode) {
+                        case 38: // up
+                            if (top > -extentDiv.clientHeight / 2) {
+                                domStyle.set(extentDiv, "top", `${--top}px`);
+                            }
+                            break;
+                        case 40: // down
+                            if (top < extentDiv.parentElement.offsetHeight - extentDiv.clientHeight / 2) {
+                                domStyle.set(extentDiv, "top", `${++top}px`);
+                            }
+                            break;
+                        case 37: // left
+                            if (left > -extentDiv.clientWidth / 2) {
+                                domStyle.set(extentDiv, "left", `${--left}px`);
+                            }
+                            break;
+                        case 39: // right
+                            if (left < extentDiv.parentElement.offsetWidth - extentDiv.clientWidth / 2) {
+                                domStyle.set(extentDiv, "left", `${++left}px`);
+                            }
+                            break;
+                        case 33: //pgup
+                            if (
+                                top > -extentDiv.clientHeight / 2 &&
+                                left > -extentDiv.clientWidth / 2
+                            ) {
+                                domStyle.set(extentDiv, "left", `${++left}px`);
+                                domStyle.set(extentDiv, "top", `${--top}px`);
+                            }
+                            break;
+                        case 34: //pgdn
+                            if (
+                                top <
+                                    extentDiv.parentElement.offsetHeight -
+                                        extentDiv.clientHeight / 2 &&
+                                left > -extentDiv.clientWidth / 2
+                            ) {
+                                domStyle.set(extentDiv, "left", `${++left}px`);
+                                domStyle.set(extentDiv, "top", `${++top}px`);
+                            }
+                            break;
+                        case 36: //home
+                            if (
+                                top > -extentDiv.clientHeight / 2 &&
+                                left <
+                                    extentDiv.parentElement.offsetWidth -
+                                        extentDiv.clientWidth / 2
+                            ) {
+                                domStyle.set(extentDiv, "left", `${--left}px`);
+                                domStyle.set(extentDiv, "top", `${--top}px`);
+                            }
+                            break;
+                        case 35: //end
+                            if (
+                                top <
+                                    extentDiv.parentElement.offsetHeight -
+                                        extentDiv.clientHeight / 2 &&
+                                left <
+                                    extentDiv.parentElement.offsetWidth -
+                                        extentDiv.clientWidth / 2
+                            ) {
+                                domStyle.set(extentDiv, "left", `${--left}px`);
+                                domStyle.set(extentDiv, "top", `${++top}px`);
+                            }
+                            break;
+                    }
+                    switch (event.keyCode) {
+                        case 9: // tab
+                        // case 33: // PgUp
+                        // case 34: // PgDn
+                        case 27: // Esc
+                            break;
+                        default:
+                            event.stopPropagation();
+                            event.preventDefault();
+                            break;
+                    }
+                });
     
-                on(extentDiv, "keyup",
-                    lang.hitch(this, function(event) {
-                        // console.log('key', event.keyCode);
-                        const overviewMapScale = dom.byId("overviewMapScale");
-                        switch (event.keyCode) {
-                            case 38: // up
-                            case 40: // down
-                            case 37: // left
-                            case 39: // right
-                            case 34: //pgdn
-                            case 33: //pgup
-                            case 36: //home
-                            case 35: //end
-                                // console.log("call updateMainView", updateMainView)
-                                updateMainView(this.mainView); 
-                                break;
-                            case 107 : //+
-                            case 187 :
-                                if(this.scaleFactor < 4)
-                                    domAttr.set(overviewMapScale, "value", ++this.scaleFactor); 
-                                break;
-                            case 109 : //-
-                            case 189 :
-                                if(this.scaleFactor > 1)
-                                    domAttr.set(overviewMapScale, "value", --this.scaleFactor); 
-                        break;
-                        }
-                        switch (event.keyCode) {
-                            case 9: // tab
-                            // case 33: // PgUp
-                            // case 34: // PgDn
-                            case 27: // Esc
-                                break;
-                            default:
-                                event.stopPropagation();
-                                event.preventDefault();
-                                break;
-                        }
-                    })
-                );
+                on(extentDiv, "keyup", (event) => {
+                    // console.log('key', event.keyCode);
+                    const overviewMapScale = dom.byId("overviewMapScale");
+                    switch (event.keyCode) {
+                        case 38: // up
+                        case 40: // down
+                        case 37: // left
+                        case 39: // right
+                        case 34: //pgdn
+                        case 33: //pgup
+                        case 36: //home
+                        case 35: //end
+                            // console.log("call updateMainView", updateMainView)
+                            updateMainView(this.mainView); 
+                            break;
+                        case 107 : //+
+                        case 187 :
+                            if(this.scaleFactor < 4)
+                                domAttr.set(overviewMapScale, "value", ++this.scaleFactor); 
+                            break;
+                        case 109 : //-
+                        case 189 :
+                            if(this.scaleFactor > 1)
+                                domAttr.set(overviewMapScale, "value", --this.scaleFactor); 
+                    break;
+                    }
+                    switch (event.keyCode) {
+                        case 9: // tab
+                        // case 33: // PgUp
+                        // case 34: // PgDn
+                        case 27: // Esc
+                            break;
+                        default:
+                            event.stopPropagation();
+                            event.preventDefault();
+                            break;
+                    }
+                });
 
                 overviewView.watch("extent", lang.hitch(this, updateOverviewExtent));
                 this.mainView.watch("extent", lang.hitch(this, updateOverviewExtent));
     
                 // Update the minimap overview when the main view becomes stationary
                 watchUtils.when(overviewView, "stationary", lang.hitch(this, updateOverview));
-                this.watch("scaleFactor", lang.hitch(this, function(event) {
-                    lang.hitch(this, updateOverview);
-                }));
+                this.watch("scaleFactor", (event) => updateOverview);
+                // }));
         
                 function updateOverview() {
                     // console.log("updateOverviewt");
@@ -369,8 +366,8 @@ import {
                     mainView.goTo({center: [mapCenter.longitude, mapCenter.latitude]});
                     extentDiv.focus();
                 }
-            }));
-        }));
+            });
+        });
     
     }
 }

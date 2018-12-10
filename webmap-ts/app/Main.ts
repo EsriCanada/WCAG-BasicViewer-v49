@@ -131,7 +131,8 @@ class MapExample {
             require(["esri/widgets/ScaleBar"], (ScaleBar) => {
               var scaleBar = new ScaleBar({
                 view: mapView,
-                unit: this.config.scaleUnits
+                unit: this.config.scaleUnits,
+                style: "ruler"
               });
               // Add widget to the bottom left corner of the view
               (mapView as __esri.MapView).ui.add(scaleBar, "bottom-right");
