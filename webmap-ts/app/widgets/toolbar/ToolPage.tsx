@@ -97,7 +97,7 @@ import { Has } from "../../utils";
 
     private _pageContentReady = (element: Element) : void => {
         this.pageContent = element;
-        on(element, "keydown", lang.hitch(this, (event): void => {
+        on(element, "keydown", (event): void => {
             switch (event.key) {
                 case "Esc":
                 case "Escape":
@@ -109,7 +109,7 @@ import { Has } from "../../utils";
                     console.log("Esc", id);
                     break;
             }
-        }))
+        })
     }
 
     

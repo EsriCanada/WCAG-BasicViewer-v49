@@ -86,7 +86,7 @@ class Toolbar extends declared(Widget) {
             "print"
           ];
                 
-        tools.forEach(lang.hitch(this, (tool: string) => {
+        tools.forEach((tool: string) => {
             // console.log(tool);
             if (Has(this.config, tool)) {
                 switch (tool) {
@@ -119,9 +119,9 @@ class Toolbar extends declared(Widget) {
                         break;
                 }
             }
-        }));
+        });
 
-        All(toolList).then(()=> {
+        All(toolList).then(() => {
             // console.log("All", this);
             if(this.defaultButton) {
                 // console.log("defaultButton", this.defaultButton);
@@ -137,11 +137,7 @@ class Toolbar extends declared(Widget) {
         // console.log(tool);
         const deferrer = new Deferred();
 
-        require([
-            "./Tool"
-        ], lang.hitch(this, function (
-            Tool
-        ) {
+        require(["./Tool"], (Tool) => {
             // console.log("_addTool", this);
             const t = new Tool({
                 config: this.config,
@@ -150,7 +146,7 @@ class Toolbar extends declared(Widget) {
                 container: domConstruct.create("div", {}, element)
             });
             t.pageReady.then(() => deferrer.resolve(t));
-        }));
+        });
         return deferrer.promise;
     }
 
@@ -211,7 +207,7 @@ class Toolbar extends declared(Widget) {
                 deffer.resolve(instructionsText)
             });
             return deffer.promise;
-        })().then(lang.hitch(this, (instructionsText:string) => {
+        })().then((instructionsText:string) => {
             if (!Has(this.config, "details")) {
                 this._addTool(element, "instructions").then((instructions) => {
                     instructions.pageReady.then((string) => {
@@ -231,7 +227,7 @@ class Toolbar extends declared(Widget) {
                 })
             }
             else {
-                this.deferredDetails.then(lang.hitch(this, (pageContent) => {
+                this.deferredDetails.then((pageContent) => {
                     const pageBody_details = document.getElementById("pageBody_details");
                     const instructionsDiv = domConstruct.create(
                         "div",
@@ -241,10 +237,10 @@ class Toolbar extends declared(Widget) {
                             tabindex: 0
                         },
                         pageBody_details);
-                }));
+                });
 
             }
-        }))
+        })
     }
 
     private _addDirections = (element: Element): void => {

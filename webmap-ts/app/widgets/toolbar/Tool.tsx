@@ -83,7 +83,7 @@ const CSS = {
 
     public pageReady : any = null;
     
-    private _addTool = lang.hitch(this, (element: Element): dojo.promise.Promise<Tool> => {
+    private _addTool = (element: Element): dojo.promise.Promise<Tool> => {
         if(!this.deferrer) {
             this.deferrer = new Deferred();
         }
@@ -116,7 +116,7 @@ const CSS = {
 
         return this.deferrer.promise;
         // console.log("_addPage", this);
-    });
+    }
 
     public addBadge = (toolBadge: Badge) : Element => {
         return domConstruct.create("img",{
