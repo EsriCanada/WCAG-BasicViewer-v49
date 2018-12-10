@@ -378,11 +378,11 @@ class Toolbar extends declared(Widget) {
                                 // "https://utility.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task",
                                 container: domConstruct.create("div", {}, toolPage.pageContent)
                             });
-                            console.log("print", print);
+                            // console.log("print", print);
                             require(["esri/core/watchUtils"], (watchUtils) => {
-                                console.log("exportedLinks", print.exportedLinks);
+                                // console.log("exportedLinks", print.exportedLinks);
                                 watchUtils.watch(print.exportedLinks, "length", (newValue) => {
-                                    console.log("exportedLinks lenght", newValue, print.exportedLinks.items[newValue-1]);
+                                    // console.log("exportedLinks lenght", newValue, print.exportedLinks.items[newValue-1]);
                                     overviewTool.showLoading();
                                     watchUtils.once(print.exportedLinks.items[newValue-1], "state", () => {
                                         overviewTool.hideLoading();
