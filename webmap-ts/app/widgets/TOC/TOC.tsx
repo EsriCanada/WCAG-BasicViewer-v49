@@ -53,7 +53,7 @@ class TOC extends declared(Widget) {
     private _addTOC = (element: Element) => {
         this.view.when((mapView) => {
             this.layers = mapView.map.layers;
-            console.log("allLayers", this.layers);
+            // console.log("allLayers", this.layers);
             
             this.layers.forEach((layer, i) => { 
                 const li = domConstruct.create("li", {
@@ -94,7 +94,7 @@ class TOC extends declared(Widget) {
                 } 
 
                 watchUtils.when(mapView, "stationary", () => {
-                    console.log("layers", this.layers);
+                    // console.log("layers", this.layers);
                     this.layers.forEach((layer : any, i) => {
                         const title = NormalizeTitle(layer.title);
                         const visibleAtScale = isVisibleAtScale(layer);

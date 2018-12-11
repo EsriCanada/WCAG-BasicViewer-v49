@@ -51,3 +51,5 @@ webmap-ts/app/widgets/toolbar/Badge\.js
 webmap-ts/app/widgets/MyOverviewMap/MyOverviewMap\.js
 
 webmap-ts/app/widgets/TOC/TOC\.js
+
+webmap-ts/app/customColors\.js

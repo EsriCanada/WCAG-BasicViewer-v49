@@ -31,6 +31,7 @@ import Search = require("esri/widgets/Search");
 
 
 import { LightenDarkenColor, Has } from "./utils";
+import { CustomColors } from "./customColors";
 
 const CSS = {
   loading: "configurable-application--loading"
@@ -67,7 +68,7 @@ class MapExample {
       console.error("ApplicationBase is not defined");
       return;
     }
-    console.log("Base", base);
+    // console.log("Base", base);
     console.log("Config", base.config);
     this.base = base;
 
@@ -126,7 +127,7 @@ class MapExample {
             rotationEnabled: false
           }
         }).then(mapView => {
-          console.log("mapView", mapView);
+          // console.log("mapView", mapView);
           findQuery(find, mapView).then(() => goToMarker(marker, mapView));
 
           if(this.config.scalebar) {
@@ -169,133 +170,6 @@ class MapExample {
     });
 
     document.body.classList.remove(CSS.loading);
-  }
-
-  private colors = () : void => {
-    const configurableStyles = domConstruct.create("style", {
-        id: "configurableStyles"
-        }, document.head);
-
-        const focusColor = this.config.focusColor;
-        const hoverColor = this.config.hoverColor;
-        const activeColor = this.config.activeColor;
-        const bgColor = this.config.theme;
-        const bgLightenColor = LightenDarkenColor(this.config.theme, 50);
-
-        const borderActiveColor = LightenDarkenColor(this.config.activeColor, 75);
-
-        configurableStyles.innerHTML = `
-.bg { background: ${bgColor}; }
-.fc { color: ${this.config.color}; }
-:focus { outline-color: ${focusColor}; }
-.claro .dijitSplitterV,
-.claro .dijitSplitterH
-{
-  background: white;
-  border-color: ${bgColor};
-}
-.esri-widget--button {
-  background: ${bgColor};
-  color: ${this.config.color};
-  margin: 1px !important;
-}
-.esri-widget--button:hover {
-  background: ${hoverColor};
-  color: ${this.config.color};
-}
-.headerButton .dijitButtonText {
-  color: ${this.config.color};
-}
-.panelTool.active input[type="image"] {
-  background-color: ${activeColor};
-  outline-color: ${borderActiveColor};
-}
-.panelTool input[type="image"]:hover {
-  background-color: ${hoverColor};
-}
-.panelTool.active input[type="image"]:hover {
-  background-color: ${borderActiveColor};
-}
-
-.esri-menu li:hover {
-  background-color: ${hoverColor};
-  color: ${this.config.color};
-}
-
-.header__numberInput {
-  background: ${bgLightenColor};
-  color: ${this.config.color};
-}
-
-.esri-basemap-gallery__item--selected, 
-.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:hover, 
-.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus {
-  border-left-color: ${borderActiveColor};
-  background-color: ${activeColor};
-}
-
-.esri-basemap-gallery__item--selected .esri-basemap-gallery__item-title, 
-.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:hover .esri-basemap-gallery__item-title, 
-.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus .esri-basemap-gallery__item-title,
-.esri-basemap-gallery__item:hover .esri-basemap-gallery__item-title {
-  color: ${this.config.color};
-}
-
-.esri-basemap-gallery__item:hover,
-.esri-basemap-gallery__item:focus
-{
-  /* outline: none; */
-  background-color: ${hoverColor};
-  border-left-color: ${this.config.color};
-} 
-
-.esri-basemap-gallery__item:focus {
-  outline-width: 2px;
-  outline-offset: -1px;
-  outline-style: solid;
-  outline-color: ${focusColor};
-  border-left-color: ${focusColor};
-  background-color: transparent;
-}
-
-.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus {
-  outline-width: 2px;
-  outline-offset: -1px;
-  outline-style: solid;
-  outline-color: ${borderActiveColor}; 
-}
-
-.esri-basemap-gallery__item:hover:focus .esri-basemap-gallery__item-title,
-.esri-basemap-gallery__item:focus  .esri-basemap-gallery__item-title {
-  color: black;
-}
-
-.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus .esri-basemap-gallery__item-title {
-  color:white;
-}
-
-.esri-legend .esri-widget__heading {
-  color: ${this.config.color};
-  background: ${bgColor};
-}
-
-.esri-button {
-  background-color: ${bgColor};
-  border: 1px solid ${bgColor};
-  color: ${this.config.color};
-  border-radius: 5px;
-}
-
-.esri-button:hover {
-  background-color:  ${hoverColor};
-  color: ${this.config.color};
-}
-
-.esri-bookmarks__bookmark:hover {
-  background-color: ${hoverColor};
-  color: ${this.config.color};
-}
-`;
   }
 
   private logo = () : void => {
@@ -361,7 +235,7 @@ class MapExample {
     setPageTitle(this.config.title);
     document.getElementById("panelText").innerHTML = this.config.title;
 
-    this.colors();
+    CustomColors(this.config);
 
     const borderContainer = new BorderContainer({
       gutters: false,
