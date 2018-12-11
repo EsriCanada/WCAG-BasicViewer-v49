@@ -158,7 +158,6 @@ class MapExample {
                 view: mapView
               });
         
-              // Add the home button to the top left corner of the view
               mapView.ui.add(locateBtn, "top-left");
             });
           }

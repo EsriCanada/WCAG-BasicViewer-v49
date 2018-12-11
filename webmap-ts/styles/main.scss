@@ -794,3 +794,18 @@ myKey img {
 .toc-panel__listItem>label>span {
     padding: 2px;
 }
+
+.toc-panel__listItem--settings {
+    float: right;
+    margin-right: 0px;
+    margin-top: 0px;
+}
+
+.toc-panel__listItem--settings img {
+    cursor: pointer;
+    width: 23px;
+    height: 23px;
+    margin-left: 2px;
+    // margin: 3px;
+    opacity: 0.25;
+}

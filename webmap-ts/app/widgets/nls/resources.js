@@ -60,6 +60,8 @@ define({
         TOC: {
             visibleAtScale: "Visible at Scale",
             notVisibleAtScale: "Not Visible at Scale",
+            openFeatureTable: "Open Feature Table",
+            closeFeatureTable: "Close Feature Table",
         }
     }),
     "ar": 1,

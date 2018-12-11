@@ -60,6 +60,8 @@ define(
         TOC: {
             visibleAtScale: "Visible à l'échelle",
             notVisibleAtScale: "Non visible à l'échelle",
+            openFeatureTable: "Ouvrir la table des fonctionnalités",
+            closeFeatureTable: "Fermer la table des fonctionnalités",
         }
     })
 );

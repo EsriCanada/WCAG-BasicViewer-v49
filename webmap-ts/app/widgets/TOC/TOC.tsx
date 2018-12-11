@@ -21,7 +21,7 @@ import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
 
-import { NormalizeTitle } from "../../utils";
+import { Has, NormalizeTitle } from "../../utils";
 
 
 const CSS = {
@@ -34,8 +34,8 @@ const CSS = {
 @subclass("esri.widgets.TOC")
 class TOC extends declared(Widget) {
 
-    // @property()
-    // config: ApplicationConfig;
+    @property()
+    config: ApplicationConfig;
 
     @property()
     view: __esri.MapView | __esri.SceneView;
@@ -74,6 +74,17 @@ class TOC extends declared(Widget) {
                 domConstruct.create ("span", {
                     innerHTML: NormalizeTitle(layer.title),
                 }, label);
+                const settings = domConstruct.create ("div", {
+                    class: "toc-panel__listItem--settings",
+                    id: `toc-settings_${i}`
+                }, li);
+                if(Has(this.config, "featureTable")) {
+                    domConstruct.create("img", {
+                        src: "./images/TableClose.png",
+                        alt: i18n.TOC.openFeatureTable,
+                        title: i18n.TOC.openFeatureTable,
+                    }, settings);
+                }
             })
 
             require(["esri/core/watchUtils"], (watchUtils) => {

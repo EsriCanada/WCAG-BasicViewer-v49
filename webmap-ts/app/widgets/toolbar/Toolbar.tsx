@@ -350,6 +350,7 @@ class Toolbar extends declared(Widget) {
                 require(["../TOC/TOC"], (TOC) => {
                     layersTool.pageReady.then((toolPage) => {
                         const toc = new TOC({
+                            config: this.config,
                             view:mainView,
                             container: domConstruct.create("div", {}, toolPage.pageContent)
                         })
