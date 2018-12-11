@@ -45,11 +45,13 @@ class TOC extends declared(Widget) {
         );
     }
 
+    private layers: __esri.Collection<__esri.Layer> = null
+
     private _addTOC = (element: Element) => {
-        const layers = this.view.map.layers;
-        console.log("allLayers", layers.map((layer) => layer.title));
+        this.layers = this.view.map.layers;
+        console.log("allLayers", this.layers);
         
-        layers.forEach((layer, i) => { 
+        this.layers.forEach((layer, i) => { 
             const li = domConstruct.create("li", {
                 "data-item": i,
                 tabindex:0, 
@@ -60,12 +62,22 @@ class TOC extends declared(Widget) {
                 "aria-hidden": true
             }, li);
             domConstruct.create ("input", {
-                type: "checkBox"
+                type: "checkBox",
+                "data-item": i,
+                "data-layerId": layer.id,
+                onclick: this._flipLayerVisibility,
+                checked: layer.visible
             }, label);
             domConstruct.create ("span", {
                 innerHTML: layer.title.replace("_", " "),
             }, label);
         })
+    }
+
+    private _flipLayerVisibility = (event) => {
+        const layer = this.layers.find((layer) => { return layer.id == event.target.attributes["data-layerId"].value});
+        layer.visible = event.target.checked;
+        // console.log("_flipLayerVisibility", this.layers, event.target.attributes["data-item"].value, event.target.attributes["data-layerId"].value, layer, event);
     }
 }
 

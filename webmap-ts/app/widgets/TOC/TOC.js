@@ -33,10 +33,11 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
             // @property()
             // config: ApplicationConfig;
             var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.layers = null;
             _this._addTOC = function (element) {
-                var layers = _this.view.map.layers;
-                console.log("allLayers", layers.map(function (layer) { return layer.title; }));
-                layers.forEach(function (layer, i) {
+                _this.layers = _this.view.map.layers;
+                console.log("allLayers", _this.layers);
+                _this.layers.forEach(function (layer, i) {
                     var li = domConstruct.create("li", {
                         "data-item": i,
                         tabindex: 0,
@@ -47,12 +48,21 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                         "aria-hidden": true
                     }, li);
                     domConstruct.create("input", {
-                        type: "checkBox"
+                        type: "checkBox",
+                        "data-item": i,
+                        "data-layerId": layer.id,
+                        onclick: _this._flipLayerVisibility,
+                        checked: layer.visible
                     }, label);
                     domConstruct.create("span", {
                         innerHTML: layer.title.replace("_", " "),
                     }, label);
                 });
+            };
+            _this._flipLayerVisibility = function (event) {
+                var layer = _this.layers.find(function (layer) { return layer.id == event.target.attributes["data-layerId"].value; });
+                layer.visible = event.target.checked;
+                // console.log("_flipLayerVisibility", this.layers, event.target.attributes["data-item"].value, event.target.attributes["data-layerId"].value, layer, event);
             };
             return _this;
         }
