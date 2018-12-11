@@ -56,6 +56,10 @@ define({
         overview: {
             mapExtent: "Map Extent",
             instructions: "Drag to change the Map Extent,\nor focus and use Arrow keys.",
+        },
+        TOC: {
+            visibleAtScale: "Visible at Scale",
+            notVisibleAtScale: "Not Visible at Scale",
         }
     }),
     "ar": 1,

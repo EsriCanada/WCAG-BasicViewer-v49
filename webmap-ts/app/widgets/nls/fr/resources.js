@@ -56,6 +56,10 @@ define(
         overview: {
             mapExtent: "Étendue de la carte",
             instructions: "Faites glisser pour modifier l'étendue de la carte, \nou mise au point et utiliser les touches fléchées.",
+        },
+        TOC: {
+            visibleAtScale: "Visible à l'échelle",
+            notVisibleAtScale: "Non visible à l'échelle",
         }
     })
 );

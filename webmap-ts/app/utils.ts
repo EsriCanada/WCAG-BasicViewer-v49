@@ -38,3 +38,9 @@ export function Has(config: ApplicationConfig, tool:string) : boolean {
     const hasTool = config[`tool_${tool}`]
     return hasTool != 'undefined' && hasTool;
 }
+
+export function NormalizeTitle(title : string) : string {
+    return title.replace("_", " ").replace(/(\1[a-z])(\2[A-Z])/g, "$1 $2").replace(/(\1[A-Z]+)(\2[A-Z])(\3[a-z])/g, "$1 $2$3");
+}
+
+

@@ -21,6 +21,9 @@ import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
 
+import { NormalizeTitle } from "../../utils";
+
+
 const CSS = {
     // base
     base: "toc toc-panel",
@@ -69,12 +72,12 @@ class TOC extends declared(Widget) {
                     checked: layer.visible
                 }, label);
                 domConstruct.create ("span", {
-                    innerHTML: layer.title.replace("_", " "),
+                    innerHTML: NormalizeTitle(layer.title),
                 }, label);
             })
 
             require(["esri/core/watchUtils"], (watchUtils) => {
-                const isVisibleAtScale = (layer) => {
+                const isVisibleAtScale = (layer : any) : boolean => {
                     return (layer.minScale <= 0 || mapView.scale <= layer.minScale) &&
                     (layer.maxScale <= 0 || mapView.scale >= layer.maxScale)
                 } 
@@ -83,8 +86,10 @@ class TOC extends declared(Widget) {
                     console.log("layers", this.layers);
                     this.layers.forEach((layer : any, i) => {
                         // console.log(i, isVisibleAtScale(layer), layer.title, layer.minScale, mapView.scale, layer.maxScale);
-                        const span = dom.byId("pageBody_layers").querySelector(`input[data-layerId=${layer.id}] + span`);
+                        const span = dom.byId("pageBody_layers").querySelector(`input[data-layerId="${layer.id}"] + span`);
                         domStyle.set(span, "font-weight", `${isVisibleAtScale(layer) ? "bold" : "normal"}`);
+                        domAttr.set(span, "title", isVisibleAtScale(layer) ? i18n.TOC.visibleAtScale : i18n.TOC.notVisibleAtScale;
+                        domAttr.set(span, "aria-label", `${isVisibleAtScale(layer) ? `${NormalizeTitle(layer.title)}, ${i18n.TOC.visibleAtScale}` : `${NormalizeTitle(layer.title)}, ${i18n.TOC.notVisibleAtScale}`}`);
                         // console.log(i, isVisibleAtScale(layer), span);
                     })
                 });
