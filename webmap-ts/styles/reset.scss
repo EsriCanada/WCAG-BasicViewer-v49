@@ -244,3 +244,11 @@ input.esri-input.esri-search__input::-webkit-input-placeholder {
 .esri-print__size-container [class*="esri-icon"] {
     color: black;
 }
+
+input[type="checkbox"] {
+    height: 20px;
+    width: 20px;
+    border: 1px solid #bababa;
+    vertical-align: sub;
+    cursor: pointer;
+}

@@ -108,6 +108,9 @@ class Toolbar extends declared(Widget) {
                     case "legend" :
                         toolList.push(this._addLegend(element, this.mapView));
                         break;
+                    case "layers" :
+                        toolList.push(this._addLayers(element, this.mapView));
+                        break;
                     case "bookmarks" :
                         toolList.push(this._addBookmarks(element, this.mapView));
                         break;
@@ -332,6 +335,28 @@ class Toolbar extends declared(Widget) {
                     });
                 return deferred.promise;
             })
+        }
+        else {
+            const deferred = new Deferred<Tool>();
+            deferred.reject();
+            return deferred.promise;
+        }
+    }
+
+    private _addLayers = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.promise.Promise<Tool> => {
+        if(Has(this.config, "layers")) {
+            const deferred = this._addTool(element, "layers");
+            deferred.then((layersTool) => {
+                require(["../TOC/TOC"], (TOC) => {
+                    layersTool.pageReady.then((toolPage) => {
+                        const toc = new TOC({
+                            view:mainView,
+                            container: domConstruct.create("div", {}, toolPage.pageContent)
+                        })
+                    });
+                })
+            })
+            return deferred.promise;
         }
         else {
             const deferred = new Deferred<Tool>();

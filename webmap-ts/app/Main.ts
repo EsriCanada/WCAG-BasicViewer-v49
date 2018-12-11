@@ -67,6 +67,7 @@ class MapExample {
       console.error("ApplicationBase is not defined");
       return;
     }
+    console.log("Base", base);
     console.log("Config", base.config);
     this.base = base;
 
@@ -125,6 +126,7 @@ class MapExample {
             rotationEnabled: false
           }
         }).then(mapView => {
+          console.log("mapView", mapView);
           findQuery(find, mapView).then(() => goToMarker(marker, mapView));
 
           if(this.config.scalebar) {
@@ -330,9 +332,7 @@ class MapExample {
     // console.log("createTools");
     require([
       "./widgets/toolbar/toolbar"
-    ], function(
-      Toolbar
-    ) {
+    ], (Toolbar) => {
       new Toolbar({ config: config, mapView: mapView, container: "panelTools" });
     });
   }
@@ -401,7 +401,6 @@ class MapExample {
 
     this.contactUs(this.config);
     this.languageMenu(this.config);
-    // this.createTools(this.config, this.tools);
   };
 }
 
