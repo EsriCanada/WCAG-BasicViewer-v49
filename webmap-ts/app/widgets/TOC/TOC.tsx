@@ -48,29 +48,48 @@ class TOC extends declared(Widget) {
     private layers: __esri.Collection<__esri.Layer> = null
 
     private _addTOC = (element: Element) => {
-        this.layers = this.view.map.layers;
-        console.log("allLayers", this.layers);
-        
-        this.layers.forEach((layer, i) => { 
-            const li = domConstruct.create("li", {
-                "data-item": i,
-                tabindex:0, 
-                class: CSS.listItem,
-                "aria-hidden": true
-            }, element) ;
-            const label = domConstruct.create ("label", {
-                "aria-hidden": true
-            }, li);
-            domConstruct.create ("input", {
-                type: "checkBox",
-                "data-item": i,
-                "data-layerId": layer.id,
-                onclick: this._flipLayerVisibility,
-                checked: layer.visible
-            }, label);
-            domConstruct.create ("span", {
-                innerHTML: layer.title.replace("_", " "),
-            }, label);
+        this.view.when((mapView) => {
+            this.layers = mapView.map.layers;
+            console.log("allLayers", this.layers);
+            
+            this.layers.forEach((layer, i) => { 
+                const li = domConstruct.create("li", {
+                    "data-item": i,
+                    tabindex:0, 
+                    class: CSS.listItem,
+                    "aria-hidden": true
+                }, element) ;
+                const label = domConstruct.create ("label", {
+                    "aria-hidden": true
+                }, li);
+                domConstruct.create ("input", {
+                    type: "checkBox",
+                    "data-layerId": layer.id,
+                    onclick: this._flipLayerVisibility,
+                    checked: layer.visible
+                }, label);
+                domConstruct.create ("span", {
+                    innerHTML: layer.title.replace("_", " "),
+                }, label);
+            })
+
+            require(["esri/core/watchUtils"], (watchUtils) => {
+                const isVisibleAtScale = (layer) => {
+                    return (layer.minScale <= 0 || mapView.scale <= layer.minScale) &&
+                    (layer.maxScale <= 0 || mapView.scale >= layer.maxScale)
+                } 
+
+                watchUtils.when(mapView, "stationary", () => {
+                    console.log("layers", this.layers);
+                    this.layers.forEach((layer : any, i) => {
+                        // console.log(i, isVisibleAtScale(layer), layer.title, layer.minScale, mapView.scale, layer.maxScale);
+                        const span = dom.byId("pageBody_layers").querySelector(`input[data-layerId=${layer.id}] + span`);
+                        domStyle.set(span, "font-weight", `${isVisibleAtScale(layer) ? "bold" : "normal"}`);
+                        // console.log(i, isVisibleAtScale(layer), span);
+                    })
+                });
+            });
+            
         })
     }
 
@@ -79,6 +98,7 @@ class TOC extends declared(Widget) {
         layer.visible = event.target.checked;
         // console.log("_flipLayerVisibility", this.layers, event.target.attributes["data-item"].value, event.target.attributes["data-layerId"].value, layer, event);
     }
+
 }
 
 export = TOC;
