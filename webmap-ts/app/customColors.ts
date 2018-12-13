@@ -116,6 +116,7 @@ export function CustomColors(config: ApplicationConfig) : void {
   background-color: ${bgColor};
   border: 1px solid ${bgColor};
   color: ${config.color};
+  font-weight: bold;
   border-radius: 5px;
 }
 
@@ -127,6 +128,20 @@ export function CustomColors(config: ApplicationConfig) : void {
 .esri-bookmarks__bookmark:hover {
   background-color: ${hoverColor};
   color: ${config.color};
+}
+
+.esri-print__advanced-options-section {
+  border: 1px solid ${bgColor};
+}
+
+.esri-print__refresh-button {
+  border: 1px solid ${bgColor};
+  border-left-width: 1px; 
+}
+
+.esri-print__swap-button {
+  flex: 0 0 32px;
+  border: 1px solid ${bgColor};
 }
 `;
   }

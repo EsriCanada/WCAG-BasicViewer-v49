@@ -117,6 +117,9 @@ class Toolbar extends declared(Widget) {
                     case "print" :
                         toolList.push(this._addPrint(element, this.mapView));
                         break;
+                    case "filter" :
+                        toolList.push(this._addFilters(element, this.mapView));
+                        break;
                     default:
                         toolList.push(this._addTool(element, tool));
                         break;
@@ -247,6 +250,33 @@ class Toolbar extends declared(Widget) {
     //         directions.hideBadge(badge);
     //     });
     // }
+
+    private _addFilters =  (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.Deferred<Tool> => {
+        if(Has(this.config, "filter")) {
+            const deferred = new Deferred<Tool>();
+            this._addTool(element, "filter").then((tool) => {
+                require(["../Filters/Filters"], (Filters) => {
+                    const filters = new Filters({
+                        mainView:mainView,
+                        container: domConstruct.create("div", {}, "pageBody_filter")
+                    });
+
+                    const badge = tool.addBadge({
+                        toolBadgeEvn: "someFilters",
+                        toolBadgeImg: "images/someFilters.png",
+                        toolBadgeTip: i18n.badgesTips.someFilters,
+                    });
+                    // tool.showBadge(badge);
+                
+
+                    deferred.resolve(tool);
+                });
+            });
+            return deferred;
+        }
+        return null;
+    }
+
 
     private _addOverview = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.Deferred<Tool> => {
         if(Has(this.config, "overview")) {
