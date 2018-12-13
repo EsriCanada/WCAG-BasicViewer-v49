@@ -127,7 +127,6 @@ class Toolbar extends declared(Widget) {
         All(toolList).then(() => {
             console.log("All", this.defaultButton, toolList);
             if(this.defaultButton) {
-                // console.log("defaultButton", this.defaultButton);
                 this.defaultButton.click();
             }
             this.deferred.resolve(this);
@@ -137,11 +136,9 @@ class Toolbar extends declared(Widget) {
     }
 
     private _addTool = (element: Element, tool: string): dojo.Deferred<Tool> => {
-        // // // console.log("Tool ready", tooll);
         const deferred = new Deferred<Tool>();
 
         require(["./Tool"], (Tool) => {
-            // console.log("_addTool", this);
             const t = new Tool({
                 config: this.config,
                 tool: tool,
@@ -149,7 +146,6 @@ class Toolbar extends declared(Widget) {
                 container: domConstruct.create("div", {}, element)
             });
             t.pageReady.then(() => {
-                // // console.log("Tool ready", tooll);
                 deferred.resolve(t);
             });
         });
@@ -163,7 +159,6 @@ class Toolbar extends declared(Widget) {
             this.config.response.itemInfo.item.description ||
             this.config.response.itemInfo.item.snippet ||
             " ";
-            // console.log("_addDetaills", description);
 
             if (!isNullOrWhiteSpace(description)) {
                 const hasInstructions = Has(this.config, "instructions");
@@ -173,8 +168,6 @@ class Toolbar extends declared(Widget) {
                         domClass.add(toolPage.pageContent, (hasInstructions ? "" : "detailHalf"));
 
                         this.defaultButton = tool.myInputBtn;
-
-                        // console.log("Tool ready", tooll.tool);
                         this.deferredDetails.resolve(tool);
                     });
                 });
@@ -192,16 +185,12 @@ class Toolbar extends declared(Widget) {
             require([
                 `dojo/text!./Templates/${i18n.instructions}.html`
             ], function (instructionsText) {
-                // console.log("instructionsText", instructionsText, moreHelpUrl, i18n.moreHelp);
                 if (!isNullOrWhiteSpace(moreHelpUrl)) {
                     instructionsText = `${instructionsText}
 <br />
 <a href="${moreHelpUrl}" target="blank" class="more_help">${i18n.moreHelp}</a>
 `;
                 }
-                // console.log("instructionsText", instructionsText);
-                // this.defaultButton = instructionsText.myInputBtn;
-
                 deferred.resolve(instructionsText)
             });
             return deferred.promise;
@@ -211,7 +200,6 @@ class Toolbar extends declared(Widget) {
             if(!isNullOrWhiteSpace(instructionsText)) {
                 if (!Has(this.config, "details")) {
                     this._addTool(element, "instructions").then((tool) => {
-                        // console.log("instructions only");
                         domConstruct.create(
                             "div",
                             {
@@ -222,28 +210,21 @@ class Toolbar extends declared(Widget) {
                             domConstruct.create("div", {}, tool.myToolPage.pageContent)
                         );
                         this.defaultButton = tool.myInputBtn;
-                        // tool.active = true;
 
-                        console.log("Tool ready", tool.tool);
                         deferredInstructions.resolve(tool);
-
                     })
                     return deferredInstructions;
                 }
                 else {
                     this.deferredDetails.then((tool) => {
-                        // const pageBody_details = document.getElementById("pageBody_details");
-                        const instructionsDiv = domConstruct.create(
+                        domConstruct.create(
                         "div",
                         {
                             id: "instructionsDiv",
                             innerHTML: instructionsText,
                             tabindex: 0
                         }, tool.myToolPage.pageContent);
-                        // ,
-                        // pageBody_details);
-                        
-                        console.log("Tool ready", tool.tool);
+                       
                         deferredInstructions.resolve(tool);
 
                     });
@@ -286,26 +267,20 @@ class Toolbar extends declared(Widget) {
                     }, domConstruct.create("label", {innerHTML:`Aspect Ratio: `}, tool.myToolPage.myControls));
 
                     on(overviewMapScale, "keyup", (event) =>  {
-                        // console.log("keyup",  event.target.value);
                         overviewMap.scaleFactor = event.target.value;
                     });
                     on(overviewMapScale, "change", (event) => {
-                        // console.log("change", event.target.value);
                         overviewMap.scaleFactor = event.target.value;
                     });
                     on(overviewMapScale, "input", (event) => {
-                        // console.log("input", event.target.value);
                         overviewMap.scaleFactor = event.target.value;
                     });
-                    // console.log("Tool ready", tooll.tool);
                     deferred.resolve(tool);
                 });
             });
             return deferred;
         }
-        else {
-            return null;
-        }
+        return null;
     }
 
     private _addBasemap = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.Deferred<Tool> => {
@@ -313,19 +288,16 @@ class Toolbar extends declared(Widget) {
             const deferred = new Deferred<Tool>();
             this._addTool(element, "basemap").then((tool) => {
                 require(["esri/widgets/BasemapGallery"], (BasemapGallery) => {
-                    const basemap = new BasemapGallery({
+                    new BasemapGallery({
                         view:mainView,
                         container: domConstruct.create("div", {}, tool.myToolPage.pageContent)
                     })
-                    // console.log("Tool ready", tooll.tool);
                     deferred.resolve(tool);
                 });
             })
             return deferred;
         }
-        else {
-            return null;
-       }
+        return null;
     }
 
     private _addLegend = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.Deferred<Tool> => {
@@ -334,19 +306,16 @@ class Toolbar extends declared(Widget) {
             new Deferred<Tool>();
             this._addTool(element, "legend").then((tool) => {
                 require(["esri/widgets/Legend"], (Legend) => {
-                    const basemap = new Legend({
+                    new Legend({
                         view:mainView,
                         container: domConstruct.create("div", {}, tool.myToolPage.pageContent)
                     })
-                    // console.log("Tool ready", tooll.tool);
                     deferred.resolve(tool)
                 });
             })
             return deferred;
         }
-        else {
-            return null;
-        }
+        return null;
     }
 
     private _addLayers = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.Deferred<Tool> => {
@@ -354,20 +323,17 @@ class Toolbar extends declared(Widget) {
             const deferred = new Deferred<Tool>();
             this._addTool(element, "layers").then((tool) => {
                 require(["../TOC/TOC"], (TOC) => {
-                    const toc = new TOC({
+                    new TOC({
                         config: this.config,
                         view:mainView,
                         container: domConstruct.create("div", {}, tool.myToolPage.pageContent)
                     })
-                    // console.log("Tool ready", tooll.tool);
                     deferred.resolve(tool);
                 })
             })
             return deferred;
         }
-        else {
-            return null;
-        }
+        return null;
     }
 
     private _addBookmarks = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.Deferred<Tool> => {
@@ -375,19 +341,16 @@ class Toolbar extends declared(Widget) {
             const deferred = new Deferred<Tool>();
             this._addTool(element, "bookmarks").then((tool) => {
                 require(["esri/widgets/Bookmarks"], (Bookmarks) => {
-                    const basemap = new Bookmarks({
+                    new Bookmarks({
                         view:mainView,
                         container: domConstruct.create("div", {}, tool.myToolPage.pageContent)
                     })
-                    // console.log("Tool ready", tooll.tool);
                     deferred.resolve(tool);
                 });
             })
             return deferred;
         }
-        else {
-            return null;
-        }
+        return null;
     }
 
     private _addPrint = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.Deferred<Tool> => {
@@ -401,24 +364,18 @@ class Toolbar extends declared(Widget) {
                         // "https://utility.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task",
                         container: domConstruct.create("div", {}, tool.myToolPage.pageContent)
                     });
-                    // console.log("print", print);
-                    // console.log("exportedLinks", print.exportedLinks);
                     watchUtils.watch(print.exportedLinks, "length", (newValue) => {
-                        // console.log("exportedLinks lenght", newValue, print.exportedLinks.items[newValue-1]);
                         tool.showLoading();
                         watchUtils.once(print.exportedLinks.items[newValue-1], "state", () => {
                             tool.hideLoading();
                         })
                     });
-                    // console.log("Tool ready", tooll.tool);
                     deferred.resolve(tool);
                 });
             })
             return deferred;
         }
-        else {
-            return null;
-        }
+        return null;
     }
 
 }
