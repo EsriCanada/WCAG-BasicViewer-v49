@@ -19,36 +19,29 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/core/tsSupport/decorateHelper", "esri/core/accessorSupport/decorators", "esri/widgets/Widget", "esri/widgets/support/widget"], function (require, exports, __extends, __decorate, decorators_1, Widget, widget_1) {
+define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/core/tsSupport/decorateHelper", "esri/core/accessorSupport/decorators", "esri/widgets/Widget", "esri/widgets/support/widget", "../../utils"], function (require, exports, __extends, __decorate, decorators_1, Widget, widget_1, utils_1) {
     "use strict";
-    var Filters = /** @class */ (function (_super) {
-        __extends(Filters, _super);
-        function Filters() {
+    var FilterTab = /** @class */ (function (_super) {
+        __extends(FilterTab, _super);
+        function FilterTab() {
             var _this = _super.call(this) || this;
-            _this.layers = null;
-            _this._addFilters = function (element) {
-                _this.mainView.when(function (mapView) {
-                    _this.layers = mapView.map.layers;
-                    require(["./filterTab"], function (FilterTab) {
-                        _this.layers.forEach(function (layer) {
-                            new FilterTab({ layer: layer, container: element });
-                        });
-                    });
-                });
+            _this._addFilterTab = function (elemenet) {
+                console.log("layer", _this.layer.title);
             };
             return _this;
         }
-        Filters.prototype.render = function () {
-            return (widget_1.tsx("div", { afterCreate: this._addFilters }));
+        FilterTab.prototype.render = function () {
+            return (widget_1.tsx("div", null,
+                widget_1.tsx("div", { afterCreate: this._addFilterTab }, utils_1.NormalizeTitle(this.layer.title))));
         };
         __decorate([
             decorators_1.property()
-        ], Filters.prototype, "mainView", void 0);
-        Filters = __decorate([
-            decorators_1.subclass("esri.widgets.Filters")
-        ], Filters);
-        return Filters;
+        ], FilterTab.prototype, "layer", void 0);
+        FilterTab = __decorate([
+            decorators_1.subclass("esri.widgets.FilterTab")
+        ], FilterTab);
+        return FilterTab;
     }(decorators_1.declared(Widget)));
-    return Filters;
+    return FilterTab;
 });
-//# sourceMappingURL=Filters.js.map
+//# sourceMappingURL=filterTab.js.map

@@ -21,11 +21,10 @@ import { renderable, tsx } from "esri/widgets/support/widget";
 import i18n = require("dojo/i18n!../nls/resources");
 import { NormalizeTitle } from "../../utils";
 
-@subclass("esri.widgets.Filters")
-  class Filters extends declared(Widget) {
-  
+@subclass("esri.widgets.FilterTab")
+  class FilterTab extends declared(Widget) {
     @property()
-    mainView: __esri.MapView | __esri.SceneView;
+    layer: __esri.Layer;
 
     constructor() {
         super();
@@ -33,24 +32,15 @@ import { NormalizeTitle } from "../../utils";
 
     render() {
         return (
-            <div afterCreate={this._addFilters}></div>
+            <div>
+            <div afterCreate={this._addFilterTab}>{NormalizeTitle(this.layer.title)}</div>
+            </div>
         );
     }
 
-    private layers: __esri.Collection<__esri.Layer> = null
-
-    private _addFilters = (element: Element) => {
-        this.mainView.when((mapView) => {
-            this.layers = mapView.map.layers;
-
-            require(["./filterTab"], (FilterTab) => { 
-                this.layers.forEach((layer) => {
-                    new FilterTab({ layer: layer, container: element});
-                })
-            })
-        });
+    private _addFilterTab = (elemenet: Element) => {
+        console.log("layer", this.layer.title);
     }
 }
 
-
-export = Filters;
+export = FilterTab;
