@@ -211,47 +211,48 @@ class Toolbar extends declared(Widget) {
             if(!isNullOrWhiteSpace(instructionsText)) {
                 if (!Has(this.config, "details")) {
                     this._addTool(element, "instructions").then((tool) => {
-                        tool.pageReady.then((toolPage) => {
-                            // console.log("instructions only");
-                            domConstruct.create(
-                                "div",
-                                {
-                                    id: "instructionsDiv",
-                                    innerHTML: instructionsText,
-                                    tabindex: 0
-                                },
-                                domConstruct.create("div", {}, toolPage.pageContent)
-                            );
-                            this.defaultButton = tool.myInputBtn;
-                            // tool.active = true;
+                        // console.log("instructions only");
+                        domConstruct.create(
+                            "div",
+                            {
+                                id: "instructionsDiv",
+                                innerHTML: instructionsText,
+                                tabindex: 0
+                            },
+                            domConstruct.create("div", {}, tool.myToolPage.pageContent)
+                        );
+                        this.defaultButton = tool.myInputBtn;
+                        // tool.active = true;
 
-                            // console.log("Tool ready", tooll.tool);
-                            deferredInstructions.resolve(tool);
+                        console.log("Tool ready", tool.tool);
+                        deferredInstructions.resolve(tool);
 
-                            return deferredInstructions;
-                        })
                     })
+                    return deferredInstructions;
                 }
                 else {
                     this.deferredDetails.then((tool) => {
-                        const pageBody_details = document.getElementById("pageBody_details");
+                        // const pageBody_details = document.getElementById("pageBody_details");
                         const instructionsDiv = domConstruct.create(
                         "div",
                         {
                             id: "instructionsDiv",
                             innerHTML: instructionsText,
                             tabindex: 0
-                        },
-                        pageBody_details);
+                        }, tool.myToolPage.pageContent);
+                        // ,
+                        // pageBody_details);
                         
-                        // console.log("Tool ready", tooll.tool);
+                        console.log("Tool ready", tool.tool);
                         deferredInstructions.resolve(tool);
+
                     });
+                    return deferredInstructions;
                 }
             }
             deferredInstructions.reject("No instructions text");
         });
-        return deferredInstructions;
+        return null;
     }
 
     // private _addDirections = (element: Element) : dojo.Deferred<Tool> => {
