@@ -4,7 +4,7 @@ import {ApplicationConfig} from "ApplicationBase/interfaces";
 
 
 export function CustomColors(config: ApplicationConfig) : void {
-    console.log("CustomColors", document);
+    // console.log("CustomColors", document);
     const configurableStyles = domConstruct.create("style", {
         id: "configurableStyles"
         }, document.head);
