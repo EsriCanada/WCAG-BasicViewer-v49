@@ -23,6 +23,7 @@ import { Badge } from "./Badge";
 import ToolPage = require("./ToolPage");
 import { Has, isNullOrWhiteSpace } from "../../utils";
 import MyOverviewMap = require("../MyOverviewMap/MyOverviewMap");
+import { doesNotReject } from "assert";
 
 const CSS = {
     base: "toolbar",
@@ -87,45 +88,43 @@ class Toolbar extends declared(Widget) {
           ];
                 
         tools.forEach((tool: string) => {
-            // console.log(tool);
             if (Has(this.config, tool)) {
                 switch (tool) {
                     case "details":
-                        toolList.push({tool: tool, deferred: this._addDetaills(element)});
+                        toolList.push(this._addDetaills(element));
                         break;
                     case "instructions":
-                        toolList.push({tool: tool, deferred: this._addInstructions(element)});
+                        toolList.push(this._addInstructions(element));
                         break;
                     // case "directions":
                     //     toolList.push(this._addDirections(element));
                     //     break;
                     case "overview" :
-                        toolList.push({tool: tool, deferred: this._addOverview(element, this.mapView)});
+                        toolList.push(this._addOverview(element, this.mapView));
                         break;
                     case "basemap" :
-                        toolList.push({tool: tool, deferred: this._addBasemap(element, this.mapView)});
+                        toolList.push(this._addBasemap(element, this.mapView));
                         break;
                     case "legend" :
-                        toolList.push({tool: tool, deferred: this._addLegend(element, this.mapView)});
+                        toolList.push(this._addLegend(element, this.mapView));
                         break;
                     case "layers" :
-                        toolList.push({tool: tool, deferred: this._addLayers(element, this.mapView)});
+                        toolList.push(this._addLayers(element, this.mapView));
                         break;
                     case "bookmarks" :
-                        toolList.push({tool: tool, deferred: this._addBookmarks(element, this.mapView)});
+                        toolList.push(this._addBookmarks(element, this.mapView));
                         break;
                     case "print" :
-                        toolList.push({tool: tool, deferred: this._addPrint(element, this.mapView)});
+                        toolList.push(this._addPrint(element, this.mapView));
                         break;
                     default:
-                        toolList.push({tool: tool, deferred: this._addTool(element, tool)});
+                        toolList.push(this._addTool(element, tool));
                         break;
                 }
             }
         });
 
-        console.log("toolList", toolList);
-        All(toolList.map(r => r.deferred)).then(() => {
+        All(toolList).then(() => {
             console.log("All", this.defaultButton, toolList);
             if(this.defaultButton) {
                 // console.log("defaultButton", this.defaultButton);
@@ -138,7 +137,7 @@ class Toolbar extends declared(Widget) {
     }
 
     private _addTool = (element: Element, tool: string): dojo.Deferred<Tool> => {
-        // console.log(tool);
+        // // // console.log("Tool ready", tooll);
         const deferred = new Deferred<Tool>();
 
         require(["./Tool"], (Tool) => {
@@ -149,7 +148,10 @@ class Toolbar extends declared(Widget) {
                 toolBar: this,
                 container: domConstruct.create("div", {}, element)
             });
-            t.pageReady.then(() => deferred.resolve(t));
+            t.pageReady.then(() => {
+                // // console.log("Tool ready", tooll);
+                deferred.resolve(t);
+            });
         });
         return deferred;
     }
@@ -165,19 +167,15 @@ class Toolbar extends declared(Widget) {
 
             if (!isNullOrWhiteSpace(description)) {
                 const hasInstructions = Has(this.config, "instructions");
-                this._addTool(element, "details").then((details) => {
-                    // console.log("details 1", details);
-                    details.pageReady.then((tool) => {
-                        // console.log("details 2", tool);
-                        const detailDiv = tool.pageContent;
-                        detailDiv.innerHTML = `<div id="detailDiv" tabindex=0>${description}</div>`;
-                        domClass.add(detailDiv, (hasInstructions ? "" : "detailHalf"));
-                        // console.log("details 3", detailDiv);
+                this._addTool(element, "details").then((tool) => {
+                    tool.pageReady.then((toolPage) => {
+                        toolPage.pageContent.innerHTML = `<div id="detailDiv" tabindex=0>${description}</div>`;
+                        domClass.add(toolPage.pageContent, (hasInstructions ? "" : "detailHalf"));
 
-                        // domClass.add(details.defaultButton, "defaultButton");
-                        this.defaultButton = details.myInputBtn;
+                        this.defaultButton = tool.myInputBtn;
 
-                        this.deferredDetails.resolve(tool.pageContent);
+                        // console.log("Tool ready", tooll.tool);
+                        this.deferredDetails.resolve(tool);
                     });
                 });
                 return this.deferredDetails;
@@ -224,9 +222,10 @@ class Toolbar extends declared(Widget) {
                                 },
                                 domConstruct.create("div", {}, toolPage.pageContent)
                             );
-                            tool.active = true;
-
                             this.defaultButton = tool.myInputBtn;
+                            // tool.active = true;
+
+                            // console.log("Tool ready", tooll.tool);
                             deferredInstructions.resolve(tool);
 
                             return deferredInstructions;
@@ -234,7 +233,7 @@ class Toolbar extends declared(Widget) {
                     })
                 }
                 else {
-                    this.deferredDetails.then((detailsTool) => {
+                    this.deferredDetails.then((tool) => {
                         const pageBody_details = document.getElementById("pageBody_details");
                         const instructionsDiv = domConstruct.create(
                         "div",
@@ -245,7 +244,8 @@ class Toolbar extends declared(Widget) {
                         },
                         pageBody_details);
                         
-                        deferredInstructions.resolve(detailsTool);
+                        // console.log("Tool ready", tooll.tool);
+                        deferredInstructions.resolve(tool);
                     });
                 }
             }
@@ -269,7 +269,7 @@ class Toolbar extends declared(Widget) {
     private _addOverview = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.Deferred<Tool> => {
         if(Has(this.config, "overview")) {
             const deferred = new Deferred<Tool>();
-            this._addTool(element, "overview").then((overviewTool) => {
+            this._addTool(element, "overview").then((tool) => {
                 require(["../MyOverviewMap/MyOverviewMap"], (MyOverviewMap) => {
                     const overviewMap = new MyOverviewMap({
                         mainView:mainView,
@@ -282,7 +282,7 @@ class Toolbar extends declared(Widget) {
                             value: overviewMap.scaleFactor,
                             min:1, max:4,
                             class:"header__numberInput",
-                    }, domConstruct.create("label", {innerHTML:`Aspect Ratio: `}, overviewTool.myToolPage.myControls));
+                    }, domConstruct.create("label", {innerHTML:`Aspect Ratio: `}, tool.myToolPage.myControls));
 
                     on(overviewMapScale, "keyup", (event) =>  {
                         // console.log("keyup",  event.target.value);
@@ -296,7 +296,8 @@ class Toolbar extends declared(Widget) {
                         // console.log("input", event.target.value);
                         overviewMap.scaleFactor = event.target.value;
                     });
-                    deferred.resolve(overviewTool);
+                    // console.log("Tool ready", tooll.tool);
+                    deferred.resolve(tool);
                 });
             });
             return deferred;
@@ -311,12 +312,11 @@ class Toolbar extends declared(Widget) {
             const deferred = new Deferred<Tool>();
             this._addTool(element, "basemap").then((tool) => {
                 require(["esri/widgets/BasemapGallery"], (BasemapGallery) => {
-                    tool.pageReady.then((toolPage) => {
-                        const basemap = new BasemapGallery({
-                            view:mainView,
-                            container: domConstruct.create("div", {}, toolPage.pageContent)
-                        })
-                    });
+                    const basemap = new BasemapGallery({
+                        view:mainView,
+                        container: domConstruct.create("div", {}, tool.myToolPage.pageContent)
+                    })
+                    // console.log("Tool ready", tooll.tool);
                     deferred.resolve(tool);
                 });
             })
@@ -333,13 +333,12 @@ class Toolbar extends declared(Widget) {
             new Deferred<Tool>();
             this._addTool(element, "legend").then((tool) => {
                 require(["esri/widgets/Legend"], (Legend) => {
-                    tool.pageReady.then((toolPage) => {
-                        const basemap = new Legend({
-                            view:mainView,
-                            container: domConstruct.create("div", {}, toolPage.pageContent)
-                        })
-                        deferred.resolve(tool)
-                    });
+                    const basemap = new Legend({
+                        view:mainView,
+                        container: domConstruct.create("div", {}, tool.myToolPage.pageContent)
+                    })
+                    // console.log("Tool ready", tooll.tool);
+                    deferred.resolve(tool)
                 });
             })
             return deferred;
@@ -352,16 +351,15 @@ class Toolbar extends declared(Widget) {
     private _addLayers = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.Deferred<Tool> => {
         if(Has(this.config, "layers")) {
             const deferred = new Deferred<Tool>();
-            this._addTool(element, "layers").then((layersTool) => {
+            this._addTool(element, "layers").then((tool) => {
                 require(["../TOC/TOC"], (TOC) => {
-                    layersTool.pageReady.then((toolPage) => {
-                        const toc = new TOC({
-                            config: this.config,
-                            view:mainView,
-                            container: domConstruct.create("div", {}, toolPage.pageContent)
-                        })
-                    });
-                    deferred.resolve(layersTool);
+                    const toc = new TOC({
+                        config: this.config,
+                        view:mainView,
+                        container: domConstruct.create("div", {}, tool.myToolPage.pageContent)
+                    })
+                    // console.log("Tool ready", tooll.tool);
+                    deferred.resolve(tool);
                 })
             })
             return deferred;
@@ -376,12 +374,11 @@ class Toolbar extends declared(Widget) {
             const deferred = new Deferred<Tool>();
             this._addTool(element, "bookmarks").then((tool) => {
                 require(["esri/widgets/Bookmarks"], (Bookmarks) => {
-                    tool.pageReady.then((toolPage) => {
-                        const basemap = new Bookmarks({
-                            view:mainView,
-                            container: domConstruct.create("div", {}, toolPage.pageContent)
-                        })
-                    });
+                    const basemap = new Bookmarks({
+                        view:mainView,
+                        container: domConstruct.create("div", {}, tool.myToolPage.pageContent)
+                    })
+                    // console.log("Tool ready", tooll.tool);
                     deferred.resolve(tool);
                 });
             })
@@ -397,23 +394,22 @@ class Toolbar extends declared(Widget) {
             const deferred = new Deferred<Tool>();
             this._addTool(element, "print").then((tool) => {
                 require(["esri/widgets/Print", "esri/core/watchUtils"], (Print, watchUtils) => {
-                    tool.pageReady.then((toolPage) => {
-                        const print = new Print({
-                            view:mainView,
-                            printServiceUrl: this.config.printService,
-                            // "https://utility.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task",
-                            container: domConstruct.create("div", {}, toolPage.pageContent)
-                        });
-                        // console.log("print", print);
-                        // console.log("exportedLinks", print.exportedLinks);
-                        watchUtils.watch(print.exportedLinks, "length", (newValue) => {
-                            // console.log("exportedLinks lenght", newValue, print.exportedLinks.items[newValue-1]);
-                            tool.showLoading();
-                            watchUtils.once(print.exportedLinks.items[newValue-1], "state", () => {
-                                tool.hideLoading();
-                            })
-                        });
+                    const print = new Print({
+                        view:mainView,
+                        printServiceUrl: this.config.printService,
+                        // "https://utility.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task",
+                        container: domConstruct.create("div", {}, tool.myToolPage.pageContent)
                     });
+                    // console.log("print", print);
+                    // console.log("exportedLinks", print.exportedLinks);
+                    watchUtils.watch(print.exportedLinks, "length", (newValue) => {
+                        // console.log("exportedLinks lenght", newValue, print.exportedLinks.items[newValue-1]);
+                        tool.showLoading();
+                        watchUtils.once(print.exportedLinks.items[newValue-1], "state", () => {
+                            tool.hideLoading();
+                        })
+                    });
+                    // console.log("Tool ready", tooll.tool);
                     deferred.resolve(tool);
                 });
             })
