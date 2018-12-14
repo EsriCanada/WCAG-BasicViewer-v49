@@ -44,8 +44,8 @@ import { NormalizeTitle } from "../../utils";
             this.layers = mapView.map.layers;
 
             require(["./filterTab"], (FilterTab) => { 
-                this.layers.forEach((layer) => {
-                    new FilterTab({ layer: layer, container: element});
+                this.layers.forEach((layer, i) => {
+                    new FilterTab({ layer: layer, id: `FilterTab_${i}`, container: element});
                 })
             })
         });

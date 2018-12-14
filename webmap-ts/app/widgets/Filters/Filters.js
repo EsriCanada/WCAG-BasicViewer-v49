@@ -30,8 +30,8 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                 _this.mainView.when(function (mapView) {
                     _this.layers = mapView.map.layers;
                     require(["./filterTab"], function (FilterTab) {
-                        _this.layers.forEach(function (layer) {
-                            new FilterTab({ layer: layer, container: element });
+                        _this.layers.forEach(function (layer, i) {
+                            new FilterTab({ layer: layer, id: "FilterTab_" + i, container: element });
                         });
                     });
                 });

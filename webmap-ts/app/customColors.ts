@@ -143,5 +143,12 @@ export function CustomColors(config: ApplicationConfig) : void {
   flex: 0 0 32px;
   border: 1px solid ${bgColor};
 }
+
+.FilterTab [type=radio]:checked~label {
+  background: ${activeColor};
+}
+.FilterTab [type=radio]:checked~label span:focus{
+  outline-color: ${borderActiveColor};
+}
 `;
   }

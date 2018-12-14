@@ -258,7 +258,7 @@ class Toolbar extends declared(Widget) {
                 require(["../Filters/Filters"], (Filters) => {
                     const filters = new Filters({
                         mainView:mainView,
-                        container: domConstruct.create("div", {}, "pageBody_filter")
+                        container: domConstruct.create("div", {class:"FilterTabs"}, "pageBody_filter")
                     });
 
                     const badge = tool.addBadge({

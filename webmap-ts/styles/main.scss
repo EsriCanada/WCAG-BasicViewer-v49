@@ -809,3 +809,72 @@ myKey img {
     // margin: 3px;
     opacity: 0.25;
 }
+
+.FilterTabs {
+    position: relative;
+    clear: both;
+    height: calc(100% - 50px);
+    display: -webkit-box;
+}
+
+.FilterTab {
+    max-width: 200px;
+    // overflow-x: hidden;
+}
+
+.FilterTab label {
+    background: white;
+    padding: 5px;
+    padding-bottom: 4px;
+    border: 1px solid black;
+    margin-left: 5px;
+    position: relative;
+    border-bottom-left-radius: 8px;
+    top: 10px;
+    z-index: 1;
+}
+
+.FilterTab [type=radio] {
+    display: none;
+    position: relative;
+    top: calc(100% - 10px);
+}
+
+.FilterTab [type=radio]~label~.tabContent {
+    display: none;
+}
+
+.tabContent {
+    position: absolute;
+    background: transparent;
+    height: calc(100% - 20px);
+    width: calc(100% - 22px);
+}
+
+.contentInner {}
+
+.FilterTab [type=radio]:checked~label {
+    color: white;
+    background: darkgreen;
+    // border-top: 1px solid white;
+    top: 16px;
+    z-index: 10;
+}
+
+.FilterTab [type=radio]~.tabContent {
+    display: none;
+}
+
+.FilterTab [type=radio]:checked~.tabContent {
+    z-index: 1;
+    top: 0;
+}
+
+.FilterTab span {
+    padding: 2px;
+    white-space: nowrap;
+}
+
+.FilterTab .setIndicator {
+    left: -4px;
+}
