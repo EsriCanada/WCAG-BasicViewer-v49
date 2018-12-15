@@ -32,6 +32,12 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
             };
             _this._filterTabKeyPress = function (event) {
             };
+            _this._filterAdd = function (event) {
+            };
+            _this._filterApply = function (event) {
+            };
+            _this._filterIgnore = function (event) {
+            };
             return _this;
         }
         FilterTab.prototype.render = function () {
@@ -44,7 +50,19 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                         widget_1.tsx("span", { tabindex: "0", onkeypress: this._filterTabKeyPress, title: layerTitle }, layerTitle),
                         widget_1.tsx("img", { id: this.id + "_img", src: "images/someFilters.png", class: "setIndicator", 
                             // style="display:none; left:-4px;"
-                            alt: badgeTip, title: badgeTip })))));
+                            alt: badgeTip, title: badgeTip }))),
+                widget_1.tsx("div", { class: "tabContent tabHide", id: this.id + "_page" },
+                    widget_1.tsx("div", { class: "filterAdd" },
+                        widget_1.tsx("label", { for: this.id + "-fieldsCombo" },
+                            "$",
+                            i18n.FilterTab.attribute,
+                            ":"),
+                        widget_1.tsx("select", { id: this.id + "-fieldsCombo", autofocus: true, tabindex: "0", "data-dojo-attach-point": "fieldsCombo" }),
+                        widget_1.tsx("input", { type: "button", class: "fc bg pageBtn", value: i18n.FilterTab.add, onclick: "_filterAdd", style: "float: right;" })),
+                    widget_1.tsx("ul", { "data-dojo-attach-point": "filterList" }),
+                    widget_1.tsx("div", { class: "filterButtons" },
+                        widget_1.tsx("input", { type: "button", class: "fc bg pageBtn", value: i18n.FilterTab.apply, onclick: "_filterApply" }),
+                        widget_1.tsx("input", { type: "button", class: "fc bg pageBtn", value: i18n.FilterTab.ignore, onclick: "_filterIgnore" })))));
         };
         __decorate([
             decorators_1.property()

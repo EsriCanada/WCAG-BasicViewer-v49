@@ -39,26 +39,46 @@ import { NormalizeTitle } from "../../utils";
         const layerTitle = NormalizeTitle(this.layer.title);
         const badgeTip = i18n.badgesTips.someFilters;
         return (
-            <div><div class="FilterTab">
-            {/* <div afterCreate={this._addFilterTab}>{NormalizeTitle(this.layer.title)}</div> */}
-            <input id={`${this.id}_btn`} type="radio" name="FilterTabsGroup" onchange={this._filterTabChange} value={`${this.id}_page`} ></input>
-            <label for={`${this.id}_btn`} aria-label={layerTitle}>
-                <span
-                    tabindex="0"
-                    onkeypress={this._filterTabKeyPress}
-                    title={layerTitle}>
-                    {layerTitle}
-                </span>
-                <img
-                    id={`${this.id}_img`}
-                    src="images/someFilters.png"
-                    class="setIndicator"
-                    // style="display:none; left:-4px;"
-                    alt={badgeTip} title={badgeTip}
-                    // tabindex="0" 
-                    />
-            </label>
-            </div></div>
+            <div>
+                <div class="FilterTab">
+                    {/* <div afterCreate={this._addFilterTab}>{NormalizeTitle(this.layer.title)}</div> */}
+                    <input id={`${this.id}_btn`} type="radio" name="FilterTabsGroup" onchange={this._filterTabChange} value={`${this.id}_page`} ></input>
+                    <label for={`${this.id}_btn`} aria-label={layerTitle}>
+                        <span
+                            tabindex="0"
+                            onkeypress={this._filterTabKeyPress}
+                            title={layerTitle}>
+                            {layerTitle}
+                        </span>
+                        <img
+                            id={`${this.id}_img`}
+                            src="images/someFilters.png"
+                            class="setIndicator"
+                            // style="display:none; left:-4px;"
+                            alt={badgeTip} title={badgeTip}
+                            // tabindex="0" 
+                            />
+                    </label>
+                </div>
+
+                <div class="tabContent tabHide" id={`${this.id}_page`}>
+                    <div class="filterAdd">
+                        <label for={`${this.id}-fieldsCombo`}>${i18n.FilterTab.attribute}:</label>
+                        
+                        <select id={`${this.id}-fieldsCombo`} autofocus tabindex="0" data-dojo-attach-point="fieldsCombo">
+                        </select>
+                        <input type="button" class="fc bg pageBtn" value={i18n.FilterTab.add} onclick="_filterAdd" style="float: right;"/>
+                    </div>
+
+                    <ul data-dojo-attach-point="filterList"></ul>
+
+                    <div class="filterButtons">
+                        <input type="button" class="fc bg pageBtn" value={i18n.FilterTab.apply} onclick="_filterApply"/>
+                        <input type="button" class="fc bg pageBtn" value={i18n.FilterTab.ignore} onclick="_filterIgnore"/>
+                    </div>
+                </div>
+
+            </div>
         );
     }
 
@@ -71,6 +91,18 @@ import { NormalizeTitle } from "../../utils";
     }
 
     private _filterTabKeyPress = (event) => {
+
+    }
+
+    private _filterAdd = (event) => {
+
+    }
+
+    private _filterApply = (event) => {
+
+    }
+
+    private _filterIgnore = (event) => {
 
     }
 }

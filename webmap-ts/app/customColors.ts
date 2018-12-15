@@ -50,7 +50,7 @@ export function CustomColors(config: ApplicationConfig) : void {
   color: ${WhiteOrBlack(hoverColor)};
 }
 .panelTool.active input[type="image"]:hover {
-  background-color: ${borderActiveColor};
+  background-color: ${backgroundActiveHoverColor};
 }
 
 .header__numberInput {
@@ -157,6 +157,16 @@ export function CustomColors(config: ApplicationConfig) : void {
 
 .FilterTab [type=radio]:checked~label span:focus{
   outline-color: ${borderActiveColor};
+}
+
+.FilterTab [type=radio]~label:hover {
+  background-color: ${hoverColor};
+  color: ${WhiteOrBlack(hoverColor)};
+}
+
+.FilterTab [type=radio]:checked~label:hover {
+  background-color: ${backgroundActiveHoverColor};
+  color: ${WhiteOrBlack(backgroundActiveHoverColor)};
 }
 `;
   }

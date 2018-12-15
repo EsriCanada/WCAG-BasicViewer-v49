@@ -141,7 +141,7 @@ input.esri-input.esri-search__input::-webkit-input-placeholder {
 .esri-basemap-gallery__item-title {
     font-size: 16px;
     word-break: break-word;
-    color: black;
+    color: black !important;
     padding: 8px;
 }
 
@@ -262,4 +262,8 @@ input[type="checkbox"] {
 
 .esri-print {
     margin: 2px;
+}
+
+.esri-basemap-gallery__item:focus {
+    background-color: white;
 }
