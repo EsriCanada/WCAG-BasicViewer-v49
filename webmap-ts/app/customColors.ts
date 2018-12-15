@@ -16,7 +16,7 @@ export function CustomColors(config: ApplicationConfig) : void {
           const bgColor = config.theme;
           const bgLightenColor = LightenDarkenColor(config.theme, 50);
 
-          const borderActiveColor = LightenDarkenColor(config.activeColor, 75);
+          const borderActiveColor = LightenDarkenColor(activeColor, isDark(activeColor) ? 75: -75);
           const backgroundActiveHoverColor = MixColors(activeColor, hoverColor);//LightenDarkenColor(config.activeColor, -75);
 
         configurableStyles.innerHTML = `
@@ -74,17 +74,19 @@ export function CustomColors(config: ApplicationConfig) : void {
 }
 
 .esri-basemap-gallery__item--selected .esri-basemap-gallery__item-title, 
+.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus .esri-basemap-gallery__item-title {
+  color: ${isDark(activeColor) ? "white": "black"} !important;
+}
+
 .esri-basemap-gallery__item.esri-basemap-gallery__item--selected:hover .esri-basemap-gallery__item-title, 
-.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus .esri-basemap-gallery__item-title,
 .esri-basemap-gallery__item:hover .esri-basemap-gallery__item-title {
   color: ${config.color} !important;
 }
 
 .esri-basemap-gallery__item:hover
 {
-  /* outline: none; */
   background-color: ${hoverColor};
-  border-left-color: ${config.color};
+  border-left-color: ${isDark(hoverColor) ? "white": "black"};
 } 
 
 .esri-basemap-gallery__item:focus {
@@ -102,9 +104,11 @@ export function CustomColors(config: ApplicationConfig) : void {
   outline-color: ${borderActiveColor}; 
 }
 
-.esri-basemap-gallery__item:hover:focus .esri-basemap-gallery__item-title,
-.esri-basemap-gallery__item:focus  .esri-basemap-gallery__item-title {
-  color: black;
+.esri-basemap-gallery__item:hover:focus .esri-basemap-gallery__item-title{
+  color: ${isDark(hoverColor) ? "white": "black"};
+}
+.esri-basemap-gallery__item:focus .esri-basemap-gallery__item-title {
+  color: "black";
 }
 
 .esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus .esri-basemap-gallery__item-title {
@@ -146,7 +150,9 @@ export function CustomColors(config: ApplicationConfig) : void {
 
 .FilterTab [type=radio]:checked~label {
   background: ${activeColor};
+  color: ${isDark(activeColor) ? "white": "black"};
 }
+
 .FilterTab [type=radio]:checked~label span:focus{
   outline-color: ${borderActiveColor};
 }

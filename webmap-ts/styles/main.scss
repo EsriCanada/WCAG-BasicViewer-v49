@@ -878,3 +878,16 @@ myKey img {
 .FilterTab .setIndicator {
     left: -4px;
 }
+
+.filterTabsZone {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    height: 65px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin-top: -6px;
+    position: absolute;
+    top: calc(100% - 9px);
+    width: 100%;
+}

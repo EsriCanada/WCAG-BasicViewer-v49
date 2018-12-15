@@ -43,9 +43,12 @@ import { NormalizeTitle } from "../../utils";
         this.mainView.when((mapView) => {
             this.layers = mapView.map.layers;
 
+            const filterTabsZone = domConstruct.create("div", {
+                class: "filterTabsZone"
+            }, element);
             require(["./filterTab"], (FilterTab) => { 
                 this.layers.forEach((layer, i) => {
-                    new FilterTab({ layer: layer, id: `FilterTab_${i}`, container: element});
+                    new FilterTab({ layer: layer, id: `FilterTab_${i}`, container: filterTabsZone});
                 })
             })
         });
