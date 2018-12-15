@@ -34,11 +34,19 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                 domStyle.set(element, "display", "none");
             };
             _this._filterTabChange = function (event) {
-                console.log("_filterTabChange", event);
+                // console.log("_filterTabChange", event);
                 var activePageId = event.target.value;
                 var tabContentPages = query(".tabContent", dom.byId("filterTabsCOntent"));
                 tabContentPages.forEach(function (page) {
                     domStyle.set(page, "display", page.id === activePageId ? "" : "none");
+                });
+            };
+            _this._addFieldsCombo = function (element) {
+                console.log("_addFieldsCombo", _this.layer);
+                _this.layer.when(function () {
+                    _this.layer.fields.forEach(function (field) {
+                        element.innerHTML += "<option value=\"" + field.name + "\">" + field.alias + "</option>";
+                    });
                 });
             };
             _this._filterTabKeyPress = function (event) {
@@ -65,7 +73,7 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                         widget_1.tsx("label", { for: this.id + "-fieldsCombo" },
                             i18n.FilterTab.attribute,
                             "\u00A0"),
-                        widget_1.tsx("select", { id: this.id + "-fieldsCombo", autofocus: true, tabindex: "0", "data-dojo-attach-point": "fieldsCombo" }),
+                        widget_1.tsx("select", { id: this.id + "-fieldsCombo", autofocus: true, tabindex: "0", afterCreate: this._addFieldsCombo }),
                         widget_1.tsx("input", { type: "button", class: "fc bg pageBtn", value: i18n.FilterTab.add, onclick: "_filterAdd", style: "float: right;" })),
                     widget_1.tsx("ul", { "data-dojo-attach-point": "filterList" }),
                     widget_1.tsx("div", { class: "filterButtons" },

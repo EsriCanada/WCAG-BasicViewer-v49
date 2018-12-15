@@ -24,7 +24,7 @@ import { NormalizeTitle } from "../../utils";
 @subclass("esri.widgets.FilterTab")
   class FilterTab extends declared(Widget) {
     @property()
-    layer: __esri.Layer;
+    layer: __esri.FeatureLayer;
 
     @property()
     id: string;
@@ -64,7 +64,7 @@ import { NormalizeTitle } from "../../utils";
                     <div class="filterAdd">
                         <label for={`${this.id}-fieldsCombo`}>{i18n.FilterTab.attribute}&nbsp;</label>
                         
-                        <select id={`${this.id}-fieldsCombo`} autofocus tabindex="0" data-dojo-attach-point="fieldsCombo">
+                        <select id={`${this.id}-fieldsCombo`} autofocus tabindex="0" afterCreate={this._addFieldsCombo}>
                         </select>
                         <input type="button" class="fc bg pageBtn" value={i18n.FilterTab.add} onclick="_filterAdd" style="float: right;"/>
                     </div>
@@ -92,12 +92,21 @@ import { NormalizeTitle } from "../../utils";
     }
 
     private _filterTabChange = (event) => {
-        console.log("_filterTabChange", event);
+        // console.log("_filterTabChange", event);
         const activePageId = event.target.value;
         const tabContentPages = query(".tabContent", dom.byId("filterTabsCOntent"));
         tabContentPages.forEach((page: Element) => {
             domStyle.set(page, "display", page.id === activePageId ? "": "none");
         })
+    }
+
+    private _addFieldsCombo = (element: Element) => {
+        console.log("_addFieldsCombo", this.layer);
+        this.layer.when(() => {
+            this.layer.fields.forEach((field) => {
+                element.innerHTML += `<option value="${field.name}">${field.alias}</option>`;
+            });
+        });
     }
 
     private _filterTabKeyPress = (event) => {
