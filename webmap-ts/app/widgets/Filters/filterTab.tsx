@@ -61,7 +61,7 @@ import { NormalizeTitle } from "../../utils";
                     </label>
                 </div>
 
-                <div class="tabContent tabHide" id={`${this.id}_page`}>
+                <div class="tabContent tabHide" id={`${this.id}_page`} afterCreate={this._addFilterContent}>
                     <div class="filterAdd">
                         <label for={`${this.id}-fieldsCombo`}>${i18n.FilterTab.attribute}:</label>
                         
@@ -86,8 +86,19 @@ import { NormalizeTitle } from "../../utils";
         console.log("layer", this.layer.title);
     }
 
-    private _filterTabChange = (event) => {
+    private _addFilterContent = (element: Element) => {
+        const filterTabsContent = dom.byId("filterTabsContent");
+        domConstruct.place(element, filterTabsContent);
+        domStyle.set(element, "display", "none");
+    }
 
+    private _filterTabChange = (event) => {
+        console.log("_filterTabChange", event);
+        const activePageId = event.target.value;
+        const tabContentPages = query(".tabContent", dom.byId("filterTabsCOntent"));
+        tabContentPages.forEach((page: Element) => {
+            domStyle.set(page, "display", page.id === activePageId ? "": "none");
+        })
     }
 
     private _filterTabKeyPress = (event) => {

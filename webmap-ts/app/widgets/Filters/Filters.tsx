@@ -33,7 +33,10 @@ import { NormalizeTitle } from "../../utils";
 
     render() {
         return (
-            <div afterCreate={this._addFilters}></div>
+            <div>
+            <div id="filterTabsContent" class="filterTabsContent"></div>
+            <div class="filterTabsZone" afterCreate={this._addFilters}></div>
+            </div>
         );
     }
 
@@ -43,12 +46,12 @@ import { NormalizeTitle } from "../../utils";
         this.mainView.when((mapView) => {
             this.layers = mapView.map.layers;
 
-            const filterTabsZone = domConstruct.create("div", {
-                class: "filterTabsZone"
-            }, element);
+            // const filterTabsZone = domConstruct.create("div", {
+            //     class: "filterTabsZone"
+            // }, element);
             require(["./filterTab"], (FilterTab) => { 
                 this.layers.forEach((layer, i) => {
-                    new FilterTab({ layer: layer, id: `FilterTab_${i}`, container: filterTabsZone});
+                    new FilterTab({ layer: layer, id: `FilterTab_${i}`, container: element});
                 })
             })
         });

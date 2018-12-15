@@ -19,7 +19,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/core/tsSupport/decorateHelper", "esri/core/accessorSupport/decorators", "esri/widgets/Widget", "esri/widgets/support/widget", "dojo/i18n!../nls/resources", "../../utils"], function (require, exports, __extends, __decorate, decorators_1, Widget, widget_1, i18n, utils_1) {
+define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/core/tsSupport/decorateHelper", "esri/core/accessorSupport/decorators", "esri/widgets/Widget", "dojo/dom-construct", "dojo/query", "dojo/dom", "dojo/dom-style", "esri/widgets/support/widget", "dojo/i18n!../nls/resources", "../../utils"], function (require, exports, __extends, __decorate, decorators_1, Widget, domConstruct, query, dom, domStyle, widget_1, i18n, utils_1) {
     "use strict";
     var FilterTab = /** @class */ (function (_super) {
         __extends(FilterTab, _super);
@@ -28,7 +28,18 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
             _this._addFilterTab = function (elemenet) {
                 console.log("layer", _this.layer.title);
             };
+            _this._addFilterContent = function (element) {
+                var filterTabsContent = dom.byId("filterTabsContent");
+                domConstruct.place(element, filterTabsContent);
+                domStyle.set(element, "display", "none");
+            };
             _this._filterTabChange = function (event) {
+                console.log("_filterTabChange", event);
+                var activePageId = event.target.value;
+                var tabContentPages = query(".tabContent", dom.byId("filterTabsCOntent"));
+                tabContentPages.forEach(function (page) {
+                    domStyle.set(page, "display", page.id === activePageId ? "" : "none");
+                });
             };
             _this._filterTabKeyPress = function (event) {
             };
@@ -51,7 +62,7 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                         widget_1.tsx("img", { id: this.id + "_img", src: "images/someFilters.png", class: "setIndicator", 
                             // style="display:none; left:-4px;"
                             alt: badgeTip, title: badgeTip }))),
-                widget_1.tsx("div", { class: "tabContent tabHide", id: this.id + "_page" },
+                widget_1.tsx("div", { class: "tabContent tabHide", id: this.id + "_page", afterCreate: this._addFilterContent },
                     widget_1.tsx("div", { class: "filterAdd" },
                         widget_1.tsx("label", { for: this.id + "-fieldsCombo" },
                             "$",
