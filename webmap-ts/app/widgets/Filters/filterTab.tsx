@@ -54,16 +54,15 @@ import { NormalizeTitle } from "../../utils";
                             id={`${this.id}_img`}
                             src="images/someFilters.png"
                             class="setIndicator"
-                            // style="display:none; left:-4px;"
+                            style="display:none;"
                             alt={badgeTip} title={badgeTip}
-                            // tabindex="0" 
                             />
                     </label>
                 </div>
 
                 <div class="tabContent tabHide" id={`${this.id}_page`} afterCreate={this._addFilterContent}>
                     <div class="filterAdd">
-                        <label for={`${this.id}-fieldsCombo`}>${i18n.FilterTab.attribute}:</label>
+                        <label for={`${this.id}-fieldsCombo`}>{i18n.FilterTab.attribute}&nbsp;</label>
                         
                         <select id={`${this.id}-fieldsCombo`} autofocus tabindex="0" data-dojo-attach-point="fieldsCombo">
                         </select>

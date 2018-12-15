@@ -168,6 +168,11 @@ export function CustomColors(config: ApplicationConfig) : void {
   background-color: ${backgroundActiveHoverColor};
   color: ${WhiteOrBlack(backgroundActiveHoverColor)};
 }
+
+.pageBtn:hover {
+  background-color: ${hoverColor};
+  color: ${WhiteOrBlack(hoverColor)};
+}
 `;
   }
 

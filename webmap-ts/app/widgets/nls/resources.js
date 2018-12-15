@@ -64,7 +64,7 @@ define({
             closeFeatureTable: "Close Feature Table",
         },
         FilterTab: {
-            attribute: "Attribute",
+            attribute: "Attribute:",
             add: "Add",
             remove: "Remove",
             apply: "Apply",

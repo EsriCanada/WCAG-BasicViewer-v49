@@ -64,7 +64,7 @@ define(
             closeFeatureTable: "Fermer la table des fonctionnalités",
         },
         FilterTab: {
-            attribute: "Attribut",
+            attribute: "Attribut :",
             add: "Ajouter",
             apply: "Accepter",
             ignore: "Ignorer",
