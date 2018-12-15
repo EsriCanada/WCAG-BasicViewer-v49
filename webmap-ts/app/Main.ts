@@ -30,7 +30,7 @@ import domConstruct = require("dojo/dom-construct");
 import Search = require("esri/widgets/Search");
 
 
-import { LightenDarkenColor, Has } from "./utils";
+import { Has } from "./utils";
 import { CustomColors } from "./customColors";
 
 const CSS = {
