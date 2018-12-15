@@ -37,8 +37,10 @@
         "typescript": "^2.9.2"
     },
     "dependencies": {
-        "browserify": "latest",
         "@types/browserify": "latest",
+        "audit": "0.0.6",
+        "browserify": "latest",
+        "color": "^3.1.0",
         "typescript": "next"
     },
     "scripts": {

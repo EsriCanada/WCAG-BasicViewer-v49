@@ -20,12 +20,6 @@ import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
 
-import {
-    createMapFromItem,
-    createView,
-  } from "ApplicationBase/support/itemUtils";
-  
-
 @subclass("esri.widgets.MyOverviewMap")
   class MyOverviewMap extends declared(Widget) {
   

@@ -128,7 +128,7 @@ class Toolbar extends declared(Widget) {
         });
 
         All(toolList).then(() => {
-            console.log("All", this.defaultButton, toolList);
+            // console.log("All", this.defaultButton, toolList);
             if(this.defaultButton) {
                 this.defaultButton.click();
             }

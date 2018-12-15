@@ -824,14 +824,15 @@ myKey img {
 
 .FilterTab label {
     background: white;
-    padding: 5px;
-    padding-bottom: 4px;
-    border: 1px solid black;
-    margin-left: 5px;
+    padding: 8px;
+    // padding-bottom: 4px;
+    // border: 1px solid black;
+    box-shadow: inset 0px 0px 0px 2px dimgrey;
     position: relative;
     border-bottom-left-radius: 8px;
     top: 10px;
     z-index: 1;
+    margin-left: 5px;
 }
 
 .FilterTab [type=radio] {
@@ -855,10 +856,9 @@ myKey img {
 
 .FilterTab [type=radio]:checked~label {
     color: white;
-    background: darkgreen;
-    // border-top: 1px solid white;
-    top: 16px;
+    top: 18px;
     z-index: 10;
+    box-shadow: inset 0px 0px 0px 0px dimgrey;
 }
 
 .FilterTab [type=radio]~.tabContent {
@@ -871,7 +871,7 @@ myKey img {
 }
 
 .FilterTab span {
-    padding: 2px;
+    padding: 4px;
     white-space: nowrap;
 }
 

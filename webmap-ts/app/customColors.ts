@@ -1,7 +1,8 @@
 import domConstruct = require("dojo/dom-construct");
-import { LightenDarkenColor } from "./utils";
+import { LightenDarkenColor, MixColors, isLight, isDark, negate } from "./utils";
 import {ApplicationConfig} from "ApplicationBase/interfaces";
 
+// https://www.npmjs.com/package/color
 
 export function CustomColors(config: ApplicationConfig) : void {
     // console.log("CustomColors", document);
@@ -10,12 +11,13 @@ export function CustomColors(config: ApplicationConfig) : void {
         }, document.head);
 
         const focusColor = config.focusColor;
-        const hoverColor = config.hoverColor;
-        const activeColor = config.activeColor;
-        const bgColor = config.theme;
-        const bgLightenColor = LightenDarkenColor(config.theme, 50);
+          const hoverColor = config.hoverColor;
+          const activeColor = config.activeColor;
+          const bgColor = config.theme;
+          const bgLightenColor = LightenDarkenColor(config.theme, 50);
 
-        const borderActiveColor = LightenDarkenColor(config.activeColor, 75);
+          const borderActiveColor = LightenDarkenColor(config.activeColor, 75);
+          const backgroundActiveHoverColor = MixColors(activeColor, hoverColor);//LightenDarkenColor(config.activeColor, -75);
 
         configurableStyles.innerHTML = `
 .bg { background: ${bgColor}; }
@@ -61,21 +63,24 @@ export function CustomColors(config: ApplicationConfig) : void {
 }
 
 .esri-basemap-gallery__item--selected, 
-.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:hover, 
 .esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus {
   border-left-color: ${borderActiveColor};
   background-color: ${activeColor};
+}
+
+.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:hover {
+  border-left-color: ${borderActiveColor};
+  background-color: ${backgroundActiveHoverColor};
 }
 
 .esri-basemap-gallery__item--selected .esri-basemap-gallery__item-title, 
 .esri-basemap-gallery__item.esri-basemap-gallery__item--selected:hover .esri-basemap-gallery__item-title, 
 .esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus .esri-basemap-gallery__item-title,
 .esri-basemap-gallery__item:hover .esri-basemap-gallery__item-title {
-  color: ${config.color};
+  color: ${config.color} !important;
 }
 
-.esri-basemap-gallery__item:hover,
-.esri-basemap-gallery__item:focus
+.esri-basemap-gallery__item:hover
 {
   /* outline: none; */
   background-color: ${hoverColor};
@@ -88,7 +93,6 @@ export function CustomColors(config: ApplicationConfig) : void {
   outline-style: solid;
   outline-color: ${focusColor};
   border-left-color: ${focusColor};
-  background-color: transparent;
 }
 
 .esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus {
@@ -108,26 +112,22 @@ export function CustomColors(config: ApplicationConfig) : void {
 }
 
 .esri-legend .esri-widget__heading {
-  color: ${config.color};
   background: ${bgColor};
+  color: ${isDark(bgColor) ? "white": "black"};
 }
 
 .esri-button {
   background-color: ${bgColor};
   border: 1px solid ${bgColor};
-  color: ${config.color};
+  color: ${isDark(bgColor) ? "white": "black"};
   font-weight: bold;
   border-radius: 5px;
 }
 
-.esri-button:hover {
-  background-color:  ${hoverColor};
-  color: ${config.color};
-}
-
+.esri-button:hover,
 .esri-bookmarks__bookmark:hover {
   background-color: ${hoverColor};
-  color: ${config.color};
+  color: ${isDark(hoverColor) ? "white": "black"};
 }
 
 .esri-print__advanced-options-section {
@@ -151,4 +151,6 @@ export function CustomColors(config: ApplicationConfig) : void {
   outline-color: ${borderActiveColor};
 }
 `;
+// });
+
   }
