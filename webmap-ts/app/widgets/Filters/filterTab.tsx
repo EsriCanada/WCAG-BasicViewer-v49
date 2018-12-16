@@ -66,14 +66,19 @@ import { NormalizeTitle } from "../../utils";
                         
                         <select id={`${this.id}-fieldsCombo`} autofocus tabindex="0" afterCreate={this._addFieldsCombo}>
                         </select>
-                        <input type="button" class="fc bg pageBtn" value={i18n.FilterTab.add} onclick="_filterAdd" style="float: right;"/>
+                        <input type="button" class="fc bg pageBtn" 
+                        value={i18n.FilterTab.add} 
+                        afterCreate={this._addInput}
+                        // onclick={this._filterAdd} 
+                        data_comboId={`${this.id}-fieldsCombo`} 
+                        style="float: right;"/>
                     </div>
 
                     <ul data-dojo-attach-point="filterList"></ul>
 
                     <div class="filterButtons">
-                        <input type="button" class="fc bg pageBtn" value={i18n.FilterTab.apply} onclick="_filterApply"/>
-                        <input type="button" class="fc bg pageBtn" value={i18n.FilterTab.ignore} onclick="_filterIgnore"/>
+                        <input type="button" class="fc bg pageBtn" value={i18n.FilterTab.apply} onclick={this._filterApply}/>
+                        <input type="button" class="fc bg pageBtn" value={i18n.FilterTab.ignore} onclick={this._filterIgnore}/>
                     </div>
                 </div>
 
@@ -101,13 +106,9 @@ import { NormalizeTitle } from "../../utils";
     }
 
     private _addFieldsCombo = (element: Element) => {
-        console.log("_addFieldsCombo", this.layer);
+        // console.log("_addFieldsCombo", this.layer);
         this.layer.when(() => {
             if(this.layer.popupTemplate) {
-                // console.log("popupTemplate", 
-                // this.layer.popupTemplate.fieldInfos,
-                // this.layer.popupTemplate.fieldInfos.filter((field) => field.visible),
-                // this.layer.popupTemplate.fieldInfos.filter((field) => field.visible).map((field) => `<option value="${field.fieldName}">${field.label}</option>`));
                 element.innerHTML = this.layer.popupTemplate.fieldInfos
                 .filter((field) => field.visible)
                 .map((field) => `<option value="${field.fieldName}">${NormalizeTitle(field.label)}</option>`)
@@ -124,8 +125,29 @@ import { NormalizeTitle } from "../../utils";
 
     }
 
-    private _filterAdd = (event) => {
+    private __filterAdd = (fieldId) => {
+        // var field = this.layer.fields.find(function(f) {return f.fieldName === fieldId;});
+        // var layer = this.layer;
 
+        // var filterItem = new FilterItem({map:layer.layerObject._map, layer:layer, field:field});//, myItem);
+        // this.filterList.appendChild(filterItem.domNode);
+        // filterItem.startup(); 
+        // this.FilterItems.push(filterItem); 
+        // filterItem.on("removeFilterItem", lang.hitch(this, function (id) {
+        //     this.FilterItems.splice(this.FilterItems.indexOf(filterItem), 1);
+        //     if(this.FilterItems.length === 0) {
+        //         this.filterIgnore();
+        //     }
+        // }));
+        // filterItem.domNode.focus();
+    }
+    
+    private _addInput = (element: Element) => {
+        this.own(on(element, "click", (event) => {
+            console.log("_filterAdd", event);
+            // var fieldId = this.fieldsCombo.value;
+            // this._filterAdd(fieldId);
+        }));
     }
 
     private _filterApply = (event) => {
