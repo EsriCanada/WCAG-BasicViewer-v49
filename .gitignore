@@ -53,3 +53,5 @@ webmap-ts/app/widgets/MyOverviewMap/MyOverviewMap\.js
 webmap-ts/app/widgets/TOC/TOC\.js
 
 webmap-ts/app/customColors\.js
+
+webmap-ts/app/widgets/Filters/filterTab\.js

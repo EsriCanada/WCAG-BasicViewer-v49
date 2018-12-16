@@ -103,9 +103,20 @@ import { NormalizeTitle } from "../../utils";
     private _addFieldsCombo = (element: Element) => {
         console.log("_addFieldsCombo", this.layer);
         this.layer.when(() => {
-            this.layer.fields.forEach((field) => {
-                element.innerHTML += `<option value="${field.name}">${field.alias}</option>`;
-            });
+            if(this.layer.popupTemplate) {
+                // console.log("popupTemplate", 
+                // this.layer.popupTemplate.fieldInfos,
+                // this.layer.popupTemplate.fieldInfos.filter((field) => field.visible),
+                // this.layer.popupTemplate.fieldInfos.filter((field) => field.visible).map((field) => `<option value="${field.fieldName}">${field.label}</option>`));
+                element.innerHTML = this.layer.popupTemplate.fieldInfos
+                .filter((field) => field.visible)
+                .map((field) => `<option value="${field.fieldName}">${NormalizeTitle(field.label)}</option>`)
+                .join("");
+            } else {
+                this.layer.fields.forEach((field) => {
+                    element.innerHTML += `<option value="${field.name}">${NormalizeTitle(field.alias)}</option>`;
+                });
+            }
         });
     }
 

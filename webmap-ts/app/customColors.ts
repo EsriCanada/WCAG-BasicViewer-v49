@@ -17,7 +17,7 @@ export function CustomColors(config: ApplicationConfig) : void {
         const bgLightenColor = LightenDarkenColor(bgColor, 50);
         console.log("bgLightenColor", bgColor, "-> ", bgLightenColor)
         const borderActiveColor = LightenDarkenColor(activeColor, isDark(activeColor) ? 75: -75);
-        const backgroundActiveHoverColor = MixColors(activeColor, hoverColor);
+        const backgroundActiveHoverColor = MixColors(activeColor, hoverColor, 0.33);
 
         configurableStyles.innerHTML = `
 .bg { background: ${bgColor}; }
