@@ -825,12 +825,10 @@ myKey img {
 .FilterTab label {
     background: white;
     padding: 8px;
-    // padding-bottom: 4px;
-    // border: 1px solid black;
     box-shadow: inset 0px 0px 0px 2px dimgrey;
     position: relative;
     border-bottom-left-radius: 8px;
-    top: 10px;
+    top: 15px;
     z-index: 1;
     margin-left: 5px;
 }
@@ -854,9 +852,13 @@ myKey img {
 
 .contentInner {}
 
+// .FilterTab [type=radio]~label {
+//     top: 15px;
+// }
 .FilterTab [type=radio]:checked~label {
     color: white;
-    top: 18px;
+    // top: 18px;
+    top: 6px;
     z-index: 10;
     box-shadow: inset 0px 0px 0px 2px dimgrey;
 }
@@ -899,9 +901,8 @@ myKey img {
 
 .filterTabsContent {
     width: calc(100% - 22px);
-    height: calc(100% - 34px);
-    // border: 1px solid black;
-    // border-top-right-radius: 8px;
+    height: calc(100% - 35px);
+    border-bottom: 2px solid dimgray;
     padding: 10px;
     position: absolute;
     overflow-y: auto;
@@ -944,7 +945,7 @@ myKey img {
 
 .filterAdd select {
     font-size: 18px;
-    width: calc(100% - 136px);
+    width: calc(100% - 144px);
     margin-top: 1px;
     font-family: 'Roboto Condensed', sans-serif;
 }

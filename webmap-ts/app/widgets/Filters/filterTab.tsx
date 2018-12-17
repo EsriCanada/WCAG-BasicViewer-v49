@@ -44,7 +44,7 @@ import FilterItem = require("./FilterItem")
             <div>
                 <div class="FilterTab">
                     {/* <div afterCreate={this._addFilterTab}>{NormalizeTitle(this.layer.title)}</div> */}
-                    <input id={`${this.id}_btn`} type="radio" name="FilterTabsGroup" onchange={this._filterTabChange} value={`${this.id}_page`} ></input>
+                    <input id={`${this.id}_btn`} type="radio" name="FilterTabsGroup" onchange={this._filterTabChange}></input>
                     <label for={`${this.id}_btn`} aria-label={layerTitle}>
                         <span
                             tabindex="0"
@@ -64,15 +64,13 @@ import FilterItem = require("./FilterItem")
 
                 <div class="tabContent tabHide" id={`${this.id}_page`} afterCreate={this._addFilterContent}>
                     <div class="filterAdd">
-                        <label for={`${this.id}-fieldsCombo`}>{i18n.FilterTab.attribute}&nbsp;</label>
-                        
-                        <select id={`${this.id}-fieldsCombo`} autofocus tabindex="0" afterCreate={this._addFieldsCombo}>
-                        </select>
+                        <label>{i18n.FilterTab.attribute}&nbsp;
+                            <select autofocus tabindex="0" afterCreate={this._addFieldsCombo}></select>
+                        </label>
                         <input type="button" class="fc bg pageBtn" 
                         value={i18n.FilterTab.add} 
                         afterCreate={this._addInput}
                         // onclick={this._filterAdd} 
-                        data_comboId={`${this.id}-fieldsCombo`} 
                         style="float: right;"/>
                     </div>
 
@@ -92,7 +90,9 @@ import FilterItem = require("./FilterItem")
         console.log("layer", this.layer.title);
     }
 
+    private filterTabContentPage: any;
     private _addFilterContent = (element: Element) => {
+        this.filterTabContentPage = element;
         const filterTabsContent = dom.byId("filterTabsContent");
         domConstruct.place(element, filterTabsContent);
         domStyle.set(element, "display", "none");
@@ -100,15 +100,17 @@ import FilterItem = require("./FilterItem")
 
     private _filterTabChange = (event) => {
         // console.log("_filterTabChange", event);
-        const activePageId = event.target.value;
+        const activePageId = this.filterTabContentPage.id;
         const tabContentPages = query(".tabContent", dom.byId("filterTabsCOntent"));
         tabContentPages.forEach((page: Element) => {
             domStyle.set(page, "display", page.id === activePageId ? "": "none");
         })
     }
 
+    private fieldsCombo: any;
     private _addFieldsCombo = (element: Element) => {
         // console.log("_addFieldsCombo", this.layer);
+        this.fieldsCombo = element;
         this.layer.when(() => {
             if(this.layer.popupTemplate) {
                 element.innerHTML = this.layer.popupTemplate.fieldInfos
@@ -148,13 +150,7 @@ import FilterItem = require("./FilterItem")
     
     private _addInput = (element: Element) => {
         this.own(on(element, "click", (event) => {
-            // console.log("_filterAdd", event);
-            const comboId = event.target.attributes["data_comboId"].value;
-            // console.log("comboId",comboId);
-            const combo = dom.byId(comboId);
-            // console.log("combo",combo);
-            // console.log("combo.value",combo.value);
-            this._filterAdd(combo.value);
+            this._filterAdd(this.fieldsCombo.value);
         }));
     }
 

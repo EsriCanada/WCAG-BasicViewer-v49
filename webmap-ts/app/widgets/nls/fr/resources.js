@@ -67,7 +67,7 @@ define(
             attribute: "Attribut :",
             add: "Ajouter",
             apply: "Accepter",
-            ignore: "Ignorer",
+            ignore: "Négliger",
         },
         FilterItem: {
             remove: "Supprimer",
