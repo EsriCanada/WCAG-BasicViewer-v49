@@ -76,31 +76,28 @@ export function CustomColors(config: ApplicationConfig) : void {
 }
 
 .esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus:hover {
-  border-left-color: ${borderActiveColor};
   background-color: ${backgroundActiveHoverColor};
+}
+
+.esri-basemap-gallery__item--selected .esri-basemap-gallery__item-title,
+.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus .esri-basemap-gallery__item-title {
+  color: ${WhiteOrBlack(activeColor)};
 }
 
 .esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus {
   background-color: ${activeColor};
-}}
-
-.esri-basemap-gallery__item--selected .esri-basemap-gallery__item-title {
-  color: ${WhiteOrBlack(activeColor)} !important;
-}
-
-.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus .esri-basemap-gallery__item-title {
-  color: ${WhiteOrBlack(activeColor)} !important;
+  border-left-color: ${focusColor};
 }
 
 .esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus:hover .esri-basemap-gallery__item-title {
-  color: ${WhiteOrBlack(backgroundActiveHoverColor)} !important;
+  color: ${WhiteOrBlack(backgroundActiveHoverColor)};
 }
 
 .esri-basemap-gallery__item.esri-basemap-gallery__item--selected:hover .esri-basemap-gallery__item-title {
-  color: ${WhiteOrBlack(backgroundActiveHoverColor)} !important;
+  color: ${WhiteOrBlack(backgroundActiveHoverColor)};
 }
 .esri-basemap-gallery__item:hover .esri-basemap-gallery__item-title {
-  color: ${WhiteOrBlack(hoverColor)} !important;
+  color: ${WhiteOrBlack(hoverColor)};
 }
 
 .esri-basemap-gallery__item:hover
@@ -122,7 +119,6 @@ export function CustomColors(config: ApplicationConfig) : void {
   outline-width: 2px;
   outline-offset: -1px;
   outline-style: solid;
-  outline-color: ${borderActiveColor}; 
 }
 
 .esri-basemap-gallery__item:hover:focus .esri-basemap-gallery__item-title{
@@ -131,10 +127,6 @@ export function CustomColors(config: ApplicationConfig) : void {
 .esri-basemap-gallery__item:focus .esri-basemap-gallery__item-title {
   border-left-color: ${focusColor};
   color: "black";
-}
-
-.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus .esri-basemap-gallery__item-title {
-  color: ${WhiteOrBlack(activeColor)};
 }
 
 .esri-legend .esri-widget__heading {

@@ -145,8 +145,13 @@ input.esri-input.esri-search__input::-webkit-input-placeholder {
 .esri-basemap-gallery__item-title {
     font-size: 16px;
     word-break: break-word;
-    color: black !important;
     padding: 8px;
+}
+
+.esri-basemap-gallery__item .esri-basemap-gallery__item-title,
+.esri-basemap-gallery__item:focus .esri-basemap-gallery__item-title,
+.esri-basemap-gallery__item--selected .esri-basemap-gallery__item-title {
+    color: black;
 }
 
 .esri-basemap-gallery {
