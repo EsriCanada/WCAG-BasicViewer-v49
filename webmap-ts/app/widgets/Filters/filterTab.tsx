@@ -21,6 +21,8 @@ import { renderable, tsx } from "esri/widgets/support/widget";
 import i18n = require("dojo/i18n!../nls/resources");
 import { NormalizeTitle } from "../../utils";
 
+import FilterItem = require("./FilterItem")
+
 @subclass("esri.widgets.FilterTab")
   class FilterTab extends declared(Widget) {
     @property()
@@ -125,13 +127,13 @@ import { NormalizeTitle } from "../../utils";
 
     }
 
-    private _filterAdd = (fieldId) => {
+    private _filterAdd = (fieldId: string) => {
         console.log("_filterAdd fieldId", fieldId);
         const layer = this.layer;
-        const field = layer.fields.filter((field) => {return field.name === fieldId;})[0];
+        const field: __esri.Field = layer.fields.filter((field) => {return field.name == fieldId;})[0];
         console.log("_filterAdd field", field);
 
-        // var filterItem = new FilterItem({map:layer.layerObject._map, layer:layer, field:field});//, myItem);
+        // const filterItem = new FilterItem({layer:layer, field:field});//, myItem);
         // this.filterList.appendChild(filterItem.domNode);
         // filterItem.startup(); 
         // this.FilterItems.push(filterItem); 
