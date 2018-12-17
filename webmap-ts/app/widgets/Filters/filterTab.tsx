@@ -125,9 +125,11 @@ import { NormalizeTitle } from "../../utils";
 
     }
 
-    private __filterAdd = (fieldId) => {
-        // var field = this.layer.fields.find(function(f) {return f.fieldName === fieldId;});
-        // var layer = this.layer;
+    private _filterAdd = (fieldId) => {
+        console.log("_filterAdd fieldId", fieldId);
+        const layer = this.layer;
+        const field = layer.fields.filter((field) => {return field.name === fieldId;})[0];
+        console.log("_filterAdd field", field);
 
         // var filterItem = new FilterItem({map:layer.layerObject._map, layer:layer, field:field});//, myItem);
         // this.filterList.appendChild(filterItem.domNode);
@@ -144,9 +146,13 @@ import { NormalizeTitle } from "../../utils";
     
     private _addInput = (element: Element) => {
         this.own(on(element, "click", (event) => {
-            console.log("_filterAdd", event);
-            // var fieldId = this.fieldsCombo.value;
-            // this._filterAdd(fieldId);
+            // console.log("_filterAdd", event);
+            const comboId = event.target.attributes["data_comboId"].value;
+            // console.log("comboId",comboId);
+            const combo = dom.byId(comboId);
+            // console.log("combo",combo);
+            // console.log("combo.value",combo.value);
+            this._filterAdd(combo.value);
         }));
     }
 
