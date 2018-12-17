@@ -317,11 +317,32 @@ class Toolbar extends declared(Widget) {
         if(Has(this.config, "basemap")) {
             const deferred = new Deferred<Tool>();
             this._addTool(element, "basemap").then((tool) => {
-                require(["esri/widgets/BasemapGallery"], (BasemapGallery) => {
-                    new BasemapGallery({
-                        view:mainView,
-                        container: domConstruct.create("div", {}, tool.myToolPage.pageContent)
-                    })
+                require([
+                    "esri/widgets/BasemapGallery",
+                    "esri/widgets/BasemapGallery/support/PortalBasemapsSource"
+                ], (BasemapGallery, PortalBasemapsSource) => {
+                    let source = null;
+                    if(!isNullOrWhiteSpace(this.config.galleryGroupTitle)) {
+                        source = new PortalBasemapsSource({
+                            query: {
+                            title: this.config.galleryGroupTitle,
+                            owner: this.config.galleryGroupOwner
+                            }
+                      });
+                    }
+                    if(source) {
+                        new BasemapGallery({
+                            view:mainView,
+                            source: source,
+                            container: domConstruct.create("div", {}, tool.myToolPage.pageContent)
+                        });
+                    } else {
+                        new BasemapGallery({
+                            view:mainView,
+                            container: domConstruct.create("div", {}, tool.myToolPage.pageContent)
+                        });
+                    }
+                    // console.log(bm.toJSON());
                     deferred.resolve(tool);
                 });
             })
