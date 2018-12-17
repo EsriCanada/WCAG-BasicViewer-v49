@@ -18,6 +18,7 @@ export function CustomColors(config: ApplicationConfig) : void {
         console.log("bgLightenColor", bgColor, "-> ", bgLightenColor)
         const borderActiveColor = LightenDarkenColor(activeColor, isDark(activeColor) ? 75: -75);
         const backgroundActiveHoverColor = MixColors(activeColor, hoverColor, 0.33);
+        // const backgroundActiveFocusColor = MixColors(activeColor, focusColor, 0.33);
 
         configurableStyles.innerHTML = `
 .bg { background: ${bgColor}; }
@@ -74,9 +75,25 @@ export function CustomColors(config: ApplicationConfig) : void {
   background-color: ${backgroundActiveHoverColor};
 }
 
-.esri-basemap-gallery__item--selected .esri-basemap-gallery__item-title, 
+.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus:hover {
+  border-left-color: ${borderActiveColor};
+  background-color: ${backgroundActiveHoverColor};
+}
+
+.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus {
+  background-color: ${activeColor};
+}}
+
+.esri-basemap-gallery__item--selected .esri-basemap-gallery__item-title {
+  color: ${WhiteOrBlack(activeColor)} !important;
+}
+
 .esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus .esri-basemap-gallery__item-title {
-  color: ${isDark(activeColor) ? "white": "black"} !important;
+  color: ${WhiteOrBlack(activeColor)} !important;
+}
+
+.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus:hover .esri-basemap-gallery__item-title {
+  color: ${WhiteOrBlack(backgroundActiveHoverColor)} !important;
 }
 
 .esri-basemap-gallery__item.esri-basemap-gallery__item--selected:hover .esri-basemap-gallery__item-title {
@@ -117,7 +134,7 @@ export function CustomColors(config: ApplicationConfig) : void {
 }
 
 .esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus .esri-basemap-gallery__item-title {
-  color: ${WhiteOrBlack(backgroundActiveHoverColor)};
+  color: ${WhiteOrBlack(activeColor)};
 }
 
 .esri-legend .esri-widget__heading {
@@ -155,7 +172,7 @@ export function CustomColors(config: ApplicationConfig) : void {
 
 .FilterTab [type=radio]:checked~label {
   background: ${activeColor};
-  color: ${isDark(activeColor) ? "white": "black"};
+  color: ${WhiteOrBlack(activeColor)};
 }
 
 .FilterTab [type=radio]:checked~label span:focus{
