@@ -138,6 +138,10 @@ input.esri-input.esri-search__input::-webkit-input-placeholder {
     background: white !important;
 }
 
+.esri-basemap-gallery__item {
+    border-left: 8px solid transparent;
+}
+
 .esri-basemap-gallery__item-title {
     font-size: 16px;
     word-break: break-word;

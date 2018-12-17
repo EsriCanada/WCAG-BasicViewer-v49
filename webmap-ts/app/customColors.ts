@@ -64,8 +64,7 @@ export function CustomColors(config: ApplicationConfig) : void {
   color: ${WhiteOrBlack(hoverColor)};
 }
 
-.esri-basemap-gallery__item--selected, 
-.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus {
+.esri-basemap-gallery__item--selected {
   border-left-color: ${borderActiveColor};
   background-color: ${activeColor};
 }
@@ -80,15 +79,18 @@ export function CustomColors(config: ApplicationConfig) : void {
   color: ${isDark(activeColor) ? "white": "black"} !important;
 }
 
-.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:hover .esri-basemap-gallery__item-title, 
+.esri-basemap-gallery__item.esri-basemap-gallery__item--selected:hover .esri-basemap-gallery__item-title {
+  color: ${WhiteOrBlack(backgroundActiveHoverColor)} !important;
+}
 .esri-basemap-gallery__item:hover .esri-basemap-gallery__item-title {
-  color: ${fcColor} !important;
+  color: ${WhiteOrBlack(hoverColor)} !important;
 }
 
 .esri-basemap-gallery__item:hover
 {
   background-color: ${hoverColor};
-  border-left-color: ${WhiteOrBlack(hoverColor)};
+  border-left-color: ${LightenDarkenColor(hoverColor, isDark(hoverColor) ? 75: -75)};
+  color: ${WhiteOrBlack(hoverColor)};
 } 
 
 .esri-basemap-gallery__item:focus {
@@ -110,11 +112,12 @@ export function CustomColors(config: ApplicationConfig) : void {
   color: ${WhiteOrBlack(hoverColor)};
 }
 .esri-basemap-gallery__item:focus .esri-basemap-gallery__item-title {
+  border-left-color: ${focusColor};
   color: "black";
 }
 
 .esri-basemap-gallery__item.esri-basemap-gallery__item--selected:focus .esri-basemap-gallery__item-title {
-  color:white;
+  color: ${WhiteOrBlack(backgroundActiveHoverColor)};
 }
 
 .esri-legend .esri-widget__heading {
