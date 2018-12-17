@@ -162,29 +162,32 @@ export function CustomColors(config: ApplicationConfig) : void {
   border: 1px solid ${bgColor};
 }
 
-.FilterTab [type=radio]:checked~label {
-  background: ${activeColor};
-  color: ${WhiteOrBlack(activeColor)};
-}
-
-.FilterTab [type=radio]:checked~label span:focus{
-  outline-color: ${borderActiveColor};
-}
-
 .FilterTab [type=radio]~label:hover {
   background-color: ${hoverColor};
   color: ${WhiteOrBlack(hoverColor)};
-}
-
-.FilterTab [type=radio]:checked~label:hover {
-  background-color: ${backgroundActiveHoverColor};
-  color: ${WhiteOrBlack(backgroundActiveHoverColor)};
 }
 
 .pageBtn:hover {
   background-color: ${hoverColor};
   color: ${WhiteOrBlack(hoverColor)};
 }
+
+/*
+.FilterTab [type=radio]:checked~label span:focus{
+  outline-color: ${borderActiveColor};
+}
+
+.FilterTab [type=radio]:checked~label {
+  background: ${activeColor};
+  color: ${WhiteOrBlack(activeColor)};
+}
+
+.FilterTab [type=radio]:checked~label:hover {
+  background-color: ${backgroundActiveHoverColor};
+  color: ${WhiteOrBlack(backgroundActiveHoverColor)};
+}
+*/
+
 `;
   }
 
