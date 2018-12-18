@@ -934,13 +934,27 @@ myKey img {
     border-radius: 5px;
 }
 
-.filterAdd {
+.filter-filterItem__filterAdd {
     padding-bottom: 10px;
     position: relative;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    margin-left: 4px;
+    margin-right: 0px;
+    background: gainsboro;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.filter-filterItem__filterAdd label {
+    flex-grow: 2;
     width: 100%;
 }
 
-.filterAdd select {
+.filter-filterItem__filterAdd select {
     font-size: 18px;
     width: calc(100% - 144px);
     margin-top: 1px;
@@ -962,4 +976,23 @@ label.checkbox {
     vertical-align: text-top;
     font-weight: bold;
     display: inline-block;
+}
+
+.filter-filterItem--header {
+    display: flex;
+    flex-direction: row;
+}
+
+.filter-filterItem--header label {
+    flex-grow: 2;
+    width: 100%;
+}
+
+.filter-filterItem__button {
+    width: 24px;
+    height: 24px;
+    right: 5px;
+    top: 10px;
+    // position: absolute;
+    flex-grow: 1;
 }

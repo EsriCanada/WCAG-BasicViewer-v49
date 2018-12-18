@@ -40,7 +40,7 @@ import { NormalizeTitle } from "../../utils";
         return (
             <div>
             <li tabindex="0">
-                <div>
+                <div class="filter-filterItem--header">
                     <label class="checkbox">
                         <input 
                             // id="Active_{this.field_label}_{this.Id}"
@@ -52,6 +52,7 @@ import { NormalizeTitle } from "../../utils";
                             data-dojo-attach-point="Active"/> 
                         {NormalizeTitle(this.field.alias)}
                     </label>
+                    <button role="button" aria-label="remove" title="remove" class="esri-widget--button esri-icon-minus filter-filterItem__button"></button>
                 </div>
                 <div data-dojo-attach-point="content"/>
             </li>

@@ -31,12 +31,13 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
         FilterItem.prototype.render = function () {
             return (widget_1.tsx("div", null,
                 widget_1.tsx("li", { tabindex: "0" },
-                    widget_1.tsx("div", null,
+                    widget_1.tsx("div", { class: "filter-filterItem--header" },
                         widget_1.tsx("label", { class: "checkbox" },
                             widget_1.tsx("input", { 
                                 // id="Active_{this.field_label}_{this.Id}"
                                 type: "checkbox", class: "checkbox", checked: true, "aria-label": "Active", title: "Active", "data-dojo-attach-point": "Active" }),
-                            utils_1.NormalizeTitle(this.field.alias))),
+                            utils_1.NormalizeTitle(this.field.alias)),
+                        widget_1.tsx("button", { role: "button", "aria-label": "remove", title: "remove", class: "esri-widget--button esri-icon-minus filter-filterItem__button" })),
                     widget_1.tsx("div", { "data-dojo-attach-point": "content" }))));
         };
         __decorate([

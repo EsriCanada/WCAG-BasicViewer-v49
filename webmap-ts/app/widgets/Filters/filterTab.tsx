@@ -63,15 +63,17 @@ import { NormalizeTitle } from "../../utils";
                 </div>
 
                 <div class="tabContent tabHide" id={`${this.id}_page`} afterCreate={this._addFilterContent}>
-                    <div class="filterAdd">
+                    <div class="filter-filterItem__filterAdd">
                         <label>{i18n.FilterTab.attribute}&nbsp;
                             <select autofocus tabindex="0" afterCreate={this._addFieldsCombo}></select>
                         </label>
-                        <input type="button" class="fc bg pageBtn" 
-                        value={i18n.FilterTab.add} 
+                        <button class="filter-filterItem__button esri-widget--button esri-icon-plus" 
+                        aria-label={i18n.FilterTab.add} 
+                        title={i18n.FilterTab.add} 
                         afterCreate={this._addInput}
                         // onclick={this._filterAdd} 
-                        style="float: right;"/>
+                        // style="float: right;"
+                        />
                     </div>
 
                     <ul afterCreate={this._addFilterList}></ul>
