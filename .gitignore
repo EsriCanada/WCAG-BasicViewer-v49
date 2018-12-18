@@ -57,3 +57,5 @@ webmap-ts/app/customColors\.js
 webmap-ts/app/widgets/Filters/filterTab\.js
 
 webmap-ts/app/widgets/Filters/FilterItem\.js
+
+webmap-ts/app/widgets/Filters/FilterNumber\.js

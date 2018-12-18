@@ -1009,3 +1009,15 @@ label.checkbox {
     border-color: dimgray;
     border-radius: 2px;
 }
+
+.filter-filterItem__Criteria {
+    margin-left: 4px;
+    margin-right: 4px;
+    border: 1px solid dimgray;
+    // min-height: 21px;
+}
+
+.filter-filterItem__textBox--number {
+    max-width: 100px;
+    border: 1px solid dimgray;
+}

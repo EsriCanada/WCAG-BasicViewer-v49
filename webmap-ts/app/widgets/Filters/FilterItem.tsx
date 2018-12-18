@@ -63,7 +63,7 @@ import { NormalizeTitle } from "../../utils";
                         class="esri-widget--button esri-icon-minus filter-filterItem__button"
                         afterCreate={this._filterItemRemove}></button>
                 </div>
-                <div data-dojo-attach-point="content"/>
+                <div afterCreate={this._filterItemAddContent}></div>
             </li>
             </div>
         );
@@ -78,6 +78,26 @@ import { NormalizeTitle } from "../../utils";
         this.own(on(element, "click", (event) => { 
             this.filterItem.remove();
         }));
+    }
+
+    private _filterItemAddContent = (element: Element) => {
+        switch(this.fieldType) {
+            case "integer" :
+            case "double" :
+                this.layer.when(() => {
+                    require(["./filterNumber"], (filterNumber) => { 
+                        const filterItem = new filterNumber({
+                            layer: this.layer, 
+                            field: this.field, 
+                            container: domConstruct.create("div", {}, element)
+                        });
+                    });
+                })
+                break;
+            default : 
+                element.innerHTML = `Unknown Field Type: '${this.fieldType}'`;
+                break;
+        }
     }
 
   }
