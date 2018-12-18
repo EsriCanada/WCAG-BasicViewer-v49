@@ -953,3 +953,13 @@ myKey img {
     border-radius: 4px;
     font-size: 16px;
 }
+
+label.checkbox {
+    padding: 1.2px 0px;
+    font-size: 16px;
+    // margin: 0 !important;
+    border: 2px solid transparent;
+    vertical-align: text-top;
+    font-weight: bold;
+    display: inline-block;
+}

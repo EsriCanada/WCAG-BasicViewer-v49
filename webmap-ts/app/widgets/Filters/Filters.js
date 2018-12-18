@@ -34,7 +34,8 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                     // }, element);
                     require(["./filterTab"], function (FilterTab) {
                         _this.layers.forEach(function (layer, i) {
-                            new FilterTab({ layer: layer, id: "FilterTab_" + i, container: element });
+                            if (layer.popupTemplate)
+                                new FilterTab({ layer: layer, id: "FilterTab_" + i, container: element });
                         });
                     });
                 });

@@ -241,7 +241,7 @@ export function MixColors(colA: string, colB: string, amountToMix:number = 0.5) 
   const r = colorChannelMixer(rgbA.r, rgbB.r ,amountToMix);
   const g = colorChannelMixer(rgbA.g, rgbB.g ,amountToMix);
   const b = colorChannelMixer(rgbA.b, rgbB.b, amountToMix);
-  console.log("rgn", r, g, b);
+  // console.log("rgb", r, g, b);
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 

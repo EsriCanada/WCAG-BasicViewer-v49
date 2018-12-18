@@ -69,13 +69,16 @@ class MapExample {
       return;
     }
     // console.log("Base", base);
+    console.log("base", base);
     console.log("Config", base.config);
     this.base = base;
 
-    const { config, results, settings } = base;
+    const { config, results, settings, units } = base;
     const { find, marker } = config;
     const { webMapItems } = results;
 
+    // console.log("units", units);
+    
     setPageLocale(base.locale);
     setPageDirection(base.direction);
 

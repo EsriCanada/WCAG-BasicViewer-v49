@@ -51,6 +51,7 @@ import { NormalizeTitle } from "../../utils";
             // }, element);
             require(["./filterTab"], (FilterTab) => { 
                 this.layers.forEach((layer, i) => {
+                    if((layer as __esri.FeatureLayer).popupTemplate)
                     new FilterTab({ layer: layer, id: `FilterTab_${i}`, container: element});
                 })
             })

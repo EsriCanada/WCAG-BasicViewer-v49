@@ -19,13 +19,26 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/core/tsSupport/decorateHelper", "esri/core/accessorSupport/decorators", "esri/widgets/Widget"], function (require, exports, __extends, __decorate, decorators_1, Widget) {
+define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/core/tsSupport/decorateHelper", "esri/core/accessorSupport/decorators", "esri/widgets/Widget", "esri/widgets/support/widget", "../../utils"], function (require, exports, __extends, __decorate, decorators_1, Widget, widget_1, utils_1) {
     "use strict";
     var FilterItem = /** @class */ (function (_super) {
         __extends(FilterItem, _super);
         function FilterItem() {
-            return _super !== null && _super.apply(this, arguments) || this;
+            return _super.call(this) || this;
         }
+        // private field_label: string = "field_label";
+        // private Id: string = "id";
+        FilterItem.prototype.render = function () {
+            return (widget_1.tsx("div", null,
+                widget_1.tsx("li", { tabindex: "0" },
+                    widget_1.tsx("div", null,
+                        widget_1.tsx("label", { class: "checkbox" },
+                            widget_1.tsx("input", { 
+                                // id="Active_{this.field_label}_{this.Id}"
+                                type: "checkbox", class: "checkbox", checked: true, "aria-label": "Active", title: "Active", "data-dojo-attach-point": "Active" }),
+                            utils_1.NormalizeTitle(this.field.alias))),
+                    widget_1.tsx("div", { "data-dojo-attach-point": "content" }))));
+        };
         __decorate([
             decorators_1.property()
         ], FilterItem.prototype, "layer", void 0);

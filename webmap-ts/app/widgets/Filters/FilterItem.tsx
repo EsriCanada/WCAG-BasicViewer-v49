@@ -2,7 +2,6 @@
 /// <amd-dependency path="esri/core/tsSupport/decorateHelper" name="__decorate" />
 
 import {subclass, declared, property} from "esri/core/accessorSupport/decorators";
-// import * as Promise from 'lib';
 
 import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Widget = require("esri/widgets/Widget");
@@ -23,11 +22,42 @@ import { NormalizeTitle } from "../../utils";
 
 @subclass("esri.widgets.FilterItem")
   class FilterItem extends declared(Widget) {
+
     @property()
     layer: __esri.FeatureLayer;
 
     @property()
-    field: __esri.FeatureLayer;
+    field: __esri.Field;
+
+    constructor() {
+        super();
+    }
+
+    // private field_label: string = "field_label";
+    // private Id: string = "id";
+
+    render() {
+        return (
+            <div>
+            <li tabindex="0">
+                <div>
+                    <label class="checkbox">
+                        <input 
+                            // id="Active_{this.field_label}_{this.Id}"
+                            type="checkbox" 
+                            class="checkbox" 
+                            checked 
+                            aria-label="Active" 
+                            title="Active" 
+                            data-dojo-attach-point="Active"/> 
+                        {NormalizeTitle(this.field.alias)}
+                    </label>
+                </div>
+                <div data-dojo-attach-point="content"/>
+            </li>
+            </div>
+        );
+    }
 
   }
 

@@ -330,6 +330,7 @@ class Toolbar extends declared(Widget) {
                             }
                       });
                     }
+                    console.log("source", source);
                     if(source) {
                         new BasemapGallery({
                             view:mainView,

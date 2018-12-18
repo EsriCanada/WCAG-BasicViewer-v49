@@ -21,7 +21,7 @@ import { renderable, tsx } from "esri/widgets/support/widget";
 import i18n = require("dojo/i18n!../nls/resources");
 import { NormalizeTitle } from "../../utils";
 
-import FilterItem = require("./FilterItem")
+// import FilterItem = require("./FilterItem")
 
 @subclass("esri.widgets.FilterTab")
   class FilterTab extends declared(Widget) {
@@ -74,7 +74,7 @@ import FilterItem = require("./FilterItem")
                         style="float: right;"/>
                     </div>
 
-                    <ul data-dojo-attach-point="filterList"></ul>
+                    <ul afterCreate={this._addFilterList}></ul>
 
                     <div class="filterButtons">
                         <input type="button" class="fc bg pageBtn" value={i18n.FilterTab.apply} onclick={this._filterApply}/>
@@ -88,6 +88,11 @@ import FilterItem = require("./FilterItem")
 
     private _addFilterTab = (elemenet: Element) => {
         console.log("layer", this.layer.title);
+    }
+
+    private ulFilterList : HTMLElement;
+    private _addFilterList = (element:Element) => {
+        this.ulFilterList = element as HTMLElement;
     }
 
     private filterTabContentPage: any;
@@ -112,16 +117,16 @@ import FilterItem = require("./FilterItem")
         // console.log("_addFieldsCombo", this.layer);
         this.fieldsCombo = element;
         this.layer.when(() => {
-            if(this.layer.popupTemplate) {
+            // if(this.layer.popupTemplate) {
                 element.innerHTML = this.layer.popupTemplate.fieldInfos
                 .filter((field) => field.visible)
                 .map((field) => `<option value="${field.fieldName}">${NormalizeTitle(field.label)}</option>`)
                 .join("");
-            } else {
-                this.layer.fields.forEach((field) => {
-                    element.innerHTML += `<option value="${field.name}">${NormalizeTitle(field.alias)}</option>`;
-                });
-            }
+            // } else {
+            //     this.layer.fields.forEach((field) => {
+            //         element.innerHTML += `<option value="${field.name}">${NormalizeTitle(field.alias)}</option>`;
+            //     });
+            // }
         });
     }
 
@@ -131,11 +136,20 @@ import FilterItem = require("./FilterItem")
 
     private _filterAdd = (fieldId: string) => {
         console.log("_filterAdd fieldId", fieldId);
-        const layer = this.layer;
-        const field: __esri.Field = layer.fields.filter((field) => {return field.name == fieldId;})[0];
-        console.log("_filterAdd field", field);
+        // const field: __esri.Field = this.layer.fields.filter((field) => { return field.name == fieldId })[0];
 
-        // const filterItem = new FilterItem({layer:layer, field:field});//, myItem);
+        this.layer.when((layer: __esri.FeatureLayer) => {
+            // console.log("layer", layer);
+            const field: __esri.Field = layer.fields.filter((field) => {return field.name == fieldId;})[0];
+            // console.log("_filterAdd layer", layer, "field", field);
+            require(["./filterItem"], (FilterItem) => { 
+                const filterItem = new FilterItem({
+                    layer: layer, 
+                    field: field, 
+                    container: this.ulFilterList
+                });
+            });
+        })
         // this.filterList.appendChild(filterItem.domNode);
         // filterItem.startup(); 
         // this.FilterItems.push(filterItem); 
