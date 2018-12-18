@@ -29,6 +29,7 @@ import { NormalizeTitle } from "../../utils";
     @property()
     field: __esri.Field;
 
+    private fieldType;
     constructor() {
         super();
     }
@@ -37,9 +38,13 @@ import { NormalizeTitle } from "../../utils";
     // private Id: string = "id";
 
     render() {
+        // this.layer.when(() => {
+            this.fieldType = this.field.type;
+            console.log("fieldType", this.fieldType, this.field);
+        // })
         return (
             <div>
-            <li tabindex="0">
+            <li tabindex="0" afterCreate={this._filterAdded}>
                 <div class="filter-filterItem--header">
                     <label class="checkbox">
                         <input 
@@ -52,12 +57,27 @@ import { NormalizeTitle } from "../../utils";
                             data-dojo-attach-point="Active"/> 
                         {NormalizeTitle(this.field.alias)}
                     </label>
-                    <button role="button" aria-label="remove" title="remove" class="esri-widget--button esri-icon-minus filter-filterItem__button"></button>
+                    <button role="button" 
+                        aria-label="remove" 
+                        title="remove" 
+                        class="esri-widget--button esri-icon-minus filter-filterItem__button"
+                        afterCreate={this._filterItemRemove}></button>
                 </div>
                 <div data-dojo-attach-point="content"/>
             </li>
             </div>
         );
+    }
+
+    private filterItem: Element;
+    private _filterAdded = (element: Element) => {
+        this.filterItem = element;
+    }
+
+    private _filterItemRemove = (element: Element) => {
+        this.own(on(element, "click", (event) => { 
+            this.filterItem.remove();
+        }));
     }
 
   }
