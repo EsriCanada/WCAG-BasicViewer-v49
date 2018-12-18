@@ -172,6 +172,11 @@ export function CustomColors(config: ApplicationConfig) : void {
   color: ${WhiteOrBlack(hoverColor)};
 }
 
+.filter-filterItem__button {
+  background: transparent;
+  color: black;
+}
+
 /*
 .FilterTab [type=radio]:checked~label span:focus{
   outline-color: ${borderActiveColor};
