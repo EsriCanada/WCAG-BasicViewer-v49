@@ -96,6 +96,7 @@ import { NormalizeTitle } from "../../utils";
                 break;
             default : 
                 element.innerHTML = `Unknown Field Type: '${this.fieldType}'`;
+                domClass.add(element, "showErrors");
                 break;
         }
     }

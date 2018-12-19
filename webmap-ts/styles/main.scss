@@ -1014,10 +1014,27 @@ label.checkbox {
     margin-left: 4px;
     margin-right: 4px;
     border: 1px solid dimgray;
-    // min-height: 21px;
 }
 
 .filter-filterItem__textBox--number {
     max-width: 100px;
     border: 1px solid dimgray;
+    margin-right: 4px;
+}
+
+.filter-filterItem__textBox--number:invalid {
+    background: red;
+    color: white;
+}
+
+.showErrors {
+    position: absolute;
+    padding: 2px 4px;
+    background-color: white;
+    color: #b60000;
+    border: #b60000 solid 2px;
+    font-size: 11px;
+    border-radius: 4px;
+    right: 28px;
+    font-weight: bold;
 }
