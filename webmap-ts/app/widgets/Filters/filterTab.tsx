@@ -49,6 +49,9 @@ import { NormalizeTitle } from "../../utils";
                         <span
                             tabindex="0"
                             onkeypress={this._filterTabKeyPress}
+                            onfocus={this._filterTabFocus}
+                            onblur={this._filterTabBlur}
+                            aria-hidden="true"
                             title={layerTitle}>
                             {layerTitle}
                         </span>
@@ -133,7 +136,21 @@ import { NormalizeTitle } from "../../utils";
     }
 
     private _filterTabKeyPress = (event) => {
+        console.log("_filterTabKeyPress", event);
+    }
 
+    private _filterTabFocus = (event) => {
+        const label = event.target.parentNode;
+        // console.log("_filterTabFocus", event, label);
+        domStyle.set(label, "z-index", 20);
+        domAttr.remove(label, "aria-hidden");
+    }
+
+    private _filterTabBlur = (event) => {
+        const label = event.target.parentNode;
+        // console.log("_filterTabBlur", event);
+        domStyle.set(label, "z-index", 10);
+        domAttr.set(label, "aria-hidden", "true");
     }
 
     private _filterAdd = (fieldId: string) => {
