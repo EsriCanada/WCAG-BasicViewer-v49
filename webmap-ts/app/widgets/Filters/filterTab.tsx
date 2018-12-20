@@ -136,7 +136,11 @@ import { NormalizeTitle } from "../../utils";
     }
 
     private _filterTabKeyPress = (event) => {
-        console.log("_filterTabKeyPress", event);
+        const label = event.target.parentNode;
+        // console.log("_filterTabKeyPress", event, label);
+        if(event.key == "Enter" || event.key == " ") {
+            label.click();
+        }
     }
 
     private _filterTabFocus = (event) => {
