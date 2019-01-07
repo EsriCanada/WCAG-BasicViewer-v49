@@ -55,34 +55,31 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                 return criteria.value === ' IN ' || criteria.value === ' NOT IN ';
             };
             _this.getFilterExpresion = function () {
-                require(["esri/tasks/support/Query", "esri/tasks/QueryTask"], function (Query, QueryTask) {
-                    console.log("Field", _this.field);
-                    var _query = new Query();
-                    _query.outFields = [_this.field.name];
-                    _query.returnGeometry = false;
-                    _query.where = "1=1";
-                    _query.spatialRelationship = "esriSpatialRelIntersects";
-                    _query.returnDistinctValues = true;
-                    _query.orderByFields = [_this.field.name];
-                    console.log("Query", _query);
-                    var task = new QueryTask(_this.layer.url);
-                    // console.log("Task", task);
-                    // console.log("Layer", this.layer);
-                    task.execute(_query).then(function (results) {
-                        console.log("Results", results);
-                        results.features.map(function (f) {
-                            // console.log("attributes", f.attributes[this.field.name], f.attributes)
-                            return f.attributes[_this.field.name];
-                        }).forEach(function (v) {
-                            if (v) {
-                                var id = _this.id + '_' + v;
-                                _this.listInput.innerHTML += '<input type="checkbox" class="checkbox" value="' + v + '" id="' + id + '"/>';
-                                _this.listInput.innerHTML += '<label for="' + id + '" class="checkbox">' + v + '</label>';
-                                _this.listInput.innerHTML += '<br />';
-                            }
-                        });
+                // require(["esri/tasks/support/Query", "esri/tasks/QueryTask"], (Query, QueryTask) => { 
+                // console.log("Layer", this.layer, this.layer.loaded);
+                // console.log("Field", this.field);
+                var _query = _this.layer.createQuery();
+                _query.where = "1=1";
+                _query.outFields = [_this.field.name];
+                _query.orderByFields = [_this.field.name];
+                _query.returnDistinctValues = true;
+                _query.returnGeometry = false;
+                _this.layer.queryFeatures(_query).then(function (results) {
+                    console.log("results", results);
+                    results.features.map(function (f) {
+                        // console.log("attributes", f.attributes[this.field.name], f.attributes)
+                        return f.attributes[_this.field.name];
+                    }).forEach(function (v) {
+                        if (v) {
+                            // var id = this.id+'_'+v;
+                            // this.listInput.innerHTML += '<input type="checkbox" class="checkbox" value="'+v+'" id="'+id+'"/>';
+                            // this.listInput.innerHTML += '<label for="'+id+'" class="checkbox">'+v+'</label>';
+                            // this.listInput.innerHTML += '<br />';
+                            _this.listInput.innerHTML += "\n                        <label>\n                            <input type=\"checkbox\" class=\"checkbox\" value=" + v + "/>\n                            <span>" + v + "</span>\n                        </label>\n                        </br/>";
+                        }
                     });
                 });
+                // });
             };
             return _this;
         }

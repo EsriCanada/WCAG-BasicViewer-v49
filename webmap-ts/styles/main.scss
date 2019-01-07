@@ -782,17 +782,19 @@ myKey img {
     margin: 0;
 }
 
-.toc-panel__listItem {
+.toc-panel__listItem,
+.filter-filterItem__fieldExamples {
     padding: 10px 8px;
     border: black solid 1px;
     border-top: none;
+}
+
+.toc-panel__listItem>label,
+.filter-filterItem__fieldExamples>label {
+    padding: 2px;
     font-family: 'Roboto Condensed', sans-serif;
     font-weight: bold;
     font-size: 18px;
-}
-
-.toc-panel__listItem>label>span {
-    padding: 2px;
 }
 
 .toc-panel__listItem--settings {

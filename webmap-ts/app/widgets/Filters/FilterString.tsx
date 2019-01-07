@@ -100,34 +100,37 @@ import i18n = require("dojo/i18n!../nls/resources");
     }
 
     public getFilterExpresion = () => {
-        require(["esri/tasks/support/Query", "esri/tasks/QueryTask"], (Query, QueryTask) => { 
-            console.log("Field", this.field);
-            const _query = new Query();
-            _query.outFields = [this.field.name];
-            _query.returnGeometry = false;
+        // require(["esri/tasks/support/Query", "esri/tasks/QueryTask"], (Query, QueryTask) => { 
+            // console.log("Layer", this.layer, this.layer.loaded);
+            // console.log("Field", this.field);
+            const _query = this.layer.createQuery();
             _query.where = "1=1";
-            _query.spatialRelationship = "esriSpatialRelIntersects";
-            _query.returnDistinctValues = true;
+            _query.outFields = [this.field.name];
             _query.orderByFields = [this.field.name];
-            console.log("Query", _query);
-            const task = new QueryTask(this.layer.url);
-            // console.log("Task", task);
-            // console.log("Layer", this.layer);
-            task.execute(_query).then((results: any) => {
-                console.log("Results", results);
+            _query.returnDistinctValues = true;
+            _query.returnGeometry = false;
+            
+            this.layer.queryFeatures(_query).then((results) => {
+                console.log("results", results);
                 results.features.map((f: any) => {
                         // console.log("attributes", f.attributes[this.field.name], f.attributes)
                         return f.attributes[this.field.name];
                     }).forEach((v) => {
                     if(v) {
-                        var id = this.id+'_'+v;
-                        this.listInput.innerHTML += '<input type="checkbox" class="checkbox" value="'+v+'" id="'+id+'"/>';
-                        this.listInput.innerHTML += '<label for="'+id+'" class="checkbox">'+v+'</label>';
-                        this.listInput.innerHTML += '<br />';
+                        // var id = this.id+'_'+v;
+                        // this.listInput.innerHTML += '<input type="checkbox" class="checkbox" value="'+v+'" id="'+id+'"/>';
+                        // this.listInput.innerHTML += '<label for="'+id+'" class="checkbox">'+v+'</label>';
+                        // this.listInput.innerHTML += '<br />';
+                        this.listInput.innerHTML += `
+                        <label>
+                            <input type="checkbox" class="checkbox" value=${v}/>
+                            <span>${v}</span>
+                        </label>
+                        </br/>`;
                     }
                 });
             });
-        });
+        // });
     }
 }
 
