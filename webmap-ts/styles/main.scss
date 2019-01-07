@@ -782,15 +782,13 @@ myKey img {
     margin: 0;
 }
 
-.toc-panel__listItem,
-.filter-filterItem__fieldExamples {
+.toc-panel__listItem {
     padding: 10px 8px;
     border: black solid 1px;
     border-top: none;
 }
 
-.toc-panel__listItem>label,
-.filter-filterItem__fieldExamples>label {
+.toc-panel__listItem>label {
     padding: 2px;
     font-family: 'Roboto Condensed', sans-serif;
     font-weight: bold;
@@ -924,20 +922,24 @@ myKey img {
     -webkit-margin-end: 0px;
     -webkit-padding-start: 0;
     padding: 5px;
-    width: calc(100% - 10px);
+    // width: calc(100% - 10px);
     overflow-y: auto;
     position: relative;
     flex: 2;
     height: 100%;
 }
 
-.tabContent ul li {
+.tabContent>ul>li {
     border-width: 1px;
     border-style: solid;
-    padding: 2px 2px 10px 2px;
+    padding: 2px;
     margin-bottom: 12px;
     width: calc(100% - 2px);
     border-radius: 5px;
+}
+
+.filter-filterItem__Content {
+    margin: 4px;
 }
 
 .filter-filterItem__filterAdd {
@@ -1032,7 +1034,7 @@ label.checkbox {
 .filter-filterItem__fieldExamples {
     max-height: 175px;
     overflow: auto;
-    width: calc(100% - 34px);
+    width: calc(100% - 28px);
     border: 1px solid black;
     margin: 0;
     margin-top: 4px;
@@ -1049,4 +1051,27 @@ label.checkbox {
     border-radius: 4px;
     right: 28px;
     font-weight: bold;
+}
+
+// .filter-filterItem__fieldExamples {
+//     border-style: none;
+// }
+.filter-filterItem__fieldExamples>li {
+    border-style: none;
+    padding: 0;
+    margin-bottom: 0;
+    border-radius: 0;
+}
+
+.filter-filterItem__fieldExamples>li>label {
+    padding: 2px;
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: bold;
+    font-size: 18px;
+    display: table;
+}
+
+.filter-filterItem__fieldExamples>li label input,
+.filter-filterItem__fieldExamples>li label span {
+    display: table-cell;
 }

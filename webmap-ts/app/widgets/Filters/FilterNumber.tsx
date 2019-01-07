@@ -37,12 +37,11 @@ import i18n = require("dojo/i18n!../nls/resources");
       const id2 = "id2";
       const format = "";
       return(
-<div class="_filter _number">
+<div>
   <select autofocus tabindex="0" 
     afterCreate={this._criteriaCreated}
-		// data-dojo-attach-event="onchange: criteriaChanged"
-		// data-dojo-attach-point="criteria"
-		class="filter-filterItem__Criteria"
+    class="filter-filterItem__Criteria"
+    aria-label={i18n.FilterItem.selectCriteria}
 		>
 		<option value=" = ">{i18n.FilterItem.equal}</option>			
 		<option value=" != ">{i18n.FilterItem.notEqual}</option>

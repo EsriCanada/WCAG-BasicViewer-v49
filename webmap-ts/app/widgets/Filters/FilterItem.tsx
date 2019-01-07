@@ -63,7 +63,7 @@ import { NormalizeTitle } from "../../utils";
                         class="esri-widget--button esri-icon-minus filter-filterItem__button"
                         afterCreate={this._filterItemRemove}></button>
                 </div>
-                <div afterCreate={this._filterItemAddContent}></div>
+                <div class="filter-filterItem__Content" afterCreate={this._filterItemAddContent}></div>
             </li>
             </div>
         );

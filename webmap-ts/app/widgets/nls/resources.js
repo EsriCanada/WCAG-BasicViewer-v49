@@ -82,6 +82,7 @@ define({
             moreThen: "More Then",
             between: "Between",
             notBetween: "Not Between",
+            selectCriteria: "Select criteria",
             enterValueToMatch: "Enter value to match",
             enterLastValue: "Enter last value",
             invalidNumber: "Invalid number format",

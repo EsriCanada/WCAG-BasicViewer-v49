@@ -34,12 +34,11 @@ import i18n = require("dojo/i18n!../nls/resources");
       const id2 = "id2";
       const format = "";
       return(
-<div class="_filter _number">
+<div>
   <select autofocus tabindex="0" 
     afterCreate={this._criteriaCreated}
-		// data-dojo-attach-event="onchange: criteriaChanged"
-		// data-dojo-attach-point="criteria"
-		class="filter-filterItem__Criteria"
+        class="filter-filterItem__Criteria"
+        aria-label={i18n.FilterItem.selectCriteria}
 		>
 		<option value=" = ">{i18n.FilterItem.equal}</option>
 		<option value=" != ">{i18n.FilterItem.notEqual}</option>
@@ -54,8 +53,8 @@ import i18n = require("dojo/i18n!../nls/resources");
         title={i18n.FilterItem.enterValueToMatch}
         afterCreate={this._addedTextBox}
     />
-	<div>
-		<fieldset class="filter-filterItem__fieldExamples" style="display:none;" afterCreate={this._addedListInput}></fieldset>
+	<div style="margin: 4px;">
+		<ul class="filter-filterItem__fieldExamples" style="display:none;" afterCreate={this._addedListInput}></ul>
     </div>
 	<div class='showErrors' style="display:none;"></div>
 </div>
@@ -112,6 +111,7 @@ import i18n = require("dojo/i18n!../nls/resources");
             
             this.layer.queryFeatures(_query).then((results) => {
                 console.log("results", results);
+                // this.listInput.innerHTML = `<ul>`;
                 results.features.map((f: any) => {
                         // console.log("attributes", f.attributes[this.field.name], f.attributes)
                         return f.attributes[this.field.name];
@@ -122,13 +122,15 @@ import i18n = require("dojo/i18n!../nls/resources");
                         // this.listInput.innerHTML += '<label for="'+id+'" class="checkbox">'+v+'</label>';
                         // this.listInput.innerHTML += '<br />';
                         this.listInput.innerHTML += `
-                        <label>
+                        <li>
+                        <label role="presentation">
                             <input type="checkbox" class="checkbox" value=${v}/>
                             <span>${v}</span>
                         </label>
-                        </br/>`;
+                        </li>`;
                     }
                 });
+                // this.listInput.innerHTML = `<ul>${this.listInput.innerHTML}</ul>`;
             });
         // });
     }

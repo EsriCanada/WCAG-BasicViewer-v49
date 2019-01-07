@@ -66,6 +66,7 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                 _query.returnGeometry = false;
                 _this.layer.queryFeatures(_query).then(function (results) {
                     console.log("results", results);
+                    // this.listInput.innerHTML = `<ul>`;
                     results.features.map(function (f) {
                         // console.log("attributes", f.attributes[this.field.name], f.attributes)
                         return f.attributes[_this.field.name];
@@ -75,9 +76,10 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                             // this.listInput.innerHTML += '<input type="checkbox" class="checkbox" value="'+v+'" id="'+id+'"/>';
                             // this.listInput.innerHTML += '<label for="'+id+'" class="checkbox">'+v+'</label>';
                             // this.listInput.innerHTML += '<br />';
-                            _this.listInput.innerHTML += "\n                        <label>\n                            <input type=\"checkbox\" class=\"checkbox\" value=" + v + "/>\n                            <span>" + v + "</span>\n                        </label>\n                        </br/>";
+                            _this.listInput.innerHTML += "\n                        <li>\n                        <label role=\"presentation\">\n                            <input type=\"checkbox\" class=\"checkbox\" value=" + v + "/>\n                            <span>" + v + "</span>\n                        </label>\n                        </li>";
                         }
                     });
+                    // this.listInput.innerHTML = `<ul>${this.listInput.innerHTML}</ul>`;
                 });
                 // });
             };
@@ -87,11 +89,8 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
             var id1 = "id1";
             var id2 = "id2";
             var format = "";
-            return (widget_1.tsx("div", { class: "_filter _number" },
-                widget_1.tsx("select", { autofocus: true, tabindex: "0", afterCreate: this._criteriaCreated, 
-                    // data-dojo-attach-event="onchange: criteriaChanged"
-                    // data-dojo-attach-point="criteria"
-                    class: "filter-filterItem__Criteria" },
+            return (widget_1.tsx("div", null,
+                widget_1.tsx("select", { autofocus: true, tabindex: "0", afterCreate: this._criteriaCreated, class: "filter-filterItem__Criteria", "aria-label": i18n.FilterItem.selectCriteria },
                     widget_1.tsx("option", { value: " = " }, i18n.FilterItem.equal),
                     widget_1.tsx("option", { value: " != " }, i18n.FilterItem.notEqual),
                     widget_1.tsx("option", { value: " LIKE " }, i18n.FilterItem.like),
@@ -99,8 +98,8 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                     widget_1.tsx("option", { value: " IN " }, i18n.FilterItem.in),
                     widget_1.tsx("option", { value: " NOT IN " }, i18n.FilterItem.notIn)),
                 widget_1.tsx("input", { type: "textbox", class: "filter-filterItem__textBox--text", "aria-label": i18n.FilterItem.enterValueToMatch, title: i18n.FilterItem.enterValueToMatch, afterCreate: this._addedTextBox }),
-                widget_1.tsx("div", null,
-                    widget_1.tsx("fieldset", { class: "filter-filterItem__fieldExamples", style: "display:none;", afterCreate: this._addedListInput })),
+                widget_1.tsx("div", { style: "margin: 4px;" },
+                    widget_1.tsx("ul", { class: "filter-filterItem__fieldExamples", style: "display:none;", afterCreate: this._addedListInput })),
                 widget_1.tsx("div", { class: 'showErrors', style: "display:none;" })));
         };
         __decorate([

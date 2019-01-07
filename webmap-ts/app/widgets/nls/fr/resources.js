@@ -81,6 +81,7 @@ define(
             moreThen: "Plus que",
             between: "Entre",
             notBetween: "Pas Entre",
+            selectCriteria: "Choisir un critère",
             enterValueToMatch: "Entrer la valeur correspondante",
             enterLastValue: "Entrer la dernière valeur",
             invalidNumber: "Format de numéro non valide",
