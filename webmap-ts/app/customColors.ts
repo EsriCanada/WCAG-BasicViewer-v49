@@ -177,7 +177,8 @@ export function CustomColors(config: ApplicationConfig) : void {
   color: black;
 }
 
-.filter-filterItem__fieldExamples>li:hover {
+.filter-filterItem__fieldExamples>li:hover,
+.esri-print__layout-tab:hover {
   background-color: ${hoverColor};
   color: ${WhiteOrBlack(hoverColor)};
 }
@@ -192,7 +193,8 @@ export function CustomColors(config: ApplicationConfig) : void {
   color: ${WhiteOrBlack(activeColor)};
 }
 
-.FilterTab [type=radio]:checked~label:hover {
+.FilterTab [type=radio]:checked~label:hover,
+.esri-print__layout-tab:hover {
   background-color: ${backgroundActiveHoverColor};
   color: ${WhiteOrBlack(backgroundActiveHoverColor)};
 }
