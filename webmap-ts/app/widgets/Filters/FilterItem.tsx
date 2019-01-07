@@ -94,6 +94,17 @@ import { NormalizeTitle } from "../../utils";
                     });
                 })
                 break;
+            case "string" :
+                this.layer.when(() => {
+                    require(["./filterString"], (filterString) => { 
+                        const filterItem = new filterString({
+                            layer: this.layer, 
+                            field: this.field, 
+                            container: domConstruct.create("div", {}, element)
+                        });
+                    });
+                })
+                break;
             default : 
                 element.innerHTML = `Unknown Field Type: '${this.fieldType}'`;
                 domClass.add(element, "showErrors");

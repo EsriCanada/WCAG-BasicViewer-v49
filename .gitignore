@@ -59,3 +59,5 @@ webmap-ts/app/widgets/Filters/filterTab\.js
 webmap-ts/app/widgets/Filters/FilterItem\.js
 
 webmap-ts/app/widgets/Filters/FilterNumber\.js
+
+webmap-ts/app/widgets/Filters/FilterString\.js

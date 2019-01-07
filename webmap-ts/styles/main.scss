@@ -1027,6 +1027,16 @@ label.checkbox {
     color: white;
 }
 
+.filter-filterItem__fieldExamples {
+    max-height: 175px;
+    overflow: auto;
+    width: calc(100% - 34px);
+    border: 1px solid black;
+    margin: 0;
+    margin-top: 4px;
+    margin-left: 4px;
+}
+
 .showErrors {
     position: absolute;
     padding: 2px 4px;

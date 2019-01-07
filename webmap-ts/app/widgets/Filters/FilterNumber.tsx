@@ -40,8 +40,8 @@ import i18n = require("dojo/i18n!../nls/resources");
 <div class="_filter _number">
   <select autofocus tabindex="0" 
     afterCreate={this._criteriaCreated}
-		data-dojo-attach-event="onchange: criteriaChanged"
-		data-dojo-attach-point="criteria"
+		// data-dojo-attach-event="onchange: criteriaChanged"
+		// data-dojo-attach-point="criteria"
 		class="filter-filterItem__Criteria"
 		>
 		<option value=" = ">{i18n.FilterItem.equal}</option>			
