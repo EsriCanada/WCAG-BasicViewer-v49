@@ -1075,3 +1075,15 @@ label.checkbox {
 .filter-filterItem__fieldExamples>li label span {
     display: table-cell;
 }
+
+blockquote[lang] {
+    // -webkit-margin-before: 0;
+    // -webkit-margin-after: 0;
+    // -webkit-margin-start: 0;
+    // -webkit-margin-end: 0;
+    // margin-inline-start: 0;
+    // margin-inline-end: 0;
+    // margin-left: 0;
+    // margin-right: 0;
+    font-style: italic;
+}

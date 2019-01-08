@@ -84,8 +84,9 @@ const CSS = {
             const Lang = languages[i];
             if(Lang.code.isNullOrWhiteSpace()) continue;
 
+            console.log("locale", locale, Lang.code);
             const menuItem = new MenuItem({
-                label: Lang.name,
+                label: (locale === Lang.code) ? Lang.name : `<blockquote lang="${Lang.code}">${Lang.name}</blockquote>`,
                 "data-code": Lang.code,
                 "data-appid": Lang.appId,
             });
