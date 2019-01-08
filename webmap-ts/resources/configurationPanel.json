@@ -308,18 +308,17 @@
                     "value": "(Comming soon:)"
                 },
                 {
-                    "label": "<strong>Base Map Gallery Group Title:</strong>",
-                    "fieldName": "galleryGroupTitle",
+                    "label": "<strong>Base Map Gallery Group Query:</strong>",
+                    "fieldName": "galleryGroupQuery",
                     "placeHolder": "",
                     "type": "string",
-                    "tooltip": "Leave blank for default"
+                    "tooltip": "Leave blank for defaults configured on Portal"
                 },
                 {
-                    "label": "<strong>Base Map Gallery Owner:</strong>",
-                    "fieldName": "galleryGroupOwner",
-                    "placeHolder": "",
-                    "type": "string",
-                    "tooltip": "Ignore id Groul Title is Blank"
+                    "label": "<strong>Use Default Vector Basemaps:</strong>",
+                    "fieldName": "useVectorBasemaps",
+                    "type": "boolean",
+                    "tooltip": "Use Vector Basemaps configured on Portal (if valid)"
                 }
             ]
         },
@@ -772,7 +771,7 @@
         "featureTable_highlightedFeature": false,
         "featureTable_currentView": true,
         "printService": "",
-        "galleryGroupTitle": "United States Basemaps",
-        "galleryGroupOwner": "Esri_cy_US"
+        "galleryGroupQuery": "title:\"ArcGIS Online Vector Basemaps\" AND owner:esri_en",
+        "useVectorBasemaps": true
     }
 }

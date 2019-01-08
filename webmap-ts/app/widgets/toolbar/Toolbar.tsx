@@ -5,12 +5,12 @@ import { subclass, declared, property } from "esri/core/accessorSupport/decorato
 
 import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Widget = require("esri/widgets/Widget");
-import lang = require("dojo/_base/lang");
+// import lang = require("dojo/_base/lang");
 import domConstruct = require("dojo/dom-construct");
-import dom = require("dojo/dom");
-import domAttr = require("dojo/dom-attr");
+// import dom = require("dojo/dom");
+// import domAttr = require("dojo/dom-attr");
 import domClass = require("dojo/dom-class");
-import domStyle = require("dojo/dom-style");
+// import domStyle = require("dojo/dom-style");
 import Deferred = require("dojo/Deferred");
 import All = require("dojo/promise/all");
 import on = require("dojo/on");
@@ -19,11 +19,11 @@ import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
 import Tool = require("./Tool");
-import { Badge } from "./Badge";
+// import { Badge } from "./Badge";
 import ToolPage = require("./ToolPage");
 import { Has } from "../../utils";
-import MyOverviewMap = require("../MyOverviewMap/MyOverviewMap");
-import { doesNotReject } from "assert";
+// import MyOverviewMap = require("../MyOverviewMap/MyOverviewMap");
+// import { doesNotReject } from "assert";
 
 const CSS = {
     base: "toolbar",
@@ -34,6 +34,9 @@ class Toolbar extends declared(Widget) {
 
     @property()
     config: ApplicationConfig;
+
+    @property()
+    portal: __esri.Portal;
 
     @property()
     defaultButton:HTMLElement;
@@ -322,13 +325,17 @@ class Toolbar extends declared(Widget) {
                     "esri/widgets/BasemapGallery/support/PortalBasemapsSource"
                 ], (BasemapGallery, PortalBasemapsSource) => {
                     let source = null;
-                    if(!this.config.galleryGroupTitle.isNullOrWhiteSpace()) {
+                    if(!this.config.galleryGroupQuery.isNullOrWhiteSpace()) {
                         source = new PortalBasemapsSource({
-                            query: {
-                            title: this.config.galleryGroupTitle,
-                            owner: this.config.galleryGroupOwner
-                            }
-                      });
+                            query: this.config.galleryGroupQuery
+                        });
+                    }
+                    else {
+                        if(this.config.useVectorBasemaps && !this.portal.vectorBasemapGalleryGroupQuery.isNullOrWhiteSpace()) {
+                            source = new PortalBasemapsSource({
+                                query: this.portal.vectorBasemapGalleryGroupQuery
+                            });
+                        }
                     }
                     // console.log("source", source);
                     if(source) {

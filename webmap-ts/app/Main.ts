@@ -19,14 +19,14 @@ import i18n = require("dojo/i18n!./widgets/nls/resources");
 import BorderContainer = require("dijit/layout/BorderContainer");
 import ContentPane = require("dojox/layout/ContentPane");
 import lang = require("dojo/_base/lang");
-import Deferred = require("dojo/Deferred");
+// import Deferred = require("dojo/Deferred");
 
 
-import registry = require("dijit/registry");
+// import registry = require("dijit/registry");
 import dom = require("dojo/dom");
 import domConstruct = require("dojo/dom-construct");
 
-import Search = require("esri/widgets/Search");
+// import Search = require("esri/widgets/Search");
 
 
 import { Has } from "./utils";
@@ -69,7 +69,7 @@ class MapExample {
     }
     // console.log("Base", base);
     console.log("base", base);
-    console.log("Config", base.config);
+    // console.log("Config", base.config);
     this.base = base;
 
     const { config, results, settings, units } = base;
@@ -167,7 +167,7 @@ class MapExample {
             });
           }
           this.addSearch(this.config, mapView);
-          this.createTools(this.config, mapView);
+          this.createTools(mapView);
 
         })
       });
@@ -205,12 +205,12 @@ class MapExample {
     }));
   }
 
-  private createTools = (config: ApplicationConfig, mapView: __esri.MapView |__esri.SceneView) => {
+  private createTools = (mapView: __esri.MapView |__esri.SceneView) => {
     // console.log("createTools");
     require([
       "./widgets/toolbar/toolbar"
     ], (Toolbar) => {
-      new Toolbar({ config: config, mapView: mapView, container: "panelTools" });
+      new Toolbar({ portal: this.base.portal, config: this.config, mapView: mapView, container: "panelTools" });
     });
   }
 
