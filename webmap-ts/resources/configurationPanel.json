@@ -315,7 +315,7 @@
                     "tooltip": "Leave blank for defaults configured on Portal"
                 },
                 {
-                    "label": "<strong>Use Default Vector Basemaps:</strong>",
+                    "label": "<strong>Use Default Vector Basemaps</strong>",
                     "fieldName": "useVectorBasemaps",
                     "type": "boolean",
                     "tooltip": "Use Vector Basemaps configured on Portal (if valid)"
