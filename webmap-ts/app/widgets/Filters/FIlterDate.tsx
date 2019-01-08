@@ -29,7 +29,7 @@ import i18n = require("dojo/i18n!../nls/resources");
     field: __esri.Field;
 
     render() {
-      return(
+        return(
 <div class="filter-filterDate__grid-container">
     <select autofocus tabindex="0" 
         afterCreate={this._criteriaCreated}
@@ -46,8 +46,6 @@ import i18n = require("dojo/i18n!../nls/resources");
 	<input type="text" 
         // id={id1}
         class="filter-filterDate__grid-item"
-        data-dojo-attach-point="minValue" 
-        data-dojo-type="dijit/form/DateTextBox" 
         aria-label={i18n.FilterItem.enterValueToMatch}
         title={i18n.FilterItem.enterValueToMatch}
         afterCreate={this._addedMinValue}
@@ -55,10 +53,10 @@ import i18n = require("dojo/i18n!../nls/resources");
         // `invalidMessage:{i18n.FilterItem.invalidDate},
         // missingMessage:{i18n.FilterItem.enterDateToMatch}`
         required="true"/>
+    <div class="filter-filterDate__grid-item"/>
+
 	<input type="text" 
         // id={id2}
-        data-dojo-attach-point="maxValue" 
-        data-dojo-type="dijit/form/DateTextBox" 
         aria-label={i18n.FilterItem.enterLastValue}
         title={i18n.FilterItem.enterLastValue}
         afterCreate={this._addedMaxValue}
@@ -74,9 +72,16 @@ import i18n = require("dojo/i18n!../nls/resources");
 
     private minValue: Element;
     private maxValue: Element;
+    private minValueWig: any = null;
+    private maxValueWig: any = null;
 
     private _addedMinValue = (element : Element) => {
         this.minValue = element;
+        require(["dijit/form/DateTextBox", "dojo/date/locale", "dojo/domReady!"],
+        (DateTextBox, locale) => {
+            this.minValueWig = new DateTextBox({}, element);
+            this.minValueWig.startup();
+        })
     }
 
     private _addedMaxValue = (element : Element) => {
@@ -85,18 +90,28 @@ import i18n = require("dojo/i18n!../nls/resources");
 
     private criteriaElement: Element;
     private _criteriaCreated = (element:Element) => {
-      this.criteriaElement = element;
-      this.own(on(element, "change", (event) => { 
-        switch(this._getBetweenMode()) {
-          case true: 
-            domStyle.set(this.maxValue,'display', '');
-            break;
-          case false: 
-            domStyle.set(this.maxValue,'display', 'none');
-            break;
-        }
-
-      }))
+        this.criteriaElement = element;
+        this.own(on(element, "change", (event) => { 
+            switch(this._getBetweenMode()) {
+                case true: 
+                    // console.log("this.maxValue", this.maxValue);
+                    if(!this.maxValueWig) {
+                        domStyle.set(this.maxValue,'display', '');
+                        require(["dijit/form/DateTextBox", "dojo/date/locale", "dojo/domReady!"],
+                        (DateTextBox, locale) => {
+                            this.maxValueWig = new DateTextBox({}, this.maxValue);
+                            this.maxValueWig.startup();
+                            // console.log("this.maxValue.startup", this.maxValue);
+                        })
+                    } else {
+                        domStyle.set(this.maxValueWig.domNode,'display', '');
+                    }
+                    break;
+                case false: 
+                    domStyle.set(this.maxValueWig.domNode,'display', 'none');
+                    break;
+            }
+        }))
     }
 
     private _getBetweenMode = () => {

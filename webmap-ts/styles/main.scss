@@ -1093,13 +1093,3 @@ blockquote[lang] {
     grid-template-columns: auto auto;
     grid-gap: 4px 0;
 }
-
-.filter-filterDate__grid-item {
-    // margin-left: 2px;
-}
-
-.filter-filterDate__grid-item--Criteria {
-    grid-row-start: 1;
-    grid-row-end: 3;
-    height: 20px;
-}
