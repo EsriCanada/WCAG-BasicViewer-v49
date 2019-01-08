@@ -75,11 +75,15 @@ import i18n = require("dojo/i18n!../nls/resources");
     private minValueWig: any = null;
     private maxValueWig: any = null;
 
+    private dateOptions = {value: new Date(2019, 2, 10), fullYear: false};
+
     private _addedMinValue = (element : Element) => {
         this.minValue = element;
         require(["dijit/form/DateTextBox", "dojo/date/locale", "dojo/domReady!"],
         (DateTextBox, locale) => {
-            this.minValueWig = new DateTextBox({}, element);
+            this.minValueWig = new DateTextBox(this.dateOptions, element);
+            // this.minValueWig.constraints.fullYear = false;
+            // this.minValueWig.value = new Date();
             this.minValueWig.startup();
         })
     }
@@ -96,10 +100,10 @@ import i18n = require("dojo/i18n!../nls/resources");
                 case true: 
                     // console.log("this.maxValue", this.maxValue);
                     if(!this.maxValueWig) {
-                        domStyle.set(this.maxValue,'display', '');
+                        domStyle.set(this.maxValue, 'display', '');
                         require(["dijit/form/DateTextBox", "dojo/date/locale", "dojo/domReady!"],
                         (DateTextBox, locale) => {
-                            this.maxValueWig = new DateTextBox({}, this.maxValue);
+                            this.maxValueWig = new DateTextBox(this.dateOptions, this.maxValue);
                             this.maxValueWig.startup();
                             // console.log("this.maxValue.startup", this.maxValue);
                         })
