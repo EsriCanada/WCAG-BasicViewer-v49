@@ -48,7 +48,7 @@ const CSS = {
             style: "display: none;",
         });
         let locale : String = this.config.locale;
-        console.log("locale", locale);
+        // console.log("locale", locale);
         if(locale.isNullOrWhiteSpace()) {
             locale = document.documentElement.lang;
         }

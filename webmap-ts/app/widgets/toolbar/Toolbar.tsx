@@ -335,6 +335,12 @@ class Toolbar extends declared(Widget) {
                             source = new PortalBasemapsSource({
                                 query: this.portal.vectorBasemapGalleryGroupQuery
                             });
+                        } else {
+                            if(!this.portal.basemapGalleryGroupQuery.isNullOrWhiteSpace()) {
+                                source = new PortalBasemapsSource({
+                                    query: this.portal.basemapGalleryGroupQuery
+                                });   
+                            }
                         }
                     }
                     // console.log("source", source);
