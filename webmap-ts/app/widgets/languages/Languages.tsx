@@ -48,8 +48,9 @@ const CSS = {
             style: "display: none;",
         });
         let locale : String = this.config.locale;
+        console.log("locale", locale);
         if(locale.isNullOrWhiteSpace()) {
-            locale=document.documentElement.lang;
+            locale = document.documentElement.lang;
         }
         let currentLocale = locale.substring(0,2).toUpperCase();
         let currentIcon = null;
@@ -84,9 +85,9 @@ const CSS = {
             const Lang = languages[i];
             if(Lang.code.isNullOrWhiteSpace()) continue;
 
-            console.log("locale", locale, Lang.code);
+            // console.log("locale", locale, Lang.code);
             const menuItem = new MenuItem({
-                label: (locale === Lang.code) ? Lang.name : `<blockquote lang="${Lang.code}">${Lang.name}</blockquote>`,
+                label: ((this.config.locale || "") === Lang.code) ? Lang.name : `<blockquote lang="${Lang.code}">${Lang.name}</blockquote>`,
                 "data-code": Lang.code,
                 "data-appid": Lang.appId,
             });
@@ -184,6 +185,7 @@ const CSS = {
         console.log(e.target, e.target.parentElement);
         const menuItemDataSet = e.target.closest('.dijitMenuItem').dataset;
         const docLocale = query('html')[0]["lang"];
+        // console.log("docLocale", docLocale);
         let locale = menuItemDataSet.code;
         if(!locale || locale==='' || locale === "undefined" || locale === undefined)
         {

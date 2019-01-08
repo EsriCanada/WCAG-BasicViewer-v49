@@ -738,6 +738,7 @@
         "showSearchScore": true,
         "countryCodeSearch": "",
         "searchExtent": false,
+        "locale": "",
         "languageLabel": true,
         "googleAnalyticsUserAccount": "",
         "useGoogleAnalytics": true,

@@ -22,7 +22,6 @@ import lang = require("dojo/_base/lang");
 import Deferred = require("dojo/Deferred");
 
 
-
 import registry = require("dijit/registry");
 import dom = require("dojo/dom");
 import domConstruct = require("dojo/dom-construct");
@@ -79,8 +78,10 @@ class MapExample {
 
     // console.log("units", units);
     
-    setPageLocale(base.locale);
-    setPageDirection(base.direction);
+    setPageLocale(config.locale);
+    // window["dojoConfig"].locale = config.locale;
+    // console.log("dojoConfig", window["dojoConfig"]);
+    // setPageDirection(base.direction);
 
     const validWebMapItems = webMapItems.map(response => {
       return response.value;
