@@ -15,7 +15,7 @@ define(
         EsriWorldGeocoder: "Géocodeur Mondial Esri",
         language: {
             aria: {
-                changeLanguage: "Changer la langue en",
+                changeLanguage: "Changer la langue en ",
                 currentLanguage: "La langue actuelle est"
             },
             language: "Langue : ",
