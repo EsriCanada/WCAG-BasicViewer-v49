@@ -21,8 +21,6 @@ import DropDownMenu = require("dijit/DropDownMenu");
 import DropDownButton = require("dijit/form/DropDownButton");
 import MenuItem = require("dijit/MenuItem");
 
-import { stripTags } from "../../utils";
-
 import esriLang = require("esri/core/lang");
 
 
@@ -98,13 +96,13 @@ const CSS = {
                 if(iconCell) {
                     domConstruct.create("img",{
                         src: Lang.img,
-                        alt: stripTags(i18n.language.flag.replace("_",Lang.name)),
+                        alt: i18n.language.flag.replace("_",Lang.name).stripTags(),
                         class: 'langMenuItemIcon',
                     }, iconCell[0]);
                 }
             }
 
-            const langHint = stripTags(i18n.language.aria.changeLanguage+Lang.name);
+            const langHint = (i18n.language.aria.changeLanguage+Lang.name as String).stripTags();
             domAttr.set(menuItem.domNode,'aria-label', langHint); 
             domAttr.set(menuItem.domNode,'title', langHint);  
             domAttr.set(menuItem.domNode,'data-code', Lang.code);
@@ -116,7 +114,7 @@ const CSS = {
                 if(Lang.img && Lang.img !== '') {
                     currentIcon = domConstruct.create("img",{
                         src:Lang.img,
-                        alt: stripTags(i18n.language.flag.replace("_",Lang.name)), 
+                        alt: (i18n.language.flag as string).stripTags().replace("_", Lang.name), 
                         class: 'langIcon',
                     });
                     if(Lang.shortName && Lang.shortName !== "") {
@@ -164,7 +162,7 @@ const CSS = {
             if(iconNode) {
                 domClass.remove(iconNode, "dijitNoIcon");
                 domAttr.set(iconNode,'aria-label', currentHint);
-                domAttr.set(iconNode,'title', stripTags(currentHint)); 
+                domAttr.set(iconNode,'title', currentHint.stripTags()); 
             }
             const _buttonNode = button.domNode.querySelector("[data-dojo-attach-point=_buttonNode]");
             if(_buttonNode) {

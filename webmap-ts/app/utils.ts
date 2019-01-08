@@ -1,13 +1,22 @@
 import { ApplicationConfig } from "ApplicationBase/interfaces";
 
-export function stripTags(val:string): string {
-    return val.replace(/<[^>]*>/g, "", );
-}
+// export function stripTags(val:string): string {
+//     return val.replace(/<[^>]*>/g, "", );
+// }
 
 export function Has(config: ApplicationConfig, tool:string) : boolean {
-    // console.log("has", tool, this.config[`tool_${tool}`]);
+    // console.log("config", config);
     const hasTool = config[`tool_${tool}`]
     return hasTool != 'undefined' && hasTool;
+}
+
+// ApplicationConfig.prototype.has = function(tool:string) : boolean {
+//     const hasTool = this[`tool_${tool}`]
+//     return hasTool != 'undefined' && hasTool;
+// }
+
+String.prototype.stripTags = function() : string {
+    return this.replace(/<[^>]*>/g, "", ) as string;
 }
 
 String.prototype.NormalizeTitle = function() : string {

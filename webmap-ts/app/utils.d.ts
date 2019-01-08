@@ -2,5 +2,6 @@
 
 declare interface String {
     isNullOrWhiteSpace() : boolean;
-    NormalizeTitle() : string
+    NormalizeTitle() : string;
+    stripTags() : string;
 }
