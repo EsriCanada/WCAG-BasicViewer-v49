@@ -110,7 +110,7 @@ import i18n = require("dojo/i18n!../nls/resources");
             _query.returnGeometry = false;
             
             this.layer.queryFeatures(_query).then((results) => {
-                console.log("results", results);
+                // console.log("results", results);
                 // this.listInput.innerHTML = `<ul>`;
                 results.features.map((f: any) => {
                         // console.log("attributes", f.attributes[this.field.name], f.attributes)

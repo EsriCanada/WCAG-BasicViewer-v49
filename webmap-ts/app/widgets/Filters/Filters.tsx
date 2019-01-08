@@ -19,7 +19,6 @@ import Widget = require("esri/widgets/Widget");
 import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
-import { NormalizeTitle } from "../../utils";
 
 @subclass("esri.widgets.Filters")
   class Filters extends declared(Widget) {

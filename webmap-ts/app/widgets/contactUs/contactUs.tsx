@@ -18,8 +18,6 @@ import i18n = require("dojo/i18n!../nls/resources");
 
 import Button = require("dijit/form/Button");
 
-import { isNullOrWhiteSpace} from "../../utils";
-
 const CSS = {
     base: "contactUs",
 };
@@ -39,7 +37,7 @@ class ContactUs extends declared(Widget) {
     }
 
     postInitialize() {
-        if (isNullOrWhiteSpace(this.config.contactUsURL)) {
+        if (this.config.contactUsURL.isNullOrWhiteSpace()) {
         // if (!this.contactUsURL.isNullOrEmpty()) {
             domStyle.set(dom.byId('contactUsNode'), 'display', 'none');
         }

@@ -21,7 +21,7 @@ import DropDownMenu = require("dijit/DropDownMenu");
 import DropDownButton = require("dijit/form/DropDownButton");
 import MenuItem = require("dijit/MenuItem");
 
-import { isNullOrWhiteSpace, stripTags } from "../../utils";
+import { stripTags } from "../../utils";
 
 import esriLang = require("esri/core/lang");
 
@@ -48,10 +48,11 @@ const CSS = {
 
         const menu = new DropDownMenu({
             style: "display: none;",
-            //id: 'languageMenu',
         });
-        let locale = this.config.locale;
-        if(isNullOrWhiteSpace(locale)) locale=document.documentElement.lang;
+        let locale : String = this.config.locale;
+        if(locale.isNullOrWhiteSpace()) {
+            locale=document.documentElement.lang;
+        }
         let currentLocale = locale.substring(0,2).toUpperCase();
         let currentIcon = null;
         let currentLanguage = null;
@@ -83,7 +84,7 @@ const CSS = {
         for(let i = 0; i<languages.length; i++)
         {
             const Lang = languages[i];
-            if(isNullOrWhiteSpace(Lang.code)) continue;
+            if(Lang.code.isNullOrWhiteSpace()) continue;
 
             const menuItem = new MenuItem({
                 label: Lang.name,

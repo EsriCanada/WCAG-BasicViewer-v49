@@ -19,9 +19,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/core/tsSupport/decorateHelper", "esri/core/accessorSupport/decorators", "esri/widgets/Widget", "dojo/_base/lang", "dojo/dom-construct", "esri/core/Collection", "esri/widgets/Search/FeatureLayerSearchSource", "esri/widgets/support/widget", "dojo/i18n!../nls/resources", "../../utils"], function (require, exports, __extends, __decorate, decorators_1, Widget, lang, domConstruct, Collection, FeatureLayerSearchSource, widget_1, i18n, utils_1) {
+define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/core/tsSupport/decorateHelper", "esri/core/accessorSupport/decorators", "esri/widgets/Widget", "dojo/_base/lang", "dojo/dom-construct", "esri/core/Collection", "esri/widgets/Search/FeatureLayerSearchSource", "esri/widgets/support/widget", "dojo/i18n!../nls/resources"], function (require, exports, __extends, __decorate, decorators_1, Widget, lang, domConstruct, Collection, FeatureLayerSearchSource, widget_1, i18n) {
     "use strict";
-    // import { Has, isNullOrWhiteSpace } from "../../utils";
+    // import { Has } from "../../utils";
     var Search = /** @class */ (function (_super) {
         __extends(Search, _super);
         function Search() {
@@ -46,7 +46,7 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                                 geocoder.locator = new Locator(geocoder.url);
                                 geocoder.singleLineFieldName = "SingleLine";
                                 geocoder.outFields = ["*"]; //["Match_addr"];
-                                if (!utils_1.isNullOrWhiteSpace(this.config.countryCodeSearch)) {
+                                if (!this.config.countryCodeSearch.isNullOrWhiteSpace()) {
                                     geocoder.countryCode = this.config.countryCodeSearch;
                                 }
                                 geocoder.name = geocoder.name || "Esri World Geocoder";

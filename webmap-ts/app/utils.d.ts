@@ -1,5 +1,6 @@
 /// <reference types="typescript" />
 
-export interface String {
-    isNullOrEmpty: () => boolean;
+declare interface String {
+    isNullOrWhiteSpace() : boolean;
+    NormalizeTitle() : string
 }

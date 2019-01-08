@@ -21,7 +21,7 @@ import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
 
-import { Has, NormalizeTitle } from "../../utils";
+import { Has } from "../../utils";
 
 
 const CSS = {
@@ -72,7 +72,7 @@ class TOC extends declared(Widget) {
                     checked: layer.visible
                 }, label);
                 domConstruct.create ("span", {
-                    innerHTML: NormalizeTitle(layer.title),
+                    innerHTML: layer.title.NormalizeTitle(),
                 }, label);
                 const settings = domConstruct.create ("div", {
                     class: "toc-panel__listItem--settings",
@@ -96,7 +96,7 @@ class TOC extends declared(Widget) {
                 watchUtils.when(mapView, "stationary", () => {
                     // console.log("layers", this.layers);
                     this.layers.forEach((layer : any, i) => {
-                        const title = NormalizeTitle(layer.title);
+                        const title = layer.title.NormalizeTitle();
                         const visibleAtScale = isVisibleAtScale(layer);
                         const visibleScaleStr = i18n.TOC.visibleAtScale;
                         const notVisibleScaleStr = i18n.TOC.notVisibleAtScale;

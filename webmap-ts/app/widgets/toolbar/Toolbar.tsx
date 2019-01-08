@@ -21,7 +21,7 @@ import i18n = require("dojo/i18n!../nls/resources");
 import Tool = require("./Tool");
 import { Badge } from "./Badge";
 import ToolPage = require("./ToolPage");
-import { Has, isNullOrWhiteSpace } from "../../utils";
+import { Has } from "../../utils";
 import MyOverviewMap = require("../MyOverviewMap/MyOverviewMap");
 import { doesNotReject } from "assert";
 
@@ -163,7 +163,7 @@ class Toolbar extends declared(Widget) {
             this.config.response.itemInfo.item.snippet ||
             " ";
 
-            if (!isNullOrWhiteSpace(description)) {
+            if (!description.isNullOrWhiteSpace()) {
                 const hasInstructions = Has(this.config, "instructions");
                 this._addTool(element, "details").then((tool) => {
                     tool.pageReady.then((toolPage) => {
@@ -188,7 +188,7 @@ class Toolbar extends declared(Widget) {
             require([
                 `dojo/text!./Templates/${i18n.instructions}.html`
             ], function (instructionsText) {
-                if (!isNullOrWhiteSpace(moreHelpUrl)) {
+                if (!moreHelpUrl.isNullOrWhiteSpace()) {
                     instructionsText = `${instructionsText}
 <br />
 <a href="${moreHelpUrl}" target="blank" class="more_help">${i18n.moreHelp}</a>
@@ -200,7 +200,7 @@ class Toolbar extends declared(Widget) {
         })().
         then((instructionsText:string) => {
                 
-            if(!isNullOrWhiteSpace(instructionsText)) {
+            if(!instructionsText.isNullOrWhiteSpace()) {
                 if (!Has(this.config, "details")) {
                     this._addTool(element, "instructions").then((tool) => {
                         domConstruct.create(
@@ -322,7 +322,7 @@ class Toolbar extends declared(Widget) {
                     "esri/widgets/BasemapGallery/support/PortalBasemapsSource"
                 ], (BasemapGallery, PortalBasemapsSource) => {
                     let source = null;
-                    if(!isNullOrWhiteSpace(this.config.galleryGroupTitle)) {
+                    if(!this.config.galleryGroupTitle.isNullOrWhiteSpace()) {
                         source = new PortalBasemapsSource({
                             query: {
                             title: this.config.galleryGroupTitle,

@@ -21,8 +21,7 @@ import on = require("dojo/on");
 import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
-import { isNullOrWhiteSpace } from "../../utils";
-// import { Has, isNullOrWhiteSpace } from "../../utils";
+// import { Has } from "../../utils";
 
 @subclass("esri.widgets.Search")
 class Search extends declared(Widget) {
@@ -71,7 +70,7 @@ class Search extends declared(Widget) {
                             geocoder.singleLineFieldName = "SingleLine";
                             
                             geocoder.outFields = ["*"]; //["Match_addr"];
-                            if (!isNullOrWhiteSpace(this.config.countryCodeSearch)) {
+                            if (!this.config.countryCodeSearch.isNullOrWhiteSpace()) {
                                 geocoder.countryCode = this.config.countryCodeSearch;
                             }
 

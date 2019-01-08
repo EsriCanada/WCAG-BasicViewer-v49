@@ -19,7 +19,6 @@ import Deferred = require("dojo/Deferred");
 import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
-import { NormalizeTitle } from "../../utils";
 
 // import FilterItem = require("./FilterItem")
 
@@ -38,7 +37,7 @@ import { NormalizeTitle } from "../../utils";
     }
 
     render() {
-        const layerTitle = NormalizeTitle(this.layer.title);
+        const layerTitle = this.layer.title.NormalizeTitle();
         const badgeTip = i18n.badgesTips.someFilters;
         return (
             <div>
@@ -125,7 +124,7 @@ import { NormalizeTitle } from "../../utils";
             // if(this.layer.popupTemplate) {
                 element.innerHTML = this.layer.popupTemplate.fieldInfos
                 .filter((field) => field.visible)
-                .map((field) => `<option value="${field.fieldName}">${NormalizeTitle(field.label)}</option>`)
+                .map((field) => `<option value="${field.fieldName}">${field.label.NormalizeTitle()}</option>`)
                 .join("");
             // } else {
             //     this.layer.fields.forEach((field) => {

@@ -15,7 +15,7 @@ export function CustomColors(config: ApplicationConfig) : void {
         const fcColor = color;
         // console.log("bgColor", bgColor, HexToRGB(bgColor));
         const bgLightenColor = LightenDarkenColor(bgColor, 50);
-        console.log("bgLightenColor", bgColor, "-> ", bgLightenColor)
+        // console.log("bgLightenColor", bgColor, "-> ", bgLightenColor)
         const borderActiveColor = LightenDarkenColor(activeColor, isDark(activeColor) ? 75: -75);
         const backgroundActiveHoverColor = MixColors(activeColor, hoverColor, 0.33);
         // const backgroundActiveFocusColor = MixColors(activeColor, focusColor, 0.33);
@@ -182,24 +182,6 @@ export function CustomColors(config: ApplicationConfig) : void {
   background-color: ${hoverColor};
   color: ${WhiteOrBlack(hoverColor)};
 }
-
-/*
-.FilterTab [type=radio]:checked~label span:focus{
-  outline-color: ${borderActiveColor};
-}
-
-.FilterTab [type=radio]:checked~label {
-  background: ${activeColor};
-  color: ${WhiteOrBlack(activeColor)};
-}
-
-.FilterTab [type=radio]:checked~label:hover,
-.esri-print__layout-tab:hover {
-  background-color: ${backgroundActiveHoverColor};
-  color: ${WhiteOrBlack(backgroundActiveHoverColor)};
-}
-*/
-
 `;
   }
 

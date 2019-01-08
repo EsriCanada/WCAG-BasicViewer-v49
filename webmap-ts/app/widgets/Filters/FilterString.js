@@ -65,7 +65,7 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                 _query.returnDistinctValues = true;
                 _query.returnGeometry = false;
                 _this.layer.queryFeatures(_query).then(function (results) {
-                    console.log("results", results);
+                    // console.log("results", results);
                     // this.listInput.innerHTML = `<ul>`;
                     results.features.map(function (f) {
                         // console.log("attributes", f.attributes[this.field.name], f.attributes)

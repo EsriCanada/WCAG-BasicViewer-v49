@@ -18,7 +18,6 @@ import Deferred = require("dojo/Deferred");
 import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
-import { NormalizeTitle } from "../../utils";
 
 @subclass("esri.widgets.FilterItem")
   class FilterItem extends declared(Widget) {
@@ -40,7 +39,7 @@ import { NormalizeTitle } from "../../utils";
     render() {
         // this.layer.when(() => {
             this.fieldType = this.field.type;
-            console.log("fieldType", this.fieldType, this.field);
+            // console.log("fieldType", this.fieldType, this.field);
         // })
         return (
             <div>
@@ -55,7 +54,7 @@ import { NormalizeTitle } from "../../utils";
                             aria-label="Active" 
                             title="Active" 
                             data-dojo-attach-point="Active"/> 
-                        {NormalizeTitle(this.field.alias)}
+                        {this.field.alias.NormalizeTitle()}
                     </label>
                     <button role="button" 
                         aria-label="remove" 
