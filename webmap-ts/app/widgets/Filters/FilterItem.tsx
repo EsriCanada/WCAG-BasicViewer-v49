@@ -84,22 +84,33 @@ import i18n = require("dojo/i18n!../nls/resources");
             case "integer" :
             case "double" :
                 this.layer.when(() => {
-                    require(["./filterNumber"], (filterNumber) => { 
+                    require(["./FilterNumber"], (filterNumber) => { 
                         const filterItem = new filterNumber({
                             layer: this.layer, 
                             field: this.field, 
-                            container: domConstruct.create("div", {}, element)
+                            container: element//domConstruct.create("div", {}, element)
                         });
                     });
                 })
                 break;
             case "string" :
                 this.layer.when(() => {
-                    require(["./filterString"], (filterString) => { 
+                    require(["./FilterString"], (filterString) => { 
                         const filterItem = new filterString({
                             layer: this.layer, 
                             field: this.field, 
-                            container: domConstruct.create("div", {}, element)
+                            container: element//domConstruct.create("div", {}, element)
+                        });
+                    });
+                })
+                break;
+            case "date" :
+                this.layer.when(() => {
+                    require(["./FilterDate"], (filterDate) => { 
+                        const filterItem = new filterDate({
+                            layer: this.layer, 
+                            field: this.field, 
+                            container: element//domConstruct.create("div", {}, element)
                         });
                     });
                 })
