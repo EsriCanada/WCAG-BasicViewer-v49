@@ -53,21 +53,17 @@ import i18n = require("dojo/i18n!../nls/resources");
 		<option value=" BETWEEN ">{i18n.FilterItem.between}</option>
 		<option value=" NOT BETWEEN ">{i18n.FilterItem.notBetween}</option>		
     </select>
-	<input type="text" 
+	<div 
         class="filter-filterDate__grid-item"
-        aria-label={i18n.FilterItem.enterValueToMatch}
-        title={i18n.FilterItem.enterValueToMatch}
         afterCreate={this._addedMinValue}
-        required="true"/>
+        />
     <div class="filter-filterDate__grid-item"/>
 
-	<input type="text" 
-        aria-label={i18n.FilterItem.enterLastValue}
-        title={i18n.FilterItem.enterLastValue}
+	<div 
         afterCreate={this._addedMaxValue}
         style="display:none;" 
         class="filter-filterDate__grid-item"
-        required="true"/>
+        />
 
 	<div class='showErrors' style="display:none;"></div>
 </div>
@@ -91,10 +87,18 @@ import i18n = require("dojo/i18n!../nls/resources");
         domAttr.set(wig.textbox,"placeHolder",i18n.FilterItem.enterValueToMatch);
         // wig.constraints.max = new Date(Date.now());
         // wig.openOnClick = true; // ?
-        // wig.placeHolder = "Enter Date"; // ?
         wig.startup();
         wig.set('value', date);
-        console.log('wigDate', wig);
+        // console.log('wigDate', wig);
+    }
+
+    private minChangeHandler;
+    private maxChangeHandler;
+    private restrictRange = (date) => {
+        console.log("restrictRange", date);
+        this.minValueWig.constraints.max = date ? this.maxValueWig.value : new Date(2900, 1, 1);
+        this.maxValueWig.constraints.min = date ? this.minValueWig.value : new Date(1900, 1, 1);
+        console.log("range", this.maxValueWig.constraints.min, " - ", this.minValueWig.constraints.max);
     }
 
     private _addedMinValue = (element : Element) => {
@@ -104,6 +108,10 @@ import i18n = require("dojo/i18n!../nls/resources");
             this.dateOptions.locale = locale;
             this.minValueWig = new DateTextBox(this.dateOptions, element);
             this._prepareDateWig(this.minValueWig, this.minDate, true);
+            this.minChangeHandler = on.pausable(this.minValueWig, "change", this.restrictRange);
+
+            this.minChangeHandler.pause();
+            this.own(this.minChangeHandler);
         })
     }
 
@@ -124,15 +132,26 @@ import i18n = require("dojo/i18n!../nls/resources");
                         (DateTextBox, locale) => {
                             this.maxValueWig = new DateTextBox(this.dateOptions, this.maxValue);
                             this._prepareDateWig(this.maxValueWig, this.maxDate, true);
-                        })
+                            this.maxChangeHandler = on.pausable(this.maxValueWig, "change", this.restrictRange);
+                
+                            this.maxChangeHandler.pause();
+                            this.own(this.maxChangeHandler);
+                        });
+                        this.minChangeHandler.resume();
                     } else {
-                        this.maxValueWig.required = true;
                         domStyle.set(this.maxValueWig.domNode,'display', '');
                     }
+                    this.maxValueWig.required = true;
+                    this.minChangeHandler.resume();
+                    this.maxChangeHandler.resume();
+                    this.restrictRange(this.maxValueWig.value);
                     break;
                 case false: 
-                this.maxValueWig.required = false;
-                domStyle.set(this.maxValueWig.domNode,'display', 'none');
+                    this.maxValueWig.required = false;
+                    this.minChangeHandler.pause();
+                    this.maxChangeHandler.pause();
+                    this.restrictRange(null);
+                    domStyle.set(this.maxValueWig.domNode,'display', 'none');
                     break;
             }
         }))
