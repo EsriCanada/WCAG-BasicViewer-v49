@@ -52,7 +52,6 @@ import i18n = require("dojo/i18n!../nls/resources");
 	<div style="margin: 4px;">
 		<ul class="filter-filterItem__fieldExamples" style="display:none;" afterCreate={this._addedListInput}></ul>
     </div>
-	<div class='showErrors' style="display:none;"></div>
 </div>
       )
     }

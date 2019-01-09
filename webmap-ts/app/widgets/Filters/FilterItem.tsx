@@ -20,7 +20,7 @@ import { renderable, tsx } from "esri/widgets/support/widget";
 import i18n = require("dojo/i18n!../nls/resources");
 
 @subclass("esri.widgets.FilterItem")
-  class FilterItem extends declared(Widget) {
+    class FilterItem extends declared(Widget) {
 
     @property()
     layer: __esri.FeatureLayer;
@@ -28,10 +28,14 @@ import i18n = require("dojo/i18n!../nls/resources");
     @property()
     field: __esri.Field;
 
-    private fieldType;
+    @property()
+    hasErrors : boolean;
+
     constructor() {
         super();
     }
+
+    private fieldType;
 
     // private field_label: string = "field_label";
     // private Id: string = "id";
@@ -63,9 +67,22 @@ import i18n = require("dojo/i18n!../nls/resources");
                         afterCreate={this._filterItemRemove}></button>
                 </div>
                 <div class="filter-filterItem__Content" afterCreate={this._filterItemAddContent}></div>
+                <div class='showErrors' style="display:none;" role="alert" afterCreate={this._addedShowError}></div>
             </li>
             </div>
         );
+    }
+
+    private showErrorDiv: HTMLDivElement;
+    private _addedShowError = (element : Element) => {
+        this.showErrorDiv = element as HTMLDivElement;
+    }
+
+    public showError = (error: string) : void => {
+        console.log("Error:", error);
+        this.hasErrors = !error.isNullOrWhiteSpace();
+        domStyle.set(this.showErrorDiv, "display", this.hasErrors ? "" : "none");
+        this.showErrorDiv.innerHTML = error;
     }
 
     private filterItem: Element;
@@ -88,7 +105,8 @@ import i18n = require("dojo/i18n!../nls/resources");
                         const filterItem = new filterNumber({
                             layer: this.layer, 
                             field: this.field, 
-                            container: element//domConstruct.create("div", {}, element)
+                            showErrors: this.showError,
+                            container: element
                         });
                     });
                 })
@@ -99,7 +117,8 @@ import i18n = require("dojo/i18n!../nls/resources");
                         const filterItem = new filterString({
                             layer: this.layer, 
                             field: this.field, 
-                            container: element//domConstruct.create("div", {}, element)
+                            showErrors: this.showError,
+                            container: element
                         });
                     });
                 })
@@ -110,18 +129,18 @@ import i18n = require("dojo/i18n!../nls/resources");
                         const filterItem = new filterDate({
                             layer: this.layer, 
                             field: this.field, 
-                            container: element//domConstruct.create("div", {}, element)
+                            showErrors: this.showError,
+                            container: element
                         });
                     });
                 })
                 break;
             default : 
-                element.innerHTML = `Unknown Field Type: '${this.fieldType}'`;
-                domClass.add(element, "showErrors");
+                setTimeout(() => this.showError(`Unknown Field Type: '${this.fieldType}'`), 50);
                 break;
         }
     }
 
-  }
+}
 
 export = FilterItem;

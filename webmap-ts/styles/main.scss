@@ -83,6 +83,7 @@ body {
 /* header */
 
 $theme: #767676;
+$errMsgColor: #b60000;
 header.top-nav {
     z-index: 1;
     background-color: $theme;
@@ -1043,15 +1044,14 @@ label.checkbox {
 }
 
 .showErrors {
-    // position: absolute;
-    padding: 2px 4px;
     background-color: white;
-    color: #b60000;
-    border: #b60000 solid 2px;
-    font-size: 11px;
-    border-radius: 4px;
-    right: 28px;
+    color: $errMsgColor;
     font-weight: bold;
+    margin: 2px 6px;
+}
+
+.filter-filterItem__hasErrors {
+    border-color: $errMsgColor;
 }
 
 // .filter-filterItem__fieldExamples {

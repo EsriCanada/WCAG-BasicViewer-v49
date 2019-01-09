@@ -18,6 +18,7 @@ import Deferred = require("dojo/Deferred");
 import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
+import { isNullOrUndefined } from "util";
 
 @subclass("esri.widgets.FilterDate")
   class FilterDate extends declared(Widget) {
@@ -27,6 +28,9 @@ import i18n = require("dojo/i18n!../nls/resources");
 
     @property()
     field: __esri.Field;
+
+    @property()
+    showErrors: (err: string) => {};
 
     private minDate: Date;
     private maxDate: Date;
@@ -45,27 +49,25 @@ import i18n = require("dojo/i18n!../nls/resources");
         afterCreate={this._criteriaCreated}
         class="filter-filterItem__Criteria filter-filterDate__grid-item filter-filterDate__grid-item--Criteria"
         aria-label={i18n.FilterItem.selectCriteria}
-		>
-		<option value=" = ">{i18n.FilterItem.equal}</option>
-		<option value=" != ">{i18n.FilterItem.notEqual}</option>
-		<option value=" < ">{i18n.FilterItem.lessThen}</option>
-		<option value=" > ">{i18n.FilterItem.moreThen}</option>	
-		<option value=" BETWEEN ">{i18n.FilterItem.between}</option>
-		<option value=" NOT BETWEEN ">{i18n.FilterItem.notBetween}</option>		
+        >
+        <option value=" = ">{i18n.FilterItem.equal}</option>
+        <option value=" != ">{i18n.FilterItem.notEqual}</option>
+        <option value=" < ">{i18n.FilterItem.lessThen}</option>
+        <option value=" > ">{i18n.FilterItem.moreThen}</option>	
+        <option value=" BETWEEN ">{i18n.FilterItem.between}</option>
+        <option value=" NOT BETWEEN ">{i18n.FilterItem.notBetween}</option>		
     </select>
-	<div 
+    <div 
         class="filter-filterDate__grid-item"
         afterCreate={this._addedMinValue}
         />
     <div class="filter-filterDate__grid-item"/>
 
-	<div 
+    <div 
         afterCreate={this._addedMaxValue}
         style="display:none;" 
         class="filter-filterDate__grid-item"
         />
-
-	<div class='showErrors' style="display:none;"></div>
 </div>
       )
     }
@@ -104,8 +106,9 @@ import i18n = require("dojo/i18n!../nls/resources");
         // console.log("range", this.maxValueWig.constraints.min, " - ", this.minValueWig.constraints.max);
     }
 
-    private showError = (err: any): void => {
-        console.log("showError", err);
+    private showError = (err: string): void => {
+        // console.log("showError", err);
+        this.showErrors(err);
     }
 
     private _addedMinValue = (element : Element) => {

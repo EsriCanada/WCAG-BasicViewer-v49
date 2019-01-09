@@ -63,7 +63,6 @@ import i18n = require("dojo/i18n!../nls/resources");
 		aria-label={i18n.FilterItem.enterLastValue}
 		title={i18n.FilterItem.enterLastValue}
     />
-	<div class='showErrors' style="display:none;"></div>
 </div>
       )
     }

@@ -86,11 +86,11 @@ define({
             enterValueToMatch: "Enter value to match",
             enterLastValue: "Enter last value",
             invalidNumber: "Invalid number format",
-            enterDateToMatch: "Enter date to match",
+            enterDateToMatch: "Enter date",
             enterLastDate: "Enter last date",
-            invalidDate: "The value entered is not a valid date.",
-            missingDate: "This value is reqired.",
-            rangeErrorDate: "The value is out of range."
+            invalidDate: "Invalid date format",
+            missingDate: "Date reqired",
+            rangeErrorDate: "Out of range"
         }
     }),
     "ar": 1,
