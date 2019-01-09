@@ -964,6 +964,7 @@ myKey img {
 .filter-filterItem__filterAdd label {
     flex-grow: 2;
     margin-left: 4px;
+    white-space: nowrap;
 }
 
 .filter-filterItem__filterAdd select {

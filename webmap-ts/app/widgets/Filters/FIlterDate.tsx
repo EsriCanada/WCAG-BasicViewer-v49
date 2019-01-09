@@ -94,12 +94,12 @@ import i18n = require("dojo/i18n!../nls/resources");
     private minValueWig: any = null;
     private maxValueWig: any = null;
 
-    private dateOptions = {trim: true, fullYear: false};
-    private _prepareDateWig = (wig : any, date: Date) : void => {
+    private dateOptions = {trim: true, fullYear: false, locale: ""};
+    private _prepareDateWig = (wig : any, date: Date, required: boolean = false) : void => {
         wig.constraints.fullYear = false;
-        wig.messages.invalidMessage = "*The value entered is not a valid date.";
-        wig.messages.missingMessage = "*This value is required.";
-        wig.messages.rangeMessage = "*This value is out of range.";
+        wig.messages.invalidMessage = i18n.FilterItem.invalidDate;
+        wig.messages.missingMessage = i18n.FilterItem.missingDate;
+        wig.messages.rangeMessage = i18n.FilterItem.rangeErrorDate;
         wig.startup();
         wig.set('value', date);
         console.log('wigDate', wig);
@@ -109,6 +109,7 @@ import i18n = require("dojo/i18n!../nls/resources");
         this.minValue = element;
         require(["dijit/form/DateTextBox", "dojo/date/locale", "dojo/domReady!"],
         (DateTextBox, locale) => {
+            this.dateOptions.locale = locale;
             this.minValueWig = new DateTextBox(this.dateOptions, element);
             this._prepareDateWig(this.minValueWig, new Date(2018, 2, 10));
         })

@@ -87,7 +87,10 @@ define(
             invalidNumber: "Format de numéro non valide",
             enterDateToMatch: "Entrez la date pour correspondre",
             enterLastDate: "Entrez la dernière date",
-            invalidDate: "Format de date non valide",
+            invalidDate: "La valeur entrée n'est pas une date valide.",
+            missingDate: "Cette valeur est attendue.",
+            rangeErrorDate: "La valeur est hors limites."
+
         }
     })
 );
