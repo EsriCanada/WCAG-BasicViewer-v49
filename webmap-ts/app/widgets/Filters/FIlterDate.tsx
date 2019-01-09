@@ -28,6 +28,25 @@ import i18n = require("dojo/i18n!../nls/resources");
     @property()
     field: __esri.Field;
 
+    // private MyDateTextBox: any;
+
+    // constructor() {
+    //     super();
+    //     require(["dojo/_base/declare", "dijit/form/DateTextBox", "dojo/date/locale", "dojo/dom", "dojo/domReady!"],
+    //     (declare, DateTextBox, locale, dom) => {
+    //         declare("MyDateTextBox", DateTextBox, {
+    //             myFormat: {selector: 'date', datePattern: 'dd-MMM-yyyy', locale: 'en-us'},
+    //             value: "", // prevent parser from trying to convert to Date object
+    //             postMixInProperties: function() { // change value string to Date object
+    //                 this.inherited(arguments);
+    //                 // convert value to Date object
+    //                 this.value = locale.parse(this.value, this.myFormat);
+    //             }                
+    //         this.MyDateTextBox = MyDateTextBox;
+    //         });  
+    //     })  
+    // }
+
     render() {
         return(
 <div class="filter-filterDate__grid-container">
@@ -75,16 +94,23 @@ import i18n = require("dojo/i18n!../nls/resources");
     private minValueWig: any = null;
     private maxValueWig: any = null;
 
-    private dateOptions = {value: new Date(2019, 2, 10), fullYear: false};
+    private dateOptions = {trim: true, fullYear: false};
+    private _prepareDateWig = (wig : any, date: Date) : void => {
+        wig.constraints.fullYear = false;
+        wig.messages.invalidMessage = "*The value entered is not a valid date.";
+        wig.messages.missingMessage = "*This value is required.";
+        wig.messages.rangeMessage = "*This value is out of range.";
+        wig.startup();
+        wig.set('value', date);
+        console.log('wigDate', wig);
+    }
 
     private _addedMinValue = (element : Element) => {
         this.minValue = element;
         require(["dijit/form/DateTextBox", "dojo/date/locale", "dojo/domReady!"],
         (DateTextBox, locale) => {
             this.minValueWig = new DateTextBox(this.dateOptions, element);
-            // this.minValueWig.constraints.fullYear = false;
-            // this.minValueWig.value = new Date();
-            this.minValueWig.startup();
+            this._prepareDateWig(this.minValueWig, new Date(2018, 2, 10));
         })
     }
 
@@ -104,8 +130,7 @@ import i18n = require("dojo/i18n!../nls/resources");
                         require(["dijit/form/DateTextBox", "dojo/date/locale", "dojo/domReady!"],
                         (DateTextBox, locale) => {
                             this.maxValueWig = new DateTextBox(this.dateOptions, this.maxValue);
-                            this.maxValueWig.startup();
-                            // console.log("this.maxValue.startup", this.maxValue);
+                            this._prepareDateWig(this.maxValueWig, new Date(2019, 2, 10));
                         })
                     } else {
                         domStyle.set(this.maxValueWig.domNode,'display', '');
