@@ -98,6 +98,8 @@ import i18n = require("dojo/i18n!../nls/resources");
         console.log("restrictRange", date);
         this.minValueWig.constraints.max = date ? this.maxValueWig.value : new Date(2900, 1, 1);
         this.maxValueWig.constraints.min = date ? this.minValueWig.value : new Date(1900, 1, 1);
+        this.minValueWig.set('value', this.minValueWig.get('value'));
+        this.maxValueWig.set('value', this.maxValueWig.get('value'));
         console.log("range", this.maxValueWig.constraints.min, " - ", this.minValueWig.constraints.max);
     }
 
