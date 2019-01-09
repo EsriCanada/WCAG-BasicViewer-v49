@@ -10,7 +10,7 @@ import Widget = require("esri/widgets/Widget");
 // import query = require("dojo/query");
 // import dom = require("dojo/dom");
 import on = require("dojo/on");
-// import domAttr = require("dojo/dom-attr");
+import domAttr = require("dojo/dom-attr");
 // import domClass = require("dojo/dom-class");
 import domStyle = require("dojo/dom-style");
 import Deferred = require("dojo/Deferred");
@@ -28,24 +28,15 @@ import i18n = require("dojo/i18n!../nls/resources");
     @property()
     field: __esri.Field;
 
-    // private MyDateTextBox: any;
+    private minDate: Date;
+    private maxDate: Date;
 
-    // constructor() {
-    //     super();
-    //     require(["dojo/_base/declare", "dijit/form/DateTextBox", "dojo/date/locale", "dojo/dom", "dojo/domReady!"],
-    //     (declare, DateTextBox, locale, dom) => {
-    //         declare("MyDateTextBox", DateTextBox, {
-    //             myFormat: {selector: 'date', datePattern: 'dd-MMM-yyyy', locale: 'en-us'},
-    //             value: "", // prevent parser from trying to convert to Date object
-    //             postMixInProperties: function() { // change value string to Date object
-    //                 this.inherited(arguments);
-    //                 // convert value to Date object
-    //                 this.value = locale.parse(this.value, this.myFormat);
-    //             }                
-    //         this.MyDateTextBox = MyDateTextBox;
-    //         });  
-    //     })  
-    // }
+    constructor() {
+        super();
+        const year = new Date().getFullYear()-1;
+        this.minDate = new Date(year, 0, 1);
+        this.maxDate = new Date(year, 11, 31);
+    }
 
     render() {
         return(
@@ -63,25 +54,19 @@ import i18n = require("dojo/i18n!../nls/resources");
 		<option value=" NOT BETWEEN ">{i18n.FilterItem.notBetween}</option>		
     </select>
 	<input type="text" 
-        // id={id1}
         class="filter-filterDate__grid-item"
         aria-label={i18n.FilterItem.enterValueToMatch}
         title={i18n.FilterItem.enterValueToMatch}
         afterCreate={this._addedMinValue}
-        // data-dojo-props=
-        // `invalidMessage:{i18n.FilterItem.invalidDate},
-        // missingMessage:{i18n.FilterItem.enterDateToMatch}`
         required="true"/>
     <div class="filter-filterDate__grid-item"/>
 
 	<input type="text" 
-        // id={id2}
         aria-label={i18n.FilterItem.enterLastValue}
         title={i18n.FilterItem.enterLastValue}
         afterCreate={this._addedMaxValue}
         style="display:none;" 
         class="filter-filterDate__grid-item"
-        // data-dojo-props=`invalidMessage:{i18n.FilterItem.invalidDate}, missingMessage:{i18n.widgets.FilterItem.enterLastDate}`
         required="true"/>
 
 	<div class='showErrors' style="display:none;"></div>
@@ -96,10 +81,17 @@ import i18n = require("dojo/i18n!../nls/resources");
 
     private dateOptions = {trim: true, fullYear: false, locale: ""};
     private _prepareDateWig = (wig : any, date: Date, required: boolean = false) : void => {
-        wig.constraints.fullYear = false;
+        // wig.constraints.fullYear = false;
         wig.messages.invalidMessage = i18n.FilterItem.invalidDate;
         wig.messages.missingMessage = i18n.FilterItem.missingDate;
         wig.messages.rangeMessage = i18n.FilterItem.rangeErrorDate;
+        wig.required = required;
+        domAttr.set(wig.textbox,"aria-label",i18n.FilterItem.enterValueToMatch);
+        // domAttr.set(wig.textbox,"title",i18n.FilterItem.enterValueToMatch);
+        domAttr.set(wig.textbox,"placeHolder",i18n.FilterItem.enterValueToMatch);
+        // wig.constraints.max = new Date(Date.now());
+        // wig.openOnClick = true; // ?
+        // wig.placeHolder = "Enter Date"; // ?
         wig.startup();
         wig.set('value', date);
         console.log('wigDate', wig);
@@ -111,7 +103,7 @@ import i18n = require("dojo/i18n!../nls/resources");
         (DateTextBox, locale) => {
             this.dateOptions.locale = locale;
             this.minValueWig = new DateTextBox(this.dateOptions, element);
-            this._prepareDateWig(this.minValueWig, new Date(2018, 2, 10));
+            this._prepareDateWig(this.minValueWig, this.minDate, true);
         })
     }
 
@@ -131,14 +123,16 @@ import i18n = require("dojo/i18n!../nls/resources");
                         require(["dijit/form/DateTextBox", "dojo/date/locale", "dojo/domReady!"],
                         (DateTextBox, locale) => {
                             this.maxValueWig = new DateTextBox(this.dateOptions, this.maxValue);
-                            this._prepareDateWig(this.maxValueWig, new Date(2019, 2, 10));
+                            this._prepareDateWig(this.maxValueWig, this.maxDate, true);
                         })
                     } else {
+                        this.maxValueWig.required = true;
                         domStyle.set(this.maxValueWig.domNode,'display', '');
                     }
                     break;
                 case false: 
-                    domStyle.set(this.maxValueWig.domNode,'display', 'none');
+                this.maxValueWig.required = false;
+                domStyle.set(this.maxValueWig.domNode,'display', 'none');
                     break;
             }
         }))
