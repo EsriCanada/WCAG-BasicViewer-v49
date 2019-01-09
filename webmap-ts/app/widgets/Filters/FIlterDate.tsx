@@ -5,10 +5,10 @@ import {subclass, declared, property} from "esri/core/accessorSupport/decorators
 
 // import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Widget = require("esri/widgets/Widget");
-// import lang = require("dojo/_base/lang");
+import lang = require("dojo/_base/lang");
 // import domConstruct = require("dojo/dom-construct");
 // import query = require("dojo/query");
-// import dom = require("dojo/dom");
+import dom = require("dojo/dom");
 import on = require("dojo/on");
 import domAttr = require("dojo/dom-attr");
 // import domClass = require("dojo/dom-class");
@@ -95,12 +95,17 @@ import i18n = require("dojo/i18n!../nls/resources");
     private minChangeHandler;
     private maxChangeHandler;
     private restrictRange = (date) => {
-        console.log("restrictRange", date);
+        // console.log("restrictRange", date);
+        // if(!this.minValueWig || !this.maxValueWig) return;
         this.minValueWig.constraints.max = date ? this.maxValueWig.value : new Date(2900, 1, 1);
         this.maxValueWig.constraints.min = date ? this.minValueWig.value : new Date(1900, 1, 1);
         this.minValueWig.set('value', this.minValueWig.get('value'));
         this.maxValueWig.set('value', this.maxValueWig.get('value'));
-        console.log("range", this.maxValueWig.constraints.min, " - ", this.minValueWig.constraints.max);
+        // console.log("range", this.maxValueWig.constraints.min, " - ", this.minValueWig.constraints.max);
+    }
+
+    private showError = (err: any): void => {
+        console.log("showError", err);
     }
 
     private _addedMinValue = (element : Element) => {
@@ -111,9 +116,10 @@ import i18n = require("dojo/i18n!../nls/resources");
             this.minValueWig = new DateTextBox(this.dateOptions, element);
             this._prepareDateWig(this.minValueWig, this.minDate, true);
             this.minChangeHandler = on.pausable(this.minValueWig, "change", this.restrictRange);
-
             this.minChangeHandler.pause();
             this.own(this.minChangeHandler);
+
+            this.minValueWig.displayMessage = this.showError;
         })
     }
 
@@ -135,9 +141,10 @@ import i18n = require("dojo/i18n!../nls/resources");
                             this.maxValueWig = new DateTextBox(this.dateOptions, this.maxValue);
                             this._prepareDateWig(this.maxValueWig, this.maxDate, true);
                             this.maxChangeHandler = on.pausable(this.maxValueWig, "change", this.restrictRange);
-                
                             this.maxChangeHandler.pause();
                             this.own(this.maxChangeHandler);
+
+                            this.maxValueWig.displayMessage = this.showError;
                         });
                         this.minChangeHandler.resume();
                     } else {
