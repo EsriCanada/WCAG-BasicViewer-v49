@@ -35,23 +35,13 @@ import i18n = require("dojo/i18n!../nls/resources");
         super();
     }
 
-    private fieldType;
-
-    // private field_label: string = "field_label";
-    // private Id: string = "id";
-
     render() {
-        // this.layer.when(() => {
-            this.fieldType = this.field.type;
-            // console.log("fieldType", this.fieldType, this.field);
-        // })
         return (
             <div>
             <li tabindex="0" afterCreate={this._filterAdded}>
                 <div class="filter-filterItem--header">
                     <label class="checkbox">
                         <input 
-                            // id="Active_{this.field_label}_{this.Id}"
                             type="checkbox" 
                             class="checkbox" 
                             checked 
@@ -81,13 +71,18 @@ import i18n = require("dojo/i18n!../nls/resources");
     public showError = (error: string) : void => {
         console.log("Error:", error);
         this.hasErrors = !error.isNullOrWhiteSpace();
+        if(this.hasErrors) {
+            domClass.add(this.filterItem, "filter-filterItem__hasErrors");
+        } else {
+            domClass.remove(this.filterItem, "filter-filterItem__hasErrors");
+        }
         domStyle.set(this.showErrorDiv, "display", this.hasErrors ? "" : "none");
         this.showErrorDiv.innerHTML = error;
     }
 
-    private filterItem: Element;
+    private filterItem: HTMLElement;
     private _filterAdded = (element: Element) => {
-        this.filterItem = element;
+        this.filterItem = element as HTMLElement;
     }
 
     private _filterItemRemove = (element: Element) => {
@@ -97,7 +92,9 @@ import i18n = require("dojo/i18n!../nls/resources");
     }
 
     private _filterItemAddContent = (element: Element) => {
-        switch(this.fieldType) {
+        console.log("_filterItemAddContent", this.field.name, ": ", this.field.type);
+        
+        switch(this.field.type) {
             case "integer" :
             case "double" :
                 this.layer.when(() => {
@@ -136,7 +133,7 @@ import i18n = require("dojo/i18n!../nls/resources");
                 })
                 break;
             default : 
-                setTimeout(() => this.showError(`Unknown Field Type: '${this.fieldType}'`), 50);
+                setTimeout(() => this.showError(`Unknown Field Type: '${this.field.type}'`), 50);
                 break;
         }
     }

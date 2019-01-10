@@ -940,7 +940,7 @@ myKey img {
 }
 
 .filter-filterItem__Content {
-    margin: 4px;
+    margin: 0 6px;
 }
 
 .filter-filterItem__filterAdd {
@@ -1016,12 +1016,6 @@ label.checkbox {
     border-radius: 2px;
 }
 
-.filter-filterItem__Criteria {
-    margin-left: 4px;
-    margin-right: 4px;
-    border: 1px solid dimgray;
-}
-
 .filter-filterItem__textBox--number {
     max-width: 100px;
     border: 1px solid dimgray;
@@ -1089,8 +1083,34 @@ blockquote[lang] {
     font-style: italic;
 }
 
-.filter-filterDate__grid-container {
+.filter__grid-container {
+    display: -ms-inline-grid;
     display: inline-grid;
     grid-template-columns: auto auto;
-    grid-gap: 4px 0;
+}
+
+.filter__grid-item {
+    margin: 0 4px 4px 0;
+}
+
+.filter__grid-criteria {
+    -ms-grid-column: 1;
+    -ms-grid-row: 1;
+    grid-column: 1;
+    grid-row: 1;
+    border: 1px solid dimgray;
+}
+
+.filter__grid-minValue {
+    -ms-grid-column: 2;
+    -ms-grid-row: 1;
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.filter__grid-maxValue {
+    -ms-grid-column: 2;
+    -ms-grid-row: 2;
+    grid-column: 2;
+    grid-row: 2;
 }

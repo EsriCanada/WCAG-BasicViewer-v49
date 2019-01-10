@@ -44,10 +44,10 @@ import { isNullOrUndefined } from "util";
 
     render() {
         return(
-<div class="filter-filterDate__grid-container">
+<div class="filter__grid-container">
     <select autofocus tabindex="0" 
         afterCreate={this._criteriaCreated}
-        class="filter-filterItem__Criteria filter-filterDate__grid-item filter-filterDate__grid-item--Criteria"
+        class="filter__grid-item filter__grid-criteria"
         aria-label={i18n.FilterItem.selectCriteria}
         >
         <option value=" = ">{i18n.FilterItem.equal}</option>
@@ -57,17 +57,14 @@ import { isNullOrUndefined } from "util";
         <option value=" BETWEEN ">{i18n.FilterItem.between}</option>
         <option value=" NOT BETWEEN ">{i18n.FilterItem.notBetween}</option>		
     </select>
-    <div 
-        class="filter-filterDate__grid-item"
-        afterCreate={this._addedMinValue}
-        />
-    <div class="filter-filterDate__grid-item"/>
+    <div class="filter__grid-item filter__grid-minValue">
+        <div afterCreate={this._addedMinValue} />
+    </div>
+    {/* <div class="filter-filterDate__grid-item"/> */}
 
-    <div 
-        afterCreate={this._addedMaxValue}
-        style="display:none;" 
-        class="filter-filterDate__grid-item"
-        />
+    <div class="filter__grid-item filter__grid-maxValue">
+        <div afterCreate={this._addedMaxValue} style="display:none;" />
+    </div>
 </div>
       )
     }
@@ -130,9 +127,9 @@ import { isNullOrUndefined } from "util";
         this.maxValue = element;
     }
 
-    private criteriaElement: Element;
+    private criteriaElement: HTMLSelectElement;
     private _criteriaCreated = (element:Element) => {
-        this.criteriaElement = element;
+        this.criteriaElement = element as HTMLSelectElement;
         this.own(on(element, "change", (event) => { 
             switch(this._getBetweenMode()) {
                 case true: 
@@ -170,38 +167,10 @@ import { isNullOrUndefined } from "util";
     }
 
     private _getBetweenMode = () => {
-        const criteria = this.criteriaElement as any;
-        return criteria.value === ' BETWEEN ' || criteria.value === ' NOT BETWEEN ';
+        const criteria = this.criteriaElement.value;
+        return criteria === ' BETWEEN ' || criteria === ' NOT BETWEEN ';
     }
 
-    public getFilterExpresion = () => {
-        // // console.log("Layer", this.layer, this.layer.loaded);
-        // // console.log("Field", this.field);
-        // const _query = this.layer.createQuery();
-        // _query.where = "1=1";
-        // _query.outFields = [this.field.name];
-        // _query.orderByFields = [this.field.name];
-        // _query.returnDistinctValues = true;
-        // _query.returnGeometry = false;
-        
-        // this.layer.queryFeatures(_query).then((results) => {
-        //     // console.log("results", results);
-        //     results.features.map((f: any) => {
-        //             // console.log("attributes", f.attributes[this.field.name], f.attributes)
-        //             return f.attributes[this.field.name];
-        //         }).forEach((v) => {
-        //         if(v) {
-        //             this.listInput.innerHTML += `
-        //             <li>
-        //             <label role="presentation">
-        //                 <input type="checkbox" class="checkbox" value=${v}/>
-        //                 <span>${v}</span>
-        //             </label>
-        //             </li>`;
-        //         }
-        //     });
-        // });
-    }
 }
 
 export = FilterDate;
