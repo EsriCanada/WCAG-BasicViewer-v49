@@ -37,10 +37,10 @@ import i18n = require("dojo/i18n!../nls/resources");
       const id2 = "id2";
       const format = "";
       return(
-<div>
+<div class="filter__grid-container">
   <select autofocus tabindex="0" 
     afterCreate={this._criteriaCreated}
-    class="filter-filterItem__Criteria"
+    class="filter__grid-item filter__grid-criteria"
     aria-label={i18n.FilterItem.selectCriteria}
 		>
 		<option value=" = ">{i18n.FilterItem.equal}</option>			
@@ -50,19 +50,23 @@ import i18n = require("dojo/i18n!../nls/resources");
 		<option value=" BETWEEN ">{i18n.FilterItem.between}</option>
 		<option value=" NOT BETWEEN ">{i18n.FilterItem.notBetween}</option>			
 	</select>
-	<input type="number"
-    class="filter-filterItem__textBox--number"
-    afterCreate={this._addedMinValue}
-    aria-label={i18n.FilterItem.enterValueToMatch}
-    title={i18n.FilterItem.enterValueToMatch}
-    />
-  <input type="number"
-    class="filter-filterItem__textBox--number"
-    style="display: none;"
-    afterCreate={this._addedMaxValue}
-		aria-label={i18n.FilterItem.enterLastValue}
-		title={i18n.FilterItem.enterLastValue}
-    />
+  <div class="filter__grid-item filter__grid-minValue">
+    <input type="number"
+      class="filter-filterItem__textBox--number"
+      afterCreate={this._addedMinValue}
+      aria-label={i18n.FilterItem.enterValueToMatch}
+      title={i18n.FilterItem.enterValueToMatch}
+      />
+  </div>
+  <div class="filter__grid-item filter__grid-maxValue">
+    <input type="number"
+      class="filter-filterItem__textBox--number"
+      style="display: none;"
+      afterCreate={this._addedMaxValue}
+      aria-label={i18n.FilterItem.enterLastValue}
+      title={i18n.FilterItem.enterLastValue}
+      />
+  </div>
 </div>
       )
     }
@@ -75,9 +79,9 @@ import i18n = require("dojo/i18n!../nls/resources");
       this.maxValueNode = element;
     }
 
-    private criteriaElement: Element;
+    private criteriaElement: HTMLSelectElement;
     private _criteriaCreated = (element:Element) => {
-      this.criteriaElement = element;
+      this.criteriaElement = element as HTMLSelectElement;
       this.own(on(element, "change", (event) => { 
         switch(this._getBetweenMode()) {
           case false: 
@@ -92,8 +96,8 @@ import i18n = require("dojo/i18n!../nls/resources");
     }
 
     private _getBetweenMode = () => {
-      const criteria = this.criteriaElement as any;
-      return criteria.value === ' BETWEEN ' || criteria.value === ' NOT BETWEEN ';
+      const criteria = this.criteriaElement.value;
+      return criteria === ' BETWEEN ' || criteria === ' NOT BETWEEN ';
     }
 
     public getFilterExpresion = () => {

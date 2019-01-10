@@ -30,10 +30,10 @@ import i18n = require("dojo/i18n!../nls/resources");
 
     render() {
       return(
-<div>
+<div class="filter__grid-container">
   <select autofocus tabindex="0" 
     afterCreate={this._criteriaCreated}
-        class="filter-filterItem__Criteria"
+        class="filter__grid-item filter__grid-criteria"
         aria-label={i18n.FilterItem.selectCriteria}
 		>
 		<option value=" = ">{i18n.FilterItem.equal}</option>
@@ -44,13 +44,13 @@ import i18n = require("dojo/i18n!../nls/resources");
 		<option value=" NOT IN ">{i18n.FilterItem.notIn}</option>			
 	</select>
 	<input type="textbox"
-        class="filter-filterItem__textBox--text"
+        class="filter-filterItem__textBox--text filter__grid-item filter__grid-minValue"
         aria-label={i18n.FilterItem.enterValueToMatch}
         title={i18n.FilterItem.enterValueToMatch}
         afterCreate={this._addedTextBox}
     />
-	<div style="margin: 4px;">
-		<ul class="filter-filterItem__fieldExamples" style="display:none;" afterCreate={this._addedListInput}></ul>
+	<div class="filter__grid-item filter__grid-item--Examples">
+		<ul class="" style="display:none;" afterCreate={this._addedListInput}></ul>
     </div>
 </div>
       )

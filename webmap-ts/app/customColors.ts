@@ -177,7 +177,7 @@ export function CustomColors(config: ApplicationConfig) : void {
   color: black;
 }
 
-.filter-filterItem__fieldExamples>li:hover,
+.filter__grid-item--Examples li:hover,
 .esri-print__layout-tab:hover {
   background-color: ${hoverColor};
   color: ${WhiteOrBlack(hoverColor)};
