@@ -934,15 +934,13 @@ myKey img {
 .tabContent>ul>li {
     border-width: 1px;
     border-style: solid;
-    padding: 2px;
-    margin-bottom: 12px;
-    width: calc(100% - 2px);
+    padding: 2px 2px 0 6px;
+    margin-bottom: 4px;
+    width: calc(100% - 6px);
     border-radius: 5px;
 }
 
-.filter-filterItem__Content {
-    margin: 0 0 0 6px;
-}
+.filter-filterItem__Content {}
 
 .filter-filterItem__filterAdd {
     padding-bottom: 10px;
@@ -997,12 +995,30 @@ label.checkbox {
 }
 
 .filter-filterItem--header {
-    display: flex;
-    flex-direction: row;
+    display: -ms-grid;
+    display: grid;
+    -ms-grid-columns: 24px calc(100% - 50px) 24px;
+    grid-template-columns: 24px calc(100% - 50px) 24px;
+    margin-bottom: 4px;
+}
+
+.filter-filterItem--header input {
+    -ms-grid-column: 1;
+    grid-column: 1;
+    margin: 0;
+    margin-top: 4px;
 }
 
 .filter-filterItem--header label {
-    flex-grow: 2;
+    -ms-grid-column: 2;
+    grid-column: 2;
+    margin-right: 4px;
+    display: inline-block;
+}
+
+.filter-filterItem--header button {
+    -ms-grid-column: 3;
+    grid-column: 3;
 }
 
 .filter-filterItem__button {
@@ -1010,7 +1026,7 @@ label.checkbox {
     min-width: 24px;
     max-width: 24px;
     height: 24px;
-    flex-grow: 1;
+    // flex-grow: 1;
     border-width: 1px;
     border-style: solid;
     border-color: $inputBorderColor;
@@ -1026,7 +1042,7 @@ label.checkbox {
     background-color: white;
     color: $errMsgColor;
     font-weight: bold;
-    margin: 2px 6px;
+    margin: 2px 0;
 }
 
 .filter-filterItem__hasErrors {
@@ -1054,6 +1070,10 @@ label.checkbox {
 .filter__grid-item--Examples li label input,
 .filter__grid-item--Examples li label span {
     display: table-cell;
+}
+
+.filter__grid-item--Examples li label span {
+    vertical-align: bottom;
 }
 
 blockquote[lang] {

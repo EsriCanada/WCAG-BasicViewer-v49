@@ -40,21 +40,26 @@ import i18n = require("dojo/i18n!../nls/resources");
             <div>
             <li tabindex="0" afterCreate={this._filterAdded}>
                 <div class="filter-filterItem--header">
-                    <label class="checkbox">
-                        <input 
-                            type="checkbox" 
-                            class="checkbox" 
-                            checked 
-                            aria-label="Active" 
-                            title="Active" 
-                            data-dojo-attach-point="Active"/> 
-                        {this.field.alias.NormalizeTitle()}
+                    <input 
+                        id={this.id+"_header"}
+                        type="checkbox" 
+                        class="checkbox" 
+                        checked 
+                        aria-label="Active" 
+                        title="Active" 
+                        data-dojo-attach-point="Active"/> 
+                    <label 
+                        class="checkbox"
+                        for={this.id+"_header"}
+                        >
+                        <div>{this.field.alias.NormalizeTitle()}</div>
                     </label>
                     <button role="button" 
                         aria-label="remove" 
                         title="remove" 
                         class="esri-widget--button esri-icon-minus filter-filterItem__button"
-                        afterCreate={this._filterItemRemove}></button>
+                        afterCreate={this._filterItemRemove}>
+                    </button>
                 </div>
                 <div class="filter-filterItem__Content" afterCreate={this._filterItemAddContent}></div>
                 <div class='showErrors' style="display:none;" role="alert" afterCreate={this._addedShowError}></div>
