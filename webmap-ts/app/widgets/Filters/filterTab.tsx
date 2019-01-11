@@ -195,20 +195,29 @@ import i18n = require("dojo/i18n!../nls/resources");
     private _addedApply = (element: Element) => {
         this.own(on(element, "click", (event) => {
             console.log("Apply", event, this);
-            this.tool.showBadge(dom.byId("badge_someFilters"));
-            domStyle.set(this.badge, "display", "");
-            domStyle.set(this.label1, "box-shadow", "red 0px -2px 0px 2px inset");
+            this.showBadge();
         }));
+    }
+
+    private showBadge = () => {
+        this.tool.showBadge(dom.byId("badge_someFilters"));
+
+        domStyle.set(this.badge, "display", "");
+        domStyle.set(this.label1, "box-shadow", "red 0px -2px 0px 2px inset");
     }
 
     private _addedIgnore = (element: Element) => {
         this.own(on(element, "click", (event) => {
             // console.log("Ignore", event, element);
-            this.tool.hideBadge(dom.byId("badge_someFilters"));
-            domStyle.set(this.badge, "display", "none");
-            domStyle.set(this.label1, "box-shadow", "dimgray 0px -2px 0px 2px inset");
+            this.hideBadge();
         }));
     }
+    private hideBadge = () => {
+        this.tool.hideBadge(dom.byId("badge_someFilters"));
+        domStyle.set(this.badge, "display", "none");
+        domStyle.set(this.label1, "box-shadow", "dimgray 0px -2px 0px 2px inset");
+    }
+
 }
 
 export = FilterTab;
