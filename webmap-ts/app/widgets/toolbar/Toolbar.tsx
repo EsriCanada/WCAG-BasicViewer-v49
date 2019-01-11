@@ -11,10 +11,8 @@ import Deferred = require("dojo/Deferred");
 import All = require("dojo/promise/all");
 import on = require("dojo/on");
 import { tsx } from "esri/widgets/support/widget";
-
 import i18n = require("dojo/i18n!../nls/resources");
 import Tool = require("./Tool");
-import ToolPage = require("./ToolPage");
 import { Has } from "../../utils";
 
 const CSS = {

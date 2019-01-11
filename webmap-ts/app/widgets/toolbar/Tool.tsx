@@ -186,7 +186,7 @@ const CSS = {
                 // console.log("Page", this.myToolPage, tabbedElements);
                 if(tabbedElements.length>0) {
                     // console.log("tabbedElements[0]", tabbedElements[0], (tabbedElements[0] as HTMLElement));
-                    setTimeout(() => (tabbedElements[0]as HTMLElement).focus(), 200);
+                    setTimeout(() => (tabbedElements[0] as HTMLElement).focus(), 200);
                 }
                 else {
                     // console.log("this.myToolPage.pageContent", this.myToolPage.pageContent, (this.myToolPage.pageContent as HTMLElement));

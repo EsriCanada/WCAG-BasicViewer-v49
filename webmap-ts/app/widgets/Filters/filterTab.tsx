@@ -39,7 +39,7 @@ import i18n = require("dojo/i18n!../nls/resources");
                 <div class="FilterTab">
                     {/* <div afterCreate={this._addFilterTab}>{NormalizeTitle(this.layer.title)}</div> */}
                     <input id={`${this.id}_btn`} type="radio" name="FilterTabsGroup" onchange={this._filterTabChange}></input>
-                    <label for={`${this.id}_btn`} aria-label={layerTitle}>
+                    <label for={`${this.id}_btn`} aria-label={layerTitle} afterCreate={this._addedLabel}>
                         <span
                             tabindex="0"
                             onkeypress={this._filterTabKeyPress}
@@ -55,6 +55,7 @@ import i18n = require("dojo/i18n!../nls/resources");
                             class="setIndicator"
                             style="display:none;"
                             alt={badgeTip} title={badgeTip}
+                            afterCreate={this._addedBadge}
                             />
                     </label>
                 </div>
@@ -68,16 +69,14 @@ import i18n = require("dojo/i18n!../nls/resources");
                         aria-label={i18n.FilterTab.add} 
                         title={i18n.FilterTab.add} 
                         afterCreate={this._addInput}
-                        // onclick={this._filterAdd} 
-                        // style="float: right;"
                         />
                     </div>
 
                     <ul afterCreate={this._addFilterList}></ul>
 
                     <div class="filterButtons">
-                        <input type="button" class="fc bg pageBtn" value={i18n.FilterTab.apply} onclick={this._filterApply}/>
-                        <input type="button" class="fc bg pageBtn" value={i18n.FilterTab.ignore} onclick={this._filterIgnore}/>
+                        <input type="button" class="fc bg pageBtn" value={i18n.FilterTab.apply} afterCreate={this._addedApply}/>
+                        <input type="button" class="fc bg pageBtn" value={i18n.FilterTab.ignore} afterCreate={this._addedIgnore}/>
                     </div>
                 </div>
 
@@ -183,12 +182,32 @@ import i18n = require("dojo/i18n!../nls/resources");
         }));
     }
 
-    private _filterApply = (event) => {
-
+    private badge : HTMLElement;
+    private _addedBadge = (element: Element) => {
+        this.badge = element as HTMLElement;
     }
 
-    private _filterIgnore = (event) => {
+    private label1 : HTMLElement;
+    private _addedLabel = (element: Element) => {
+        this.label1 = element as HTMLElement;
+    }
 
+    private _addedApply = (element: Element) => {
+        this.own(on(element, "click", (event) => {
+            console.log("Apply", event, this);
+            this.tool.showBadge(dom.byId("badge_someFilters"));
+            domStyle.set(this.badge, "display", "");
+            domStyle.set(this.label1, "box-shadow", "red 0px -2px 0px 2px inset");
+        }));
+    }
+
+    private _addedIgnore = (element: Element) => {
+        this.own(on(element, "click", (event) => {
+            // console.log("Ignore", event, element);
+            this.tool.hideBadge(dom.byId("badge_someFilters"));
+            domStyle.set(this.badge, "display", "none");
+            domStyle.set(this.label1, "box-shadow", "dimgray 0px -2px 0px 2px inset");
+        }));
     }
 }
 
