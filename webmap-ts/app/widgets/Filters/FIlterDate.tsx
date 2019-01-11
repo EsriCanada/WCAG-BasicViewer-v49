@@ -18,7 +18,7 @@ import Deferred = require("dojo/Deferred");
 import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
-import { isNullOrUndefined } from "util";
+import Tool = require("../toolbar/Tool");
 
 @subclass("esri.widgets.FilterDate")
   class FilterDate extends declared(Widget) {
@@ -31,6 +31,9 @@ import { isNullOrUndefined } from "util";
 
     @property()
     showErrors: (err: string) => {};
+
+    @property()
+    tool: Tool;
 
     private minDate: Date;
     private maxDate: Date;

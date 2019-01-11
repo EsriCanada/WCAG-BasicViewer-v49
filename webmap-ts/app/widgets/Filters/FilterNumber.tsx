@@ -18,7 +18,7 @@ import Deferred = require("dojo/Deferred");
 import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
-// import { NormalizeTitle } from "../../utils";
+import Tool = require("../toolbar/Tool");
 
 @subclass("esri.widgets.FilterNumber")
   class FilterNumber extends declared(Widget) {
@@ -28,6 +28,12 @@ import i18n = require("dojo/i18n!../nls/resources");
 
     @property()
     field: __esri.Field;
+
+    @property()
+    showErrors: (err: string) => {};
+
+    @property()
+    tool: Tool;
 
     private minValueNode: Element;
     private maxValueNode: Element;

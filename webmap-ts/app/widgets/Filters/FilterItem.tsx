@@ -31,6 +31,9 @@ import i18n = require("dojo/i18n!../nls/resources");
     @property()
     hasErrors : boolean;
 
+    @property()
+    tool: any;
+
     constructor() {
         super();
     }
@@ -107,6 +110,7 @@ import i18n = require("dojo/i18n!../nls/resources");
                         const filterItem = new filterNumber({
                             layer: this.layer, 
                             field: this.field, 
+                            tool: this.tool,
                             showErrors: this.showError,
                             container: element
                         });
@@ -119,6 +123,7 @@ import i18n = require("dojo/i18n!../nls/resources");
                         const filterItem = new filterString({
                             layer: this.layer, 
                             field: this.field, 
+                            tool: this.tool,
                             showErrors: this.showError,
                             container: element
                         });
@@ -131,6 +136,7 @@ import i18n = require("dojo/i18n!../nls/resources");
                         const filterItem = new filterDate({
                             layer: this.layer, 
                             field: this.field, 
+                            tool: this.tool,
                             showErrors: this.showError,
                             container: element
                         });

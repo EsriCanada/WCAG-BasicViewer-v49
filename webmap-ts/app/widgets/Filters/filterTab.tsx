@@ -30,6 +30,9 @@ import i18n = require("dojo/i18n!../nls/resources");
     @property()
     id: string;
 
+    @property()
+    tool: any;
+
     private layerTitle : string;
 
     constructor() {
@@ -165,6 +168,7 @@ import i18n = require("dojo/i18n!../nls/resources");
                 const filterItem = new FilterItem({
                     layer: layer, 
                     field: field, 
+                    tool: this.tool,
                     container: this.ulFilterList
                 });
             });

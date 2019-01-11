@@ -63,3 +63,5 @@ webmap-ts/app/widgets/Filters/FilterNumber\.js
 webmap-ts/app/widgets/Filters/FilterString\.js
 
 webmap-ts/app/widgets/Filters/FIlterDate\.js
+
+webmap-ts/app/widgets/Filters/Filters\.js

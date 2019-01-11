@@ -18,6 +18,7 @@ import Deferred = require("dojo/Deferred");
 import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
+import Tool = require("../toolbar/Tool");
 
 @subclass("esri.widgets.FilterString")
   class FilterString extends declared(Widget) {
@@ -27,6 +28,12 @@ import i18n = require("dojo/i18n!../nls/resources");
 
     @property()
     field: __esri.Field;
+
+    @property()
+    showErrors: (err: string) => {};
+
+    @property()
+    tool: Tool;
 
     render() {
       return(
@@ -96,6 +103,7 @@ import i18n = require("dojo/i18n!../nls/resources");
     public getFilterExpresion = () => {
         // console.log("Layer", this.layer, this.layer.loaded);
         // console.log("Field", this.field);
+        this.tool.showLoading();
         const _query = this.layer.createQuery();
         _query.where = "1=1";
         _query.outFields = [this.field.name];
@@ -109,16 +117,17 @@ import i18n = require("dojo/i18n!../nls/resources");
                     // console.log("attributes", f.attributes[this.field.name], f.attributes)
                     return f.attributes[this.field.name];
                 }).forEach((v) => {
-                if(v) {
-                    this.listInput.innerHTML += `
-                    <li>
-                    <label role="presentation">
-                        <input type="checkbox" class="checkbox" value=${v}/>
-                        <span>${v}</span>
-                    </label>
-                    </li>`;
+                    if(v) {
+                        this.listInput.innerHTML += `
+                        <li>
+                        <label role="presentation">
+                            <input type="checkbox" class="checkbox" value=${v}/>
+                            <span>${v}</span>
+                        </label>
+                        </li>`;
                 }
             });
+            this.tool.hideLoading();
         });
     }
 }

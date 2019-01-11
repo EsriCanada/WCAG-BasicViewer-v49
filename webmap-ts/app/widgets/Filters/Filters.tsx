@@ -19,12 +19,16 @@ import Widget = require("esri/widgets/Widget");
 import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
+import Tool = require("../toolbar/Tool");
 
 @subclass("esri.widgets.Filters")
   class Filters extends declared(Widget) {
   
     @property()
     mainView: __esri.MapView | __esri.SceneView;
+
+    @property()
+    tool: Tool;
 
     constructor() {
         super();
@@ -51,7 +55,13 @@ import i18n = require("dojo/i18n!../nls/resources");
             require(["./filterTab"], (FilterTab) => { 
                 this.layers.forEach((layer, i) => {
                     if((layer as __esri.FeatureLayer).popupTemplate)
-                    new FilterTab({ layer: layer, id: `FilterTab_${i}`, container: element});
+                    new FilterTab({ 
+                        layer: layer, 
+                        // id: `FilterTab_${i}`, 
+                        tool : this.tool,
+
+                        container: element
+                    });
                 })
             })
         });

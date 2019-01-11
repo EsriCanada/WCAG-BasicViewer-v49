@@ -261,6 +261,7 @@ class Toolbar extends declared(Widget) {
                 require(["../Filters/Filters"], (Filters) => {
                     const filters = new Filters({
                         mainView:mainView,
+                        tool: tool,
                         container: domConstruct.create("div", {class:"FilterTabs"}, "pageBody_filter")
                     });
 

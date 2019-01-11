@@ -69,7 +69,7 @@ const CSS = {
             afterCreate={this._addTool} 
             // afterUpdate={this._updateTool} 
             >
-        </div>
+        </div> 
         );
     }
 
