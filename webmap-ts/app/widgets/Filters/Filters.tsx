@@ -19,7 +19,6 @@ import Widget = require("esri/widgets/Widget");
 import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
-import Tool = require("../toolbar/Tool");
 
 @subclass("esri.widgets.Filters")
   class Filters extends declared(Widget) {
@@ -28,7 +27,7 @@ import Tool = require("../toolbar/Tool");
     mainView: __esri.MapView | __esri.SceneView;
 
     @property()
-    tool: Tool;
+    tool: any;
 
     constructor() {
         super();

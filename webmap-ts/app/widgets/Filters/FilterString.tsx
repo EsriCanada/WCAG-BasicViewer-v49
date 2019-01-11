@@ -18,12 +18,12 @@ import Deferred = require("dojo/Deferred");
 import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
-import FilterBase = require("./FilterBase");
+import FilterItemBase = require("./FilterItemBase");
 
 @subclass("esri.widgets.FilterString")
-  class FilterString extends declared(FilterBase) {
+class FilterString extends declared(FilterItemBase) {
     render() {
-      return(
+        return(
 <div class="filter__grid-container">
   <select autofocus tabindex="0" 
     afterCreate={this._criteriaCreated}

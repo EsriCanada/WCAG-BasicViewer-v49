@@ -13,10 +13,10 @@ import domStyle = require("dojo/dom-style");
 import { tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
-import FilterBase = require("./FilterBase");
+import FilterItemBase = require("./FilterItemBase");
 
 @subclass("esri.widgets.FilterDate")
-  class FilterDate extends declared(FilterBase) {
+  class FilterDate extends declared(FilterItemBase) {
     private minDate: Date;
     private maxDate: Date;
 

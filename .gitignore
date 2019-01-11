@@ -67,3 +67,5 @@ webmap-ts/app/widgets/Filters/FIlterDate\.js
 webmap-ts/app/widgets/Filters/Filters\.js
 
 webmap-ts/app/widgets/Filters/FilterBase\.js
+
+webmap-ts/app/widgets/Filters/FilterItemBase\.js

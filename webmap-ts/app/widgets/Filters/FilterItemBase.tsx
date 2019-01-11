@@ -3,23 +3,13 @@
 
 import {subclass, declared, property} from "esri/core/accessorSupport/decorators";
 import Widget = require("esri/widgets/Widget");
-import Tool = require("../toolbar/Tool");
+import FilterBase = require("./FilterBase");
 
 
-@subclass("esri.widgets.FilterBase")
-    class FilterBase extends declared(Widget) {
-
+@subclass("esri.widgets.FilterItemBase")
+    class FilterItemBase extends declared(FilterBase) {
     @property()
-    layer: __esri.FeatureLayer;
-
-    @property()
-    field: __esri.Field;
-
-    @property()
-    hasErrors : boolean;
-
-    @property()
-    tool: Tool;
+    showErrors: (err: string) => {};
 }
 
-export = FilterBase;
+export = FilterItemBase;
