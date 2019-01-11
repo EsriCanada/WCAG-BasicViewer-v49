@@ -14,20 +14,12 @@
 
 import ApplicationBase = require("ApplicationBase/ApplicationBase");
 
-import i18n = require("dojo/i18n!./widgets/nls/resources");
-
 import BorderContainer = require("dijit/layout/BorderContainer");
 import ContentPane = require("dojox/layout/ContentPane");
 import lang = require("dojo/_base/lang");
-// import Deferred = require("dojo/Deferred");
 
-
-// import registry = require("dijit/registry");
 import dom = require("dojo/dom");
 import domConstruct = require("dojo/dom-construct");
-
-// import Search = require("esri/widgets/Search");
-
 
 import { Has } from "./utils";
 import { CustomColors } from "./customColors";

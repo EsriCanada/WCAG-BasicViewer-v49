@@ -5,20 +5,12 @@ import {subclass, declared, property} from "esri/core/accessorSupport/decorators
 
 import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Widget = require("esri/widgets/Widget");
-import lang = require("dojo/_base/lang");
-import domConstruct = require("dojo/dom-construct");
 import on = require("dojo/on");
-import Deferred = require("dojo/Deferred");
-
-
 import { renderable, tsx } from "esri/widgets/support/widget";
-
 import i18n = require("dojo/i18n!../nls/resources");
 
-import { Has } from "../../utils";
-
-  @subclass("esri.widgets.ToolPage")
-    class ToolPage extends declared(Widget) {
+@subclass("esri.widgets.ToolPage")
+class ToolPage extends declared(Widget) {
   
     @property()
     config: ApplicationConfig;

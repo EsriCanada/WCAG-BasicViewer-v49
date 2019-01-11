@@ -5,25 +5,17 @@ import { subclass, declared, property } from "esri/core/accessorSupport/decorato
 
 import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Widget = require("esri/widgets/Widget");
-// import lang = require("dojo/_base/lang");
 import domConstruct = require("dojo/dom-construct");
-// import dom = require("dojo/dom");
-// import domAttr = require("dojo/dom-attr");
 import domClass = require("dojo/dom-class");
-// import domStyle = require("dojo/dom-style");
 import Deferred = require("dojo/Deferred");
 import All = require("dojo/promise/all");
 import on = require("dojo/on");
-
-import { renderable, tsx } from "esri/widgets/support/widget";
+import { tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
 import Tool = require("./Tool");
-// import { Badge } from "./Badge";
 import ToolPage = require("./ToolPage");
 import { Has } from "../../utils";
-// import MyOverviewMap = require("../MyOverviewMap/MyOverviewMap");
-// import { doesNotReject } from "assert";
 
 const CSS = {
     base: "toolbar",

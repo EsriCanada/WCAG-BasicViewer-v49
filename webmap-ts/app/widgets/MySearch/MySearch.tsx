@@ -11,14 +11,8 @@ import Collection = require("esri/core/Collection");
 
 import FeatureLayerSearchSource = require("esri/widgets/Search/FeatureLayerSearchSource");
 import LocatorSearchSource = require("esri/widgets/Search/LocatorSearchSource");
-import query = require("dojo/query");
-import domAttr = require("dojo/dom-attr");
-import domClass = require("dojo/dom-class");
-import domStyle = require("dojo/dom-style");
-import Deferred = require("dojo/Deferred");
-import on = require("dojo/on");
 
-import { renderable, tsx } from "esri/widgets/support/widget";
+import { tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
 // import { Has } from "../../utils";

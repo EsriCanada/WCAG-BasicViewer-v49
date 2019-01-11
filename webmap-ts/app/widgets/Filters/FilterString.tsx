@@ -3,19 +3,12 @@
 
 import {subclass, declared, property} from "esri/core/accessorSupport/decorators";
 
-// import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Widget = require("esri/widgets/Widget");
-// import lang = require("dojo/_base/lang");
-// import domConstruct = require("dojo/dom-construct");
-// import query = require("dojo/query");
-// import dom = require("dojo/dom");
 import on = require("dojo/on");
-// import domAttr = require("dojo/dom-attr");
-// import domClass = require("dojo/dom-class");
 import domStyle = require("dojo/dom-style");
 import Deferred = require("dojo/Deferred");
 
-import { renderable, tsx } from "esri/widgets/support/widget";
+import { tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
 import FilterItemBase = require("./FilterItemBase");
@@ -68,10 +61,10 @@ class FilterString extends declared(FilterItemBase) {
         switch(this._getListMode()) {
           case true: 
             domStyle.set(this.valueTextBox,'display', 'none');
-            domStyle.set(this.listInput,'display', '');
             if(this.listInput.innerHTML === '') {
-                this.getFilterExpresion();
+                this.fillAvailableValues();
             }
+            this.fillValDeferred.then(() => domStyle.set(this.listInput,'display', ''));
             break;
           case false: 
             domStyle.set(this.valueTextBox,'display', '');
@@ -87,7 +80,8 @@ class FilterString extends declared(FilterItemBase) {
       return criteria.value === ' IN ' || criteria.value === ' NOT IN ';
     }
 
-    public getFilterExpresion = () => {
+    private fillValDeferred = new Deferred();
+    public fillAvailableValues = () : dojo.promise.Promise<any> => {
         // console.log("Layer", this.layer, this.layer.loaded);
         // console.log("Field", this.field);
         this.tool.showLoading();
@@ -115,7 +109,9 @@ class FilterString extends declared(FilterItemBase) {
                 }
             });
             this.tool.hideLoading();
+            this.fillValDeferred.resolve();
         });
+        return this.fillValDeferred.promise;
     }
 }
 

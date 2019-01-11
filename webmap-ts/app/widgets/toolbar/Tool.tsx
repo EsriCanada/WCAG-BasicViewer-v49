@@ -2,18 +2,14 @@
 /// <amd-dependency path="esri/core/tsSupport/decorateHelper" name="__decorate" />
 
 import {subclass, declared, property} from "esri/core/accessorSupport/decorators";
-// import * as Promise from 'lib';
-
 import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Widget = require("esri/widgets/Widget");
 import lang = require("dojo/_base/lang");
 import domConstruct = require("dojo/dom-construct");
 import query = require("dojo/query");
-import domAttr = require("dojo/dom-attr");
 import domClass = require("dojo/dom-class");
 import domStyle = require("dojo/dom-style");
 import Deferred = require("dojo/Deferred");
-import on = require("dojo/on");
 import dom = require("dojo/dom");
 
 import { renderable, tsx } from "esri/widgets/support/widget";
