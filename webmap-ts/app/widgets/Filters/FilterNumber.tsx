@@ -18,23 +18,10 @@ import Deferred = require("dojo/Deferred");
 import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
-import Tool = require("../toolbar/Tool");
+import FilterBase = require("./FilterBase");
 
 @subclass("esri.widgets.FilterNumber")
-  class FilterNumber extends declared(Widget) {
-
-    @property()
-    layer: __esri.FeatureLayer;
-
-    @property()
-    field: __esri.Field;
-
-    @property()
-    showErrors: (err: string) => {};
-
-    @property()
-    tool: Tool;
-
+  class FilterNumber extends declared(FilterBase) {
     private minValueNode: Element;
     private maxValueNode: Element;
 

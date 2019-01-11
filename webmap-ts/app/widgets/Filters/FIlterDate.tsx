@@ -3,38 +3,20 @@
 
 import {subclass, declared, property} from "esri/core/accessorSupport/decorators";
 
-// import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Widget = require("esri/widgets/Widget");
 import lang = require("dojo/_base/lang");
-// import domConstruct = require("dojo/dom-construct");
-// import query = require("dojo/query");
 import dom = require("dojo/dom");
 import on = require("dojo/on");
 import domAttr = require("dojo/dom-attr");
-// import domClass = require("dojo/dom-class");
 import domStyle = require("dojo/dom-style");
-import Deferred = require("dojo/Deferred");
 
-import { renderable, tsx } from "esri/widgets/support/widget";
+import { tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
-import Tool = require("../toolbar/Tool");
+import FilterBase = require("./FilterBase");
 
 @subclass("esri.widgets.FilterDate")
-  class FilterDate extends declared(Widget) {
-
-    @property()
-    layer: __esri.FeatureLayer;
-
-    @property()
-    field: __esri.Field;
-
-    @property()
-    showErrors: (err: string) => {};
-
-    @property()
-    tool: Tool;
-
+  class FilterDate extends declared(FilterBase) {
     private minDate: Date;
     private maxDate: Date;
 

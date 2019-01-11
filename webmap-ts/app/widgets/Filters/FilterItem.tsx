@@ -18,27 +18,13 @@ import Deferred = require("dojo/Deferred");
 import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
+import FilterBase = require("./FilterBase");
+
 
 @subclass("esri.widgets.FilterItem")
-    class FilterItem extends declared(Widget) {
+    class FilterItem extends declared(FilterBase) {
 
-    @property()
-    layer: __esri.FeatureLayer;
-
-    @property()
-    field: __esri.Field;
-
-    @property()
-    hasErrors : boolean;
-
-    @property()
-    tool: any;
-
-    constructor() {
-        super();
-    }
-
-    render() {
+        render() {
         return (
             <div>
             <li tabindex="0" afterCreate={this._filterAdded}>
