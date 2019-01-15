@@ -821,8 +821,7 @@ myKey img {
 }
 
 .FilterTab {
-    max-width: 200px;
-    // overflow-x: hidden;
+    max-width: 220px;
 }
 
 .FilterTab label {
@@ -831,7 +830,7 @@ myKey img {
     box-shadow: inset 0px -2px 0px 2px dimgrey;
     position: relative;
     border-bottom-left-radius: 8px;
-    top: 15px;
+    top: 10px;
     z-index: 1;
     margin-left: 5px;
 }
@@ -857,7 +856,7 @@ myKey img {
 
 .FilterTab [type=radio]:checked~label {
     top: 6px;
-    z-index: 10;
+    z-index: 2;
     box-shadow: inset 0px -2px 0px 2px black !important;
     font-weight: bold;
     background-color: white;
@@ -881,7 +880,7 @@ myKey img {
 .FilterTab .setIndicator {
     bottom: -6px;
     top: auto;
-    right: 4px;
+    left: 4px;
 }
 
 .filterTabsZone {
@@ -891,7 +890,7 @@ myKey img {
     height: 65px;
     overflow-x: auto;
     overflow-y: hidden;
-    margin-top: -6px;
+    margin-top: -7px;
     position: absolute;
     top: calc(100% - 9px);
     width: 100%;
@@ -909,6 +908,7 @@ myKey img {
     padding: 10px;
     position: absolute;
     overflow-y: auto;
+    z-index: 2;
 }
 
 .tabContent {

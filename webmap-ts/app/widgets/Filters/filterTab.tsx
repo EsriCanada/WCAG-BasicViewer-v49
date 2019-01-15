@@ -102,7 +102,8 @@ import i18n = require("dojo/i18n!../nls/resources");
     }
 
     private _filterTabChange = (event) => {
-        // console.log("_filterTabChange", event);
+        console.log("_filterTabChange", event.target, event.target.nextSibling);
+        event.target.nextSibling.scrollIntoView({inline: "center", behavior: "smooth"});
         const activePageId = this.filterTabContentPage.id;
         const tabContentPages = query(".tabContent", dom.byId("filterTabsCOntent"));
         tabContentPages.forEach((page: Element) => {
@@ -139,14 +140,14 @@ import i18n = require("dojo/i18n!../nls/resources");
     private _filterTabFocus = (event) => {
         const label = event.target.parentNode;
         // console.log("_filterTabFocus", event, label);
-        domStyle.set(label, "z-index", 20);
+        // domStyle.set(label, "z-index", 20);
         domAttr.remove(label, "aria-hidden");
     }
 
     private _filterTabBlur = (event) => {
         const label = event.target.parentNode;
         // console.log("_filterTabBlur", event);
-        domStyle.set(label, "z-index", 10);
+        // domStyle.set(label, "z-index", 10);
         domAttr.set(label, "aria-hidden", "true");
     }
 
@@ -203,7 +204,7 @@ import i18n = require("dojo/i18n!../nls/resources");
         this.tool.showBadge(dom.byId("badge_someFilters"));
 
         domStyle.set(this.badge, "display", "");
-        domStyle.set(this.label1, "box-shadow", "red 0px -2px 0px 2px inset");
+        // domStyle.set(this.label1, "box-shadow", "red 0px -2px 0px 2px inset");
     }
 
     private _addedIgnore = (element: Element) => {
@@ -215,7 +216,7 @@ import i18n = require("dojo/i18n!../nls/resources");
     private hideBadge = () => {
         this.tool.hideBadge(dom.byId("badge_someFilters"));
         domStyle.set(this.badge, "display", "none");
-        domStyle.set(this.label1, "box-shadow", "dimgray 0px -2px 0px 2px inset");
+        // domStyle.set(this.label1, "box-shadow", "dimgray 0px -2px 0px 2px inset");
     }
 
 }
