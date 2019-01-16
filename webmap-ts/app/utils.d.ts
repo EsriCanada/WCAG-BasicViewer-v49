@@ -5,3 +5,11 @@ declare interface String {
     NormalizeTitle() : string;
     stripTags() : string;
 }
+
+declare interface Date {
+    toSQL() : string;
+}
+
+declare interface Number {
+    padLeft(n : number, str? : string)
+}

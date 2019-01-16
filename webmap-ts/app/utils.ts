@@ -17,3 +17,15 @@ String.prototype.NormalizeTitle = function() : string {
 String.prototype.isNullOrWhiteSpace = function() : boolean {
     return this === undefined || this === null || this.trim() === '';
 };
+
+Number.prototype.padLeft = function(n, str) {
+    return new Array(n - String(this).length + 1).join(str || '0') + this;
+};
+
+Date.prototype.toSQL = function() : string {
+    if (this.toDateString() === "Invalid Date") {
+        return null;
+    }
+    return this.getFullYear().padLeft(4) + (this.getMonth() + 1).padLeft(2) + this.getDate().padLeft(2);
+};
+

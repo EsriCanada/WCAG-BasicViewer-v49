@@ -156,6 +156,27 @@ import FilterItemBase = require("./FilterItemBase");
         return criteria === ' BETWEEN ' || criteria === ' NOT BETWEEN ';
     }
 
+    public getFilterExpresion = () : string => {
+        const minDate = this.minValueWig.value.toSQL();
+        if(minDate) {
+            if(this._getBetweenMode()) {
+                const maxDate = this.maxValueWig.value.toSQL();
+                if(maxDate) {
+                    const where = this.field.name+this.criteriaElement.value+"'"+minDate+"' AND '"+maxDate+"'";
+                    console.log("filterDate->filterExpression", where);
+                    return where;
+                }
+                else {
+                    return null;
+                }
+            } else {
+                const where = this.field.name+this.criteriaElement.value+"'"+minDate+"'";
+                console.log("filterDate->filterExpression", where);
+                return where;
+            }
+        } else return null;
+    }
+
 }
 
 export = FilterDate;
