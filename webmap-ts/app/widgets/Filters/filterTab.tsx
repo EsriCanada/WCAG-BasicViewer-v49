@@ -218,6 +218,7 @@ import i18n = require("dojo/i18n!../nls/resources");
         this.own(on(element, "click", (event) => {
             // console.log("Ignore", event, element);
             this.hideBadge();
+            this.getDefinitionExtensionExtent(this.layer, null);
         }));
     }
     private hideBadge = () => {
