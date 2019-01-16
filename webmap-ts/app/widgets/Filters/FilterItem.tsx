@@ -11,10 +11,14 @@ import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
 import FilterBase = require("./FilterBase");
+import FilterItemBase = require("./FilterItemBase");
 
 
 @subclass("esri.widgets.FilterItem")
     class FilterItem extends declared(FilterBase) {
+
+        @property()
+        FilterPart: FilterItemBase;
 
         render() {
         return (
@@ -28,7 +32,7 @@ import FilterBase = require("./FilterBase");
                         checked 
                         aria-label="Active" 
                         title="Active" 
-                        data-dojo-attach-point="Active"/> 
+                        afterCreate={this._addedActive}/> 
                     <label 
                         class="checkbox"
                         for={this.id+"_header"}
@@ -71,8 +75,16 @@ import FilterBase = require("./FilterBase");
         this.filterItem = element as HTMLElement;
     }
 
+    private _addedActive = (element: Element) => {
+        this.own(on(element, "changed", (event) => { 
+            this.active = event.target.checked;
+            console.log("Active", this.active);
+        }));
+    }
+
     private _filterItemRemove = (element: Element) => {
         this.own(on(element, "click", (event) => { 
+            this.emit("removeFilterItem", {id: this.id});
             this.filterItem.remove();
         }));
     }
@@ -85,7 +97,7 @@ import FilterBase = require("./FilterBase");
             case "double" :
                 this.layer.when(() => {
                     require(["./FilterNumber"], (filterNumber) => { 
-                        const filterItem = new filterNumber({
+                        this.FilterPart = new filterNumber({
                             layer: this.layer, 
                             field: this.field, 
                             tool: this.tool,
@@ -98,7 +110,7 @@ import FilterBase = require("./FilterBase");
             case "string" :
                 this.layer.when(() => {
                     require(["./FilterString"], (filterString) => { 
-                        const filterItem = new filterString({
+                        this.FilterPart = new filterString({
                             layer: this.layer, 
                             field: this.field, 
                             tool: this.tool,
@@ -111,7 +123,7 @@ import FilterBase = require("./FilterBase");
             case "date" :
                 this.layer.when(() => {
                     require(["./FilterDate"], (filterDate) => { 
-                        const filterItem = new filterDate({
+                        this.FilterPart = new filterDate({
                             layer: this.layer, 
                             field: this.field, 
                             tool: this.tool,
@@ -122,6 +134,7 @@ import FilterBase = require("./FilterBase");
                 })
                 break;
             default : 
+                this.FilterPart = null;
                 setTimeout(() => this.showError(`Unknown Field Type: '${this.field.type}'`), 50);
                 break;
         }

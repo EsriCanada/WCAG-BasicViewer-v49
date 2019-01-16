@@ -17,6 +17,9 @@ import i18n = require("dojo/i18n!../nls/resources");
 @subclass("esri.widgets.FilterTab")
   class FilterTab extends declared(Widget) {
     @property()
+    mapView: __esri.MapView;
+
+    @property()
     layer: __esri.FeatureLayer;
 
     @property()
@@ -151,6 +154,8 @@ import i18n = require("dojo/i18n!../nls/resources");
         domAttr.set(label, "aria-hidden", "true");
     }
 
+    private FilterItems = new Array<any>();
+
     private _filterAdd = (fieldId: string) => {
         this.layer.when((layer: __esri.FeatureLayer) => {
             // console.log("layer", layer);
@@ -163,18 +168,20 @@ import i18n = require("dojo/i18n!../nls/resources");
                     tool: this.tool,
                     container: this.ulFilterList
                 });
+                // this.filterList.appendChild(filterItem.domNode);
+                // filterItem.startup(); 
+                this.FilterItems.push(filterItem); 
+                filterItem.own(filterItem.on("removeFilterItem", (id) => {
+                    this.FilterItems.splice(this.FilterItems.indexOf(filterItem), 1);
+                    if(this.FilterItems.length === 0) {
+                        // this.filterIgnore();
+                        this.getDefinitionExtensionExtent(layer, null);
+                        this.hideBadge();
+                    }
+                }));
+                // filterItem.domNode.focus();
             });
         })
-        // this.filterList.appendChild(filterItem.domNode);
-        // filterItem.startup(); 
-        // this.FilterItems.push(filterItem); 
-        // filterItem.on("removeFilterItem", lang.hitch(this, function (id) {
-        //     this.FilterItems.splice(this.FilterItems.indexOf(filterItem), 1);
-        //     if(this.FilterItems.length === 0) {
-        //         this.filterIgnore();
-        //     }
-        // }));
-        // filterItem.domNode.focus();
     }
     
     private _addInput = (element: Element) => {
@@ -195,8 +202,8 @@ import i18n = require("dojo/i18n!../nls/resources");
 
     private _addedApply = (element: Element) => {
         this.own(on(element, "click", (event) => {
-            console.log("Apply", event, this);
-            this.showBadge();
+            // console.log("Apply", event, this);
+            this.filterApply(event);
         }));
     }
 
@@ -217,6 +224,61 @@ import i18n = require("dojo/i18n!../nls/resources");
         this.tool.hideBadge(dom.byId("badge_someFilters"));
         domStyle.set(this.badge, "display", "none");
         // domStyle.set(this.label1, "box-shadow", "dimgray 0px -2px 0px 2px inset");
+    }
+
+    private filterApply = (event) => {
+        const exps = [];
+        console.log("FilterItems", this.FilterItems);
+        this.FilterItems.filter((f) => { return f.active && !f.hasErrors; }).forEach((f : any) => {// 
+            try {
+                console.log("F", f, f.FilterPart);
+                const exp = f.FilterPart.getFilterExpresion();
+                console.log("E", exp);
+                if(exp) {
+                    exps.push(exp);
+                }
+            }
+            catch (error) {
+                console.log("filterApply Error", error);
+            }
+        })
+
+        if(exps.length === 1) {
+            this.showBadge();
+            this.getDefinitionExtensionExtent(this.layer, exps[0]);
+        } else if (exps.length >= 1) {
+            let op ='';
+            const inList = exps.reduce(function(previousValue, currentValue) {
+                if(previousValue && previousValue!=='') 
+                    op = ' AND ';
+                return previousValue+")"+op+"("+currentValue;
+            });
+            this.showBadge();
+            this.getDefinitionExtensionExtent(this.layer,"("+inList+")");
+        } else {
+            this.hideBadge();
+            this.getDefinitionExtensionExtent(this.layer,'');
+        }
+    }
+
+    private getDefinitionExtensionExtent = (layer : __esri.FeatureLayer, expression : string) => {
+        console.log("LayerDeffinition ", "'"+expression+"'");
+        layer.definitionExpression = expression;
+        const _query = this.layer.createQuery();
+        _query.where = expression ? expression : "1=1";
+        _query.outFields = [];
+        _query.returnGeometry = false;
+        this.layer.queryExtent(_query).then((myExtent) => {
+            if(myExtent) {
+                if((myExtent.xmin === myExtent.xmax && myExtent.ymin === myExtent.ymax)) {
+                    this.mapView.goTo({target: myExtent.center, zoom: 13});
+                }
+                else {
+                    var ext = myExtent.expand(1.5);
+                    this.mapView.goTo(ext);
+                }
+            }
+        });
     }
 
 }

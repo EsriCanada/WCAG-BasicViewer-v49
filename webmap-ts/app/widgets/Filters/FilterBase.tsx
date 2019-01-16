@@ -2,9 +2,9 @@
 /// <amd-dependency path="esri/core/tsSupport/decorateHelper" name="__decorate" />
 
 import {subclass, declared, property} from "esri/core/accessorSupport/decorators";
+import Accessor = require("esri/core/Accessor");
 import Widget = require("esri/widgets/Widget");
 import Tool = require("../toolbar/Tool");
-
 
 @subclass("esri.widgets.FilterBase")
     class FilterBase extends declared(Widget) {
@@ -20,6 +20,13 @@ import Tool = require("../toolbar/Tool");
 
     @property()
     tool: Tool;
+
+    @property()
+    active: boolean = true;
+
+    // public getFilterExpresion = (): string => {
+    //     return "?";
+    // }
 }
 
 export = FilterBase;
