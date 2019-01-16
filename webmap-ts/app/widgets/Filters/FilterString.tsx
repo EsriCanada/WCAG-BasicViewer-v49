@@ -43,32 +43,32 @@ class FilterString extends declared(FilterItemBase) {
       )
     }
 
-    private valueTextBox: Element;
-    private listInput: Element;
+    private valueTextBox: HTMLInputElement;
+    private listInput: HTMLUListElement;
 
     private _addedTextBox = (element : Element) => {
-        this.valueTextBox = element;
+        this.valueTextBox = element as HTMLInputElement;
     }
 
     private _addedListInput = (element : Element) => {
-        this.listInput = element;
+        this.listInput = element as HTMLUListElement;
     }
 
-    private criteriaElement: Element;
+    private criteriaElement: HTMLSelectElement;
     private _criteriaCreated = (element:Element) => {
-      this.criteriaElement = element;
+      this.criteriaElement = element as HTMLSelectElement;
       this.own(on(element, "change", (event) => { 
         switch(this._getListMode()) {
           case true: 
-            domStyle.set(this.valueTextBox,'display', 'none');
+            domStyle.set(this.valueTextBox, 'display', 'none');
             if(this.listInput.innerHTML === '') {
                 this.fillAvailableValues();
             }
-            this.fillValDeferred.then(() => domStyle.set(this.listInput,'display', ''));
+            this.fillValDeferred.then(() => domStyle.set(this.listInput, 'display', ''));
             break;
           case false: 
-            domStyle.set(this.valueTextBox,'display', '');
-            domStyle.set(this.listInput,'display', 'none');
+            domStyle.set(this.valueTextBox, 'display', '');
+            domStyle.set(this.listInput, 'display', 'none');
             break;
         }
 
@@ -102,7 +102,7 @@ class FilterString extends declared(FilterItemBase) {
                         this.listInput.innerHTML += `
                         <li>
                         <label role="presentation">
-                            <input type="checkbox" class="checkbox" value=${v}/>
+                            <input type="checkbox" class="checkbox" value="${v}"/>
                             <span>${v}</span>
                         </label>
                         </li>`;
@@ -113,6 +113,55 @@ class FilterString extends declared(FilterItemBase) {
         });
         return this.fillValDeferred.promise;
     }
+
+    public getFilterExpresion = () => {
+        if(this._getListMode()) {
+            const list = Array.prototype.slice.call(this.listInput.children).filter((c) => {
+                var chbx = c.children[0].children[0];
+                // console.log("c", c, chbx);
+                return chbx.checked;
+            }).map((k) => { 
+                var chbx = k.children[0].children[0];
+                // console.log("k", chbx, chbx.value);
+                return chbx.value; 
+            });
+            if(!list || list.length === 0) 
+            {
+                return null;
+            }
+            else if(list.length == 1) {
+                let op = " = ";
+                if(this.criteriaElement.value.indexOf('NOT')>=0) {
+                    op = " != ";
+                }
+                return `${this.field.name}${op}'${list[0]}'`;
+            } else {
+                let comma ="";
+                const inList=list.reduce((previousValue:string, currentValue:string) => {
+                    if(previousValue && previousValue!=='') 
+                        comma = ", ";
+                    return previousValue+"'"+comma+"'"+currentValue;
+                });
+                return `${this.field.name}${this.criteriaElement.value}('${inList}')`;
+            }
+        } else {
+            if(this.valueTextBox.value !== '') {
+                var text = this.valueTextBox.value;
+                if(this.criteriaElement.value.indexOf('LIKE')>=0){
+                    var re = /(.*%.*)|(.*_.*)|(\[.*\])/gm;
+                    var matches = re.exec(text);
+                    if(!matches || matches.length === 0) {
+                        text += '%';
+                    }
+                }
+                return this.field.name+this.criteriaElement.value+"'"+text+"'";
+            }
+            else {
+                return null;
+            }
+        }
+    }    
+
 }
 
 export = FilterString;
