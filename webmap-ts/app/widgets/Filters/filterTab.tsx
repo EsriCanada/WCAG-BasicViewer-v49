@@ -267,14 +267,15 @@ import i18n = require("dojo/i18n!../nls/resources");
         const _query = this.layer.createQuery();
         _query.where = expression ? expression : "1=1";
         _query.outFields = [];
-        _query.returnGeometry = false;
-        this.layer.queryExtent(_query).then((myExtent) => {
-            if(myExtent) {
-                if((myExtent.xmin === myExtent.xmax && myExtent.ymin === myExtent.ymax)) {
-                    this.mapView.goTo({target: myExtent.center, zoom: 13});
+        _query.returnGeometry = true;
+        this.layer.queryExtent(_query).then((results) => {
+            console.log("myExtent", results, _query);
+            if(results) {
+                if((results.extent.xmin === results.extent.xmax && results.extent.ymin === results.extent.ymax)) {
+                    this.mapView.goTo({target: results.extent.center, zoom: 13});
                 }
                 else {
-                    var ext = myExtent.expand(1.5);
+                    var ext = results.extent.expand(1.5);
                     this.mapView.goTo(ext);
                 }
             }
