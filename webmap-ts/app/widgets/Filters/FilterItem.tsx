@@ -76,7 +76,7 @@ import FilterItemBase = require("./FilterItemBase");
     }
 
     private _addedActive = (element: Element) => {
-        this.own(on(element, "changed", (event) => { 
+        this.own(on(element, "change", (event) => { 
             this.active = event.target.checked;
             console.log("Active", this.active);
         }));
