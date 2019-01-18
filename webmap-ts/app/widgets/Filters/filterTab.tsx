@@ -28,6 +28,9 @@ import i18n = require("dojo/i18n!../nls/resources");
     @property()
     tool: any;
 
+    @property() 
+    filters: any;
+
     private layerTitle : string;
 
     constructor() {
@@ -208,7 +211,7 @@ import i18n = require("dojo/i18n!../nls/resources");
     }
 
     private showBadge = () => {
-        this.tool.showBadge(dom.byId("badge_someFilters"));
+        this.filters.ShowFiltersOn(this.id);
 
         domStyle.set(this.badge, "display", "");
         // domStyle.set(this.label1, "box-shadow", "red 0px -2px 0px 2px inset");
@@ -222,7 +225,7 @@ import i18n = require("dojo/i18n!../nls/resources");
         }));
     }
     private hideBadge = () => {
-        this.tool.hideBadge(dom.byId("badge_someFilters"));
+        this.filters.HideFiltersOn(this.id);
         domStyle.set(this.badge, "display", "none");
         // domStyle.set(this.label1, "box-shadow", "dimgray 0px -2px 0px 2px inset");
     }

@@ -3,8 +3,9 @@
 
 import {subclass, declared, property} from "esri/core/accessorSupport/decorators";
 import Widget = require("esri/widgets/Widget");
+import dom = require("dojo/dom");
 import { tsx } from "esri/widgets/support/widget";
-
+import Tool = require("../toolbar/Tool");
 
 @subclass("esri.widgets.Filters")
   class Filters extends declared(Widget) {
@@ -13,7 +14,7 @@ import { tsx } from "esri/widgets/support/widget";
     mainView: __esri.MapView | __esri.SceneView;
 
     @property()
-    tool: any;
+    tool: Tool;
 
     constructor() {
         super();
@@ -28,6 +29,24 @@ import { tsx } from "esri/widgets/support/widget";
         );
     }
 
+    private filtersOn = new Array();
+
+    public ShowFiltersOn = (id:string) => {
+        if(!this.filtersOn.some((f) => f === id)) {
+            this.filtersOn.push(id);
+            this.tool.showBadge(dom.byId("badge_someFilters"));
+        }
+    }
+
+    public HideFiltersOn = (id:string) => {
+        if(this.filtersOn.some((f) => f === id)) {
+            this.filtersOn.splice(this.filtersOn.indexOf(id),1);
+            if(this.filtersOn.length === 0) {
+                this.tool.hideBadge(dom.byId("badge_someFilters"));
+            }
+        }
+    }
+
     private layers: __esri.Collection<__esri.Layer> = null
 
     private _addFilters = (element: Element) => {
@@ -38,12 +57,10 @@ import { tsx } from "esri/widgets/support/widget";
                 this.layers.forEach((layer, i) => {
                     if((layer as __esri.FeatureLayer).popupTemplate)
                     new FilterTab({ 
+                        filters: this,
                         mapView: this.mainView,
-
                         layer: layer, 
-                        // id: `FilterTab_${i}`, 
                         tool : this.tool,
-
                         container: element
                     });
                 })
