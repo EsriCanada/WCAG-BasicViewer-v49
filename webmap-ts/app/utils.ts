@@ -5,6 +5,14 @@ export function Has(config: ApplicationConfig, tool:string) : boolean {
     const hasTool = config[`tool_${tool}`]
     return hasTool != 'undefined' && hasTool;
 }
+String.prototype.format = function() : string {
+    var args = arguments;
+    return this.replace(/{(\d+)}/g, function(match, number) {
+        return typeof args[number] != 'undefined' ?
+            args[number] :
+            match;
+    });
+};
 
 String.prototype.stripTags = function() : string {
     return this.replace(/<[^>]*>/g, "", ) as string;

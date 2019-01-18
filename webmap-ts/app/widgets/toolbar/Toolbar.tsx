@@ -277,8 +277,8 @@ class Toolbar extends declared(Widget) {
             this._addTool(element, "features").then((tool) => {
                 require(["../FeaturesList/FeaturesList"], (Features) => {
                     const features = new Features({
-                        mainView:mainView,
-                        tool: tool,
+                        mapView:this.mapView,
+                        // tool: this.tool,
                         container: domConstruct.create("div", {class:"Features"}, "pageBody_features")
                     });
 

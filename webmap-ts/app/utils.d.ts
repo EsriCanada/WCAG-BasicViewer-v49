@@ -4,6 +4,7 @@ declare interface String {
     isNullOrWhiteSpace() : boolean;
     NormalizeTitle() : string;
     stripTags() : string;
+    format() : string;
 }
 
 declare interface Date {
