@@ -89,9 +89,6 @@ class Toolbar extends declared(Widget) {
                     case "instructions":
                         toolList.push(this._addInstructions(element));
                         break;
-                    // case "directions":
-                    //     toolList.push(this._addDirections(element));
-                    //     break;
                     case "overview" :
                         toolList.push(this._addOverview(element, this.mapView));
                         break;
@@ -113,7 +110,10 @@ class Toolbar extends declared(Widget) {
                     case "filter" :
                         toolList.push(this._addFilters(element, this.mapView));
                         break;
-                    default:
+                    case "features" :
+                        toolList.push(this._addFeaturesList(element, this.mapView));
+                        break;
+                default:
                         toolList.push(this._addTool(element, tool));
                         break;
                 }
@@ -244,7 +244,7 @@ class Toolbar extends declared(Widget) {
     //     });
     // }
 
-    private _addFilters =  (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.Deferred<Tool> => {
+    private _addFilters = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.Deferred<Tool> => {
         if(Has(this.config, "filter")) {
             const deferred = new Deferred<Tool>();
             this._addTool(element, "filter").then((tool) => {
@@ -271,6 +271,32 @@ class Toolbar extends declared(Widget) {
         return null;
     }
 
+    private _addFeaturesList = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.Deferred<Tool> => {
+        if(Has(this.config, "features")) {
+            const deferred = new Deferred<Tool>();
+            this._addTool(element, "features").then((tool) => {
+                require(["../FeaturesList/FeaturesList"], (Features) => {
+                    const features = new Features({
+                        mainView:mainView,
+                        tool: tool,
+                        container: domConstruct.create("div", {class:"Features"}, "pageBody_features")
+                    });
+
+                    const badge = tool.addBadge({
+                        toolBadgeEvn: "featureSelected",
+                        toolBadgeImg: this.config.marker.isNullOrWhiteSpace() ? 'images/ripple-dot1.gif' : this.config.marker,
+                        toolBadgeTip: i18n.badgesTips.featureSelected,
+                    });
+                    // tool.showBadge(badge);
+                
+
+                    deferred.resolve(tool);
+                });
+            });
+            return deferred;
+        }
+        return null;
+    }
 
     private _addOverview = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.Deferred<Tool> => {
         if(Has(this.config, "overview")) {
