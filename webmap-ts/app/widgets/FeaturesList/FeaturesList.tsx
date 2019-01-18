@@ -124,17 +124,24 @@ import All = require("dojo/promise/all");
         const list = dom.byId('featuresList');
         // this._clearMarker();
         this.tasks
-        // .filter((t) => {
-        //     return t.layer.visible && t.layer.visibleAtMapScale;// && t.layer.infoTemplate;
-        // })
+        .filter((t) => {
+            const isVisibleAtScale = (layer : any) : boolean => {
+                return (layer.minScale <= 0 || this.mapView.scale <= layer.minScale) &&
+                (layer.maxScale <= 0 || this.mapView.scale >= layer.maxScale)
+            } 
+            return t.layer.visible && isVisibleAtScale(t.layer);// && t.layer.infoTemplate;
+        })
         .forEach((t) => {
             t.query.geometry = ext.extent;
             try {
-                const exp=(t.layer as __esri.FeatureLayer).definitionExpression;
+                const exp = (t.layer as __esri.FeatureLayer).definitionExpression;
                 t.query.where = exp;
-                console.log("t", t);
+                // console.log("t", t);
                 // t.result = t.task.execute(t.query);
                 // console.log("t result", t.result);
+                t.layer.queryFeatures(t.query).then(result => {
+                    console.log("Features", t.layer.title, result.features)
+                })
             }
             catch (ex) {
                 // ignore
