@@ -13,6 +13,9 @@ import { tsx } from "esri/widgets/support/widget";
 import Tool = require("../toolbar/Tool");
 import Deferred = require("dojo/Deferred");
 import All = require("dojo/promise/all");
+import watchUtils = require("esri/core/watchUtils");
+
+import FeatureListItem = require("./FeaturesListItem");
 
 @subclass("esri.widgets.FeaturesList")
   class FeaturesList extends declared(Widget) {
@@ -25,7 +28,9 @@ import All = require("dojo/promise/all");
 
     render() {
         return (
-<ul id="featuresList" class="featuresList" afterCreate={this._addedList}/>
+<div>
+    <ul id="featuresList" class="featuresList" afterCreate={this._addedList}/>
+</div>
         );
     }
 
@@ -86,7 +91,6 @@ import All = require("dojo/promise/all");
             });
         });
 
-        // this.own(on(this.mapView, "extent-change", this._reloadList));
         this.mapView.watch("extent",(oldValue, newValue) => { this._reloadList(newValue); });
     }
 
@@ -105,10 +109,11 @@ import All = require("dojo/promise/all");
 
     private _reloadList = (ext) => {
         // if(!this._isVisible()) return;
-
-        this.tool.showLoading();
-        this.__reloadList(ext).then((results) => {
-            this.tool.hideLoading();
+        watchUtils.when(this.mapView, "stationary", () => {
+            this.tool.showLoading();
+            this.__reloadList(ext).then(() => {
+                this.tool.hideLoading();
+            });
         });
     }
 
@@ -162,13 +167,17 @@ import All = require("dojo/promise/all");
                 const layer = result.layer;
                 const features = result.result.features;
                 count += features.length;
-                features.array.forEach((feature) => {
+                features.forEach((feature) => {
+                    if(this._prevSelected && this._prevSelected.split('_')[1] == feature.attributes[layer.objectIdFieldName]) {
+                        preselected = feature;
+                    }
+                    require(["../FeaturesList/FeaturesListItem"], (FeatureItem) => {
+                        const li = domConstruct.create('li', {}, this.listElement);
+                        const item = new FeatureItem({container: li});
+                    });
                 });
 
                 // features.array.forEach(feature => {
-                //     if(this._prevSelected && this._prevSelected.split('_')[1] == feature.attributes[layer.objectIdFieldName]) {
-                //         preselected = feature;
-                //     }
 
                 //     const li = domConstruct.create("li", {}, list);
                 //     const featureListItem = this._getFeatureListItem(i, feature, layer.objectIdFieldName, layer, li);
