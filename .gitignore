@@ -69,3 +69,7 @@ webmap-ts/app/widgets/Filters/Filters\.js
 webmap-ts/app/widgets/Filters/FilterBase\.js
 
 webmap-ts/app/widgets/Filters/FilterItemBase\.js
+
+webmap-ts/app/widgets/FeaturesList/FeaturesList\.js
+
+webmap-ts/app/widgets/FeaturesList/FeaturesListItem\.js
