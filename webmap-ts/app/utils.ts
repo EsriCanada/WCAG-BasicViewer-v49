@@ -26,6 +26,16 @@ String.prototype.isNullOrWhiteSpace = function() : boolean {
     return this === undefined || this === null || this.trim() === '';
 };
 
+String.prototype.mixIn = function(o: any) : string {
+        var regexp = /{([^{]+)}/g;
+
+        return (function(str, o) {
+             return str.replace(regexp, function(ignore, key){
+                   return (key = o[key]) == null ? '' : key;
+             });
+        })(this,o)
+}
+
 Number.prototype.padLeft = function(n, str) {
     return new Array(n - String(this).length + 1).join(str || '0') + this;
 };

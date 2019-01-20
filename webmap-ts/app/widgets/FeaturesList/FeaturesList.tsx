@@ -4,7 +4,6 @@
 import {subclass, declared, property} from "esri/core/accessorSupport/decorators";
 import Widget = require("esri/widgets/Widget");
 import dom = require("dojo/dom");
-import query = require("dojo/query");
 import domClass = require("dojo/dom-class");
 import on = require("dojo/on");
 import domConstruct = require("dojo/dom-construct");
@@ -47,11 +46,6 @@ import FeatureListItem = require("./FeaturesListItem");
         this.listElement = element as HTMLUListElement;
 
         this.layers = this._getLayers();
-        // this.layers.forEach((l) => {
-        //     const li = domConstruct.create("li", {
-        //         innerHTML : l.id
-        //     }, this.listElement);
-        // });
 
         const featureListHeader = dom.byId('pageHeader_features');
         this.featureListCount = domConstruct.create('div', {
@@ -77,7 +71,7 @@ import FeatureListItem = require("./FeaturesListItem");
         return l1;
     }
 
-    private tasks = [];
+    public tasks = [];
     private _createList = () => {
         this.layers.forEach((layer: __esri.FeatureLayer) => {
             var _query = layer.createQuery();
@@ -117,7 +111,7 @@ import FeatureListItem = require("./FeaturesListItem");
         });
     }
 
-    private _prevSelected: any;
+    public _prevSelected: any;
 
     private __reloadList = (ext) => {
         const deferred = new Deferred();
@@ -173,7 +167,11 @@ import FeatureListItem = require("./FeaturesListItem");
                     }
                     require(["../FeaturesList/FeaturesListItem"], (FeatureItem) => {
                         const li = domConstruct.create('li', {}, this.listElement);
-                        const item = new FeatureItem({container: li});
+                        const item = new FeatureItem({
+                            feature: feature, 
+                            featureList: this,
+                            mapView: this.mapView,
+                            container: li});
                     });
                 });
 

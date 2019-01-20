@@ -90,6 +90,11 @@ define(
             invalidDate: "Format de date invalide",
             missingDate: "Date requise",
             rangeErrorDate: "Hors limites"
-        }
+        },
+        featureList: ({
+            panTo: "Centrer sur",
+            zoomTo: "Magnifier sur",
+            followLink: "Suivez le lien"
+        })
     })
 );

@@ -5,6 +5,7 @@ declare interface String {
     NormalizeTitle() : string;
     stripTags() : string;
     format() : string;
+    mixIn(o:any) : string;
 }
 
 declare interface Date {

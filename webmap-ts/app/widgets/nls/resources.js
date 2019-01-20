@@ -91,6 +91,11 @@ define({
             invalidDate: "Invalid date format",
             missingDate: "Date reqired",
             rangeErrorDate: "Out of range"
+        },
+        featureList: {
+            panTo: "Pan To",
+            zoomTo: "Zoom To",
+            followLink: "Follow Link"
         }
     }),
     "ar": 1,
