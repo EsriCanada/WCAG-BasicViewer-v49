@@ -27,9 +27,6 @@ import FeatureList = require("./FeaturesList");
     featureList: FeatureList;
   
     @property()
-    mapView: __esri.MapView | __esri.SceneView;
-
-    @property()
     tool: Tool;
 
     render() {
@@ -114,7 +111,7 @@ import FeatureList = require("./FeaturesList");
 
         this.mapView.graphics.forEach((gr: any) => {
             if(gr.name && gr.name === 'featureMarker') {
-                layer._map.graphics.remove(gr);
+                this.mapView.graphics.remove(gr);
             }
         });
 
