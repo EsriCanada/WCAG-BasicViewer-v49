@@ -23,7 +23,11 @@ import { runInThisContext } from "vm";
     render() {
         return (
 <div>
-<div class="round-border">
+    <div class="round-border">
+        <h2>Coordinate Conversion</h2>
+        <div afterCreate={this._addCoordinateConversion}></div>
+    </div>
+    <div class="round-border">
         <h2>Distance Measuremnt</h2>
         <div afterCreate={this._addDistanceMeasurement2D}></div>
     </div>
@@ -35,13 +39,25 @@ import { runInThisContext } from "vm";
         )
     }
 
+    private _addCoordinateConversion = (element: Element) => {
+        require(["esri/widgets/CoordinateConversion"], (CoordinateConversion) => { 
+            console.log("measure", this.mapView);
+            var measurementWidget = new CoordinateConversion({
+                view: this.mapView,
+                mode: "capture",
+                orientation: "expand-down",
+                container: element
+            })
+        });
+    }
+
     private _addDistanceMeasurement2D = (element: Element) => {
         require(["esri/widgets/DistanceMeasurement2D"], (DistanceMeasurement2D) => { 
             console.log("measure", this.mapView);
             var measurementWidget = new DistanceMeasurement2D({
                 viewModel: {
                     view: this.mapView,
-                    unit: "kilometers",
+                    unit: "metric",
                     unitOptions: ["metric", "meters", "kilometers"],
                 },
                 container: element
@@ -55,7 +71,7 @@ import { runInThisContext } from "vm";
             var measurementWidget = new AreaMeasurement2D({
                 viewModel: {
                     view: this.mapView,
-                    unit: "kilometers",
+                    unit: "metric",
                     unitOptions: ["metric", "square-meters", "square-kilometers", "acres", "ares", "hectares"],
                 },
                 container: element
