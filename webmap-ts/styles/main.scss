@@ -1172,3 +1172,20 @@ blockquote[lang] {
     color: white;
     padding: 1px 6px;
 }
+
+.round-border {
+    border: solid 1px gray;
+    border-radius: 5px;
+    padding: 8px;
+    margin: 12px;
+    margin-bottom: 4px;
+}
+
+.round-border .esri-direct-line-measurement-3d__container,
+.round-border .esri-area-measurement-3d__container {
+    padding: 0;
+}
+
+.round-border h2 {
+    margin-block-start: 0;
+}
