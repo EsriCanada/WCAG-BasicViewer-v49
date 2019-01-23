@@ -110,8 +110,11 @@ class Toolbar extends declared(Widget) {
                     case "filter" :
                         toolList.push(this._addFilters(element, this.mapView));
                         break;
-                    case "features" :
-                        toolList.push(this._addFeaturesList(element, this.mapView));
+                    // case "features" :
+                    //     toolList.push(this._addFeaturesList(element, this.mapView));
+                    //     break;
+                    case "measure" :
+                        toolList.push(this._addMeasure(element, this.mapView));
                         break;
                 default:
                         toolList.push(this._addTool(element, tool));
@@ -454,6 +457,23 @@ class Toolbar extends declared(Widget) {
                     });
                     deferred.resolve(tool);
                 });
+            })
+            return deferred;
+        }
+        return null;
+    }
+
+    private _addMeasure = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.Deferred<Tool> => {
+        if(Has(this.config, "measure")) {
+            const deferred = new Deferred<Tool>();
+            this._addTool(element, "measure").then((tool) => {
+                require(["../Measurement/Measurement"], (Measurement) => {
+                    new Measurement({
+                        mapView: this.mapView,
+                        container: domConstruct.create("div", {}, tool.myToolPage.pageContent)
+                    });
+                    deferred.resolve(tool);
+                })
             })
             return deferred;
         }

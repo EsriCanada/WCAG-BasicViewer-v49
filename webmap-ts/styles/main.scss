@@ -1172,3 +1172,33 @@ blockquote[lang] {
     color: white;
     padding: 1px 6px;
 }
+
+.round-border {
+    border: solid 1px gray;
+    border-radius: 5px;
+    padding: 8px;
+    margin: 12px;
+    margin-bottom: 4px;
+}
+
+.round-border {
+    .esri-direct-line-measurement-3d__container,
+    .esri-area-measurement-3d__container,
+    .esri-coordinate-conversion {
+        padding: 0;
+    }
+    h2 {
+        margin-block-start: 0;
+        margin-block-end: 8px;
+    }
+    .esri-coordinate-conversion {
+        width: 100%;
+    }
+    .esri-coordinate-conversion__row {
+        padding: 0;
+        height: auto;
+    }
+    .esri-coordinate-conversion__conversions-view {
+        margin: 0;
+    }
+}

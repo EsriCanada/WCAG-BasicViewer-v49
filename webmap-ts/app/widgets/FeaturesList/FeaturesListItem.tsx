@@ -18,7 +18,7 @@ import FeatureList = require("./FeaturesList");
   class FeaturesListItem extends declared(Widget) {
 
     @property()
-    mapView: __esri.MapView | __esri.SceneView;
+    mapView: __esri.MapView;// | __esri.SceneView;
 
     @property()
     feature: any;
@@ -29,13 +29,34 @@ import FeatureList = require("./FeaturesList");
     @property()
     tool: Tool;
 
+    private Title:string;
+    postInitialize() {
+        // this.mapView.when(() =>{
+        //     const popupTemplate = this.feature.getEffectivePopupTemplate();
+        //     this.feature.popupTemplate = popupTemplate;
+        //     this.mapView.popup.features = [this.feature];
+        //     setTimeout(() => {
+        //         this.Title = this.mapView.popup.title;
+        //         console.log("title", this.feature.attributes, this.Title);
+        //     }, 50);
+        // });
+    }
+
     render() {
+        // console.log("Render");
         const title = this.feature.layer.popupTemplate.title;
-        console.log("feature", this.feature, title, this.feature.layer.popupTemplate, this.feature.layer.popupTemplate._getTitleFields(this.feature), this.feature.attributes);
-        const _title = this.feature.layer.popupTemplate.title.mixIn(this.feature.attributes);
+        // console.log("feature", this.feature, title, this.feature.layer.popupTemplate, this.feature.layer.popupTemplate._getTitleFields(this.feature), this.feature.attributes);
+        let _title = this.feature.layer.popupTemplate.title.mixIn(this.feature.attributes);
         const _layerId = this.feature.layer.id;
         const _featureId = this.feature.id;
         const id = `${_layerId}_${_featureId}`;
+
+        // const popupTemplate = this.feature.getEffectivePopupTemplate();
+        // this.feature.popupTemplate = popupTemplate;
+        // this.mapView.popup.features = [this.feature];
+        // setTimeout(() => {
+        //     console.log("title", this.mapView.popup.title);
+        // }, 20);
         return (
 <div class="featureItem">
 	<table width="100%" role="presentation">
@@ -45,7 +66,7 @@ import FeatureList = require("./FeaturesList");
 				afterCreate={this._addedCheckBox}/>
 			</th>
 			<th valign="top" align="left" width="100%">
-				<label for="featureButton_{id}" class="checkbox">{_title}</label>
+				<label for="featureButton_{id}" class="checkbox" afterCreate={this._addedLabel}>{_title}</label>
 			</th>
 		</tr>
 		<tr class="featureControls featureItem_{id} hideAttr">
@@ -70,6 +91,18 @@ import FeatureList = require("./FeaturesList");
 
     constructor() {
         super();
+    }
+
+    private _addedLabel = (element: Element) => {
+        // this.mapView.when(() =>{
+        //     const popupTemplate = this.feature.getEffectivePopupTemplate();
+        //     this.feature.popupTemplate = popupTemplate;
+        //     this.mapView.popup.features = [this.feature];
+        //     setTimeout(() => {
+        //         this.Title = this.mapView.popup.title;
+        //         console.log("title", this.feature.attributes, this.Title);
+        //     }, 50);
+        // });
     }
 
     private _checkBox : HTMLInputElement;

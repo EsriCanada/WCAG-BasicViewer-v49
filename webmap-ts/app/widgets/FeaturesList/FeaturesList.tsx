@@ -103,8 +103,8 @@ import FeatureListItem = require("./FeaturesListItem");
 
     private _reloadList = (ext) => {
         // if(!this._isVisible()) return;
+        this.tool.showLoading();
         watchUtils.when(this.mapView, "stationary", () => {
-            this.tool.showLoading();
             this.__reloadList(ext).then(() => {
                 this.tool.hideLoading();
             });
@@ -115,122 +115,123 @@ import FeatureListItem = require("./FeaturesListItem");
 
     private __reloadList = (ext) => {
         const deferred = new Deferred();
+        this.mapView.when(() => {
 
-        console.log("__reloadList", ext, this.tasks);
+            console.log("__reloadList", ext, this.tasks);
 
-        // this.tool.hideBadge(dom.byId('featureSelected'));
+            // this.tool.hideBadge(dom.byId('featureSelected'));
 
-        const list = dom.byId('featuresList');
-        // this._clearMarker();
-        const promises = [];
-        this.tasks
-        .filter((t) => {
-            const isVisibleAtScale = (layer : any) : boolean => {
-                return (layer.minScale <= 0 || this.mapView.scale <= layer.minScale) &&
-                (layer.maxScale <= 0 || this.mapView.scale >= layer.maxScale)
-            } 
-            return t.layer.visible && isVisibleAtScale(t.layer) && t.layer.popupTemplate;
-        })
-        .forEach((t) => {
-            t.query.geometry = ext.extent;
-            try {
-                const exp = (t.layer as __esri.FeatureLayer).definitionExpression;
-                t.query.where = exp;
+            const list = dom.byId('featuresList');
+            // this._clearMarker();
+            const promises = [];
+            this.tasks
+            .filter((t) => {
+                const isVisibleAtScale = (layer : any) : boolean => {
+                    return (layer.minScale <= 0 || this.mapView.scale <= layer.minScale) &&
+                    (layer.maxScale <= 0 || this.mapView.scale >= layer.maxScale)
+                } 
+                return t.layer.popupEnabled && t.layer.visible && isVisibleAtScale(t.layer);
+            })
+            .forEach((t) => {
+                t.query.geometry = ext.extent;
+                try {
+                    const exp = (t.layer as __esri.FeatureLayer).definitionExpression;
+                    t.query.where = exp;
 
-                t.task = t.layer.queryFeatures(t.query);
-                promises.push(t.task);
-                t.task.then(result => {
-                    t.result = result;
-                    console.log("Features", t.layer.title, result.features)
-                })
-            }
-            catch (ex) {
-                // ignore
-                console.log("__reloadList", ex);
-            }
-        });
-
-        All(promises).then(() => {
-            const results = this.tasks.filter((t : any) => t.result && t.result.features && t.result.features.length > 0);
-            console.log("All", results);
-            list.innerHTML = "";
-            let count = 0;
-            let preselected = null;
-
-            if(results) results.forEach((result : any) => {
-                const layer = result.layer;
-                const features = result.result.features;
-                count += features.length;
-                features.forEach((feature) => {
-                    if(this._prevSelected && this._prevSelected.split('_')[1] == feature.attributes[layer.objectIdFieldName]) {
-                        preselected = feature;
-                    }
-                    require(["../FeaturesList/FeaturesListItem"], (FeatureItem) => {
-                        const li = domConstruct.create('li', {}, this.listElement);
-                        const item = new FeatureItem({
-                            feature: feature, 
-                            featureList: this,
-                            mapView: this.mapView,
-                            container: li});
-                    });
-                });
-
-                // features.array.forEach(feature => {
-
-                //     const li = domConstruct.create("li", {}, list);
-                //     const featureListItem = this._getFeatureListItem(i, feature, layer.objectIdFieldName, layer, li);
-                //     //  if(featureListItem)
-                //     //  {
-                //     //      const li = domConstruct.create("li", {
-                //     //          // tabindex : 0,
-                //     //          innerHTML : featureListItem
-                //     //      }, list);
-                //     // }                    
-                // });
+                    t.task = t.layer.queryFeatures(t.query);
+                    promises.push(t.task);
+                    t.task.then(result => {
+                        t.result = result;
+                        console.log("Features", t.layer.title, result.features)
+                    })
+                }
+                catch (ex) {
+                    // ignore
+                    console.log("__reloadList", ex);
+                }
             });
-            dom.byId('featureListCount').innerHTML = i18n.totalCount.format(count);
 
-            // for(let i = 0; i<results.length; i++)
-            // {
-            //     const layer = this.tasks[i].layer;
-            //     if(layer.visible && layer.visibleAtMapScale && layer.infoTemplate) {
-            //         const result = results[i];
+            All(promises).then(() => {
+                const results = this.tasks.filter((t : any) => t.result && t.result.features && t.result.features.length > 0);
+                console.log("All", results);
+                list.innerHTML = "";
+                let count = 0;
+                let preselected = null;
 
-            //         if(result) {
-            //             console.log("result", result);
-            //             // count += result.features.length;
-            //             // for(let j = 0; j<result.features.length; j++) {
-            //             //     const resultFeature = result.features[j];
-            //             //     if(this._prevSelected && this._prevSelected.split('_')[1] == resultFeature.attributes[result.objectIdFieldName]) {
-            //             //         preselected = resultFeature;
-            //             //     }
+                if(results) results.forEach((result : any) => {
+                    const layer = result.layer;
+                    const features = result.result.features;
+                    count += features.length;
+                    features.forEach((feature) => {
+                        if(this._prevSelected && this._prevSelected.split('_')[1] == feature.attributes[layer.objectIdFieldName]) {
+                            preselected = feature;
+                        }
+                        require(["../FeaturesList/FeaturesListItem"], (FeatureItem) => {
+                            const li = domConstruct.create('li', {}, this.listElement);
+                            const item = new FeatureItem({
+                                feature: feature, 
+                                featureList: this,
+                                mapView: this.mapView,
+                                container: li});
+                        });
+                    });
 
-            //             //     const li = domConstruct.create("li", {}, list);
-            //             //     const featureListItem = this._getFeatureListItem(i, resultFeature, result.objectIdFieldName, layer, li);
-            //             //    //  if(featureListItem)
-            //             //    //  {
-            //             //    //      const li = domConstruct.create("li", {
-            //             //    //          // tabindex : 0,
-            //             //    //          innerHTML : featureListItem
-            //             //    //      }, list);
-            //             //    // }
-            //             // }
-            //         }
-            //     }
-            // }
-            // if(!preselected) {
-            //     this._prevSelected = null;
-            // } else {
-            //     const checkbox = dom.byId("featureButton_"+this._prevSelected) as HTMLInputElement;
-            //     if(checkbox) {
-            //         checkbox.checked = true;
-            //         const featureItem = checkbox.closest('.featureItem')[0];
-            //         // const w = dijit.byId(featureItem.id);
-            //         // w._featureExpand(checkbox, true);
-            //         checkbox.focus();
-            //     }
-            // }
+                    // features.array.forEach(feature => {
 
+                    //     const li = domConstruct.create("li", {}, list);
+                    //     const featureListItem = this._getFeatureListItem(i, feature, layer.objectIdFieldName, layer, li);
+                    //     //  if(featureListItem)
+                    //     //  {
+                    //     //      const li = domConstruct.create("li", {
+                    //     //          // tabindex : 0,
+                    //     //          innerHTML : featureListItem
+                    //     //      }, list);
+                    //     // }                    
+                    // });
+                });
+                dom.byId('featureListCount').innerHTML = i18n.totalCount.format(count);
+
+                // for(let i = 0; i<results.length; i++)
+                // {
+                //     const layer = this.tasks[i].layer;
+                //     if(layer.visible && layer.visibleAtMapScale && layer.infoTemplate) {
+                //         const result = results[i];
+
+                //         if(result) {
+                //             console.log("result", result);
+                //             // count += result.features.length;
+                //             // for(let j = 0; j<result.features.length; j++) {
+                //             //     const resultFeature = result.features[j];
+                //             //     if(this._prevSelected && this._prevSelected.split('_')[1] == resultFeature.attributes[result.objectIdFieldName]) {
+                //             //         preselected = resultFeature;
+                //             //     }
+
+                //             //     const li = domConstruct.create("li", {}, list);
+                //             //     const featureListItem = this._getFeatureListItem(i, resultFeature, result.objectIdFieldName, layer, li);
+                //             //    //  if(featureListItem)
+                //             //    //  {
+                //             //    //      const li = domConstruct.create("li", {
+                //             //    //          // tabindex : 0,
+                //             //    //          innerHTML : featureListItem
+                //             //    //      }, list);
+                //             //    // }
+                //             // }
+                //         }
+                //     }
+                // }
+                // if(!preselected) {
+                //     this._prevSelected = null;
+                // } else {
+                //     const checkbox = dom.byId("featureButton_"+this._prevSelected) as HTMLInputElement;
+                //     if(checkbox) {
+                //         checkbox.checked = true;
+                //         const featureItem = checkbox.closest('.featureItem')[0];
+                //         // const w = dijit.byId(featureItem.id);
+                //         // w._featureExpand(checkbox, true);
+                //         checkbox.focus();
+                //     }
+                // }
+            })
 
             deferred.resolve(true);
         });

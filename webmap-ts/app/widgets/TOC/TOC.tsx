@@ -86,16 +86,21 @@ class TOC extends declared(Widget) {
                 watchUtils.when(mapView, "stationary", () => {
                     // console.log("layers", this.layers);
                     this.layers.forEach((layer : any, i) => {
-                        const title = layer.title.NormalizeTitle();
-                        const visibleAtScale = isVisibleAtScale(layer);
-                        const visibleScaleStr = i18n.TOC.visibleAtScale;
-                        const notVisibleScaleStr = i18n.TOC.notVisibleAtScale;
-                        // console.log(i, isVisibleAtScale(layer), layer.title, layer.minScale, mapView.scale, layer.maxScale);
-                        const span = dom.byId("pageBody_layers").querySelector(`input[data-layerId="${layer.id}"] + span`);
-                        domStyle.set(span, "font-weight", `${visibleAtScale ? "bold" : "normal"}`);
-                        domAttr.set(span, "title", visibleAtScale ? visibleScaleStr : notVisibleScaleStr);
-                        domAttr.set(span, "aria-label", `${visibleAtScale ? `${title}, ${visibleScaleStr}` : `${title}, ${notVisibleScaleStr}`}`);
-                        // console.log(i, isVisibleAtScale(layer), span);
+                        if(layer && layer.title) {
+                            const title = layer.title.NormalizeTitle();
+                            const visibleAtScale = isVisibleAtScale(layer);
+                            const visibleScaleStr = i18n.TOC.visibleAtScale;
+                            const notVisibleScaleStr = i18n.TOC.notVisibleAtScale;
+                            // console.log(i, isVisibleAtScale(layer), layer.title, layer.minScale, mapView.scale, layer.maxScale);
+                            const span = dom.byId("pageBody_layers").querySelector(`input[data-layerId="${layer.id}"] + span`);
+                            domStyle.set(span, "font-weight", `${visibleAtScale ? "bold" : "normal"}`);
+                            domAttr.set(span, "title", visibleAtScale ? visibleScaleStr : notVisibleScaleStr);
+                            domAttr.set(span, "aria-label", `${visibleAtScale ? `${title}, ${visibleScaleStr}` : `${title}, ${notVisibleScaleStr}`}`);
+                            // console.log(i, isVisibleAtScale(layer), span);
+                        }
+                        else {
+                            console.log("? layer title", layer);
+                        }
                     })
                 });
             });
