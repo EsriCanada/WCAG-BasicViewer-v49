@@ -287,7 +287,7 @@ class Toolbar extends declared(Widget) {
 
                     const badge = tool.addBadge({
                         toolBadgeEvn: "featureSelected",
-                        toolBadgeImg: 'images/SelectBadge.png'; //this.config.marker.isNullOrWhiteSpace() ? 'images/ripple-dot1.gif' : this.config.marker,
+                        toolBadgeImg: 'images/SelectBadge.png', //this.config.marker.isNullOrWhiteSpace() ? 'images/ripple-dot1.gif' : this.config.marker,
                         toolBadgeTip: i18n.badgesTips.featureSelected,
                     });
                     // tool.showBadge(badge);

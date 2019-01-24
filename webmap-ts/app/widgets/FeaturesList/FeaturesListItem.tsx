@@ -128,6 +128,7 @@ import FeatureList = require("./FeaturesList");
         domClass.add(li, 'borderLi');
         if(checkBox.checked)
         {
+            (this.mapView.popup as any).selectedFeatureIndex = this.featureIndex;
             // this._prevSelected = this.featureList._prevSelected = values[0]+'_'+fid;
             // const featureControls = li.querySelector('.featureControls');
             // domClass.remove(featureControls, 'hideAttr');
@@ -231,10 +232,10 @@ import FeatureList = require("./FeaturesList");
             // // }));
         } else {
             domClass.remove(li, 'borderLi');
-            query('.featureItem_'+this.featureList._prevSelected).forEach(function(e) {
-                domClass.add(e, 'hideAttr');
-            });
-            this.featureList._prevSelected = null;
+            // query('.featureItem_'+this.featureList._prevSelected).forEach(function(e) {
+            //     domClass.add(e, 'hideAttr');
+            // });
+            // this.featureList._prevSelected = null;
         }
     }
 }
