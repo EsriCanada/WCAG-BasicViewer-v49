@@ -24,6 +24,9 @@ import FeatureList = require("./FeaturesList");
     feature: any;
 
     @property()
+    featureWidget: any;
+
+    @property()
     featureList: FeatureList;
   
     @property()
@@ -44,12 +47,14 @@ import FeatureList = require("./FeaturesList");
 
     render() {
         // console.log("Render");
-        const title = this.feature.layer.popupTemplate.title;
-        // console.log("feature", this.feature, title, this.feature.layer.popupTemplate, this.feature.layer.popupTemplate._getTitleFields(this.feature), this.feature.attributes);
-        let _title = this.feature.layer.popupTemplate.title.mixIn(this.feature.attributes);
-        const _layerId = this.feature.layer.id;
-        const _featureId = this.feature.id;
-        const id = `${_layerId}_${_featureId}`;
+        const _title = this.featureWidget.title;
+        // // console.log("feature", this.feature, title, this.feature.layer.popupTemplate, this.feature.layer.popupTemplate._getTitleFields(this.feature), this.feature.attributes);
+        // let _title = this.feature.layer.popupTemplate.title.mixIn(this.feature.attributes);
+        // const _layerId = this.feature.layer.id;
+        // const _featureId = this.feature.id;
+        const id = `${this.featureWidget.id}`;
+
+        console.log("popup", this.mapView.popup);
 
         // const popupTemplate = this.feature.getEffectivePopupTemplate();
         // this.feature.popupTemplate = popupTemplate;
@@ -73,11 +78,11 @@ import FeatureList = require("./FeaturesList");
 			<td>
 				<input id="panBtn_{id}" class="fc bg pageBtn" type="button" value={i18n.featureList.panTo} 
 				data-dojo-attach-event="onclick: featurePan"
-				data-layerId="{_layerId}" data-featureId={_featureId}/>
+				data-layerId="{_layerId}" />
 
 				<input id="zoomBtn_{id}" class="fc bg pageBtn" type="button" value={i18n.featureList.zoomTo} 
 				data-dojo-attach-event="onclick: featureZoom"
-				data-layerId="${_layerId}" data-featureId="${_featureId}"/>
+				data-layerId="${_layerId}" />
 			</td>
 		</tr>
 		<tr class="featureContent featureItem_${id} hideAttr">
@@ -108,10 +113,10 @@ import FeatureList = require("./FeaturesList");
     private _checkBox : HTMLInputElement;
     private _addedCheckBox = (element:Element) => {
         this._checkBox = element as HTMLInputElement;
-        const _layerId = this.feature.layer.id;
-        const _featureId = this.feature.attributes[this.feature.objectIdFieldName];
-        this._checkBox.id = `featureButton_${_layerId}_${_featureId}`;
-        this._checkBox.value = this.feature.layer.id+","+this.feature.id;
+        // const _layerId = this.feature.layer.id;
+        // const _featureId = this.feature.attributes[this.feature.objectIdFieldName];
+        // this._checkBox.id = `featureButton_${_layerId}_${_featureId}`;
+        // this._checkBox.value = this.feature.layer.id+","+this.feature.id;
         this.own(on(this._checkBox, "change", this._featureExpand));
     }
 
