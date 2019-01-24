@@ -193,26 +193,30 @@ import FeatureListItem = require("./FeaturesListItem");
                 });
                 dom.byId('featureListCount').innerHTML = i18n.totalCount.format(allFeatures.length);
                 const popup = this.mapView.popup as any;
-                popup.autoOpenEnabled = false;
+                // popup.autoOpenEnabled = false;
                 popup.clear();
-                popup.features = allFeatures;
                 setTimeout(() => {
-                    const featureWidgets = popup.featureWidgets;
-                    console.log("popup", popup, featureWidgets);
+                    popup.features = allFeatures;
+                    setTimeout(() => {
+                        const featureWidgets = popup.featureWidgets;
+                        console.log("popup", popup, featureWidgets);
 
-                    featureWidgets.forEach(featureWidget => {
-                        console.log("title", featureWidget.title);
+                        for(let i = 0; i< featureWidgets.length; i++) {
+                            const featureWidget = featureWidgets[i];
+                            // console.log("title", featureWidget.title);
 
-                        require(["../FeaturesList/FeaturesListItem"], (FeatureItem) => {
-                            const li = domConstruct.create('li', {}, this.listElement);
-                            const item = new FeatureItem({
-                                featureWidget: featureWidget,
-                                feature: featureWidget.feature, 
-                                featureList: this,
-                                mapView: this.mapView,
-                                container: li});
-                        });
-                    });
+                            require(["../FeaturesList/FeaturesListItem"], (FeatureItem) => {
+                                const li = domConstruct.create('li', {}, this.listElement);
+                                const item = new FeatureItem({
+                                    mapView: this.mapView,
+                                    featureIndex: i,
+                                    featureWidget: featureWidget,
+                                    feature: this.mapView.popup.features[i], 
+                                    featureList: this,
+                                    container: li});
+                            });
+                        };
+                    }, 250);
                 }, 250);
 
                 // for(let i = 0; i<results.length; i++)
