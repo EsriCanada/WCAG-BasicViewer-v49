@@ -151,6 +151,7 @@ import FeatureListItem = require("./FeaturesListItem");
                 }
             });
 
+            let allFeatures = [];
             All(promises).then(() => {
                 const results = this.tasks.filter((t : any) => t.result && t.result.features && t.result.features.length > 0);
                 console.log("All", results);
@@ -161,35 +162,62 @@ import FeatureListItem = require("./FeaturesListItem");
                 if(results) results.forEach((result : any) => {
                     const layer = result.layer;
                     const features = result.result.features;
+                    allFeatures = allFeatures.concat(features);
                     count += features.length;
-                    features.forEach((feature) => {
-                        if(this._prevSelected && this._prevSelected.split('_')[1] == feature.attributes[layer.objectIdFieldName]) {
-                            preselected = feature;
-                        }
-                        require(["../FeaturesList/FeaturesListItem"], (FeatureItem) => {
-                            const li = domConstruct.create('li', {}, this.listElement);
-                            const item = new FeatureItem({
-                                feature: feature, 
-                                featureList: this,
-                                mapView: this.mapView,
-                                container: li});
-                        });
-                    });
-
-                    // features.array.forEach(feature => {
-
-                    //     const li = domConstruct.create("li", {}, list);
-                    //     const featureListItem = this._getFeatureListItem(i, feature, layer.objectIdFieldName, layer, li);
-                    //     //  if(featureListItem)
-                    //     //  {
-                    //     //      const li = domConstruct.create("li", {
-                    //     //          // tabindex : 0,
-                    //     //          innerHTML : featureListItem
-                    //     //      }, list);
-                    //     // }                    
+                    // features.forEach((feature) => {
+                    //     if(this._prevSelected && this._prevSelected.split('_')[1] == feature.attributes[layer.objectIdFieldName]) {
+                    //         preselected = feature;
+                    //     }
+                    //     require(["../FeaturesList/FeaturesListItem"], (FeatureItem) => {
+                    //         const li = domConstruct.create('li', {}, this.listElement);
+                    //         const item = new FeatureItem({
+                    //             feature: feature, 
+                    //             featureList: this,
+                    //             mapView: this.mapView,
+                    //             container: li});
+                    //     });
                     // });
+
+                    // // features.array.forEach(feature => {
+
+                    // //     const li = domConstruct.create("li", {}, list);
+                    // //     const featureListItem = this._getFeatureListItem(i, feature, layer.objectIdFieldName, layer, li);
+                    // //     //  if(featureListItem)
+                    // //     //  {
+                    // //     //      const li = domConstruct.create("li", {
+                    // //     //          // tabindex : 0,
+                    // //     //          innerHTML : featureListItem
+                    // //     //      }, list);
+                    // //     // }                    
+                    // // });
                 });
-                dom.byId('featureListCount').innerHTML = i18n.totalCount.format(count);
+                dom.byId('featureListCount').innerHTML = i18n.totalCount.format(allFeatures.length);
+                const popup = this.mapView.popup as any;
+                // popup.autoOpenEnabled = false;
+                popup.clear();
+                setTimeout(() => {
+                    popup.features = allFeatures;
+                    setTimeout(() => {
+                        const featureWidgets = popup.featureWidgets;
+                        console.log("popup", popup, featureWidgets);
+
+                        for(let i = 0; i< featureWidgets.length; i++) {
+                            const featureWidget = featureWidgets[i];
+                            // console.log("title", featureWidget.title);
+
+                            require(["../FeaturesList/FeaturesListItem"], (FeatureItem) => {
+                                const li = domConstruct.create('li', {}, this.listElement);
+                                const item = new FeatureItem({
+                                    mapView: this.mapView,
+                                    featureIndex: i,
+                                    featureWidget: featureWidget,
+                                    feature: this.mapView.popup.features[i], 
+                                    featureList: this,
+                                    container: li});
+                            });
+                        };
+                    }, 250);
+                }, 250);
 
                 // for(let i = 0; i<results.length; i++)
                 // {
