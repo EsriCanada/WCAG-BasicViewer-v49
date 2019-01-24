@@ -124,6 +124,8 @@ class MapExample {
           }
         }).then(mapView => {
           // console.log("mapView", mapView);
+          mapView.highlightOptions.color = this.config.focusColor;
+
           findQuery(find, mapView).then(() => goToMarker(marker, mapView));
 
           if(this.config.scalebar) {
