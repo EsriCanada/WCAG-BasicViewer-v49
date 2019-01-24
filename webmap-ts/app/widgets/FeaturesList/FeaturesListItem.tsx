@@ -35,46 +35,23 @@ import FeatureList = require("./FeaturesList");
     @property()
     tool: Tool;
 
-    private Title:string;
-    postInitialize() {
-        // this.mapView.when(() =>{
-        //     const popupTemplate = this.feature.getEffectivePopupTemplate();
-        //     this.feature.popupTemplate = popupTemplate;
-        //     this.mapView.popup.features = [this.feature];
-        //     setTimeout(() => {
-        //         this.Title = this.mapView.popup.title;
-        //         console.log("title", this.feature.attributes, this.Title);
-        //     }, 50);
-        // });
-    }
-
     render() {
         // console.log("Render");
-        const _title = this.featureWidget.title;//+" - "+this.feature.layer.popupTemplate.title.mixIn(this.feature.attributes);
-        // // console.log("feature", this.feature, title, this.feature.layer.popupTemplate, this.feature.layer.popupTemplate._getTitleFields(this.feature), this.feature.attributes);
-        // let _title = this.feature.layer.popupTemplate.title.mixIn(this.feature.attributes);
-        // const _layerId = this.feature.layer.id;
-        // const _featureId = this.feature.id;
-        const id = `${this.featureWidget.id}`;
+        const title = this.featureWidget.title;//+" - "+this.feature.layer.popupTemplate.title.mixIn(this.feature.attributes);
+        const _id = this.featureIndex;
 
-        console.log("popup", this.mapView.popup);
-
-        // const popupTemplate = this.feature.getEffectivePopupTemplate();
-        // this.feature.popupTemplate = popupTemplate;
-        // this.mapView.popup.features = [this.feature];
-        // setTimeout(() => {
-        //     console.log("title", this.mapView.popup.title);
-        // }, 20);
         return (
 <div class="featureItem">
 	<table width="100%" role="presentation">
 		<tr>
 			<th valign="top" rowspan="3">
-				<input class="checkbox" type="checkbox" name="featureItem" 
+                <input class="checkbox" type="checkbox" name="featureItem" 
+                id={"featureButton_"+_id}
+                // value={this.feature.layer.id+","+this.feature.id}
 				afterCreate={this._addedCheckBox}/>
 			</th>
 			<th valign="top" align="left" width="100%">
-				<label for="featureButton_{id}" class="checkbox" afterCreate={this._addedLabel}>{_title}</label>
+				<label for={"featureButton_"+_id} class="checkbox" afterCreate={this._addedLabel}>{title}</label>
 			</th>
 		</tr>
 		{/* <tr class="featureControls featureItem_{id} hideAttr">
@@ -87,11 +64,11 @@ import FeatureList = require("./FeaturesList");
 				data-dojo-attach-event="onclick: featureZoom"
 				data-layerId="${_layerId}" />
 			</td>
-		</tr>
+		</tr> */}
 		<tr class="featureContent featureItem_${id} hideAttr">
 			<td class="featureContentPane">
 			</td>
-		</tr> */}
+		</tr>
 	</table>
 </div>
         );
@@ -101,25 +78,14 @@ import FeatureList = require("./FeaturesList");
         super();
     }
 
+    private _label : HTMLLabelElement;
     private _addedLabel = (element: Element) => {
-        // this.mapView.when(() =>{
-        //     const popupTemplate = this.feature.getEffectivePopupTemplate();
-        //     this.feature.popupTemplate = popupTemplate;
-        //     this.mapView.popup.features = [this.feature];
-        //     setTimeout(() => {
-        //         this.Title = this.mapView.popup.title;
-        //         console.log("title", this.feature.attributes, this.Title);
-        //     }, 50);
-        // });
+        this._label = element as HTMLLabelElement;
     }
 
     private _checkBox : HTMLInputElement;
     private _addedCheckBox = (element:Element) => {
         this._checkBox = element as HTMLInputElement;
-        // const _layerId = this.feature.layer.id;
-        // const _featureId = this.feature.attributes[this.feature.objectIdFieldName];
-        // this._checkBox.id = `featureButton_${_layerId}_${_featureId}`;
-        // this._checkBox.value = this.feature.layer.id+","+this.feature.id;
         this.own(on(this._checkBox, "change", this._featureExpand));
     }
 
