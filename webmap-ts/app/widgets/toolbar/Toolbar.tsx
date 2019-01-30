@@ -111,7 +111,7 @@ class Toolbar extends declared(Widget) {
                         toolList.push(this._addFilters(element, this.mapView));
                         break;
                     case "features" :
-                        toolList.push(this._addFeaturesList(element, this.mapView));
+                        // toolList.push(this._addFeaturesList(element, this.mapView));
                         break;
                     case "measure" :
                         toolList.push(this._addMeasure(element, this.mapView));
