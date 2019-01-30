@@ -68,8 +68,8 @@ class KeyboardMapNavigator extends declared(Widget) {
     private cursorNav;
     private _addCursor = (element: Element) => {
         this.mapSuperCursor = element;
-        // this.mapView.ui.add(this.mapSuperCursor);
-        console.log("mapSuperCursor", this.mapSuperCursor);
+        this.mapView.ui.add(this.mapSuperCursor);
+        // console.log("mapSuperCursor", this.mapSuperCursor);
 
         this.cursorNav = gfx.createSurface(this.mapSuperCursor, 40, 40);
         const cursor = this.cursorNav.createGroup();

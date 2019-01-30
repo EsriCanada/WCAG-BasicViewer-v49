@@ -499,7 +499,7 @@ class Toolbar extends declared(Widget) {
                         selectionColor: this.config.mapSelectionColor,
                         cursorFocusColor: this.config.focusColor,
                         // operationalLayers: this.config.response.itemInfo.itemData.operationalLayers,
-                        container: domConstruct.create("div", {}, this.mapView.ui.container)
+                        container: domConstruct.create("div", {})//, this.mapView.ui.container)
                     });
                     // deferred.resolve(true);
                 })
