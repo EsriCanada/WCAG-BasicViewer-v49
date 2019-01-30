@@ -48,31 +48,52 @@ class KeyboardMapNavigator extends declared(Widget) {
 
     render() {
         return (
-            <div style="position:absolute; pointer-events:none; display:none;" afterCreate={this._addCursor}>
+            <div
+                id="mapSuperCursor"
+                style="position:absolute; pointer-events:none;" 
+                afterCreate={this._addCursor}>
             </div>
         );
+    }
+
+    private Show = () => {
+        domStyle.set(this.mapSuperCursor, "display", "block");
+    }
+
+    private Hide = () => {
+        domStyle.set(this.mapSuperCursor, "display", "none");
     }
 
     private mapSuperCursor;
     private cursorNav;
     private _addCursor = (element: Element) => {
         this.mapSuperCursor = element;
+        // this.mapView.ui.add(this.mapSuperCursor);
+        console.log("mapSuperCursor", this.mapSuperCursor);
 
         this.cursorNav = gfx.createSurface(this.mapSuperCursor, 40, 40);
         const cursor = this.cursorNav.createGroup();
         const circle = cursor.createCircle({cx:20, cy:20, r:7}).setFill("transparent").setStroke(this.cursorFocusColor);
         const path = cursor.createPath("M20 0 L20 19 M20 21 L20 40 M0 20 L19 20 M21 20 L40 20").setStroke({color:"black", width:2});
 
+        domStyle.set(this.mapSuperCursor, 'left', "100px");
+        domStyle.set(this.mapSuperCursor, 'top', "100px");
         this.cursorToCenter();
+        // this.Hide();
+
+
+        this.deferred.resolve(true);
     }
 
     private cursorPos: ScreenPoint;
     cursorToCenter = () => {
-        const m = this.mapView.container.getBoundingClientRect();
+        console.log("cursorToCenter container", this.mapView);
+        const m = this.mapView.ui.container.getBoundingClientRect();
+        console.log("cursorToCenter getBoundingClientRect", m);
         this.cursorPos = new ScreenPoint({x:(m.right-m.left)/2, y:(m.bottom-m.top)/2});
 
-        domStyle.set('mapSuperCursor', 'left', (this.cursorPos.x-20)+'px');
-        domStyle.set('mapSuperCursor', 'top', (this.cursorPos.y-20)+'px');
+        domStyle.set(this.mapSuperCursor, 'left', (this.cursorPos.x-20)+'px');
+        domStyle.set(this.mapSuperCursor, 'top', (this.cursorPos.y-20)+'px');
 
         return this.cursorPos;
     }

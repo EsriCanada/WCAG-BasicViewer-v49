@@ -63,7 +63,7 @@ import { runInThisContext } from "vm";
             })
 
             const widgetContaner = element.querySelector(".esri-direct-line-measurement-3d__container");
-            console.log("widgetContaner", widgetContaner);
+            // console.log("widgetContaner", widgetContaner);
             if(widgetContaner) {
                 new MutationObserver((mutations) => {
                     console.log("mutations", mutations);
