@@ -203,62 +203,22 @@ import FeatureListItem = require("./FeaturesListItem");
 
                         for(let i = 0; i< featureWidgets.length; i++) {
                             const featureWidget = featureWidgets[i];
-                            // console.log("title", featureWidget.title);
+                            console.log("feature", this.mapView.popup.features[i]);
 
                             require(["../FeaturesList/FeaturesListItem"], (FeatureItem) => {
-                                const li = domConstruct.create('li', {}, this.listElement);
-                                const item = new FeatureItem({
+                                new FeatureItem({
                                     mapView: this.mapView,
                                     featureIndex: i,
                                     featureWidget: featureWidget,
                                     feature: this.mapView.popup.features[i], 
                                     featureList: this,
-                                    container: li});
+                                    container: domConstruct.create('li', {}, this.listElement)
+                                });
                             });
                         };
                     }, 250);
                 }, 250);
 
-                // for(let i = 0; i<results.length; i++)
-                // {
-                //     const layer = this.tasks[i].layer;
-                //     if(layer.visible && layer.visibleAtMapScale && layer.infoTemplate) {
-                //         const result = results[i];
-
-                //         if(result) {
-                //             console.log("result", result);
-                //             // count += result.features.length;
-                //             // for(let j = 0; j<result.features.length; j++) {
-                //             //     const resultFeature = result.features[j];
-                //             //     if(this._prevSelected && this._prevSelected.split('_')[1] == resultFeature.attributes[result.objectIdFieldName]) {
-                //             //         preselected = resultFeature;
-                //             //     }
-
-                //             //     const li = domConstruct.create("li", {}, list);
-                //             //     const featureListItem = this._getFeatureListItem(i, resultFeature, result.objectIdFieldName, layer, li);
-                //             //    //  if(featureListItem)
-                //             //    //  {
-                //             //    //      const li = domConstruct.create("li", {
-                //             //    //          // tabindex : 0,
-                //             //    //          innerHTML : featureListItem
-                //             //    //      }, list);
-                //             //    // }
-                //             // }
-                //         }
-                //     }
-                // }
-                // if(!preselected) {
-                //     this._prevSelected = null;
-                // } else {
-                //     const checkbox = dom.byId("featureButton_"+this._prevSelected) as HTMLInputElement;
-                //     if(checkbox) {
-                //         checkbox.checked = true;
-                //         const featureItem = checkbox.closest('.featureItem')[0];
-                //         // const w = dijit.byId(featureItem.id);
-                //         // w._featureExpand(checkbox, true);
-                //         checkbox.focus();
-                //     }
-                // }
             })
 
             deferred.resolve(true);
