@@ -28,13 +28,7 @@ class KeyboardMapNavigator extends declared(Widget) {
     cursorFocusColor:"red";
     
     @property()
-    config: ApplicationConfig;
-
-    @property()
-    portal: __esri.Portal;
-
-    @property()
-    defaultButton:HTMLElement;
+    cursorColor:"black";
     
     @property()
     deferred: any;
@@ -74,19 +68,29 @@ class KeyboardMapNavigator extends declared(Widget) {
         this.cursorNav = gfx.createSurface(this.mapSuperCursor, 40, 40);
         const cursor = this.cursorNav.createGroup();
         const circle = cursor.createCircle({cx:20, cy:20, r:7}).setFill("transparent").setStroke(this.cursorFocusColor);
-        const path = cursor.createPath("M20 0 L20 19 M20 21 L20 40 M0 20 L19 20 M21 20 L40 20").setStroke({color:"black", width:2});
+        const path = cursor.createPath("M20 0 L20 19 M20 21 L20 40 M0 20 L19 20 M21 20 L40 20").setStroke({color:this.cursorColor, width:1});
 
         domStyle.set(this.mapSuperCursor, 'left', "100px");
         domStyle.set(this.mapSuperCursor, 'top', "100px");
         this.cursorToCenter();
-        // this.Hide();
+        this.Hide();
+
+        this.own(on(this.mapView, 'focus', this.Show));
+        this.own(on(this.mapView, 'blur', this.Hide));
+
+        this.own(on(this.mapView, 'click', (evn) => {
+            // this.followTheMapMode(false);
+            this.setCursorPos(this.mapView.toScreen(evn.mapPoint));
+            // this.clearZone();
+        }));
+
 
 
         this.deferred.resolve(true);
     }
 
     private cursorPos: ScreenPoint;
-    cursorToCenter = () => {
+    cursorToCenter = () : ScreenPoint => {
         console.log("cursorToCenter container", this.mapView);
         const m = this.mapView.ui.container.getBoundingClientRect();
         console.log("cursorToCenter getBoundingClientRect", m);
@@ -97,6 +101,16 @@ class KeyboardMapNavigator extends declared(Widget) {
 
         return this.cursorPos;
     }
+
+    private setCursorPos = (screenPoint : ScreenPoint) : ScreenPoint => {
+        if(screenPoint) {
+            this.cursorPos = screenPoint;
+        }
+        domStyle.set('mapSuperCursor', 'left', (this.cursorPos.x-20)+'px');
+        domStyle.set('mapSuperCursor', 'top', (this.cursorPos.y-20)+'px');
+        return this.cursorPos;
+    }
+
 
 }
 
