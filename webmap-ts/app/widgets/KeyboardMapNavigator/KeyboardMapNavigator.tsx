@@ -102,7 +102,7 @@ class KeyboardMapNavigator extends declared(Widget) {
             // this.clearZone();
         }));
 
-        // on(this.map.infoWindow, 'hide', lang.hitch(this, function() {
+        // this.own(on(this.mapView.popup, 'hide', () => {
         //     this.clearZone();
         // }));
 
