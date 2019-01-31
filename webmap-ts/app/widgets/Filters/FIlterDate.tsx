@@ -163,7 +163,7 @@ import FilterItemBase = require("./FilterItemBase");
                 const maxDate = this.maxValueWig.value.toSQL();
                 if(maxDate) {
                     const where = this.field.name+this.criteriaElement.value+"'"+minDate+"' AND '"+maxDate+"'";
-                    console.log("filterDate->filterExpression", where);
+                    // console.log("filterDate->filterExpression", where);
                     return where;
                 }
                 else {
@@ -171,7 +171,7 @@ import FilterItemBase = require("./FilterItemBase");
                 }
             } else {
                 const where = this.field.name+this.criteriaElement.value+"'"+minDate+"'";
-                console.log("filterDate->filterExpression", where);
+                // console.log("filterDate->filterExpression", where);
                 return where;
             }
         } else return null;

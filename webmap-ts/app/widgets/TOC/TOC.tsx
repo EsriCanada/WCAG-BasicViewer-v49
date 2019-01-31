@@ -99,7 +99,7 @@ class TOC extends declared(Widget) {
                             // console.log(i, isVisibleAtScale(layer), span);
                         }
                         else {
-                            console.log("? layer title", layer);
+                            // console.log("? layer title", layer);
                         }
                     })
                 });

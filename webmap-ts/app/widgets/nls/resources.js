@@ -96,7 +96,37 @@ define({
             panTo: "Pan To",
             zoomTo: "Zoom To",
             followLink: "Follow Link"
-        }
+        },
+        popupInfo: {
+            headerNavigation: "Header navigation panel",
+            "footerNavigation": "Footer navigation panel",
+            "Next": "Next",
+            "Prev": "Previous",
+            "Score": "Score:",
+            "clickToSelect": "Click on map to select features",
+            "current": "Current Feature",
+            "total": "Total Features",
+            "zoomTo": "Zoom to Feature",
+            "map": "Skip to Map",
+            "clear": "Clear Selection",
+            "noFeatures": "Nothing to show",
+            "noPreselectedFeature": "No feature pre-selected",
+            "instructions": "Click the map to select features <br/>or <br/>" +
+                "<a href='#' onclick='dojo.byId(\"mapDiv\").focus();'>Skip to Map</a> and:<br/>" +
+                "<ul>" +
+                "<li>move map with <myKey>arrows</myKey>, or</li>" +
+                "<li>move map cursor with <myKey>SHIFT</myKey> + <myKey>arrows</myKey>, then</li>" +
+                "<li>press <myKey>ENTER</myKey> to select at cursor, or</li>" +
+                "<li>press <myKey>SHIFT</myKey> + <myKey>ENTER</myKey> to select around cursor (x 10),</li>" +
+                "<li>press <myKey aria-label='Control'>CTRL</myKey> + <myKey>ENTER</myKey> to select all map extent,</li>" +
+                "<li>press <myKey aria-label='Control'>CTRL</myKey> + <myKey>SHIFT</myKey> + <myKey>ENTER</myKey> to select inside or around the selected feature.</li>" +
+                "</ul>" +
+                "Selecting the extent, starts the Follow-the-Map mode.",
+            "addressToLocation": "Address To Location",
+            symbol: "Symbol",
+            "resultOf": 'Result {0} of {1}'
+        },
+
     }),
     "ar": 1,
     "cs": 1,

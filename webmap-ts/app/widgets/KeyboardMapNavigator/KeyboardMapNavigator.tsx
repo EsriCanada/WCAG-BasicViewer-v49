@@ -21,6 +21,7 @@ import Color = require("esri/Color");
 import { SimpleLineSymbol, SimpleFillSymbol } from "esri/symbols"; 
 // import Query = require("esri/tasks/query");
 import { Has } from "../../utils";
+import { WhiteOrBlack } from "../../customColors";
 
 const CSS = {
     base: "toolbar",
@@ -56,14 +57,6 @@ class KeyboardMapNavigator extends declared(Widget) {
             //         defaults.selectionColor;
             // }
 
-            const selectionColor = new Color(this.selectionColor);
-            selectionColor.a = 0.225;
-            
-            this.selectionSymbol = new SimpleFillSymbol(
-                {style:"solid",
-                //new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color('White'), 2), 
-                color:selectionColor}
-                );
     }
 
     render() {
@@ -92,7 +85,7 @@ class KeyboardMapNavigator extends declared(Widget) {
         
         this.cursorNav = gfx.createSurface(this.mapSuperCursor, 40, 40);
         const cursor = this.cursorNav.createGroup();
-        const circle = cursor.createCircle({cx:20, cy:20, r:7}).setFill("transparent").setStroke(this.cursorFocusColor);
+        const circle = cursor.createCircle({cx:20, cy:20, r:10}).setFill("transparent").setStroke(this.cursorFocusColor);
         const path = cursor.createPath("M20 0 L20 19 M20 21 L20 40 M0 20 L19 20 M21 20 L40 20").setStroke({color:this.cursorColor, width:1});
 
         domStyle.set(this.mapSuperCursor, 'left', "100px");
@@ -127,6 +120,15 @@ class KeyboardMapNavigator extends declared(Widget) {
             }
         }));
 
+        // console.log("selectionColor", this.selectionColor);
+        const selectionColor = new Color(this.selectionColor);
+        selectionColor.a = 0.25;
+        
+        this.selectionSymbol = new SimpleFillSymbol({
+            style:"solid",
+            outline: { color: this.selectionColor, width:0},
+            color:selectionColor
+        });
 
         this.deferred.resolve(true);
     }
@@ -153,7 +155,7 @@ class KeyboardMapNavigator extends declared(Widget) {
 
     private layers;
 
-    private showPopup = (evn, mode:string = "point") : any => {
+    private showPopup = (evn, mode:string = null) : any => {
         const isVisibleAtScale = (layer : any) : boolean => {
             return (layer.minScale <= 0 || this.mapView.scale <= layer.minScale) &&
             (layer.maxScale <= 0 || this.mapView.scale >= layer.maxScale)
@@ -195,26 +197,31 @@ class KeyboardMapNavigator extends declared(Widget) {
         this.followTheMapMode(mode === 'extent');
 
         this.mapView.popup.visible = true;//show();
-        this.getFeaturesAtPoint(center, mode, visibleLayers)
-        // .then(lang.hitch(this, function(features){
+        this.getFeaturesAtPoint(center, mode, visibleLayers).then((features: any[]) => {
 
-        //     if(features && features !== undefined && features.length > 0) {
-        //         this.map.infoWindow.setFeatures(features);
-        //     }
-        //     else 
-        //         this.map.infoWindow.clearFeatures();
+            console.log("features", features);
 
-        //     if(!has('infoPanel'))
-        //         this.map.infoWindow.show(center);
+            if(features && features !== undefined && features.length > 0) {
+                this.mapView.popup.features = features;
+            }
+            else {
+                this.mapView.popup.features = features;
+            }
 
-        //     deferred.resolve();
-        // }),
-        // lang.hitch(this, function(error) {
-        //     // console.error(error);
-        //     this.showError(error);
-        //     this.loading(false);
-        // }));
-        // return deferred.promise;
+            // if(!Has('infoPanel'))
+            //     this.mapView.popup.features = features;
+
+            deferred.resolve();
+        }
+        ,
+        (error) => {
+            // console.error(error);
+            alert(error);
+            // this.showError(error);
+            // this.loading(false);
+        }
+        );
+        return deferred.promise;
     }
 
     private features = [];
@@ -222,14 +229,21 @@ class KeyboardMapNavigator extends declared(Widget) {
         // this.loading(true);
         const deferred = new Deferred();
 
+
         this.features = [];
         if(!layers || layers.length === 0)
             deferred.resolve(this.features);
         else {
 
-            let shape = this.mapView.extent as any;
+            let shape : any = this.mapView.extent;
             // if(!mapPoint) mapPoint = shape.getCenter();
-            const w = shape.width/75;
+            // const w = shape.width/75;
+
+            const c = this.mapView.toScreen(mapPoint);
+            const p1 : Point = new Point({x:c.x, y:c.y});
+            const p2 : Point = new Point({x:c.x+10, y:c.y});
+            const wc = this.mapView.toMap(new Point({x:c.x+Math.abs(p2.x - p1.x), y:c.y}));
+            const w = Math.abs(wc.x - mapPoint.x);
             // var selectedFeature = this.map.infoWindow.getSelectedFeature();
             
             switch(mode) {
@@ -243,8 +257,8 @@ class KeyboardMapNavigator extends declared(Widget) {
                 case 'disk':
                     shape = new Circle({
                         center: mapPoint,
-                        geodesic: true,
-                        radius: w * 10,
+                        geodesic: false,
+                        radius: w * 5,
                     });
                     break;
                 case 'extent':
@@ -262,7 +276,7 @@ class KeyboardMapNavigator extends declared(Widget) {
                             });
                         }
                         else {
-                            const extent = shape.getExtent().expand(1.5);
+                            const extent = shape.extent.expand(1.5);
                             this.mapView.extent = extent;
                         }
                     }
@@ -272,6 +286,9 @@ class KeyboardMapNavigator extends declared(Widget) {
                     }
                     break;
             }
+
+            console.log("mode", mode);
+
 
             this.clearZone();
             this.queryZone = new Graphic({geometry:shape, symbol:this.selectionSymbol});
@@ -303,15 +320,15 @@ class KeyboardMapNavigator extends declared(Widget) {
 
             All(deferrs).then(() => {
                 // this.loading(false);
-                const features = this.features.filter(function(f) {
-                    return f.getContent() != null;
-                });
-                if(features.length===0) {
+                // const features = this.features.filter((f) => {
+                //     return f.getContent() != null;
+                // });
+                if(this.features.length===0) {
                     deferred.reject(i18n.widgets.popupInfo.noFeatures);
                     return deferred.promise;
                 } 
                 else {
-                    deferred.resolve(features);
+                    deferred.resolve(this.features);
                 }
             });
         }
