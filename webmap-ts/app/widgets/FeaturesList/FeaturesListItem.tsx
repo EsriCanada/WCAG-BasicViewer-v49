@@ -79,8 +79,14 @@ import FeatureList = require("./FeaturesList");
     }
 
     private _label : HTMLLabelElement;
+    private layerView;
     private _addedLabel = (element: Element) => {
         this._label = element as HTMLLabelElement;
+
+        this.mapView.whenLayerView(this.feature.layer).then((layerView) => {
+            this.layerView = layerView;
+            console.log("layerView", this.layerView);
+        });
     }
 
     private _checkBox : HTMLInputElement;
@@ -95,6 +101,7 @@ import FeatureList = require("./FeaturesList");
 
     private _prevSelected: any;
 
+    // private highlightSelect;
     private __featureExpand = (checkBox : HTMLInputElement, restore = false) => {
         // if(this.featureList._prevSelected && !restore) {
         //     query('.featureItem_'+this.featureList._prevSelected).forEach((e : HTMLElement) => {
@@ -126,9 +133,18 @@ import FeatureList = require("./FeaturesList");
 
         const li : HTMLLIElement = this.container as HTMLLIElement;
         domClass.add(li, 'borderLi');
+        
+        if (this.featureList.highlightSelect) {
+            this.featureList.highlightSelect.remove();
+            }
+
         if(checkBox.checked)
         {
-            (this.mapView.popup as any).selectedFeatureIndex = this.featureIndex;
+            this.featureList.highlightSelect = this.layerView.highlight(this.feature);
+
+
+            // (this.mapView.popup as any).selectedFeatureIndex = this.featureIndex;
+
             // this._prevSelected = this.featureList._prevSelected = values[0]+'_'+fid;
             // const featureControls = li.querySelector('.featureControls');
             // domClass.remove(featureControls, 'hideAttr');
