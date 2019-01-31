@@ -25,6 +25,9 @@ import FeatureListItem = require("./FeaturesListItem");
     @property()
     tool: Tool;
 
+    @property()
+    highlightSelect: any;
+
     render() {
         return (
 <div>
