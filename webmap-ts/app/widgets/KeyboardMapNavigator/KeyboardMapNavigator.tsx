@@ -18,6 +18,7 @@ import { Point, ScreenPoint, Extent } from "esri/geometry";
 import Circle = require("esri/geometry/Circle");
 import Graphic = require("esri/Graphic");
 import Color = require("esri/Color");
+import FeatureLayer = require("esri/layers/FeatureLayer");
 import { SimpleLineSymbol, SimpleFillSymbol } from "esri/symbols"; 
 // import Query = require("esri/tasks/query");
 import { Has } from "../../utils";
@@ -48,15 +49,6 @@ class KeyboardMapNavigator extends declared(Widget) {
     private selectionSymbol;
     constructor() {
         super();
-
-                
-            // if(defaults.selectionColor && defaults.selectionColor !== undefined) {
-            //     defaults.map.infoWindow.fillSymbol.outline.color = 
-            //     defaults.map.infoWindow.markerSymbol.outline.color = 
-            //     defaults.map.infoWindow.lineSymbol.color = 
-            //         defaults.selectionColor;
-            // }
-
     }
 
     render() {
@@ -105,6 +97,18 @@ class KeyboardMapNavigator extends declared(Widget) {
         // this.own(on(this.mapView.popup, 'hide', () => {
         //     this.clearZone();
         // }));
+
+        // this.mapView.popup.on("trigger-action", (event) => {
+        //     console.log("trigger-action", event.action.id, event.action, this.mapView.popup);
+        //     //// If the zoom-out action is clicked, than execute the following code
+        //     // if(event.action.id === "zoom-out"){
+        //     //   // Zoom out two levels (LODs)
+        //     //   view.goTo({
+        //     //     center: view.center,
+        //     //     zoom: view.zoom - 2
+        //     //   });
+        //     // }
+        // });
 
         this.own(on(this.mapView.container, 'keydown', (evn) => {
             const focusElement = document.querySelector(':focus') as HTMLElement;
@@ -164,14 +168,14 @@ class KeyboardMapNavigator extends declared(Widget) {
 
         const deferred = new Deferred();
 
-        const center = this.mapView.toMap(this.cursorPos);
+        // const center = this.mapView.toMap(this.cursorPos);
         const features = [];
         this.layers = this.mapView.map.layers;//layers;
-        // console.log("layers", this.layers);
+        console.log("layers", this.layers, this.mapView);
         const visibleLayers = this.layers.filter((l) => { 
-            return l.operationalLayerType == "ArcGISFeatureLayer" && l.visible && isVisibleAtScale(l);
+            return l.operationalLayerType == "ArcGISFeatureLayer" && l.visible && l.popupEnabled && isVisibleAtScale(l);
         });
-        // console.log("ArcGISFeatureLayers", visibleLayers);
+        console.log("visibleLayers", visibleLayers);
 
         // // if(this.toolBar && this.toolBar.IsToolSelected('geoCoding')) 
         // //     mode = 'point';
@@ -197,7 +201,7 @@ class KeyboardMapNavigator extends declared(Widget) {
         this.followTheMapMode(mode === 'extent');
 
         this.mapView.popup.visible = true;//show();
-        this.getFeaturesAtPoint(center, mode, visibleLayers).then((features: any[]) => {
+        this.getFeaturesAtPoint(this.mapView.toMap(this.cursorPos), mode, visibleLayers).then((features: any[]) => {
 
             console.log("features", features);
 
@@ -225,7 +229,7 @@ class KeyboardMapNavigator extends declared(Widget) {
     }
 
     private features = [];
-    private getFeaturesAtPoint = (mapPoint, mode, layers) => {
+    private getFeaturesAtPoint = (mapPoint : Point, mode: string, layers) => {
         // this.loading(true);
         const deferred = new Deferred();
 
@@ -239,6 +243,7 @@ class KeyboardMapNavigator extends declared(Widget) {
             // if(!mapPoint) mapPoint = shape.getCenter();
             // const w = shape.width/75;
 
+            // console.log("mapPoint", mapPoint);
             const c = this.mapView.toScreen(mapPoint);
             const p1 : Point = new Point({x:c.x, y:c.y});
             const p2 : Point = new Point({x:c.x+10, y:c.y});
@@ -287,7 +292,7 @@ class KeyboardMapNavigator extends declared(Widget) {
                     break;
             }
 
-            console.log("mode", mode);
+            // console.log("mode", mode);
 
 
             this.clearZone();
@@ -295,13 +300,14 @@ class KeyboardMapNavigator extends declared(Widget) {
             this.mapView.graphics.add(this.queryZone);
 
             const deferrs = [];
-            layers.map(function(layer) {
-                return layer.layerObject;
-            })
-            .filter(function(layer) { 
-                return layer && layer.selectFeatures && layer.selectFeatures !== undefined;
-            })
-            .forEach((layer) => {
+            layers
+            // .map((layer) => {
+            //     return layer.layerObject;
+            // })
+            // .filter((layer) => { 
+            //     return layer && layer.selectFeatures && layer.selectFeatures !== undefined;
+            // })
+            .forEach((layer: FeatureLayer) => {
                 const q = layer.createQuery();//new Query();
                 q.outFields = ["*"];                    
                 q.where = "1=1";
@@ -310,11 +316,9 @@ class KeyboardMapNavigator extends declared(Widget) {
                 q.spatialRelationship = "esriSpatialRelIntersects";
                 q.returnGeometry = true;
 
-                const def = layer.selectFeatures(
-                    q, "SELECTION_NEW", (results) => {
-                        this.features = this.features.concat(results);
-                    }
-                );
+                const def = layer.queryFeatures(q
+                    // "SELECTION_NEW"
+                ).then((result) => {this.features = this.features.concat(result.features);});
                 deferrs.push(def);
             });
 
