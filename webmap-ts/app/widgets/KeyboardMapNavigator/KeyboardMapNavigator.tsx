@@ -200,16 +200,21 @@ class KeyboardMapNavigator extends declared(Widget) {
 
         this.followTheMapMode(mode === 'extent');
 
-        this.mapView.popup.visible = true;//show();
-        this.getFeaturesAtPoint(this.mapView.toMap(this.cursorPos), mode, visibleLayers).then((features: any[]) => {
+        this.mapView.popup.close();
+        this.mapView.popup.clear();
+        this.getFeaturesAtPoint(this.mapView.toMap(this.cursorPos), mode, visibleLayers).then(
+            (features: any[]) => {
 
-            console.log("features", features);
+            console.log("features", features);        
+            console.log("this.mapView.popup", this.mapView.popup);
+        
 
             if(features && features !== undefined && features.length > 0) {
                 this.mapView.popup.features = features;
+                this.mapView.popup.visible = true;
             }
             else {
-                this.mapView.popup.features = features;
+                this.mapView.popup.visible = false;
             }
 
             // if(!Has('infoPanel'))
@@ -301,12 +306,6 @@ class KeyboardMapNavigator extends declared(Widget) {
 
             const deferrs = [];
             layers
-            // .map((layer) => {
-            //     return layer.layerObject;
-            // })
-            // .filter((layer) => { 
-            //     return layer && layer.selectFeatures && layer.selectFeatures !== undefined;
-            // })
             .forEach((layer: FeatureLayer) => {
                 const q = layer.createQuery();//new Query();
                 q.outFields = ["*"];                    
@@ -316,9 +315,9 @@ class KeyboardMapNavigator extends declared(Widget) {
                 q.spatialRelationship = "esriSpatialRelIntersects";
                 q.returnGeometry = true;
 
-                const def = layer.queryFeatures(q
-                    // "SELECTION_NEW"
-                ).then((result) => {this.features = this.features.concat(result.features);});
+                const def = layer.queryFeatures(q).then((result) => {
+                    this.features = this.features.concat(result.features);
+                });
                 deferrs.push(def);
             });
 
