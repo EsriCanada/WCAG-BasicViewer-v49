@@ -94,21 +94,12 @@ class KeyboardMapNavigator extends declared(Widget) {
             // this.clearZone();
         }));
 
-        // this.own(on(this.mapView.popup, 'hide', () => {
-        //     this.clearZone();
-        // }));
-
-        // this.mapView.popup.on("trigger-action", (event) => {
-        //     console.log("trigger-action", event.action.id, event.action, this.mapView.popup);
-        //     //// If the zoom-out action is clicked, than execute the following code
-        //     // if(event.action.id === "zoom-out"){
-        //     //   // Zoom out two levels (LODs)
-        //     //   view.goTo({
-        //     //     center: view.center,
-        //     //     zoom: view.zoom - 2
-        //     //   });
-        //     // }
-        // });
+        this.mapView.popup.watch("visible",(oldValue, newValue) => { 
+            // console.log("oldValue, newValue", oldValue, newValue);
+            if(newValue != null && !newValue) {
+                this.clearZone();
+            }
+        });
 
         this.own(on(this.mapView.container, 'keydown', (evn) => {
             const focusElement = document.querySelector(':focus') as HTMLElement;
@@ -200,7 +191,7 @@ class KeyboardMapNavigator extends declared(Widget) {
 
         this.followTheMapMode(mode === 'extent');
 
-        this.mapView.popup.close();
+        // this.mapView.popup.close();
         this.mapView.popup.clear();
         this.getFeaturesAtPoint(this.mapView.toMap(this.cursorPos), mode, visibleLayers).then(
             (features: any[]) => {
