@@ -71,10 +71,24 @@ class KeyboardMapNavigator extends declared(Widget) {
 
     private mapSuperCursor;
     private cursorNav;
+    private stepX : number;
+    private stepY : number;
     private _addCursor = (element: Element) => {
         this.mapSuperCursor = element;
         this.mapView.ui.add(this.mapSuperCursor);
+
+        this.stepX = this.mapView.width * 0.0135;
+        this.stepY = this.mapView.height * 0.0135;
         
+        const selectionColor = new Color(this.selectionColor);
+        selectionColor.a = 0.25;
+        
+        this.selectionSymbol = new SimpleFillSymbol({
+            style:"solid",
+            outline: { color: this.selectionColor, width:0},
+            color:selectionColor
+        });
+
         this.cursorNav = gfx.createSurface(this.mapSuperCursor, 40, 40);
         const cursor = this.cursorNav.createGroup();
         const circle = cursor.createCircle({cx:20, cy:20, r:10}).setFill("transparent").setStroke(this.cursorFocusColor);
@@ -115,18 +129,124 @@ class KeyboardMapNavigator extends declared(Widget) {
             }
         }));
 
-        // console.log("selectionColor", this.selectionColor);
-        const selectionColor = new Color(this.selectionColor);
-        selectionColor.a = 0.25;
-        
-        this.selectionSymbol = new SimpleFillSymbol({
-            style:"solid",
-            outline: { color: this.selectionColor, width:0},
-            color:selectionColor
-        });
+        this.mapScrollPausable = on.pausable(this.mapView.container, "keydown", this.mapScroll);
+        this.own(this.mapScrollPausable);
 
         this.deferred.resolve(true);
     }
+
+        private mapScrollPausable;
+        private mapScroll = (event) => {
+            // const focusElement = document.querySelector(":focus");
+            // if (!focusElement || focusElement !== this.mapView)
+            //     return;
+
+            // console.log(event.keyCode);
+
+            const _mapScroll = (x, y) => {
+                const dx = x * this.stepX;
+                const dy = y * this.stepY;
+                if (!event.shiftKey) {
+                    // return this.mapView._fixedPan(dx, dy);
+                } else {
+                    return this.cursorScroll(dx, dy);
+                }
+            };
+
+            switch (event.keyCode) {
+                case 40: //down
+                    this.mapScrollPausable.pause();
+                    _mapScroll(0, 1).then(
+                        this.mapScrollPausable.resume
+                    );
+                    break;
+                case 38: //up
+                    this.mapScrollPausable.pause();
+                    _mapScroll(0, -1).then(
+                        this.mapScrollPausable.resume
+                    );
+                    break;
+                case 37: //left
+                    this.mapScrollPausable.pause();
+                    _mapScroll(-1, 0).then(
+                        this.mapScrollPausable.resume
+                    );
+                    break;
+                case 39: //right
+                    this.mapScrollPausable.pause();
+                    _mapScroll(1, 0).then(
+                        this.mapScrollPausable.resume
+                    );
+                    break;
+                case 33: //pgup
+                    this.mapScrollPausable.pause();
+                    _mapScroll(1, -1).then(
+                        this.mapScrollPausable.resume
+                    );
+                    break;
+                case 34: //pgdn
+                    this.mapScrollPausable.pause();
+                    _mapScroll(1, 1).then(
+                        this.mapScrollPausable.resume
+                    );
+                    break;
+                case 35: //end
+                    this.mapScrollPausable.pause();
+                    _mapScroll(-1, 1).then(
+                        this.mapScrollPausable.resume
+                    );
+                    break;
+                case 36: //home
+                    this.mapScrollPausable.pause();
+                    _mapScroll(-1, -1).then(
+                        this.mapScrollPausable.resume
+                    );
+                    break;
+            }
+    };
+
+    private cursorScroll = (dx, dy) => {
+        var deferred = new Deferred();
+        
+        this.cursorPos.x += dx;
+        this.cursorPos.y += dy;
+        // var m = this.mapView.container.getBoundingClientRect();
+        // if(this.cursorPos.x < 20) {
+        //     this.mapView.centerAt(this.mapView.toMap(this.cursorPos)).then(() => {
+        //             this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
+        //             deferred.resolve();
+        //         }
+        //     );
+        // }
+        // else if (this.cursorPos.x > this.mapView.container.getBoundingClientRect().width - 20) {
+        //     this.mapView.centerAt(this.mapView.toMap(this.cursorPos)).then(() => {
+        //             this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
+        //             deferred.resolve();
+        //         }
+        //     );
+        // }
+        // if(this.cursorPos.y < 20) {
+        //     this.mapView.centerAt(this.mapView.toMap(this.cursorPos)).then(() => {
+        //             this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
+        //             deferred.resolve();
+        //         }
+        //     );
+        // }
+        // else if (this.cursorPos.y > this.map.container.getBoundingClientRect().height - 20) {
+        //     this.mapView.centerAt(this.mapView.toMap(this.cursorPos)).then(() => {
+        //             this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
+        //             deferred.resolve();
+        //         }
+        //     );
+        // }
+        // else 
+        {
+            this.mapView.toMap(this.setCursorPos(this.cursorPos));
+            deferred.resolve();
+        }
+       
+        return deferred.promise;
+    };
 
     private cursorPos: ScreenPoint;
     cursorToCenter = () : ScreenPoint => {
