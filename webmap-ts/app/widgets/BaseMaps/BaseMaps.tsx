@@ -18,6 +18,7 @@ import Tool = require("../toolbar/Tool");
 import Deferred = require("dojo/Deferred");
 import All = require("dojo/promise/all");
 import watchUtils = require("esri/core/watchUtils");
+import { isConstructSignatureDeclaration } from "typescript";
 
 @subclass("esri.widgets.BaseMaps")
   class BaseMaps extends declared(Widget) {
@@ -74,9 +75,19 @@ import watchUtils = require("esri/core/watchUtils");
             });
         }
 
+        this._readVectorMap(basemapGallery.activeBasemap);
         basemapGallery.watch("activeBasemap", (newBasemap, oldBasemap) => {
-            console.log("activeBasemap", newBasemap);
+            this._readVectorMap(newBasemap);
+            // console.log("activeBasemap", newBasemap);
         });
+    }
+
+    public hasVectorLayers = false;
+    private _readVectorMap = (baseMap) => {
+        console.log("activeBasemap", baseMap);
+        const vectorLayers = baseMap.baseLayers.items.filter(layer => { return layer.type=="vector-tile"});
+        this.hasVectorLayers = vectorLayers.length > 0;
+        console.log("hasVectorLayers", this.hasVectorLayers, vectorLayers[0]);
     }
 }
 
