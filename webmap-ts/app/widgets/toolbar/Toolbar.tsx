@@ -369,18 +369,23 @@ class Toolbar extends declared(Widget) {
                         }
                     }
                     // console.log("source", source);
+                    let basemapGallery;
                     if(source) {
-                        new BasemapGallery({
+                        basemapGallery = new BasemapGallery({
                             view:mainView,
                             source: source,
                             container: domConstruct.create("div", {}, tool.myToolPage.pageContent)
                         });
                     } else {
-                        new BasemapGallery({
+                        basemapGallery = new BasemapGallery({
                             view:mainView,
                             container: domConstruct.create("div", {}, tool.myToolPage.pageContent)
                         });
                     }
+
+                    basemapGallery.watch("activeBasemap", () => {
+                        console.log("activeBasemap", basemapGallery.activeBasemap);
+                    });
                     // console.log(bm.toJSON());
                     deferred.resolve(tool);
                 });
