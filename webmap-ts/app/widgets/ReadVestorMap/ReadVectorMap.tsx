@@ -37,7 +37,8 @@ import { isConstructSignatureDeclaration } from "typescript";
         return (
 <div>
     <div afterCreate={this._addedNode}>
-    <h1></h1>
+    <div>{this.title}</div>
+    <div>{this.content}</div>
     </div>
 </div>
         );
@@ -46,7 +47,6 @@ import { isConstructSignatureDeclaration } from "typescript";
     private _addedNode = (element: Element) => {
     }
 
-    }
 }
 
 export = ReadVectorMap;
