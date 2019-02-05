@@ -83,13 +83,39 @@ import { isConstructSignatureDeclaration } from "typescript";
     }
 
     public hasVectorLayers = false;
+    private readWidget = null;
+    private readWidgetDeferrer = new Deferred();
     private _readVectorMap = (baseMap) => {
         console.log("activeBasemap", baseMap);
         const vectorLayers = baseMap.baseLayers.items.filter(layer => { return layer.type=="vector-tile"});
         this.hasVectorLayers = vectorLayers.length > 0;
         console.log("hasVectorLayers", this.hasVectorLayers, vectorLayers[0]);
+        if(this.readWidget) {
+            this.readWidget.tile = "";
+            this.readWidget.content = ""
+        }
         if(this.hasVectorLayers) {
-            
+            if(!this.readWidget) {
+                require(["../ReadVectorMap/ReadVectorMap"], (ReadVectorMap) => {
+                    this.readWidget = new ReadVectorMap({
+                        mapView: this.mapView,
+                        title:  "",
+                        content: "",
+                        container: domConstruct.create("div",{},this.mapView.container)
+                    })
+                    this.readWidgetDeferrer.resolve(this.readWidget);
+                })
+            }
+            this.readWidgetDeferrer.then((readWidget:any) => {
+                readWidget.title = vectorLayers[0].title;
+                readWidget.content = "";
+            })
+        }
+        else {
+            if(this.readWidget) {
+                this.readWidget.title = "";
+                this.readWidget.content = "";
+            }
         }
     }
 }
