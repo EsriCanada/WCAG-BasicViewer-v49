@@ -88,6 +88,9 @@ import { isConstructSignatureDeclaration } from "typescript";
         const vectorLayers = baseMap.baseLayers.items.filter(layer => { return layer.type=="vector-tile"});
         this.hasVectorLayers = vectorLayers.length > 0;
         console.log("hasVectorLayers", this.hasVectorLayers, vectorLayers[0]);
+        if(this.hasVectorLayers) {
+            
+        }
     }
 }
 
