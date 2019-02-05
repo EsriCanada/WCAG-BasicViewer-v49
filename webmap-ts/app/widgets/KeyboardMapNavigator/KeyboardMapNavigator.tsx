@@ -115,15 +115,18 @@ class KeyboardMapNavigator extends declared(Widget) {
             }
         });
 
-        this.own(on(this.mapView.container, 'keydown', (evn) => {
+        this.own(this.mapView.on('key-down', (evn) => {
             const focusElement = document.querySelector(':focus') as HTMLElement;
             // if(!focusElement || focusElement !== this.mapView.container) return; 
-            switch(evn.keyCode)  {
-                case 13: //Enter
+            if (evn.key.slice(0, 5) === "Arrow") {
+                event.stopPropagation();
+            }
+      
+            switch(evn.key)  {
+                case "Enter":
                     // https://gis.stackexchange.com/questions/78976/how-to-open-infotemplate-programmatically
                     this.emit("mapClick", {mapPoint:this.mapView.toMap(this.cursorPos)});
                     this.showPopup(evn);
-                    evn.preventDefault();
                     evn.stopPropagation();
                     break;
             }
