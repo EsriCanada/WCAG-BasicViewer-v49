@@ -211,13 +211,11 @@ class KeyboardMapNavigator extends declared(Widget) {
         this.cursorPos.x += dx;
         this.cursorPos.y += dy;
         // var m = this.mapView.container.getBoundingClientRect();
-        // if(this.cursorPos.x < 20) {
-        //     this.mapView.centerAt(this.mapView.toMap(this.cursorPos)).then(() => {
-        //             this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
-        //             deferred.resolve();
-        //         }
-        //     );
-        // }
+        if(this.cursorPos.x < 20) {
+            this.mapView.goTo(this.mapView.toMap(this.cursorPos));
+            // this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
+            deferred.resolve();
+        }
         // else if (this.cursorPos.x > this.mapView.container.getBoundingClientRect().width - 20) {
         //     this.mapView.centerAt(this.mapView.toMap(this.cursorPos)).then(() => {
         //             this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
@@ -225,13 +223,11 @@ class KeyboardMapNavigator extends declared(Widget) {
         //         }
         //     );
         // }
-        // if(this.cursorPos.y < 20) {
-        //     this.mapView.centerAt(this.mapView.toMap(this.cursorPos)).then(() => {
-        //             this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
-        //             deferred.resolve();
-        //         }
-        //     );
-        // }
+        if(this.cursorPos.y < 20) {
+            this.mapView.goTo(this.mapView.toMap(this.cursorPos))
+            // this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
+            deferred.resolve();
+        }
         // else if (this.cursorPos.y > this.map.container.getBoundingClientRect().height - 20) {
         //     this.mapView.centerAt(this.mapView.toMap(this.cursorPos)).then(() => {
         //             this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
@@ -239,7 +235,7 @@ class KeyboardMapNavigator extends declared(Widget) {
         //         }
         //     );
         // }
-        // else 
+        else 
         {
             this.mapView.toMap(this.setCursorPos(this.cursorPos));
             deferred.resolve();
