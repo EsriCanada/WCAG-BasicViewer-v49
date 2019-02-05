@@ -66,7 +66,7 @@ import { runInThisContext } from "vm";
             // console.log("widgetContaner", widgetContaner);
             if(widgetContaner) {
                 new MutationObserver((mutations) => {
-                    console.log("mutations", mutations);
+                    // console.log("mutations", mutations);
                     mutations.forEach((mutation) => {
                         try{
                             // console.log("mutation", mutation);

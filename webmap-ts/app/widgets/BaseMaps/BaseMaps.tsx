@@ -18,6 +18,7 @@ import Tool = require("../toolbar/Tool");
 import Deferred = require("dojo/Deferred");
 import All = require("dojo/promise/all");
 import watchUtils = require("esri/core/watchUtils");
+import { isConstructSignatureDeclaration } from "typescript";
 
 @subclass("esri.widgets.BaseMaps")
   class BaseMaps extends declared(Widget) {
@@ -74,9 +75,47 @@ import watchUtils = require("esri/core/watchUtils");
             });
         }
 
+        this._readVectorMap(basemapGallery.activeBasemap);
         basemapGallery.watch("activeBasemap", (newBasemap, oldBasemap) => {
-            console.log("activeBasemap", newBasemap);
+            this._readVectorMap(newBasemap);
+            // console.log("activeBasemap", newBasemap);
         });
+    }
+
+    public hasVectorLayers = false;
+    private readWidget = null;
+    private readWidgetDeferrer = new Deferred();
+    private _readVectorMap = (baseMap) => {
+        // console.log("activeBasemap", baseMap);
+        const vectorLayers = baseMap.baseLayers.items.filter(layer => { return layer.type=="vector-tile"});
+        this.hasVectorLayers = vectorLayers.length > 0;
+        // console.log("hasVectorLayers", this.hasVectorLayers, vectorLayers[0]);
+        if(this.readWidget) {
+            this.readWidget.tile = "";
+            this.readWidget.content = ""
+        }
+        if(this.hasVectorLayers) {
+            if(!this.readWidget) {
+                require(["../ReadVectorMap/ReadVectorMap"], (ReadVectorMap) => {
+                    this.readWidget = new ReadVectorMap({
+                        vectorLayer: vectorLayers[0],
+                        mapView: this.mapView,
+                        title:  "",
+                        content: "",
+                        container: domConstruct.create("div",{},this.mapView.container)
+                    })
+                    this.readWidgetDeferrer.resolve(this.readWidget);
+                })
+            }
+            this.readWidgetDeferrer.then((readWidget:any) => {
+                readWidget.vectorLayer = vectorLayers[0];
+            })
+        }
+        else {
+            if(this.readWidget) {
+                this.readWidget.vectorLayer = null;
+            }
+        }
     }
 }
 

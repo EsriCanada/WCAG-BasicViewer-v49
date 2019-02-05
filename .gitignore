@@ -79,3 +79,7 @@ webmap-ts/app/widgets/Measurement/Measurement\.js
 webmap-ts/app/widgets/KeyboardMapNavigator/KeyboardMapNavigator\.js
 
 webmap-ts/app/widgets/BaseMaps/BaseMaps\.js
+
+webmap-ts/app/widgets/ReadVestorMap/ReadVectorMap\.js
+
+webmap-ts/app/widgets/ReadVectorMap/ReadVectorMap\.js
