@@ -41,10 +41,10 @@ import { runInThisContext } from "vm";
 
     private _addCoordinateConversion = (element: Element) => {
         require(["esri/widgets/CoordinateConversion"], (CoordinateConversion) => { 
-            console.log("measure", this.mapView);
+            // console.log("measure", this.mapView);
             var measurementWidget = new CoordinateConversion({
                 view: this.mapView,
-                mode: "capture",
+                // mode: "capture",
                 orientation: "expand-down",
                 container: element
             })
@@ -53,7 +53,6 @@ import { runInThisContext } from "vm";
 
     private _addDistanceMeasurement2D = (element: Element) => {
         require(["esri/widgets/DistanceMeasurement2D"], (DistanceMeasurement2D) => { 
-            console.log("measure", this.mapView);
             var measurementWidget = new DistanceMeasurement2D({
                 viewModel: {
                     view: this.mapView,
@@ -62,12 +61,44 @@ import { runInThisContext } from "vm";
                 },
                 container: element
             })
+
+            const widgetContaner = element.querySelector(".esri-direct-line-measurement-3d__container");
+            // console.log("widgetContaner", widgetContaner);
+            if(widgetContaner) {
+                new MutationObserver((mutations) => {
+                    console.log("mutations", mutations);
+                    mutations.forEach((mutation) => {
+                        try{
+                            // console.log("mutation", mutation);
+                            const sections = query('.esri-direct-line-measurement-3d__hint, .esri-direct-line-measurement-3d__measurement', mutation.target);
+                            if(sections) {
+                                sections.forEach((section: HTMLElement) => {
+                                    console.log("section", section);
+                                    domAttr.set(section, "aria-live", "polite");
+                                    domAttr.set(section, "aria-atomic", "true");
+                                })
+                            }
+                        } catch (ex) {
+                            console.log('Directions Widget Mutation Error', ex);
+                        }
+                    })
+                }).observe(widgetContaner, {
+                    attributes: false,
+                    childList: true,
+                    characterData: false
+                })
+            }
+
+            // section.esri-direct-line-measurement-3d__hint
+            // section.esri-direct-line-measurement-3d__measurement
+
+            // aria-live="polite" aria-atomic="true"
         });
     }
 
     private _addAreaMesurement2D = (element: Element) => {
         require(["esri/widgets/AreaMeasurement2D"], (AreaMeasurement2D) => { 
-            console.log("measure", this.mapView);
+            // console.log("measure", this.mapView);
             var measurementWidget = new AreaMeasurement2D({
                 viewModel: {
                     view: this.mapView,

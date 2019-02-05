@@ -51,6 +51,7 @@ class Toolbar extends declared(Widget) {
     }
 
     private deferredDetails = new Deferred<Tool>();
+    private deferredKeyboardNavigation;
     private _addTools = (element: Element): dojo.promise.Promise<any> => {
         // console.log("tools *");
         if(!this.deferred) {
@@ -69,7 +70,7 @@ class Toolbar extends declared(Widget) {
             "filter",
             "features",
             "directions",
-            // "mapKeyboardNavigation",
+            "mapKeyboardNavigation",
             "infoPanel",
             "geoCoding",
             "measure",
@@ -83,6 +84,11 @@ class Toolbar extends declared(Widget) {
         tools.forEach((tool: string) => {
             if (Has(this.config, tool)) {
                 switch (tool) {
+                    case "mapKeyboardNavigation":
+                        toolList.push(
+                            this._addMapKeyboardNavigation(this.deferredKeyboardNavigation = new Deferred<Tool>())
+                        );
+                        break;
                     case "details":
                         toolList.push(this._addDetaills(element));
                         break;
@@ -111,7 +117,7 @@ class Toolbar extends declared(Widget) {
                         toolList.push(this._addFilters(element, this.mapView));
                         break;
                     case "features" :
-                        toolList.push(this._addFeaturesList(element, this.mapView));
+                        // toolList.push(this._addFeaturesList(element, this.mapView));
                         break;
                     case "measure" :
                         toolList.push(this._addMeasure(element, this.mapView));
@@ -478,6 +484,32 @@ class Toolbar extends declared(Widget) {
         }
         return null;
     }
+
+    private superNav;
+    private _addMapKeyboardNavigation = (deferred) => {
+        // var deferred = new Deferred();
+        if (Has(this.config, "mapKeyboardNavigation")) {
+            require(["../KeyboardMapNavigator/KeyboardMapNavigator"], (KeyboardMapNavigator) => {
+                this.mapView.when(() => {
+                    this.superNav = new KeyboardMapNavigator({
+                        deferred: deferred,
+                        mapView: this.mapView,
+                        toolBar: this,
+                        cursorColor: "black",
+                        selectionColor: this.config.mapSelectionColor,
+                        cursorFocusColor: this.config.focusColor,
+                        // operationalLayers: this.config.response.itemInfo.itemData.operationalLayers,
+                        container: domConstruct.create("div", {})//, this.mapView.ui.container)
+                    });
+                    // deferred.resolve(true);
+                })
+            });
+        } else {
+            deferred.resolve(false);
+        }
+        return deferred;
+    }
+
 
 }
 
