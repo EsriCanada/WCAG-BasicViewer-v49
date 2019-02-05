@@ -98,6 +98,7 @@ import { isConstructSignatureDeclaration } from "typescript";
             if(!this.readWidget) {
                 require(["../ReadVectorMap/ReadVectorMap"], (ReadVectorMap) => {
                     this.readWidget = new ReadVectorMap({
+                        vectorLayer: vectorLayers[0],
                         mapView: this.mapView,
                         title:  "",
                         content: "",
@@ -107,14 +108,12 @@ import { isConstructSignatureDeclaration } from "typescript";
                 })
             }
             this.readWidgetDeferrer.then((readWidget:any) => {
-                readWidget.title = vectorLayers[0].title;
-                readWidget.content = "";
+                readWidget.vectorLayer = vectorLayers[0];
             })
         }
         else {
             if(this.readWidget) {
-                this.readWidget.title = "";
-                this.readWidget.content = "";
+                this.readWidget.vectorLayer = null;
             }
         }
     }
