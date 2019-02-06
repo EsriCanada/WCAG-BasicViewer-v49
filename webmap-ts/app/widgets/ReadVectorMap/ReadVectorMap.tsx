@@ -33,11 +33,12 @@ import domClass = require("dojo/dom-class");
     render() {
         const imgSrc = `.\\images\\speaker-${this.mode}.26.png`;
         const calcClass = this.mode == "view" ? "readVectorMap-speaker_showingArea" : "readVectorMap-speaker_hidingArea";
-        const areaLive = this.mode == "mute" ? "off" : "polite";
+        const areaLive = this.mode == "mute" ? "off" : "assertive";
         const title = this.mode == "play" ? "speaker on" : this.mode == "mute" ? "speaker off" : "speaker and caption";
+        const show = this.vectorLayer != null ? "display:inherited;" : "display:none;";
         return (
 <div>
-    <div id="ReadVectorMapNode" class="readVectorMap-speaker" afterCreate={this._addedNode} afterUpdate={this._layerUpdate}>
+    <div id="ReadVectorMapNode" class="readVectorMap-speaker" afterCreate={this._addedNode} afterUpdate={this._layerUpdate} style={show}>
         <div>
             <img src={imgSrc} class="readVectorMap-speaker_button" role="button" tabindex="0" afterCreate={this._addedBtn} alt="read map" title={title} aria-hidden="true"/>
             <div class="readVectorMap-speaker_hidingArea" aria-live="polite">{title}</div>
@@ -60,7 +61,6 @@ import domClass = require("dojo/dom-class");
     private _addedBtn = (element: Element) => {
         this._btnImg = element as HTMLImageElement;
         this.own(on(this._btnImg, "click", (event)=> {
-            // console.log("mode 1", this.mode);
             switch (this.mode) {
                 case "play" :
                     this.mode = "view";
@@ -75,7 +75,6 @@ import domClass = require("dojo/dom-class");
                     this.mode = "play"
                     break;
             }
-            // console.log("mode 2", this.mode);
         }));
         this.own(on(this._btnImg, "keydown", (event)=> {
             // console.log("keydown", event);
@@ -92,7 +91,6 @@ import domClass = require("dojo/dom-class");
 
         if(this.vectorLayer) {
             this.mouseHandler = on.pausable(this.mapView, "pointer-move",(event) => {
-                // console.log("MouseEvent", event);
                 this.mapView.hitTest({x:event.x, y:event.y}).then((things) => {
                     // console.log("hitTest", things.results);
                     var g = things.results.filter(t => { return t.graphic.layer.type == "vector-tile"; }).map(t => t.graphic);
@@ -106,12 +104,16 @@ import domClass = require("dojo/dom-class");
                         }
                     }
                     this.mouseHandler.pause();
-                    setTimeout(() => {this.mouseHandler.resume();}, 250);
+                    setTimeout(() => {this.mouseHandler.resume();}, 210);
                 });
             })
             this.own(this.mouseHandler);
+            this.own(on(this.mapView, "pointer-leave", (event) => {
+                this.content = "";
+            }));
         } else {
             this.mouseHandler = null;
+            this.content = "";
         }
     }
 

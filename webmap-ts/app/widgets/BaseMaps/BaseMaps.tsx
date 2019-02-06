@@ -75,19 +75,23 @@ import { isConstructSignatureDeclaration } from "typescript";
             });
         }
 
-        this._readVectorMap(basemapGallery.activeBasemap);
-        basemapGallery.watch("activeBasemap", (newBasemap, oldBasemap) => {
-            this._readVectorMap(newBasemap);
-            // console.log("activeBasemap", newBasemap);
-        });
+        if(this.config.readVectorBasemaps) {
+            this._readVectorMap(basemapGallery.activeBasemap);
+            basemapGallery.watch("activeBasemap", (newBasemap, oldBasemap) => {
+                this._readVectorMap(newBasemap);
+                // console.log("activeBasemap", newBasemap);
+            });
+        }
     }
 
     public hasVectorLayers = false;
     private readWidget = null;
     private readWidgetDeferrer = new Deferred();
     private _readVectorMap = (baseMap) => {
+        if(!this.config.readVectorBasemaps) return;
+
         // console.log("activeBasemap", baseMap);
-        const vectorLayers = baseMap.baseLayers.items;//.filter(layer => { return layer.type=="vector-tile"});
+        const vectorLayers = baseMap.baseLayers.items.filter(layer => { return layer.type=="vector-tile"});
         this.hasVectorLayers = vectorLayers.length > 0;
         // console.log("Layers", vectorLayers);
         // console.log("hasVectorLayers", this.hasVectorLayers, vectorLayers[0]);
