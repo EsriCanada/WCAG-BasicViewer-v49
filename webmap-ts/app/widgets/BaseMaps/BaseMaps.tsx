@@ -87,13 +87,14 @@ import { isConstructSignatureDeclaration } from "typescript";
     private readWidgetDeferrer = new Deferred();
     private _readVectorMap = (baseMap) => {
         // console.log("activeBasemap", baseMap);
-        const vectorLayers = baseMap.baseLayers.items.filter(layer => { return layer.type=="vector-tile"});
+        const vectorLayers = baseMap.baseLayers.items;//.filter(layer => { return layer.type=="vector-tile"});
         this.hasVectorLayers = vectorLayers.length > 0;
+        // console.log("Layers", vectorLayers);
         // console.log("hasVectorLayers", this.hasVectorLayers, vectorLayers[0]);
-        if(this.readWidget) {
-            this.readWidget.tile = "";
-            this.readWidget.content = ""
-        }
+        // if(this.readWidget) {
+        //     this.readWidget.tile = "";
+        //     this.readWidget.content = ""
+        // }
         if(this.hasVectorLayers) {
             if(!this.readWidget) {
                 require(["../ReadVectorMap/ReadVectorMap"], (ReadVectorMap) => {
