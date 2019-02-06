@@ -33,7 +33,8 @@ import domClass = require("dojo/dom-class");
     render() {
         const imgSrc = `.\\images\\speaker-${this.mode}.26.png`;
         const calcClass = this.mode == "view" ? "readVectorMap-speaker_showingArea" : "readVectorMap-speaker_hidingArea";
-        const areaLive = this.mode == "mute" ? "off" : "assertive";
+        const areaLive1 = this.mode == "mute" ? "off" : "polite";
+        const areaLive2 = this.mode == "mute" ? "off" : "assertive";
         const title = this.mode == "play" ? "speaker on" : this.mode == "mute" ? "speaker off" : "speaker and caption";
         const show = this.vectorLayer != null ? "display:inherited;" : "display:none;";
         return (
@@ -44,8 +45,8 @@ import domClass = require("dojo/dom-class");
             <div class="readVectorMap-speaker_hidingArea" aria-live="polite">{title}</div>
         </div>
         <div class={calcClass}>
-            <div aria-live={areaLive} aria-atomic="true" style="font-weight:bold;">{this.title}</div>
-            <div aria-live={areaLive} aria-atomic="true">{this.content}</div>
+            <div aria-live={areaLive1} aria-atomic="true" style="font-weight:bold;">{this.title}</div>
+            <div aria-live={areaLive2} aria-atomic="true">{this.content}</div>
         </div>
     </div>
 </div>
@@ -104,7 +105,7 @@ import domClass = require("dojo/dom-class");
                         }
                     }
                     this.mouseHandler.pause();
-                    setTimeout(() => {this.mouseHandler.resume();}, 210);
+                    setTimeout(() => {this.mouseHandler.resume();}, 150);
                 });
             })
             this.own(this.mouseHandler);
