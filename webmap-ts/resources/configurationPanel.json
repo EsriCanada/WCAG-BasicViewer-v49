@@ -319,6 +319,12 @@
                     "fieldName": "useVectorBasemaps",
                     "type": "boolean",
                     "tooltip": "Use Vector Basemaps configured on Portal (if valid)"
+                },
+                {
+                    "label": "<strong>Read Vector Basemaps</strong>",
+                    "fieldName": "readVectorBasemaps",
+                    "type": "boolean",
+                    "tooltip": "Read Vector Basemaps on mouse move over"
                 }
             ]
         },
@@ -772,6 +778,7 @@
         "featureTable_currentView": true,
         "printService": "",
         "galleryGroupQuery": "title:\"ArcGIS Online Vector Basemaps\" AND owner:esri_en",
-        "useVectorBasemaps": true
+        "useVectorBasemaps": true,
+        "readVectorBasemaps": true
     }
 }

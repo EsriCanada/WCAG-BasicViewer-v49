@@ -1202,3 +1202,48 @@ blockquote[lang] {
         margin: 0;
     }
 }
+
+.readVectorMap-speaker_showingArea {
+    background: #ffffff80;
+    padding: 0px 8px;
+    pointer-events: none;
+    height: 32px;
+    border-radius: 3px;
+    font-size: 13px;
+}
+
+.readVectorMap-speaker_hidingArea {
+    background: transparent;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.readVectorMap-speaker_button {
+    width: 26px;
+    height: 26px;
+    padding: 2px;
+    border: #ffffff5c solid 1px;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.readVectorMap-speaker {
+    display: -ms-grid;
+    display: grid;
+    -ms-grid-columns: auto auto;
+    grid-template-columns: auto auto;
+}
+
+.readVectorMap-speaker_button {
+    -ms-grid-column: 1;
+    grid-column: 1;
+    margin: 0;
+}
+
+.readVectorMap-speaker_showingArea,
+.readVectorMap-speaker_hidingArea {
+    -ms-grid-column: 2;
+    grid-column: 2;
+    margin-left: 4px;
+}

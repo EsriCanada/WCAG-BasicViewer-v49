@@ -345,45 +345,15 @@ class Toolbar extends declared(Widget) {
         if(Has(this.config, "basemap")) {
             const deferred = new Deferred<Tool>();
             this._addTool(element, "basemap").then((tool) => {
-                require([
-                    "esri/widgets/BasemapGallery",
-                    "esri/widgets/BasemapGallery/support/PortalBasemapsSource"
-                ], (BasemapGallery, PortalBasemapsSource) => {
-                    let source = null;
-                    if(!this.config.galleryGroupQuery.isNullOrWhiteSpace()) {
-                        source = new PortalBasemapsSource({
-                            query: this.config.galleryGroupQuery
-                        });
-                    }
-                    else {
-                        if(this.config.useVectorBasemaps && !this.portal.vectorBasemapGalleryGroupQuery.isNullOrWhiteSpace()) {
-                            source = new PortalBasemapsSource({
-                                query: this.portal.vectorBasemapGalleryGroupQuery
-                            });
-                        } else {
-                            if(!this.portal.basemapGalleryGroupQuery.isNullOrWhiteSpace()) {
-                                source = new PortalBasemapsSource({
-                                    query: this.portal.basemapGalleryGroupQuery
-                                });   
-                            }
-                        }
-                    }
-                    // console.log("source", source);
-                    if(source) {
-                        new BasemapGallery({
-                            view:mainView,
-                            source: source,
-                            container: domConstruct.create("div", {}, tool.myToolPage.pageContent)
-                        });
-                    } else {
-                        new BasemapGallery({
-                            view:mainView,
-                            container: domConstruct.create("div", {}, tool.myToolPage.pageContent)
-                        });
-                    }
-                    // console.log(bm.toJSON());
-                    deferred.resolve(tool);
-                });
+                require(["../BaseMaps/BaseMaps"], (BaseMaps) => {
+                    new BaseMaps({
+                        config: this.config,
+                        portal: this.portal,
+                        mapView: this.mapView,
+                        container: tool.myToolPage.pageContent
+                    })
+                })
+                deferred.resolve(tool);
             })
             return deferred;
         }

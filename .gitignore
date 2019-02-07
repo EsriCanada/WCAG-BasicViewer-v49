@@ -78,4 +78,20 @@ webmap-ts/app/widgets/Measurement/Measurement\.js
 
 webmap-ts/app/widgets/KeyboardMapNavigator/KeyboardMapNavigator\.js
 
+<<<<<<< HEAD
 webmap-ts/app/widgets/ReadVestorMap/ReadVectorMap\.js
+=======
+webmap-ts/app/widgets/BaseMaps/BaseMaps\.js
+
+webmap-ts/app/widgets/ReadVestorMap/ReadVectorMap\.js
+
+webmap-ts/app/widgets/ReadVectorMap/ReadVectorMap\.js
+
+webmap-ts/images/speaker-0\.png
+
+webmap-ts/images/speaker-mute\.png
+
+webmap-ts/images/speaker\.png
+
+webmap-ts/images/speaker-view\.png
+>>>>>>> readVectorMap
