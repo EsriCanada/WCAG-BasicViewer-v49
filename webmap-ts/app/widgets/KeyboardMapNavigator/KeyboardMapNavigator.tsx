@@ -91,9 +91,10 @@ class KeyboardMapNavigator extends declared(Widget) {
 
         this.cursorNav = gfx.createSurface(this.mapSuperCursor, 40, 40);
         const cursor = this.cursorNav.createGroup();
-        const circle = cursor.createCircle({cx:20, cy:20, r:10}).setFill("transparent").setStroke(this.cursorFocusColor);
-        const path = cursor.createPath("M20 0 L20 19 M20 21 L20 40 M0 20 L19 20 M21 20 L40 20").setStroke({color:this.cursorColor, width:1});
-
+        cursor.createPath("M20 0 L20 40 M0 20 L40 20").setStroke({color:"#ffffff5c", width:2});
+        cursor.createPath("M20 1 L20 39 M1 20 L39 20").setStroke({color:this.cursorColor, width:1});
+        cursor.createCircle({cx:20, cy:20, r:10}).setFill("transparent").setStroke(this.cursorFocusColor);
+        
         domStyle.set(this.mapSuperCursor, 'left', "100px");
         domStyle.set(this.mapSuperCursor, 'top', "100px");
         this.cursorToCenter();
