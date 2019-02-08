@@ -91,9 +91,10 @@ class KeyboardMapNavigator extends declared(Widget) {
 
         this.cursorNav = gfx.createSurface(this.mapSuperCursor, 40, 40);
         const cursor = this.cursorNav.createGroup();
-        const circle = cursor.createCircle({cx:20, cy:20, r:10}).setFill("transparent").setStroke(this.cursorFocusColor);
-        const path = cursor.createPath("M20 0 L20 19 M20 21 L20 40 M0 20 L19 20 M21 20 L40 20").setStroke({color:this.cursorColor, width:1});
-
+        cursor.createPath("M20 0 L20 40 M0 20 L40 20").setStroke({color:"#ffffff5c", width:2});
+        cursor.createPath("M20 1 L20 39 M1 20 L39 20").setStroke({color:this.cursorColor, width:1});
+        cursor.createCircle({cx:20, cy:20, r:10}).setFill("transparent").setStroke(this.cursorFocusColor);
+        
         domStyle.set(this.mapSuperCursor, 'left', "100px");
         domStyle.set(this.mapSuperCursor, 'top', "100px");
         this.cursorToCenter();
@@ -115,20 +116,10 @@ class KeyboardMapNavigator extends declared(Widget) {
             }
         });
 
-        this.own(this.mapView.on('key-down', (evn) => {
-            const focusElement = document.querySelector(':focus') as HTMLElement;
-            // if(!focusElement || focusElement !== this.mapView.container) return; 
-            if (evn.key.slice(0, 5) === "Arrow") {
+        this.own(this.mapView.on('key-down', (event) => {
+            if (event.key.slice(0, 5) === "Arrow") {
+                console.log("Arrow", event.key)
                 event.stopPropagation();
-            }
-      
-            switch(evn.key)  {
-                case "Enter":
-                    // https://gis.stackexchange.com/questions/78976/how-to-open-infotemplate-programmatically
-                    this.emit("mapClick", {mapPoint:this.mapView.toMap(this.cursorPos)});
-                    this.showPopup(evn);
-                    evn.stopPropagation();
-                    break;
             }
         }));
 
@@ -138,74 +129,69 @@ class KeyboardMapNavigator extends declared(Widget) {
         this.deferred.resolve(true);
     }
 
-        private mapScrollPausable;
-        private mapScroll = (event) => {
-            // const focusElement = document.querySelector(":focus");
-            // if (!focusElement || focusElement !== this.mapView)
-            //     return;
+    private mapScrollPausable;
+    private mapScroll = (event) => {
+        // const focusElement = document.querySelector(":focus");
+        // if (!focusElement || focusElement !== this.mapView)
+        //     return;
 
-            // console.log(event.keyCode);
+        console.log("event", event.keyCode, event.key, event);
 
-            const _mapScroll = (x, y) => {
-                const dx = x * this.stepX;
-                const dy = y * this.stepY;
-                if (!event.shiftKey) {
-                    // return this.mapView._fixedPan(dx, dy);
-                } else {
-                    return this.cursorScroll(dx, dy);
-                }
-            };
+        const _mapScroll = (x, y) => {
+            // event.preventDefault();
+            // event.stopPropagation();
+            this.mapScrollPausable.pause();
+            this.cursorScroll(x * this.stepX, y * this.stepY).then(() => {
+                this.mapScrollPausable.resume();
+            });
+        };
 
-            switch (event.keyCode) {
-                case 40: //down
-                    this.mapScrollPausable.pause();
-                    _mapScroll(0, 1).then(
-                        this.mapScrollPausable.resume
-                    );
-                    break;
-                case 38: //up
-                    this.mapScrollPausable.pause();
-                    _mapScroll(0, -1).then(
-                        this.mapScrollPausable.resume
-                    );
-                    break;
-                case 37: //left
-                    this.mapScrollPausable.pause();
-                    _mapScroll(-1, 0).then(
-                        this.mapScrollPausable.resume
-                    );
-                    break;
-                case 39: //right
-                    this.mapScrollPausable.pause();
-                    _mapScroll(1, 0).then(
-                        this.mapScrollPausable.resume
-                    );
-                    break;
-                case 33: //pgup
-                    this.mapScrollPausable.pause();
-                    _mapScroll(1, -1).then(
-                        this.mapScrollPausable.resume
-                    );
-                    break;
-                case 34: //pgdn
-                    this.mapScrollPausable.pause();
-                    _mapScroll(1, 1).then(
-                        this.mapScrollPausable.resume
-                    );
-                    break;
-                case 35: //end
-                    this.mapScrollPausable.pause();
-                    _mapScroll(-1, 1).then(
-                        this.mapScrollPausable.resume
-                    );
-                    break;
-                case 36: //home
-                    this.mapScrollPausable.pause();
-                    _mapScroll(-1, -1).then(
-                        this.mapScrollPausable.resume
-                    );
-                    break;
-            }
+        switch (event.code) {
+            case "Enter" :
+            case "NumpadEnter" :
+                // https://gis.stackexchange.com/questions/78976/how-to-open-infotemplate-programmatically
+                this.emit("mapClick", {mapPoint:this.mapView.toMap(this.cursorPos)});
+                this.showPopup(event);
+                event.preventDefault();
+                event.stopPropagation();
+                break;
+            case "ArrowDown": //down
+            case "Numpad2":
+            event.stopPropagation();
+                _mapScroll(0, 1);
+                break;
+            case "ArrowUp": //up
+            case "Numpad8":
+            event.stopPropagation();
+                _mapScroll(0, -1);
+                break;
+            case "ArrowLeft": //left
+            case "Numpad4":
+            event.stopPropagation();
+                _mapScroll(-1, 0);
+                break;
+            case "ArrowRight": //right
+            case "Numpad6":
+            event.stopPropagation();
+                _mapScroll(1, 0);
+                break;
+            case "PageDown": //pgup
+            case "Numpad3":
+                _mapScroll(1, 1);
+                break;
+            case "PageUp": //pgdn
+            case "Numpad9":
+                _mapScroll(1, -1);
+                break;
+            case "End": //end
+            case "Numpad1":
+                _mapScroll(-1, 1);
+                break;
+            case "Home": //home
+            case "Numpad7":
+                _mapScroll(-1, -1);
+                break;
+        }
     };
 
     private cursorScroll = (dx, dy) => {
