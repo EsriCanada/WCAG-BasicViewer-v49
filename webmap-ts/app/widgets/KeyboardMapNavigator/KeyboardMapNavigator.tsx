@@ -137,11 +137,11 @@ class KeyboardMapNavigator extends declared(Widget) {
 
         console.log("event", event.keyCode, event.key, event);
 
+        const small = event.shiftKey ? 0.2 : event.ctrlKey ? 5 : 1;
+
         const _mapScroll = (x, y) => {
-            // event.preventDefault();
-            // event.stopPropagation();
             this.mapScrollPausable.pause();
-            this.cursorScroll(x * this.stepX, y * this.stepY).then(() => {
+            this.cursorScroll(x * this.stepX * small, y * this.stepY * small).then(() => {
                 this.mapScrollPausable.resume();
             });
         };
