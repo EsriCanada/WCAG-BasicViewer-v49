@@ -137,7 +137,8 @@ class KeyboardMapNavigator extends declared(Widget) {
 
         console.log("event", event.keyCode, event.key, event);
 
-        const small = event.shiftKey ? 0.2 : event.ctrlKey ? 5 : 1;
+        // ctrl+PgDn|PgUp does not exist
+        const small = event.shiftKey ? 0.2 : event.ctrlKey ? 5.0 : 1.0;
 
         const _mapScroll = (x, y) => {
             this.mapScrollPausable.pause();
