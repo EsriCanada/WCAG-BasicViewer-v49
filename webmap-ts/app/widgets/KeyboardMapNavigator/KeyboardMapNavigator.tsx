@@ -118,7 +118,7 @@ class KeyboardMapNavigator extends declared(Widget) {
 
         this.own(this.mapView.on('key-down', (event) => {
             if (event.key.slice(0, 5) === "Arrow") {
-                console.log("Arrow", event.key)
+                // console.log("Arrow", event.key)
                 event.stopPropagation();
             }
         }));
@@ -135,7 +135,7 @@ class KeyboardMapNavigator extends declared(Widget) {
         // if (!focusElement || focusElement !== this.mapView)
         //     return;
 
-        console.log("event", event.keyCode, event.key, event);
+        // console.log("event", event.keyCode, event.key, event);
 
         // ctrl+PgDn|PgUp does not exist
         const small = event.shiftKey ? 0.2 : event.ctrlKey ? 5.0 : 1.0;
@@ -268,11 +268,11 @@ class KeyboardMapNavigator extends declared(Widget) {
         // const center = this.mapView.toMap(this.cursorPos);
         const features = [];
         this.layers = this.mapView.map.layers;//layers;
-        console.log("layers", this.layers, this.mapView);
+        // console.log("layers", this.layers, this.mapView);
         const visibleLayers = this.layers.filter((l) => { 
             return l.operationalLayerType == "ArcGISFeatureLayer" && l.visible && l.popupEnabled && isVisibleAtScale(l);
         });
-        console.log("visibleLayers", visibleLayers);
+        // console.log("visibleLayers", visibleLayers);
 
         // // if(this.toolBar && this.toolBar.IsToolSelected('geoCoding')) 
         // //     mode = 'point';
@@ -302,8 +302,8 @@ class KeyboardMapNavigator extends declared(Widget) {
         this.getFeaturesAtPoint(this.mapView.toMap(this.cursorPos), mode, visibleLayers).then(
             (features: any[]) => {
 
-            console.log("features", features);        
-            console.log("this.mapView.popup", this.mapView.popup);
+            // console.log("features", features);        
+            // console.log("this.mapView.popup", this.mapView.popup);
         
 
             if(features && features !== undefined && features.length > 0) {
