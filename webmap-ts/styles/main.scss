@@ -1248,24 +1248,24 @@ blockquote[lang] {
     margin-left: 4px;
 }
 
-.infoPanel {
-    .infoPanelFooter {
+.popupInfo {
+    .popupInfo_Footer {
         position: absolute;
         padding: 0 8px;
         bottom: 0px;
         background: white;
         padding-top: 6px;
     }
-    .locatorScore {
+    .popupInfo_locator-Score {
         white-space: nowrap;
     }
-    .locatorCopy {
+    .popupInfo_locator-Copy {
         position: absolute;
         right: 8px;
         bottom: 7px;
         text-decoration: none;
     }
-    .locatorCopy:hover {
+    .popupInfo_locator-Copy:hover {
         text-decoration: underline;
     }
 }
