@@ -67,8 +67,14 @@ import i18n = require("dojo/i18n!../nls/resources");
                 // tabindex: 0,
             }, dom.byId("feature_content"));
             this.contentPanel.startup();
-            this.contentPanel.set("content", i18n.popupInfo.instructions);
+            this._showInstructions();
         });
+    }
+
+    private _showInstructions = () => {
+        this.contentPanel.set("content", i18n.popupInfo.instructions);
+        const linkToMap = dom.byId("linkToMap");
+        this.own(on(linkToMap, "click", () => {this.mapView.focus();}));
     }
      
 }

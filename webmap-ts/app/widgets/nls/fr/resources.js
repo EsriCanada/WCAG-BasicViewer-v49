@@ -135,7 +135,7 @@ define(
             "noAddress": "Pas d'adresse",
             "noAddressFound": "Aucune adresse trouvée au point",
             "instructions": "Cliquez sur la carte pour obtenir l'adresse du lieu, <br/>ou <br/>" +
-                "<a href='#' onclick='dojo.byId(\"mapDiv\").focus();'>Aller à la carte</a> et:" +
+                "<a href='#' onclick='console.log(this);' bind={this}>Aller à la carte</a> et:" +
                 "<ul>" +
                 "<li>déplacer la carte avec <myKey>flèches</myKey>, ou</li>" +
                 "<li>déplacer le curseur de carte avec <myKey>MAJ</myKey> + <myKey>flèches</myKey>, puis</li>" +

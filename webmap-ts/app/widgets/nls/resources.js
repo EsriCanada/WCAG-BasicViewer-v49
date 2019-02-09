@@ -112,7 +112,7 @@ define({
             "noFeatures": "Nothing to show",
             "noPreselectedFeature": "No feature pre-selected",
             "instructions": "Click the map to select features <br/>or <br/>" +
-                "<a href='#' onclick='dojo.byId(\"mapDiv\").focus();'>Skip to Map</a> and:<br/>" +
+                "<a href='#' id='linkToMap'>Skip to Map</a> and:<br/>" +
                 "<ul>" +
                 "<li>move map with <myKey>arrows</myKey>, or</li>" +
                 "<li>move map cursor with <myKey>SHIFT</myKey> + <myKey>arrows</myKey>, then</li>" +
@@ -135,7 +135,7 @@ define({
             "noAddressFound": "No Address Found at Point",
             "clear": "Clear Selection",
             "instructions": "Click the map to get location address <br/>or <br/>" +
-                "<a href='#' onclick='dojo.byId(\"mapDiv\").focus();'>Skip to Map</a> and:<br/>" +
+                "<a href='#' id='linkToMap'>Skip to Map</a> and:<br/>" +
                 "<ul>" +
                 "<li>move map with <myKey>arrows</myKey>, or</li>" +
                 "<li>move map cursor with <myKey>SHIFT</myKey> + <myKey>arrows</myKey>, then</li>" +
