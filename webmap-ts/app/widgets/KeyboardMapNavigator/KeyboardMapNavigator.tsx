@@ -135,19 +135,19 @@ class KeyboardMapNavigator extends declared(Widget) {
         // if (!focusElement || focusElement !== this.mapView)
         //     return;
 
-        // console.log("event", event.keyCode, event.key, event);
+        // console.log("event", event.code, event.key, event.code || event.key, event);
 
         // ctrl+PgDn|PgUp does not exist or taken by browser
-        const small = event.shiftKey ? 0.2 : event.ctrlKey ? 5.0 : 1.0;
+        const smallStep = event.shiftKey ? 0.2 : event.ctrlKey ? 5.0 : 1.0;
 
-        const _mapScroll = (x, y) => {
+        const _mapScroll = (x, y, smallStep) => {
             // this.mapScrollPausable.pause();
-            this.cursorScroll(x * this.stepX * small, y * this.stepY * small);//.then(() => {
+            this.cursorScroll(x * this.stepX * smallStep, y * this.stepY * smallStep);//.then(() => {
                 // this.mapScrollPausable.resume();
             //});
         };
 
-        switch (event.code) {
+        switch (event.code || event.key) {
             case "Enter" :
             case "NumpadEnter" :
                 // https://gis.stackexchange.com/questions/78976/how-to-open-infotemplate-programmatically
@@ -156,44 +156,68 @@ class KeyboardMapNavigator extends declared(Widget) {
                 event.preventDefault();
                 event.stopPropagation();
                 break;
-            case "ArrowDown": //down
+            
+            case "ArrowDown": 
             case "Numpad2":
-            event.stopPropagation();
-                _mapScroll(0, 1);
+            case "Down":
+            case "2":
+            //down
+                event.stopPropagation();
+                _mapScroll(0, 1, smallStep);
                 break;
-            case "ArrowUp": //up
+            
+            case "ArrowUp": 
             case "Numpad8":
-            event.stopPropagation();
-                _mapScroll(0, -1);
+            case "Up": 
+            case "8":
+            //up
+                event.stopPropagation();
+                _mapScroll(0, -1, smallStep);
                 break;
-            case "ArrowLeft": //left
+            
+            case "ArrowLeft": 
             case "Numpad4":
-            event.stopPropagation();
-                _mapScroll(-1, 0);
+            case "Left": 
+            case "4":
+            //left
+                event.stopPropagation();
+                _mapScroll(-1, 0, smallStep);
                 break;
-            case "ArrowRight": //right
+            case "ArrowRight": 
             case "Numpad6":
-            event.stopPropagation();
-                _mapScroll(1, 0);
+            case "Right": 
+            case "6":
+            //right
+                event.stopPropagation();
+                _mapScroll(1, 0, smallStep);
                 break;
             case "Numpad3":
-                _mapScroll(1, 1);
+            case "3":
+            // right + down
+                _mapScroll(1, 1, smallStep);
                 break;
-            case "PageDown": //pgup
+            case "PageDown": 
             case "Numpad9":
-                _mapScroll(1, -1);
+            case "9":
+            // right + up
+                _mapScroll(1, -1, smallStep);
                 break;
-            // case "End": //end
             case "Numpad1":
-                _mapScroll(-1, 1);
+            case "1":
+            case "End" :
+            // left + down
+                _mapScroll(-1, 1, smallStep);
                 break;
-            // case "Home": //home
-            case "PageUp": //pgdn
+            
+            case "PageUp": 
             case "Numpad7":
-                _mapScroll(-1, -1);
+            case "7":
+            // left + up
+                _mapScroll(-1, -1, smallStep);
                 break;
-            case "Home": //home
+            case "Home": 
             case "Numpad5":
+            // center
                 this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
                 break;
         }
