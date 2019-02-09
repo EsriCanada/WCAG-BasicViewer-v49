@@ -73,8 +73,7 @@ import i18n = require("dojo/i18n!../nls/resources");
 
     private _showInstructions = () => {
         this.contentPanel.set("content", i18n.popupInfo.instructions);
-        const linkToMap = dom.byId("linkToMap");
-        this.own(on(linkToMap, "click", () => {this.mapView.focus();}));
+        this.own(on(dom.byId("linkToMap"), "click", () => {this.mapView.focus();}));
     }
 
     private score: HTMLElement;

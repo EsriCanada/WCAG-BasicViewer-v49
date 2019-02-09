@@ -97,3 +97,5 @@ webmap-ts/images/speaker-view\.png
 >>>>>>> readVectorMap
 
 webmap-ts/app/widgets/InfoPanel/InfoPanel\.js
+
+webmap-ts/app/widgets/InfoPanel/PopupInfo\.js
