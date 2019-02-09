@@ -104,8 +104,11 @@ class Toolbar extends declared(Widget) {
                     case "legend" :
                         toolList.push(this._addLegend(element, this.mapView));
                         break;
-                    case "layers" :
+                        case "layers" :
                         toolList.push(this._addLayers(element, this.mapView));
+                        break;
+                    case "infoPanel" :
+                        toolList.push(this._addInfoPanel(element, this.mapView));
                         break;
                     case "bookmarks" :
                         toolList.push(this._addBookmarks(element, this.mapView));
@@ -395,6 +398,25 @@ class Toolbar extends declared(Widget) {
         }
         return null;
     }
+
+    private _addInfoPanel = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.Deferred<Tool> => {
+        if(Has(this.config, "infoPanel")) {
+            const deferred = new Deferred<Tool>();
+            this._addTool(element, "infoPanel").then((tool) => {
+                require(["../InfoPanel/InfoPanel"], (InfoPanel) => {
+                    new InfoPanel({
+                        // config: this.config,
+                        mapView:mainView,
+                        container: domConstruct.create("div", {}, tool.myToolPage.pageContent)
+                    })
+                    deferred.resolve(tool);
+                })
+            })
+            return deferred;
+        }
+        return null;
+    }
+
 
     private _addBookmarks = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.Deferred<Tool> => {
         if(Has(this.config, "bookmarks") /*&& this.config.response.itemInfo.itemData.bookmarks*/) {
