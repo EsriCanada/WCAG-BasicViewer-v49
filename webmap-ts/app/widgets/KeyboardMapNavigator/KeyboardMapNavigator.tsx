@@ -135,16 +135,16 @@ class KeyboardMapNavigator extends declared(Widget) {
         // if (!focusElement || focusElement !== this.mapView)
         //     return;
 
-        // console.log("event", event.keyCode, event.key, event);
+        console.log("event", event.keyCode, event.key, event);
 
-        // ctrl+PgDn|PgUp does not exist
+        // ctrl+PgDn|PgUp does not exist or taken by browser
         const small = event.shiftKey ? 0.2 : event.ctrlKey ? 5.0 : 1.0;
 
         const _mapScroll = (x, y) => {
-            this.mapScrollPausable.pause();
-            this.cursorScroll(x * this.stepX * small, y * this.stepY * small).then(() => {
-                this.mapScrollPausable.resume();
-            });
+            // this.mapScrollPausable.pause();
+            this.cursorScroll(x * this.stepX * small, y * this.stepY * small);//.then(() => {
+                // this.mapScrollPausable.resume();
+            //});
         };
 
         switch (event.code) {
