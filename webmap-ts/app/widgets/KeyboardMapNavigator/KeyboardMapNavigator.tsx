@@ -118,7 +118,7 @@ class KeyboardMapNavigator extends declared(Widget) {
 
         this.own(this.mapView.on('key-down', (event) => {
             if (event.key.slice(0, 5) === "Arrow") {
-                console.log("Arrow", event.key)
+                // console.log("Arrow", event.key)
                 event.stopPropagation();
             }
         }));
@@ -137,13 +137,14 @@ class KeyboardMapNavigator extends declared(Widget) {
 
         console.log("event", event.keyCode, event.key, event);
 
+        // ctrl+PgDn|PgUp does not exist or taken by browser
+        const small = event.shiftKey ? 0.2 : event.ctrlKey ? 5.0 : 1.0;
+
         const _mapScroll = (x, y) => {
-            // event.preventDefault();
-            // event.stopPropagation();
-            this.mapScrollPausable.pause();
-            this.cursorScroll(x * this.stepX, y * this.stepY).then(() => {
-                this.mapScrollPausable.resume();
-            });
+            // this.mapScrollPausable.pause();
+            this.cursorScroll(x * this.stepX * small, y * this.stepY * small);//.then(() => {
+                // this.mapScrollPausable.resume();
+            //});
         };
 
         switch (event.code) {
@@ -175,21 +176,25 @@ class KeyboardMapNavigator extends declared(Widget) {
             event.stopPropagation();
                 _mapScroll(1, 0);
                 break;
-            case "PageDown": //pgup
             case "Numpad3":
                 _mapScroll(1, 1);
                 break;
-            case "PageUp": //pgdn
+            case "PageDown": //pgup
             case "Numpad9":
                 _mapScroll(1, -1);
                 break;
-            case "End": //end
+            // case "End": //end
             case "Numpad1":
                 _mapScroll(-1, 1);
                 break;
-            case "Home": //home
+            // case "Home": //home
+            case "PageUp": //pgdn
             case "Numpad7":
                 _mapScroll(-1, -1);
+                break;
+            case "Home": //home
+            case "Numpad5":
+                this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
                 break;
         }
     };
@@ -199,36 +204,18 @@ class KeyboardMapNavigator extends declared(Widget) {
         
         this.cursorPos.x += dx;
         this.cursorPos.y += dy;
-        // var m = this.mapView.container.getBoundingClientRect();
-        if(this.cursorPos.x < 20) {
-            this.mapView.goTo(this.mapView.toMap(this.cursorPos));
-            // this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
-            deferred.resolve();
-        }
-        // else if (this.cursorPos.x > this.mapView.container.getBoundingClientRect().width - 20) {
-        //     this.mapView.centerAt(this.mapView.toMap(this.cursorPos)).then(() => {
-        //             this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
-        //             deferred.resolve();
-        //         }
-        //     );
-        // }
-        if(this.cursorPos.y < 20) {
-            this.mapView.goTo(this.mapView.toMap(this.cursorPos))
-            // this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
-            deferred.resolve();
-        }
-        // else if (this.cursorPos.y > this.map.container.getBoundingClientRect().height - 20) {
-        //     this.mapView.centerAt(this.mapView.toMap(this.cursorPos)).then(() => {
-        //             this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
-        //             deferred.resolve();
-        //         }
-        //     );
-        // }
-        else 
-        {
-            this.mapView.toMap(this.setCursorPos(this.cursorPos));
-            deferred.resolve();
-        }
+        const bounds = this.mapView.container.getBoundingClientRect();
+        if((this.cursorPos.x < 20) || (this.cursorPos.x > bounds.width - 20) || 
+            (this.cursorPos.y < 20) || (this.cursorPos.y > bounds.height - 20)
+            ){
+                this.mapView.goTo(this.mapView.toMap(this.cursorPos));
+                this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
+                deferred.resolve();
+            }
+            else {
+                this.mapView.toMap(this.setCursorPos(this.cursorPos));
+                deferred.resolve();
+            }
        
         return deferred.promise;
     };
@@ -267,11 +254,11 @@ class KeyboardMapNavigator extends declared(Widget) {
         // const center = this.mapView.toMap(this.cursorPos);
         const features = [];
         this.layers = this.mapView.map.layers;//layers;
-        console.log("layers", this.layers, this.mapView);
+        // console.log("layers", this.layers, this.mapView);
         const visibleLayers = this.layers.filter((l) => { 
             return l.operationalLayerType == "ArcGISFeatureLayer" && l.visible && l.popupEnabled && isVisibleAtScale(l);
         });
-        console.log("visibleLayers", visibleLayers);
+        // console.log("visibleLayers", visibleLayers);
 
         // // if(this.toolBar && this.toolBar.IsToolSelected('geoCoding')) 
         // //     mode = 'point';
@@ -301,8 +288,8 @@ class KeyboardMapNavigator extends declared(Widget) {
         this.getFeaturesAtPoint(this.mapView.toMap(this.cursorPos), mode, visibleLayers).then(
             (features: any[]) => {
 
-            console.log("features", features);        
-            console.log("this.mapView.popup", this.mapView.popup);
+            // console.log("features", features);        
+            // console.log("this.mapView.popup", this.mapView.popup);
         
 
             if(features && features !== undefined && features.length > 0) {
