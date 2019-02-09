@@ -135,7 +135,7 @@ class KeyboardMapNavigator extends declared(Widget) {
         // if (!focusElement || focusElement !== this.mapView)
         //     return;
 
-        console.log("event", event.keyCode, event.key, event);
+        // console.log("event", event.keyCode, event.key, event);
 
         // ctrl+PgDn|PgUp does not exist or taken by browser
         const small = event.shiftKey ? 0.2 : event.ctrlKey ? 5.0 : 1.0;
