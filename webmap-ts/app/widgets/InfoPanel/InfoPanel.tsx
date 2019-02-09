@@ -25,7 +25,7 @@ import i18n = require("dojo/i18n!../nls/resources");
 
     render() {
         return (
-    <div afterCreate={this._addInfoPanel}>
+    <div afterCreate={this._addInfoPanel} class="infoPanel">
     	<div id="popupInfoContentWrapper" tabindex="0" style="height:100%;"  afterCreate={this._addContentPanel}>
             <div >
                 <div id="feature_content"></div>
@@ -35,7 +35,7 @@ import i18n = require("dojo/i18n!../nls/resources");
             <table width='100%' role='presentation' class='infoPanelFooter'>
                 <tr>
                     <td width='33%'>
-                        <span id='locatorScore' class='locatorScore'>${i18n.popupInfo.Score} <span data-dojo-attach-point='Score'></span></span>
+                        <span id='locatorScore' class='locatorScore'>{i18n.popupInfo.Score} <span afterCreate={this._addScore}></span></span>
                     </td>
                     <td id='infoPanelFooterNavigation' width='34%' style='text-align:center;' role='navigation' aria-label="footerNavigation">
                         <input type='image' src='images/icons_black/downArrow.png' aria-label={i18n.popupInfo.Prev} title={i18n.popupInfo.Prev} style='transform: rotate(90deg);' alt='Previous' class='popupInfoButton prev' data-dojo-attach-event='onclick: footerToPrev'></input>
@@ -75,6 +75,11 @@ import i18n = require("dojo/i18n!../nls/resources");
         this.contentPanel.set("content", i18n.popupInfo.instructions);
         const linkToMap = dom.byId("linkToMap");
         this.own(on(linkToMap, "click", () => {this.mapView.focus();}));
+    }
+
+    private score: HTMLElement;
+    private _addScore = (element: Element) => {
+        this.score = element as HTMLElement;
     }
      
 }

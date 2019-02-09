@@ -1247,3 +1247,25 @@ blockquote[lang] {
     grid-column: 2;
     margin-left: 4px;
 }
+
+.infoPanel {
+    .infoPanelFooter {
+        position: absolute;
+        padding: 0 8px;
+        bottom: 0px;
+        background: white;
+        padding-top: 6px;
+    }
+    .locatorScore {
+        white-space: nowrap;
+    }
+    .locatorCopy {
+        position: absolute;
+        right: 8px;
+        bottom: 7px;
+        text-decoration: none;
+    }
+    .locatorCopy:hover {
+        text-decoration: underline;
+    }
+}
