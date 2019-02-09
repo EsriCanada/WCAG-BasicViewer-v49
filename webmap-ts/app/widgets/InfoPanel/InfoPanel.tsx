@@ -25,41 +25,26 @@ import i18n = require("dojo/i18n!../nls/resources");
 
     render() {
         return (
-    <div afterCreate={this._addInfoPanel} class="infoPanel">
-    	<div id="popupInfoContentWrapper" tabindex="0" style="height:100%;"  afterCreate={this._addContentPanel}>
+    <div class="infoPanel">
+    	<div id="popupInfoContentWrapper" tabindex="0" style="height:100%;" afterCreate={this._addContentPanel}>
             <div >
                 <div id="feature_content"></div>
             </div>
         </div>
-        <div id="popupInfoFooter" style="display:none;">
-            <table width='100%' role='presentation' class='infoPanelFooter'>
-                <tr>
-                    <td width='33%'>
-                        <span id='locatorScore' class='locatorScore'>{i18n.popupInfo.Score} <span afterCreate={this._addScore}></span></span>
-                    </td>
-                    <td id='infoPanelFooterNavigation' width='34%' style='text-align:center;' role='navigation' aria-label="footerNavigation">
-                        <input type='image' src='images/icons_black/downArrow.png' aria-label={i18n.popupInfo.Prev} title={i18n.popupInfo.Prev} style='transform: rotate(90deg);' alt='Previous' class='popupInfoButton prev' data-dojo-attach-event='onclick: footerToPrev'></input>
-                        <input type='image' src='images/icons_black/downArrow.png' aria-label={i18n.popupInfo.Next} title={i18n.popupInfo.Next} style='transform: rotate(-90deg);' alt='Next' class='popupInfoButton next' data-dojo-attach-event='onclick: footerToNext'></input>
-                    </td>
-                    <td width='33%' style='text-align:right;'>
-                        <a id='locatorCopy' class='locatorCopy' tabindex="0" title={i18n.geoCoding.CopyToClipboard} data-dojo-attach-event='onclick: copyAddress'>{i18n.geoCoding.Copy}</a>
-                    </td>
-                </tr>
-            </table>
-        </div>
+        <table width='100%' role='presentation' class='infoPanel_Footer' style="display:none;" afterCreate={this._addedFooter}>
+            <tr>
+                <td style='text-align:center;' role='navigation' aria-label="footerNavigation">
+                    <input type='image' src='images/icons_black/downArrow.png' aria-label={i18n.popupInfo.Prev} title={i18n.popupInfo.Prev} style='transform: rotate(90deg);' alt='Previous' class='popupInfoButton prev' data-dojo-attach-event='onclick: footerToPrev'></input>
+                    <input type='image' src='images/icons_black/downArrow.png' aria-label={i18n.popupInfo.Next} title={i18n.popupInfo.Next} style='transform: rotate(-90deg);' alt='Next' class='popupInfoButton next' data-dojo-attach-event='onclick: footerToNext'></input>
+                </td>
+            </tr>
+        </table>
     </div>
         );
     }
 
-    private infoPanelElement : HTMLDivElement;
-    private _addInfoPanel = (element: Element) => {
-        this.infoPanelElement = element as HTMLDivElement;
-    }
-
-    private contentElement : HTMLElement;
     private contentPanel: any;
     private _addContentPanel = (element: Element) => {
-        this.contentElement = element as HTMLElement;
         require(["dojox/layout/ContentPane"], (ContentPane) => { 
             this.contentPanel = new ContentPane({
                 region: "center",
@@ -76,11 +61,18 @@ import i18n = require("dojo/i18n!../nls/resources");
         this.own(on(dom.byId("linkToMap"), "click", () => {this.mapView.focus();}));
     }
 
-    private score: HTMLElement;
-    private _addScore = (element: Element) => {
-        this.score = element as HTMLElement;
+    private _footer: HTMLElement;
+    private _addedFooter = (element: Element) => {
+        this._footer = element as HTMLElement;
     }
-     
+
+    private _showFooter = () => {
+        domStyle.set(this._footer, "display", "");
+    }
+
+    private _hideFooter = () => {
+        domStyle.set(this._footer, "display", "none");
+    }
 }
 
 

@@ -1249,23 +1249,23 @@ blockquote[lang] {
 }
 
 .infoPanel {
-    .infoPanelFooter {
+    .infoPanel_Footer {
         position: absolute;
         padding: 0 8px;
         bottom: 0px;
         background: white;
         padding-top: 6px;
     }
-    .locatorScore {
+    .infoPanel_Footer-locator--Score {
         white-space: nowrap;
     }
-    .locatorCopy {
+    .infoPanel_Footer-locator--Copy {
         position: absolute;
         right: 8px;
         bottom: 7px;
         text-decoration: none;
     }
-    .locatorCopy:hover {
+    .infoPanel_Footer-locator--Copy:hover {
         text-decoration: underline;
     }
 }
