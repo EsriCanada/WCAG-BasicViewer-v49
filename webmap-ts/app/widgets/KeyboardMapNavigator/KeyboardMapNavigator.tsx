@@ -176,21 +176,25 @@ class KeyboardMapNavigator extends declared(Widget) {
             event.stopPropagation();
                 _mapScroll(1, 0);
                 break;
-            case "PageDown": //pgup
             case "Numpad3":
                 _mapScroll(1, 1);
                 break;
-            case "PageUp": //pgdn
+            case "PageDown": //pgup
             case "Numpad9":
                 _mapScroll(1, -1);
                 break;
-            case "End": //end
+            // case "End": //end
             case "Numpad1":
                 _mapScroll(-1, 1);
                 break;
-            case "Home": //home
+            // case "Home": //home
+            case "PageUp": //pgdn
             case "Numpad7":
                 _mapScroll(-1, -1);
+                break;
+            case "Home": //home
+            case "Numpad5":
+                this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
                 break;
         }
     };
@@ -200,11 +204,9 @@ class KeyboardMapNavigator extends declared(Widget) {
         
         this.cursorPos.x += dx;
         this.cursorPos.y += dy;
-        // var m = this.mapView.container.getBoundingClientRect();
-        if((this.cursorPos.x < 20) || 
-            (this.cursorPos.x > this.mapView.container.getBoundingClientRect().width - 20) || 
-            (this.cursorPos.y < 20) || 
-            (this.cursorPos.y > this.mapView.container.getBoundingClientRect().height - 20)
+        const bounds = this.mapView.container.getBoundingClientRect();
+        if((this.cursorPos.x < 20) || (this.cursorPos.x > bounds.width - 20) || 
+            (this.cursorPos.y < 20) || (this.cursorPos.y > bounds.height - 20)
             ){
                 this.mapView.goTo(this.mapView.toMap(this.cursorPos));
                 this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
