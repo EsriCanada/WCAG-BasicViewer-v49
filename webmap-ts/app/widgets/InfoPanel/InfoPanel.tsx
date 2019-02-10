@@ -19,11 +19,16 @@ import i18n = require("dojo/i18n!../nls/resources");
     @property()
     mapView: __esri.MapView | __esri.SceneView;
 
+    @property()
+    @renderable()
+    score: number = 0;
+
     constructor() {
         super();
     }
 
     render() {
+        const showScore = this.score ? "" : "display:none;";
         return (
     <div class="infoPanel">
     	<div id="popupInfoContentWrapper" tabindex="0" style="height:100%;" afterCreate={this._addContentPanel}>
@@ -34,14 +39,14 @@ import i18n = require("dojo/i18n!../nls/resources");
         <table width='100%' role='presentation' class='infoPanel_Footer' style="display:none;" afterCreate={this._addedFooter}>
             <tr>
                 <td width='33%'>
-                    <span class='infoPanel_Footer-locator--Score'>{i18n.popupInfo.Score} <span afterCreate={this._addScore}></span></span>
+                    <span class='infoPanel_Footer-locator--Score' style={showScore}>{i18n.popupInfo.Score} <span>{this.score}%</span></span>
                 </td>
-                <td style='text-align:center;' width='34%' role='navigation' aria-label="footerNavigation">
+                <td style='text-align:center;' width='34%' role='navigation'>
                     <input type='image' src='images/icons_black/downArrow.png' aria-label={i18n.popupInfo.Prev} title={i18n.popupInfo.Prev} style='transform: rotate(90deg);' alt='Previous' class='popupInfoButton prev'></input>
                     <input type='image' src='images/icons_black/downArrow.png' aria-label={i18n.popupInfo.Next} title={i18n.popupInfo.Next} style='transform: rotate(-90deg);' alt='Next' class='popupInfoButton next'></input>
                 </td>
                 <td width='33%' style='text-align:right;'>
-                    <a class='infoPanel_Footer-locator--Copy' tabindex="0" title={i18n.geoCoding.CopyToClipboard}>{i18n.geoCoding.Copy}</a>
+                    <a class='infoPanel_Footer-locator--Copy' tabindex="0" title={i18n.geoCoding.CopyToClipboard} style="display:none;">{i18n.geoCoding.Copy}</a>
                 </td>
             </tr>
         </table>
@@ -80,10 +85,10 @@ import i18n = require("dojo/i18n!../nls/resources");
         domStyle.set(this._footer, "display", "none");
     }
 
-    private score: HTMLElement;
-    private _addScore = (element: Element) => {
-        this.score = element as HTMLElement;
-    }
+    // private scoreValue: HTMLElement;
+    // private _addedScoreValue = (element: Element) => {
+    //     this.scoreValue = element as HTMLElement;
+    // }
 }
 
 
