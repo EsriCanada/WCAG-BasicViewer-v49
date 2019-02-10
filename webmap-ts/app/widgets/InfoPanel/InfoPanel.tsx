@@ -33,9 +33,15 @@ import i18n = require("dojo/i18n!../nls/resources");
         </div>
         <table width='100%' role='presentation' class='infoPanel_Footer' style="display:none;" afterCreate={this._addedFooter}>
             <tr>
-                <td style='text-align:center;' role='navigation' aria-label="footerNavigation">
-                    <input type='image' src='images/icons_black/downArrow.png' aria-label={i18n.popupInfo.Prev} title={i18n.popupInfo.Prev} style='transform: rotate(90deg);' alt='Previous' class='popupInfoButton prev' data-dojo-attach-event='onclick: footerToPrev'></input>
-                    <input type='image' src='images/icons_black/downArrow.png' aria-label={i18n.popupInfo.Next} title={i18n.popupInfo.Next} style='transform: rotate(-90deg);' alt='Next' class='popupInfoButton next' data-dojo-attach-event='onclick: footerToNext'></input>
+                <td width='33%'>
+                    <span class='infoPanel_Footer-locator--Score'>{i18n.popupInfo.Score} <span afterCreate={this._addScore}></span></span>
+                </td>
+                <td style='text-align:center;' width='34%' role='navigation' aria-label="footerNavigation">
+                    <input type='image' src='images/icons_black/downArrow.png' aria-label={i18n.popupInfo.Prev} title={i18n.popupInfo.Prev} style='transform: rotate(90deg);' alt='Previous' class='popupInfoButton prev'></input>
+                    <input type='image' src='images/icons_black/downArrow.png' aria-label={i18n.popupInfo.Next} title={i18n.popupInfo.Next} style='transform: rotate(-90deg);' alt='Next' class='popupInfoButton next'></input>
+                </td>
+                <td width='33%' style='text-align:right;'>
+                    <a class='infoPanel_Footer-locator--Copy' tabindex="0" title={i18n.geoCoding.CopyToClipboard}>{i18n.geoCoding.Copy}</a>
                 </td>
             </tr>
         </table>
@@ -72,6 +78,11 @@ import i18n = require("dojo/i18n!../nls/resources");
 
     private _hideFooter = () => {
         domStyle.set(this._footer, "display", "none");
+    }
+
+    private score: HTMLElement;
+    private _addScore = (element: Element) => {
+        this.score = element as HTMLElement;
     }
 }
 
