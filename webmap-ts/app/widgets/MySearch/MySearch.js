@@ -162,11 +162,15 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                     });
                     // search.set("sources", defaultSources);
                     document.getElementById("searchLabel").innerHTML = i18n.search;
-                    var searchWidget = new Search({
+                    this.search = new Search({
                         view: this.mapView,
                         container: domConstruct.create("div", {}, element),
                         sources: defaultSources
                     });
+                    this.search.viewModel.defaultSymbol.url = "images/SearchPin.png";
+                    this.search.viewModel.defaultSymbol.yoffset = 25;
+                    this.search.viewModel.defaultSymbol.width = 50;
+                    this.search.viewModel.defaultSymbol.height = 50;
                     // console.log("Search", searchWidget)
                 }));
             };
@@ -181,6 +185,9 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
         __decorate([
             decorators_1.property()
         ], Search.prototype, "mapView", void 0);
+        __decorate([
+            decorators_1.property()
+        ], Search.prototype, "search", void 0);
         Search = __decorate([
             decorators_1.subclass("esri.widgets.Search")
         ], Search);

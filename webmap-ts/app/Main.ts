@@ -193,9 +193,12 @@ class MapExample {
     }
   }
 
+  private search: any;
   private addSearch = (config: ApplicationConfig, mapView: __esri.MapView | __esri.SceneView) => {
     require(["./widgets/MySearch/MySearch"], lang.hitch(this, function(MySearch) {
-      new MySearch({config: this.config, mapView: mapView, container:"panelSearch"});
+      const mySearch = new MySearch({config: this.config, mapView: mapView, container:"panelSearch"});
+      console.log("MySearch", mySearch.search);
+      this.search = mySearch.search;
     }));
   }
 

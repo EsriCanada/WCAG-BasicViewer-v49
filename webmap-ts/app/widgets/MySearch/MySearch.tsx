@@ -26,6 +26,9 @@ class Search extends declared(Widget) {
     @property()
     mapView: __esri.MapView | __esri.SceneView;
 
+    @property()
+    search: Search;
+
     render() {
         return (
             <div afterCreate={this._addSearch}>
@@ -202,11 +205,15 @@ class Search extends declared(Widget) {
 
 
             document.getElementById("searchLabel").innerHTML = i18n.search;
-            const searchWidget = new Search({
+            this.search = new Search({
               view: this.mapView,
               container: domConstruct.create("div",{},element),
               sources: defaultSources
             });
+            this.search.viewModel.defaultSymbol.url = "images/SearchPin.png";
+            this.search.viewModel.defaultSymbol.yoffset = 25;
+            this.search.viewModel.defaultSymbol.width = 50;
+            this.search.viewModel.defaultSymbol.height = 50;
             // console.log("Search", searchWidget)
           }));
     }
