@@ -19,16 +19,11 @@ import i18n = require("dojo/i18n!../nls/resources");
     @property()
     mapView: __esri.MapView | __esri.SceneView;
 
-    @property()
-    @renderable()
-    score: number = 0;
-
     constructor() {
         super();
     }
 
     render() {
-        const showScore = this.score ? "" : "display:none;";
         return (
     <div class="infoPanel">
     	<div id="popupInfoContentWrapper" tabindex="0" style="height:100%;" afterCreate={this._addContentPanel}>
@@ -36,17 +31,20 @@ import i18n = require("dojo/i18n!../nls/resources");
                 <div id="feature_content"></div>
             </div>
         </div>
-        <table width='100%' role='presentation' class='infoPanel_Footer' style="display:none;" afterCreate={this._addedFooter}>
+        <table width='100%' role='presentation' class='infoPanel_Footer'>
             <tr>
+                <td colSpan="3" aria-live="polite" aria-atomic="true" class="errorText"><span afterCreate={this._addedError}></span></td>
+            </tr>
+            <tr afterCreate={this._addedFooter}>
                 <td width='33%'>
-                    <span class='infoPanel_Footer-locator--Score' style={showScore}>{i18n.popupInfo.Score} <span>{this.score}%</span></span>
+                    <span class='infoPanel_Footer-locator--Score' afterCreate={this._addedScore}>{i18n.popupInfo.Score} <span afterCreate={this._addedScoreValue}></span>%</span>
                 </td>
                 <td style='text-align:center;' width='34%' role='navigation'>
                     <input type='image' src='images/icons_black/downArrow.png' aria-label={i18n.popupInfo.Prev} title={i18n.popupInfo.Prev} style='transform: rotate(90deg);' alt='Previous' class='popupInfoButton prev'></input>
                     <input type='image' src='images/icons_black/downArrow.png' aria-label={i18n.popupInfo.Next} title={i18n.popupInfo.Next} style='transform: rotate(-90deg);' alt='Next' class='popupInfoButton next'></input>
                 </td>
                 <td width='33%' style='text-align:right;'>
-                    <a class='infoPanel_Footer-locator--Copy' tabindex="0" title={i18n.geoCoding.CopyToClipboard} style="display:none;">{i18n.geoCoding.Copy}</a>
+                    <a class='infoPanel_Footer-locator--Copy' tabindex="0" title={i18n.geoCoding.CopyToClipboard} afterCreate={this._addedCopyLink}>{i18n.geoCoding.Copy}</a>
                 </td>
             </tr>
         </table>
@@ -75,6 +73,7 @@ import i18n = require("dojo/i18n!../nls/resources");
     private _footer: HTMLElement;
     private _addedFooter = (element: Element) => {
         this._footer = element as HTMLElement;
+        this._hideFooter();
     }
 
     private _showFooter = () => {
@@ -85,10 +84,45 @@ import i18n = require("dojo/i18n!../nls/resources");
         domStyle.set(this._footer, "display", "none");
     }
 
-    // private scoreValue: HTMLElement;
-    // private _addedScoreValue = (element: Element) => {
-    //     this.scoreValue = element as HTMLElement;
-    // }
+    private scoreWrapper: HTMLElement;
+    private _addedScore = (element: Element) => {
+        this.scoreWrapper = element as HTMLElement;
+        this._setScore(0);
+    }
+    private scoreValue: HTMLElement;
+    private _addedScoreValue = (element: Element) => {
+        this.scoreValue = element as HTMLElement;
+    }
+
+    private _setScore = (score:Number) => {
+        this.scoreValue.innerHTML = score.toString();
+        domStyle.set(this.scoreWrapper, "display", (score && score > 0 && score <= 100) ? "inherited" : "none");
+    }
+
+    private copyLink: HTMLElement;
+    private _addedCopyLink = (element: Element) => {
+        this.copyLink = element as HTMLElement;
+        this._hideCopyLink();
+    }
+
+    private _showCopyLink = () => {
+        domStyle.set(this.copyLink, "display", "");
+    }
+
+    private _hideCopyLink = () => {
+        domStyle.set(this.copyLink, "display", "none");
+    }
+
+    
+    private errorText: HTMLElement;
+    private _addedError = (element: Element) => {
+        this.errorText = element as HTMLElement;
+        this._showError("");
+    }
+
+    private _showError = (error: string) => {
+        this.errorText.innerHTML = error;
+    }
 }
 
 
