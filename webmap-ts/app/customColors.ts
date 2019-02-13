@@ -18,6 +18,7 @@ export function CustomColors(config: ApplicationConfig) : void {
         // console.log("bgLightenColor", bgColor, "-> ", bgLightenColor)
         const borderActiveColor = LightenDarkenColor(activeColor, isDark(activeColor) ? 75: -75);
         const backgroundActiveHoverColor = MixColors(activeColor, hoverColor, 0.33);
+        const menuBackground = "#ededed";
         // const backgroundActiveFocusColor = MixColors(activeColor, focusColor, 0.33);
 
         configurableStyles.innerHTML = `
@@ -29,6 +30,43 @@ export function CustomColors(config: ApplicationConfig) : void {
 {
   background: white;
   border-color: ${bgColor};
+}
+
+.esri-menu {
+  box-shadow: 0 1px 2px black;
+}
+
+.esri-menu li {
+  border-top: solid 1px black;
+  background-color: ${menuBackground};
+  color: black;
+}
+
+.esri-menu li:focus {
+  background-color: white;
+}
+
+.esri-search__source.esri-search__source--active,
+.esri-search__source.esri-search__source--active:focus  {
+  background-color: ${activeColor};
+  color: ${WhiteOrBlack(activeColor)};
+}
+.esri-popup__feature-menu {
+  background-color: ${menuBackground};
+  color: ${WhiteOrBlack(menuBackground)};
+}
+.esri-popup__feature-menu-item--selected {
+  background: white;
+  color: black;
+  font-weight: bold;
+}
+.esri-popup__feature-menu li:hover {
+  background: ${hoverColor};
+  color: ${WhiteOrBlack(hoverColor)};  
+}
+.esri-popup__feature-menu-item:focus {
+  background-color: transparent;
+  outline: 2px solid ${hoverColor};
 }
 .esri-widget--button {
   background: ${bgColor};

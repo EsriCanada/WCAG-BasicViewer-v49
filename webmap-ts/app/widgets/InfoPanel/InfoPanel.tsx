@@ -67,14 +67,15 @@ import i18n = require("dojo/i18n!../nls/resources");
             this.contentPanel.startup();
             this._showInstructions();
         });
-        // this.search.autoSelect = false;
+        this.search.autoSelect = true;
         this.search.popupEnabled = false;
         on(this.search,'search-complete', event => this._searchComplete(event));
         console.log("search", this.search);
         // this.search._searchResultRenderer.container = this.contentPanel;
         // this.mapView.popup.container = this.contentPanel;
         this.mapView.popup.dockEnabled = true;
-        console.log("popup", this.mapView.popup);
+        // (this.mapView.popup as any).updateLocationEnabled = true;
+        console.log("popup, mapView", this.mapView.popup, this.mapView);
     }
 
     private _searchComplete = (event) => {
@@ -82,7 +83,7 @@ import i18n = require("dojo/i18n!../nls/resources");
         if(event.numErrors == 0) {
             this._showError("");
             let features : Graphic[] = [];
-            console.log("results", event.results);
+            // console.log("results", event.results);
             for(let i= 0; i<event.results.length; i++) {
                 const sourceResult = event.results[i];
 
@@ -135,15 +136,23 @@ import i18n = require("dojo/i18n!../nls/resources");
     private _makeSearchResultTemplate = (attrs) => {
         // return "content goes here";
         const content=domConstruct.create("table", {role: "presentation", style:"width:100%;", tabindex:"0", class:"esri-widget__table"});
-        console.log("attrs", attrs);
-        for (let property in attrs) {
-            if (attrs.hasOwnProperty(property)) {
-                console.log("property", property);
+        // console.log("attrs", attrs);
+        Object.keys(attrs).forEach(key => {
+            // if (attrs.hasOwnProperty(key)) {
+                console.log("attr", key, attrs[key]);
                 const tr = domConstruct.create("tr", {}, content);
-                domConstruct.create("td", {innerHTML:property}, tr);
-                domConstruct.create("td", {innerHTML:attrs[property]}, tr);
-            }
-        }
+                domConstruct.create("th", {innerHTML:key}, tr);
+                domConstruct.create("td", {innerHTML:attrs[key]}, tr);
+            // }
+        });
+        // for (let property in attrs) {
+        //     if (attrs.hasOwnProperty(property)) {
+        //         // console.log("property", property);
+        //         const tr = domConstruct.create("tr", {}, content);
+        //         domConstruct.create("td", {innerHTML:property}, tr);
+        //         domConstruct.create("td", {innerHTML:attrs[property]}, tr);
+        //     }
+        // }
         return content;
     }
 
