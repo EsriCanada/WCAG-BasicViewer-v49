@@ -10,6 +10,7 @@ import dom = require("dojo/dom");
 import on = require("dojo/on");
 import domAttr = require("dojo/dom-attr");
 import domStyle = require("dojo/dom-style");
+import Graphic = require("esri/Graphic");
 
 import i18n = require("dojo/i18n!../nls/resources");
 
@@ -18,6 +19,9 @@ import i18n = require("dojo/i18n!../nls/resources");
   
     @property()
     mapView: __esri.MapView | __esri.SceneView;
+
+    @property()
+    search: any;
 
     constructor() {
         super();
@@ -63,6 +67,84 @@ import i18n = require("dojo/i18n!../nls/resources");
             this.contentPanel.startup();
             this._showInstructions();
         });
+        // this.search.autoSelect = false;
+        this.search.popupEnabled = false;
+        on(this.search,'search-complete', event => this._searchComplete(event));
+        console.log("search", this.search);
+        // this.search._searchResultRenderer.container = this.contentPanel;
+        // this.mapView.popup.container = this.contentPanel;
+        this.mapView.popup.dockEnabled = true;
+        console.log("popup", this.mapView.popup);
+    }
+
+    private _searchComplete = (event) => {
+        console.log("search complete", event);
+        if(event.numErrors == 0) {
+            this._showError("");
+            let features : Graphic[] = [];
+            console.log("results", event.results);
+            for(let i= 0; i<event.results.length; i++) {
+                const sourceResult = event.results[i];
+
+                let popupTemplate = null;
+                const isFeatureLayer = sourceResult.source.hasOwnProperty('featureLayer');
+                if(isFeatureLayer) {
+                    popupTemplate = sourceResult.source.featureLayer.popupTemplate;
+                }
+                require(["esri/PopupTemplate"], (PopupTemplate) => { 
+                    sourceResult.results.forEach(result => {
+                        const feature = result.feature;
+
+                        if(isFeatureLayer) {
+                            feature.popupTemplate = popupTemplate;
+                        }
+                        else {
+                            feature.popupTemplate = new PopupTemplate(
+                            {
+                                title: i18n.geoCoding.Location,
+                                content: this._makeSearchResultTemplate(feature.attributes)
+                                // +this.makeSerchResultFooter(this.showSearchScore, dataFeatures.length > 1)
+                            });
+                        }
+        
+                        features.push(feature);
+                    });
+                });
+            }
+            console.log("features", features);
+
+            // this.mapView.popup.clear();
+            if(features.length > 0) {
+                this.mapView.popup.open();
+                this.mapView.popup.features = features;
+                console.log("popup", this.mapView.popup);
+            }
+            else {
+                this.mapView.popup.clear();
+            }
+
+        } else {
+            let err = "";
+            event.errors.forEach(error => {
+                err += (err.isNullOrWhiteSpace() ? "" : "<br/>") + error;
+            });
+            this._showError(err);
+        }
+    }
+
+    private _makeSearchResultTemplate = (attrs) => {
+        // return "content goes here";
+        const content=domConstruct.create("table", {role: "presentation", style:"width:100%;", tabindex:"0", class:"esri-widget__table"});
+        console.log("attrs", attrs);
+        for (let property in attrs) {
+            if (attrs.hasOwnProperty(property)) {
+                console.log("property", property);
+                const tr = domConstruct.create("tr", {}, content);
+                domConstruct.create("td", {innerHTML:property}, tr);
+                domConstruct.create("td", {innerHTML:attrs[property]}, tr);
+            }
+        }
+        return content;
     }
 
     private _showInstructions = () => {

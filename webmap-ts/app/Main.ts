@@ -17,6 +17,7 @@ import ApplicationBase = require("ApplicationBase/ApplicationBase");
 import BorderContainer = require("dijit/layout/BorderContainer");
 import ContentPane = require("dojox/layout/ContentPane");
 import lang = require("dojo/_base/lang");
+import Deferred = require("dojo/Deferred");
 
 import dom = require("dojo/dom");
 import domConstruct = require("dojo/dom-construct");
@@ -193,12 +194,12 @@ class MapExample {
     }
   }
 
-  private search: any;
+  private search = new Deferred();
   private addSearch = (config: ApplicationConfig, mapView: __esri.MapView | __esri.SceneView) => {
     require(["./widgets/MySearch/MySearch"], lang.hitch(this, function(MySearch) {
-      const mySearch = new MySearch({config: this.config, mapView: mapView, container:"panelSearch"});
-      console.log("MySearch", mySearch.search);
-      this.search = mySearch.search;
+      const mySearch = new MySearch({config: this.config, mapView: mapView, search:this.search, container:"panelSearch"});
+      // console.log("MySearch", mySearch, mySearch.search);
+      this.search = MySearch.search;
     }));
   }
 
@@ -207,7 +208,9 @@ class MapExample {
     require([
       "./widgets/toolbar/toolbar"
     ], (Toolbar) => {
-      new Toolbar({ portal: this.base.portal, config: this.config, mapView: mapView, container: "panelTools" });
+      this.search.then(search => 
+      new Toolbar({ portal: this.base.portal, config: this.config, mapView: mapView, search: search, container: "panelTools" })
+      );
     });
   }
 

@@ -8,6 +8,7 @@ import Widget = require("esri/widgets/Widget");
 import lang = require("dojo/_base/lang");
 import domConstruct = require("dojo/dom-construct");
 import Collection = require("esri/core/Collection");
+import Deferred = require("dojo/Deferred");
 
 import FeatureLayerSearchSource = require("esri/widgets/Search/FeatureLayerSearchSource");
 import LocatorSearchSource = require("esri/widgets/Search/LocatorSearchSource");
@@ -27,7 +28,12 @@ class Search extends declared(Widget) {
     mapView: __esri.MapView | __esri.SceneView;
 
     @property()
-    search: Search;
+    search: Deferred<Search>;
+
+    constructor() {
+        super();
+    }
+
 
     render() {
         return (
@@ -204,17 +210,23 @@ class Search extends declared(Widget) {
 
 
 
-            document.getElementById("searchLabel").innerHTML = i18n.search;
-            this.search = new Search({
+            // document.getElementById("searchLabel").innerHTML = i18n.search;
+            const _search = new Search({
               view: this.mapView,
               container: domConstruct.create("div",{},element),
               sources: defaultSources
             });
-            this.search.viewModel.defaultSymbol.url = "images/SearchPin.png";
-            this.search.viewModel.defaultSymbol.yoffset = 25;
-            this.search.viewModel.defaultSymbol.width = 50;
-            this.search.viewModel.defaultSymbol.height = 50;
-            // console.log("Search", searchWidget)
+            document.getElementById("searchLabel").innerHTML = _search.label;
+            _search.maxResults = 25;
+            _search.maxSuggestions = 12;
+            _search.minSuggestCharacters = 3;
+
+            _search.viewModel.defaultSymbol.url = "images/SearchPin.png";
+            _search.viewModel.defaultSymbol.yoffset = 25;
+            _search.viewModel.defaultSymbol.width = 50;
+            _search.viewModel.defaultSymbol.height = 50;
+            this.search.resolve(_search);
+            // console.log("Search", _search)
           }));
     }
 

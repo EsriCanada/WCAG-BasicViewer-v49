@@ -25,7 +25,7 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
     var Search = /** @class */ (function (_super) {
         __extends(Search, _super);
         function Search() {
-            var _this = _super !== null && _super.apply(this, arguments) || this;
+            var _this = _super.call(this) || this;
             _this._addSearch = function (element) {
                 require([
                     "esri/widgets/Search",
@@ -161,17 +161,22 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                         }
                     });
                     // search.set("sources", defaultSources);
-                    document.getElementById("searchLabel").innerHTML = i18n.search;
-                    this.search = new Search({
+                    // document.getElementById("searchLabel").innerHTML = i18n.search;
+                    var _search = new Search({
                         view: this.mapView,
                         container: domConstruct.create("div", {}, element),
                         sources: defaultSources
                     });
-                    this.search.viewModel.defaultSymbol.url = "images/SearchPin.png";
-                    this.search.viewModel.defaultSymbol.yoffset = 25;
-                    this.search.viewModel.defaultSymbol.width = 50;
-                    this.search.viewModel.defaultSymbol.height = 50;
-                    // console.log("Search", searchWidget)
+                    document.getElementById("searchLabel").innerHTML = _search.label;
+                    _search.maxResults = 25;
+                    _search.maxSuggestions = 12;
+                    _search.minSuggestCharacters = 3;
+                    _search.viewModel.defaultSymbol.url = "images/SearchPin.png";
+                    _search.viewModel.defaultSymbol.yoffset = 25;
+                    _search.viewModel.defaultSymbol.width = 50;
+                    _search.viewModel.defaultSymbol.height = 50;
+                    this.search.resolve(_search);
+                    // console.log("Search", _search)
                 }));
             };
             return _this;

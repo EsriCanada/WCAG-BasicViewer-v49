@@ -37,6 +37,9 @@ class Toolbar extends declared(Widget) {
     @property()
     mapView: __esri.MapView |__esri.SceneView;
 
+    @property()
+    search: any;
+
     constructor() {
         super();
     }
@@ -407,7 +410,8 @@ class Toolbar extends declared(Widget) {
                     new InfoPanel({
                         // config: this.config,
                         mapView:mainView,
-                        container: domConstruct.create("div", {}, tool.myToolPage.pageContent)
+                        container: domConstruct.create("div", {}, tool.myToolPage.pageContent),
+                        search: this.search,
                     })
                     deferred.resolve(tool);
                 })
