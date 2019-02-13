@@ -135,7 +135,7 @@ import i18n = require("dojo/i18n!../nls/resources");
 
     private _makeSearchResultTemplate = (attrs) => {
         // return "content goes here";
-        const content=domConstruct.create("table", {role: "presentation", style:"width:100%;", tabindex:"0", class:"esri-widget__table"});
+        const content=domConstruct.create("table", {style:"width:100%;", tabindex:"0", class:"esri-widget__table"});
         // console.log("attrs", attrs);
         Object.keys(attrs).forEach(key => {
             // if (attrs.hasOwnProperty(key)) {
@@ -145,14 +145,6 @@ import i18n = require("dojo/i18n!../nls/resources");
                 domConstruct.create("td", {innerHTML:attrs[key]}, tr);
             // }
         });
-        // for (let property in attrs) {
-        //     if (attrs.hasOwnProperty(property)) {
-        //         // console.log("property", property);
-        //         const tr = domConstruct.create("tr", {}, content);
-        //         domConstruct.create("td", {innerHTML:property}, tr);
-        //         domConstruct.create("td", {innerHTML:attrs[property]}, tr);
-        //     }
-        // }
         return content;
     }
 

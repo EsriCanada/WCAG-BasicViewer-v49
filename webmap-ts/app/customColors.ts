@@ -48,8 +48,8 @@ export function CustomColors(config: ApplicationConfig) : void {
   font-weight: bold;
 }
 .esri-popup__feature-menu-header {
-  background: ${menuHeaderBackground};
-  color: ${WhiteOrBlack(menuHeaderBackground)};
+  background: ${bgLightenColor};
+  color: ${WhiteOrBlack(bgLightenColor)};
   font-weight: bold;
 }
 .esri-menu__header {
