@@ -11,6 +11,7 @@ import on = require("dojo/on");
 import domAttr = require("dojo/dom-attr");
 import domStyle = require("dojo/dom-style");
 import Graphic = require("esri/Graphic");
+import Geometry = require("esri/geometry/Geometry");
 
 import i18n = require("dojo/i18n!../nls/resources");
 
@@ -74,6 +75,28 @@ import i18n = require("dojo/i18n!../nls/resources");
         // this.search._searchResultRenderer.container = this.contentPanel;
         // this.mapView.popup.container = this.contentPanel;
         this.mapView.popup.dockEnabled = true;
+
+        const PanAction : any = {
+            title: "Pan To",
+            id: "pan-to-this",
+            image: "images/PanTo.16.png"
+        };
+
+        this.mapView.popup.actions.push(PanAction);
+
+        this.mapView.popup.on("trigger-action", (event) => {
+            // Execute the measureThis() function if the measure-this action is clicked
+            if (event.action.id === "pan-to-this") {
+                console.log("pan-to-this", event, event.target.selectedFeature);
+                let geometry :Geometry = event.target.selectedFeature.geometry;
+                // if (geometry.type !== "point") {
+                //     geometry = (geometry as any).getExtent().getCenter() ;
+                // }
+                console.log("geometry", geometry);
+                this.mapView.goTo(geometry);
+            }
+          });
+
         // (this.mapView.popup as any).updateLocationEnabled = true;
         console.log("popup, mapView", this.mapView.popup, this.mapView);
     }
