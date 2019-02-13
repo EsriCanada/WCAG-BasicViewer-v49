@@ -19,6 +19,7 @@ export function CustomColors(config: ApplicationConfig) : void {
         const borderActiveColor = LightenDarkenColor(activeColor, isDark(activeColor) ? 75: -75);
         const backgroundActiveHoverColor = MixColors(activeColor, hoverColor, 0.33);
         const menuBackground = "#ededed";
+        const menuHeaderBackground = LightenDarkenColor(menuBackground, isDark(menuBackground) ? 75: -75);
         // const backgroundActiveFocusColor = MixColors(activeColor, focusColor, 0.33);
 
         configurableStyles.innerHTML = `
@@ -41,32 +42,47 @@ export function CustomColors(config: ApplicationConfig) : void {
   background-color: ${menuBackground};
   color: black;
 }
-
-.esri-menu li:focus {
-  background-color: white;
-}
-
-.esri-search__source.esri-search__source--active,
-.esri-search__source.esri-search__source--active:focus  {
-  background-color: ${activeColor};
-  color: ${WhiteOrBlack(activeColor)};
-}
 .esri-popup__feature-menu {
   background-color: ${menuBackground};
   color: ${WhiteOrBlack(menuBackground)};
-}
-.esri-popup__feature-menu-item--selected {
-  background: white;
-  color: black;
   font-weight: bold;
+}
+.esri-popup__feature-menu-header {
+  background: ${menuHeaderBackground};
+  color: ${WhiteOrBlack(menuHeaderBackground)};
+  font-weight: bold;
+}
+.esri-menu__header {
+  background: ${bgLightenColor};
+  color: ${WhiteOrBlack(bgLightenColor)};
+  padding: 0.8em 1em;
+}
+.esri-menu li:focus {
+  background-color: white;
+}
+.esri-popup__feature-menu-item {
+  background: ${menuBackground};
+  color: ${WhiteOrBlack(menuBackground)};
+}
+.esri-popup__feature-menu-item:focus {
+  background-color: transparent;
+  color: ${WhiteOrBlack(menuBackground)};
+  outline: 2px solid ${focusColor};
+}
+.esri-search__source.esri-search__source--active,
+.esri-search__source.esri-search__source--active:focus,
+.esri-popup__feature-menu-item--selected,
+.esri-popup__feature-menu-item--selected:focus  {
+  background-color: ${activeColor};
+  color: ${WhiteOrBlack(activeColor)};
 }
 .esri-popup__feature-menu li:hover {
   background: ${hoverColor};
   color: ${WhiteOrBlack(hoverColor)};  
 }
-.esri-popup__feature-menu-item:focus {
-  background-color: transparent;
-  outline: 2px solid ${hoverColor};
+.esri-popup__feature-menu-item:hover:focus {
+  background: ${hoverColor};
+  color: ${WhiteOrBlack(hoverColor)};  
 }
 .esri-widget--button {
   background: ${bgColor};

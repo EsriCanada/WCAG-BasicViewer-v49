@@ -262,3 +262,12 @@ input[type="checkbox"] {
 .esri-basemap-gallery__item:focus {
     background-color: white;
 }
+
+.esri-popup--is-docked.esri-popup__feature-menu,
+.esri-popup__feature-menu {
+    top: 40px !important;
+}
+
+.esri-popup__button {
+    color: black;
+}
