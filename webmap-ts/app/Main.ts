@@ -24,6 +24,7 @@ import domConstruct = require("dojo/dom-construct");
 
 import { Has } from "./utils";
 import { CustomColors } from "./customColors";
+import i18nCommon = require("dojo/i18n!esri/nls/common");
 
 const CSS = {
   loading: "configurable-application--loading"
@@ -55,6 +56,8 @@ class MapExample {
   config: ApplicationConfig;
 
   public init(base: ApplicationBase): void {
+    console.log("Commom Strings", i18nCommon);
+
     // console.log("init");
     if (!base) {
       console.error("ApplicationBase is not defined");

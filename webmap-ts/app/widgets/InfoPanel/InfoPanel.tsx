@@ -106,6 +106,10 @@ import i18n = require("dojo/i18n!../nls/resources");
                                 content: this._makeSearchResultTemplate(feature.attributes)
                                 // +this.makeSerchResultFooter(this.showSearchScore, dataFeatures.length > 1)
                             });
+                            if(!feature.symbol) {
+                                feature.symbol = this.search.viewModel.defaultSymbol;
+                            }
+                            console.log("feature", feature);
                         }
         
                         features.push(feature);
@@ -138,12 +142,12 @@ import i18n = require("dojo/i18n!../nls/resources");
         const content=domConstruct.create("table", {style:"width:100%;", tabindex:"0", class:"esri-widget__table"});
         // console.log("attrs", attrs);
         Object.keys(attrs).forEach(key => {
-            // if (attrs.hasOwnProperty(key)) {
-                console.log("attr", key, attrs[key]);
+            if (attrs.hasOwnProperty(key)) {
+                // console.log("attr", key, attrs[key]);
                 const tr = domConstruct.create("tr", {}, content);
                 domConstruct.create("th", {innerHTML:key}, tr);
                 domConstruct.create("td", {innerHTML:attrs[key]}, tr);
-            // }
+            }
         });
         return content;
     }
