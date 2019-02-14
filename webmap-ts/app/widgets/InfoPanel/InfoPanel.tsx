@@ -76,36 +76,57 @@ import i18n = require("dojo/i18n!../nls/resources");
         // this.mapView.popup.container = this.contentPanel;
         this.mapView.popup.dockEnabled = true;
 
-        const PanAction : any = {
-            title: "Pan To",
-            id: "pan-to-this",
-            image: "images/PanTo.16.png"
-        };
+        // const PanAction : any = {
+        //     title: "Pan To",
+        //     id: "pan-to-this",
+        //     image: "images/PanTo.16.png"
+        // };
 
-        this.mapView.popup.actions.push(PanAction);
+        // this.mapView.popup.actions.push(PanAction);
 
-        this.own(this.mapView.popup.on("trigger-action", (event) => {
-            // Execute the measureThis() function if the measure-this action is clicked
-            if (event.action.id === "pan-to-this") {
-                // console.log("pan-to-this", event, event.target.selectedFeature);
-                const geometry : Geometry = event.target.selectedFeature.geometry;
-                this.mapView.goTo(geometry);
-            }
-        }));
+        // this.own(this.mapView.popup.on("trigger-action", (event) => {
+        //     // Execute the measureThis() function if the measure-this action is clicked
+        //     if (event.action.id === "pan-to-this") {
+        //         // console.log("pan-to-this", event, event.target.selectedFeature);
+        //         const geometry : Geometry = event.target.selectedFeature.geometry;
+        //         this.mapView.goTo(geometry);
+        //     }
+        // }));
 
-        this.mapView.popup.watch("selectedFeature", feature => {
+        this.own(this.mapView.popup.watch("selectedFeature", feature => {
             // console.log("selectedFeature", feature);
             this.RemoveLastLocation();
             const geometry : Geometry = feature.geometry;
             if(geometry) {
-                this.mapView.goTo(geometry);
-                if(!feature.layer) {
+                const isVisibleAtScale = (layer : any) : boolean => {
+                    return (layer.minScale <= 0 || this.mapView.scale <= layer.minScale) &&
+                    (layer.maxScale <= 0 || this.mapView.scale >= layer.maxScale)
+                } 
+                if(feature.layer) {
+                    if(feature.layer.geometryType == "point" && !isVisibleAtScale(feature.layer)) {
+                        const options={target:geometry, scale:((feature.layer.maxScale+feature.layer.minScale)/2)};
+                        console.log("options", options);
+                        this.mapView.goTo(options);
+                    }
+                    else {
+                        this.mapView.goTo(geometry);
+                    }
+                } 
+                else {
+                    this.mapView.goTo(geometry);
                     this.mapView.graphics.add(feature);
                     this.lastLocation = feature;
                 }
             }
-        })
+        }));
 
+        this.own(this.mapView.popup.watch("visible", (visible, oldVisible) => {
+            // console.log("popup visible", oldVisible, visible);
+            if(!visible) {
+                this.RemoveLastLocation();
+            }
+        }));
+        
         // (this.mapView.popup as any).updateLocationEnabled = true;
         console.log("popup, mapView", this.mapView.popup, this.mapView);
     }
