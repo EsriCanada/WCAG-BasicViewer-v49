@@ -6,9 +6,12 @@ import { subclass, declared, property } from "esri/core/accessorSupport/decorato
 import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Widget = require("esri/widgets/Widget");
 import lang = require("dojo/_base/lang");
+import on = require("dojo/on");
 import domConstruct = require("dojo/dom-construct");
 import Collection = require("esri/core/Collection");
 import Deferred = require("dojo/Deferred");
+import Graphic = require("esri/Graphic");
+
 
 import FeatureLayerSearchSource = require("esri/widgets/Search/FeatureLayerSearchSource");
 import LocatorSearchSource = require("esri/widgets/Search/LocatorSearchSource");
@@ -16,6 +19,7 @@ import LocatorSearchSource = require("esri/widgets/Search/LocatorSearchSource");
 import { tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
+import { Has } from "../../utils";
 // import { Has } from "../../utils";
 
 @subclass("esri.widgets.Search")
@@ -48,7 +52,7 @@ class Search extends declared(Widget) {
             "esri/tasks/Locator", 
             "esri/layers/FeatureLayer",
             "esri/core/lang"
-            ], lang.hitch(this, function(Search, Locator, FeatureLayer, esriLang) {
+            ], (Search, Locator, FeatureLayer, esriLang) => {
             const defaultSources : Collection<FeatureLayerSearchSource|LocatorSearchSource> = new Collection<FeatureLayerSearchSource|LocatorSearchSource>();
 
             //setup geocoders defined in common config
@@ -59,136 +63,73 @@ class Search extends declared(Widget) {
                 // console.log("geocoders", this.config.helperServices.geocode);
                 const geocoders = lang.clone(this.config.helperServices.geocode);
                 
-                geocoders.forEach(
-                    lang.hitch(this, function(geocoder) {
-                        // console.log("geocoder", geocoder);
-                        if (
-                            geocoder.url && geocoder.url.indexOf(
-                                ".arcgis.com/arcgis/rest/services/World/GeocodeServer"
-                            ) > -1
-                        ) {
-                            geocoder.hasEsri = true;
-                            geocoder.locator = new Locator(geocoder.url);
+                geocoders.forEach(geocoder => {
+                    // console.log("geocoder", geocoder);
+                    if (
+                        geocoder.url && geocoder.url.indexOf(
+                            ".arcgis.com/arcgis/rest/services/World/GeocodeServer"
+                        ) > -1
+                    ) {
+                        geocoder.hasEsri = true;
+                        geocoder.locator = new Locator(geocoder.url);
 
-                            geocoder.singleLineFieldName = "SingleLine";
-                            
-                            geocoder.outFields = ["*"]; //["Match_addr"];
-                            if (!this.config.countryCodeSearch.isNullOrWhiteSpace()) {
-                                geocoder.countryCode = this.config.countryCodeSearch;
-                            }
-
-                            geocoder.name = geocoder.name || "Esri World Geocoder";
-                            if (geocoder.name === "Esri World Geocoder") {
-                                geocoder.name = i18n.EsriWorldGeocoder;
-                            }
-
-                            if (this.config.searchExtent) {
-                                geocoder.searchExtent = this.mapView.extent;
-                                geocoder.localSearchOptions = {
-                                    minScale: 300000,
-                                    distance: 50000
-                                };
-                            }
-                            defaultSources.push(geocoder);
-                        } else if (geocoder.singleLineFieldName && geocoder.singleLineFieldName != undefined) {
-                            //Add geocoders with a singleLineFieldName defined
-                            geocoder.locator = new Locator(geocoder.url);
-
-                            defaultSources.push(geocoder);
+                        geocoder.singleLineFieldName = "SingleLine";
+                        
+                        geocoder.outFields = ["*"]; //["Match_addr"];
+                        if (!this.config.countryCodeSearch.isNullOrWhiteSpace()) {
+                            geocoder.countryCode = this.config.countryCodeSearch;
                         }
-                    })
-                );
+
+                        geocoder.name = geocoder.name || "Esri World Geocoder";
+                        if (geocoder.name === "Esri World Geocoder") {
+                            geocoder.name = i18n.EsriWorldGeocoder;
+                        }
+
+                        if (this.config.searchExtent) {
+                            geocoder.searchExtent = this.mapView.extent;
+                            geocoder.localSearchOptions = {
+                                minScale: 300000,
+                                distance: 50000
+                            };
+                        }
+                        defaultSources.push(geocoder);
+                    } else if (geocoder.singleLineFieldName && geocoder.singleLineFieldName != undefined) {
+                        //Add geocoders with a singleLineFieldName defined
+                        geocoder.locator = new Locator(geocoder.url);
+
+                        defaultSources.push(geocoder);
+                    }
+                })
             }
 
             //add configured search layers to the search widget
             var configuredSearchLayers =
                 this.config.searchLayers instanceof Array ? this.config.searchLayers : JSON.parse(this.config.searchLayers);
-            configuredSearchLayers.forEach(
-                lang.hitch(this, function(layer) {
-                    const map : __esri.WebMap = this.mapView.map;
-                    const mapLayer = map.layers.find(l => l.id ==layer.id );
-                    if (mapLayer) {
-                        const source : FeatureLayerSearchSource = new FeatureLayerSearchSource({
-                            featureLayer: mapLayer,
-                        });
-                        // source.featureLayer = mapLayer;
+            configuredSearchLayers.forEach(layer => {
+                // const map : __esri.WebMap = this.mapView.map;
+                const mapLayer = this.mapView.map.layers.find(l => l.id == layer.id );
+                if (mapLayer) {
+                    const source : FeatureLayerSearchSource = new FeatureLayerSearchSource({
+                        featureLayer: mapLayer,
+                    });
+                    // source.featureLayer = mapLayer;
 
-                        if (
-                            layer.fields &&
-                            layer.fields.length &&
-                            layer.fields.length > 0
-                        ) {
-                            source.searchFields = layer.fields;
-                            source.displayField = layer.fields[0];
-                            source.outFields = ["*"];
-                            // searchLayers = true;
-                            defaultSources.push(source);
-                        }
+                    if (
+                        layer.fields &&
+                        layer.fields.length &&
+                        layer.fields.length > 0
+                    ) {
+                        source.searchFields = layer.fields;
+                        source.displayField = layer.fields[0];
+                        source.outFields = ["*"];
+                        // searchLayers = true;
+                        defaultSources.push(source);
                     }
-                })
-            );
+                }
+            })
 
             //Add search layers defined on the web map item
-            // if (
-            //     this.config.response.itemInfo.itemData &&
-            //     this.config.response.itemInfo.itemData.applicationProperties &&
-            //     this.config.response.itemInfo.itemData.applicationProperties
-            //         .viewing &&
-            //     this.config.response.itemInfo.itemData.applicationProperties
-            //         .viewing.search
-            // ) {
-            //     const searchOptions = this.config.response.itemInfo.itemData
-            //         .applicationProperties.viewing.search;
-
-            //         searchOptions.layers.forEach(
-            //             lang.hitch(this, function(searchLayer) {
-            //             //we do this so we can get the title specified in the item
-            //             const operationalLayers = this.config.itemInfo.itemData
-            //                 .operationalLayers;
-            //                 let layer = null;
-            //             operationalLayers.some(function(opLayer) {
-            //                 if (opLayer.id === searchLayer.id) {
-            //                     layer = opLayer;
-            //                     return true;
-            //                 }
-            //             });
-
-            //             if (layer && layer.hasOwnProperty("url")) {
-            //                 const source = {} as FeatureLayerSearchSource;
-            //                 let url = layer.url;
-            //                 let name = layer.title || layer.name;
-
-            //                 if (esriLang.isDefined(searchLayer.subLayer)) {
-            //                     url = url + "/" + searchLayer.subLayer;
-            //                     layer.layerObject.layerInfos.some(
-            //                         function(info) {
-            //                             if (info.id === searchLayer.subLayer) {
-            //                                 name +=
-            //                                     " - " +
-            //                                     layer.layerObject.layerInfos[
-            //                                         searchLayer.subLayer
-            //                                     ].name;
-            //                                 return true;
-            //                             }
-            //                         }
-            //                     );
-            //                 }
-
-            //                 source.featureLayer = new FeatureLayer(url);
-
-            //                 source.name = name;
-
-            //                 source.exactMatch = searchLayer.field.exactMatch;
-            //                 source.displayField = searchLayer.field.name;
-            //                 source.searchFields = [searchLayer.field.name];
-            //                 source.placeholder = searchOptions.hintText;
-            //                 // source.infoTemplate = layer.infoTemplate;
-            //                 defaultSources.push(source);
-            //                 // searchLayers = true;
-            //             }
-            //         })
-            //     );
-            // }
+            // ? follow up
 
             defaultSources.forEach(function(source: FeatureLayerSearchSource) {
                 if (
@@ -206,29 +147,114 @@ class Search extends declared(Widget) {
                     }
                 }
             });
-            // search.set("sources", defaultSources);
 
-
-
-            // document.getElementById("searchLabel").innerHTML = i18n.search;
             const _search = new Search({
               view: this.mapView,
               container: domConstruct.create("div",{},element),
-              sources: defaultSources
+              sources: defaultSources,
+              popupEnabled: false,
+              maxResults: 25,
+              maxSuggestions: 12,
+              minSuggestCharacters: 3,
             });
+            // document.getElementById("searchLabel").innerHTML = i18n.search;
             document.getElementById("searchLabel").innerHTML = _search.label;
-            // _search.maxResults = 25;
-            // _search.maxSuggestions = 12;
-            // _search.minSuggestCharacters = 3;
 
-            // _search.viewModel.defaultSymbol.url = "images/SearchPin.png";
-            // _search.viewModel.defaultSymbol.yoffset = 25;
-            // _search.viewModel.defaultSymbol.width = 50;
-            // _search.viewModel.defaultSymbol.height = 50;
-            // _search.viewModel.defaultSymbol.name = "SearchMarker";
+            _search.viewModel.defaultSymbol.url = "images/SearchPin.png";
+            _search.viewModel.defaultSymbol.yoffset = 20;
+            _search.viewModel.defaultSymbol.width = 40;
+            _search.viewModel.defaultSymbol.height = 40;
+            _search.viewModel.defaultSymbol.name = "SearchMarker";
+            on(_search,'search-complete', event => this._searchComplete(event));
+
             this.search.resolve(_search);
             // console.log("Search", _search)
-          }));
+        });
+    }
+
+    private _searchComplete = (event) => {
+        console.log("search complete", event);
+        if(event.numErrors == 0) {
+            this._showError("");
+            let features : Graphic[] = [];
+            // console.log("results", event.results);
+            for(let i= 0; i<event.results.length; i++) {
+                const sourceResult = event.results[i];
+
+                let popupTemplate = null;
+                const isFeatureLayer = sourceResult.source.hasOwnProperty('featureLayer');
+                if(isFeatureLayer) {
+                    popupTemplate = sourceResult.source.featureLayer.popupTemplate;
+                }
+                require(["esri/PopupTemplate"], (PopupTemplate) => { 
+                    sourceResult.results.forEach(result => {
+                        const feature = result.feature;
+
+                        if(isFeatureLayer) {
+                            feature.popupTemplate = popupTemplate;
+                        }
+                        else {
+                            feature.popupTemplate = new PopupTemplate(
+                            {
+                                title: i18n.geoCoding.Location,
+                                content: this._makeSearchResultTemplate(feature.attributes)
+                                // +this.makeSerchResultFooter(this.showSearchScore, dataFeatures.length > 1)
+                            });
+                            if(!feature.symbol) {
+                                // this.search.viewModel.defaultSymbol.name="SearchMarker";
+                                this.search.then(search => feature.symbol = (search as any).viewModel.defaultSymbol);
+                            }
+                            // console.log("feature", feature);
+                        }
+        
+                        features.push(feature);
+                    });
+                });
+            }
+            console.log("features", features);
+
+            // this.mapView.popup.clear();
+            if(features.length > 0) {
+                this.mapView.popup.open();
+                this.mapView.popup.features = features;
+                console.log("popup", this.mapView.popup);
+            }
+            else {
+                this.mapView.popup.clear();
+            }
+
+        } else {
+            let err = "";
+            event.errors.forEach(error => {
+                err += (err.isNullOrWhiteSpace() ? "" : "<br/>") + error;
+            });
+            this._showError(err);
+        }
+    }
+
+    private _makeSearchResultTemplate = (attrs) => {
+        // return "content goes here";
+        const content=domConstruct.create("table", {style:"width:100%;", tabindex:"0", class:"esri-widget__table"});
+        // console.log("attrs", attrs);
+        Object.keys(attrs).forEach(key => {
+            if (attrs.hasOwnProperty(key)) {
+                // console.log("attr", key, attrs[key]);
+                const tr = domConstruct.create("tr", {}, content);
+                domConstruct.create("th", {innerHTML:key}, tr);
+                domConstruct.create("td", {innerHTML:attrs[key]}, tr);
+            }
+        });
+        return content;
+    }
+
+    private _showError = (error) => {
+        // if(Has(this.config, "infoPanel")) {
+        //     // ?
+        // }
+        if(!error.isNullOrWhiteSpace()) {
+            console.log("Error", error);
+            alert("Error: "+error);
+        }
     }
 
 }

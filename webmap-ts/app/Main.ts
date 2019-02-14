@@ -17,7 +17,10 @@ import ApplicationBase = require("ApplicationBase/ApplicationBase");
 import BorderContainer = require("dijit/layout/BorderContainer");
 import ContentPane = require("dojox/layout/ContentPane");
 import lang = require("dojo/_base/lang");
+import on = require("dojo/on");
+
 import Deferred = require("dojo/Deferred");
+import Geometry = require("esri/geometry/Geometry");
 
 import dom = require("dojo/dom");
 import domConstruct = require("dojo/dom-construct");
@@ -130,7 +133,9 @@ class MapExample {
           // console.log("mapView", mapView);
           mapView.highlightOptions.color = this.config.focusColor;
 
-          findQuery(find, mapView).then(() => goToMarker(marker, mapView));
+          if(find && find .isNullOrWhiteSpace() && marker && !marker.isNullOrWhiteSpace()) {
+            findQuery(find, mapView).then(() => goToMarker(marker, mapView));
+          }
 
           if(this.config.scalebar) {
             require(["esri/widgets/ScaleBar"], (ScaleBar) => {
@@ -164,6 +169,80 @@ class MapExample {
               mapView.ui.add(locateBtn, "top-left");
             });
           }
+
+          // setTimeout(() => { mapView.popup.dockEnabled = true; }, 100); // ?
+
+          mapView.popup.collapseEnabled = false;
+
+          mapView.popup.actions.removeAll();
+          // const PanAction = {
+          //     title: "Pan To",
+          //     id: "pan-to-this",
+          //     image: "images/PanTo.16.png"
+          // };
+  
+          // mapView.popup.actions.push(PanAction as __esri.ActionButton);
+  
+          // mapView.popup.on("trigger-action", (event) => {
+          //     // Execute the measureThis() function if the measure-this action is clicked
+          //     if (event.action.id === "pan-to-this") {
+          //         // console.log("pan-to-this", event, event.target.selectedFeature);
+          //         const geometry : Geometry = event.target.selectedFeature.geometry;
+          //         (mapView as __esri.MapView).goTo(geometry);
+          //     }
+          //   });
+
+          let lastLocation : any;
+          const RemoveLastLocation = () => {
+              if(lastLocation) {
+                  mapView.graphics.remove(lastLocation);
+                  lastLocation = null;
+              }
+          }
+      
+      
+          mapView.popup.watch("selectedFeature", (feature, oldFeature) => {
+              // console.log("selectedFeature", feature, oldFeature);
+              RemoveLastLocation();
+              if(!feature) return;
+              const geometry : Geometry = feature.geometry;
+              if(geometry) {
+                  const isVisibleAtScale = (layer : any) : boolean => {
+                      return (layer.minScale <= 0 || mapView.scale <= layer.minScale) &&
+                      (layer.maxScale <= 0 || mapView.scale >= layer.maxScale)
+                  } 
+                  const MapView = (mapView as __esri.MapView);
+                  if(feature.layer) {
+                      if(feature.layer.geometryType == "point" && !isVisibleAtScale(feature.layer)) {
+                          const options={target:geometry, scale:((feature.layer.maxScale+feature.layer.minScale)/2)};
+                          console.log("options", options);
+                          MapView.goTo(options);
+                      }
+                      else {
+                        MapView.goTo(geometry);
+                      } 
+                  } 
+                  else {
+                      MapView.goTo(geometry);
+                      mapView.graphics.add(feature);
+                      lastLocation = feature;
+                  }
+              }
+
+              // console.log("popup content", this.mapView.popup.content, feature);
+              // // if(this.mapView.popup.content && (this.mapView.popup.content as any).popupTemplate)
+              // // {
+              // //     console.log("content", (this.mapView.popup.content as any).popupTemplate.content);
+              // // }
+          });
+
+          mapView.popup.watch("visible", (visible, oldVisible) => {
+              // console.log("popup visible", oldVisible, visible);
+              if(!visible) {
+                  RemoveLastLocation();
+              }
+          });
+
           this.addSearch(this.config, mapView);
           this.createTools(mapView);
 

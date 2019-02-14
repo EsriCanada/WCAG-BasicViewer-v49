@@ -99,3 +99,5 @@ webmap-ts/images/speaker-view\.png
 webmap-ts/app/widgets/InfoPanel/InfoPanel\.js
 
 webmap-ts/app/widgets/InfoPanel/PopupInfo\.js
+
+webmap-ts/app/widgets/MySearch/MySearch\.js

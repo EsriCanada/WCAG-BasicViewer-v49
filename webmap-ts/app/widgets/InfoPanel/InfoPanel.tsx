@@ -59,6 +59,8 @@ import i18n = require("dojo/i18n!../nls/resources");
 
     private contentPanel: any;
     private _addContentPanel = (element: Element) => {
+        this.mapView.popup.dockEnabled = true;
+
         require(["dojox/layout/ContentPane"], (ContentPane) => { 
             this.contentPanel = new ContentPane({
                 region: "center",
@@ -68,164 +70,8 @@ import i18n = require("dojo/i18n!../nls/resources");
             this.contentPanel.startup();
             this._showInstructions();
         });
-        // this.search.autoSelect = true;
-        this.search.popupEnabled = false;
 
-        this.search.maxResults = 25;
-        this.search.maxSuggestions = 12;
-        this.search.minSuggestCharacters = 3;
-
-        this.search.viewModel.defaultSymbol.url = "images/SearchPin.png";
-        this.search.viewModel.defaultSymbol.yoffset = 25;
-        this.search.viewModel.defaultSymbol.width = 50;
-        this.search.viewModel.defaultSymbol.height = 50;
-        this.search.viewModel.defaultSymbol.name = "SearchMarker";
-
-
-        on(this.search,'search-complete', event => this._searchComplete(event));
-        console.log("search", this.search);
-        // this.search._searchResultRenderer.container = this.contentPanel;
-        // this.mapView.popup.container = this.contentPanel;
-        this.mapView.popup.dockEnabled = true;
-
-        this.mapView.popup.actions.removeAll();
-        // const PanAction = {
-        //     title: "Pan To",
-        //     id: "pan-to-this",
-        //     image: "images/PanTo.16.png"
-        // };
-
-        // this.mapView.popup.actions.push(PanAction as __esri.ActionButton);
-
-        // this.own(this.mapView.popup.on("trigger-action", (event) => {
-        //     // Execute the measureThis() function if the measure-this action is clicked
-        //     if (event.action.id === "pan-to-this") {
-        //         // console.log("pan-to-this", event, event.target.selectedFeature);
-        //         const geometry : Geometry = event.target.selectedFeature.geometry;
-        //         this.mapView.goTo(geometry);
-        //     }
-        // }));
-
-        this.own(this.mapView.popup.watch("selectedFeature", feature => {
-            // console.log("selectedFeature", feature);
-            this.RemoveLastLocation();
-            if(!feature) return;
-            const geometry : Geometry = feature.geometry;
-            if(geometry) {
-                const isVisibleAtScale = (layer : any) : boolean => {
-                    return (layer.minScale <= 0 || this.mapView.scale <= layer.minScale) &&
-                    (layer.maxScale <= 0 || this.mapView.scale >= layer.maxScale)
-                } 
-                if(feature.layer) {
-                    if(feature.layer.geometryType == "point" && !isVisibleAtScale(feature.layer)) {
-                        const options={target:geometry, scale:((feature.layer.maxScale+feature.layer.minScale)/2)};
-                        console.log("options", options);
-                        this.mapView.goTo(options);
-                    }
-                    else {
-                        this.mapView.goTo(geometry);
-                    }
-                } 
-                else {
-                    this.mapView.goTo(geometry);
-                    this.mapView.graphics.add(feature);
-                    this.lastLocation = feature;
-                }
-            }
-        }));
-
-        this.own(this.mapView.popup.watch("visible", (visible, oldVisible) => {
-            // console.log("popup visible", oldVisible, visible);
-            if(!visible) {
-                this.RemoveLastLocation();
-            }
-        }));
-        
-        // (this.mapView.popup as any).updateLocationEnabled = true;
-        console.log("popup, mapView", this.mapView.popup, this.mapView);
-    }
-
-    private lastLocation : any;
-    public RemoveLastLocation = () => {
-        if(this.lastLocation) {
-            this.mapView.graphics.remove(this.lastLocation);
-            this.lastLocation = null;
-        }
-    }
-
-    private _searchComplete = (event) => {
-        console.log("search complete", event);
-        if(event.numErrors == 0) {
-            this._showError("");
-            let features : Graphic[] = [];
-            // console.log("results", event.results);
-            for(let i= 0; i<event.results.length; i++) {
-                const sourceResult = event.results[i];
-
-                let popupTemplate = null;
-                const isFeatureLayer = sourceResult.source.hasOwnProperty('featureLayer');
-                if(isFeatureLayer) {
-                    popupTemplate = sourceResult.source.featureLayer.popupTemplate;
-                }
-                require(["esri/PopupTemplate"], (PopupTemplate) => { 
-                    sourceResult.results.forEach(result => {
-                        const feature = result.feature;
-
-                        if(isFeatureLayer) {
-                            feature.popupTemplate = popupTemplate;
-                        }
-                        else {
-                            feature.popupTemplate = new PopupTemplate(
-                            {
-                                title: i18n.geoCoding.Location,
-                                content: this._makeSearchResultTemplate(feature.attributes)
-                                // +this.makeSerchResultFooter(this.showSearchScore, dataFeatures.length > 1)
-                            });
-                            if(!feature.symbol) {
-                                // this.search.viewModel.defaultSymbol.name="SearchMarker";
-                                feature.symbol = this.search.viewModel.defaultSymbol;
-                            }
-                            // console.log("feature", feature);
-                        }
-        
-                        features.push(feature);
-                    });
-                });
-            }
-            console.log("features", features);
-
-            // this.mapView.popup.clear();
-            if(features.length > 0) {
-                this.mapView.popup.open();
-                this.mapView.popup.features = features;
-                console.log("popup", this.mapView.popup);
-            }
-            else {
-                this.mapView.popup.clear();
-            }
-
-        } else {
-            let err = "";
-            event.errors.forEach(error => {
-                err += (err.isNullOrWhiteSpace() ? "" : "<br/>") + error;
-            });
-            this._showError(err);
-        }
-    }
-
-    private _makeSearchResultTemplate = (attrs) => {
-        // return "content goes here";
-        const content=domConstruct.create("table", {style:"width:100%;", tabindex:"0", class:"esri-widget__table"});
-        // console.log("attrs", attrs);
-        Object.keys(attrs).forEach(key => {
-            if (attrs.hasOwnProperty(key)) {
-                // console.log("attr", key, attrs[key]);
-                const tr = domConstruct.create("tr", {}, content);
-                domConstruct.create("th", {innerHTML:key}, tr);
-                domConstruct.create("td", {innerHTML:attrs[key]}, tr);
-            }
-        });
-        return content;
+        // console.log("popup, mapView", this.mapView.popup, this.mapView);
     }
 
     private _showInstructions = () => {
@@ -280,10 +126,10 @@ import i18n = require("dojo/i18n!../nls/resources");
     private errorText: HTMLElement;
     private _addedError = (element: Element) => {
         this.errorText = element as HTMLElement;
-        this._showError("");
+        this.ShowError("");
     }
 
-    private _showError = (error: string) => {
+    public ShowError = (error: string) => {
         this.errorText.innerHTML = error;
     }
 }

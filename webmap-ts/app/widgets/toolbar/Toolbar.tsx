@@ -62,7 +62,7 @@ class Toolbar extends declared(Widget) {
         }
         const config: ApplicationConfig = this.config;
         const toolList = [];
-        const tools: Array<string> = [
+        const toolNames: Array<string> = [
             "details", 
             "instructions",
             "overview",
@@ -84,9 +84,9 @@ class Toolbar extends declared(Widget) {
             "print"
           ];
                 
-        tools.forEach((tool: string) => {
-            if (Has(this.config, tool)) {
-                switch (tool) {
+        toolNames.forEach((toolName: string) => {
+            if (Has(this.config, toolName)) {
+                switch (toolName) {
                     case "mapKeyboardNavigation":
                         toolList.push(
                             this._addMapKeyboardNavigation(this.deferredKeyboardNavigation = new Deferred<Tool>())
@@ -129,7 +129,7 @@ class Toolbar extends declared(Widget) {
                         toolList.push(this._addMeasure(element, this.mapView));
                         break;
                 default:
-                        toolList.push(this._addTool(element, tool));
+                        toolList.push(this._addTool(element, toolName));
                         break;
                 }
             }
@@ -146,17 +146,27 @@ class Toolbar extends declared(Widget) {
         return this.deferred.promise;
     }
 
-    private _addTool = (element: Element, tool: string): dojo.Deferred<Tool> => {
+    private toolDictionary = [];
+    public getByName = (name:string) : Tool => {
+        const matches = this.toolDictionary.filter(item => item.name == name);
+        if(matches && matches.length == 1) {
+            return matches[0].tool;
+        }
+        return null;
+    }
+
+    private _addTool = (element: Element, toolName: string): dojo.Deferred<Tool> => {
         const deferred = new Deferred<Tool>();
 
         require(["./Tool"], (Tool) => {
             const t = new Tool({
                 config: this.config,
-                tool: tool,
+                tool: toolName,
                 toolBar: this,
                 container: domConstruct.create("div", {}, element)
             });
             t.pageReady.then(() => {
+                this.toolDictionary.push({name:toolName, tool:t});
                 deferred.resolve(t);
             });
         });
@@ -264,7 +274,7 @@ class Toolbar extends declared(Widget) {
             const deferred = new Deferred<Tool>();
             this._addTool(element, "filter").then((tool) => {
                 require(["../Filters/Filters"], (Filters) => {
-                    const filters = new Filters({
+                    const filters = tool.myWidget = new Filters({
                         mainView:mainView,
                         tool: tool,
                         container: domConstruct.create("div", {class:"FilterTabs"}, "pageBody_filter")
@@ -291,7 +301,7 @@ class Toolbar extends declared(Widget) {
             const deferred = new Deferred<Tool>();
             this._addTool(element, "features").then((tool) => {
                 require(["../FeaturesList/FeaturesList"], (Features) => {
-                    const features = new Features({
+                    const features = tool.myWidget = new Features({
                         mapView:this.mapView,
                         tool: tool,
                         container: domConstruct.create("div", {class:"Features"}, "pageBody_features")
@@ -317,7 +327,7 @@ class Toolbar extends declared(Widget) {
             const deferred = new Deferred<Tool>();
             this._addTool(element, "overview").then((tool) => {
                 require(["../MyOverviewMap/MyOverviewMap"], (MyOverviewMap) => {
-                    const overviewMap = new MyOverviewMap({
+                    const overviewMap = tool.myWidget = new MyOverviewMap({
                         mainView:mainView,
                         scaleUnits: this.config.scaleUnits,
                         container: domConstruct.create("div", {}, "pageBody_overview")
@@ -352,7 +362,7 @@ class Toolbar extends declared(Widget) {
             const deferred = new Deferred<Tool>();
             this._addTool(element, "basemap").then((tool) => {
                 require(["../BaseMaps/BaseMaps"], (BaseMaps) => {
-                    new BaseMaps({
+                    tool.myWidget = new BaseMaps({
                         config: this.config,
                         portal: this.portal,
                         mapView: this.mapView,
@@ -372,7 +382,7 @@ class Toolbar extends declared(Widget) {
             new Deferred<Tool>();
             this._addTool(element, "legend").then((tool) => {
                 require(["esri/widgets/Legend"], (Legend) => {
-                    new Legend({
+                    tool.myWidget = new Legend({
                         view:mainView,
                         container: domConstruct.create("div", {}, tool.myToolPage.pageContent)
                     })
@@ -389,7 +399,7 @@ class Toolbar extends declared(Widget) {
             const deferred = new Deferred<Tool>();
             this._addTool(element, "layers").then((tool) => {
                 require(["../TOC/TOC"], (TOC) => {
-                    new TOC({
+                    tool.myWidget = new TOC({
                         config: this.config,
                         view:mainView,
                         container: domConstruct.create("div", {}, tool.myToolPage.pageContent)
@@ -407,7 +417,7 @@ class Toolbar extends declared(Widget) {
             const deferred = new Deferred<Tool>();
             this._addTool(element, "infoPanel").then((tool) => {
                 require(["../InfoPanel/InfoPanel"], (InfoPanel) => {
-                    new InfoPanel({
+                    tool.myWidget = new InfoPanel({
                         // config: this.config,
                         mapView:mainView,
                         container: domConstruct.create("div", {}, tool.myToolPage.pageContent),
