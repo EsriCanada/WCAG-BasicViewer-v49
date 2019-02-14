@@ -168,14 +168,14 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                         sources: defaultSources
                     });
                     document.getElementById("searchLabel").innerHTML = _search.label;
-                    _search.maxResults = 25;
-                    _search.maxSuggestions = 12;
-                    _search.minSuggestCharacters = 3;
-                    _search.viewModel.defaultSymbol.url = "images/SearchPin.png";
-                    _search.viewModel.defaultSymbol.yoffset = 25;
-                    _search.viewModel.defaultSymbol.width = 50;
-                    _search.viewModel.defaultSymbol.height = 50;
-                    _search.viewModel.defaultSymbol.name = "SearchMarker";
+                    // _search.maxResults = 25;
+                    // _search.maxSuggestions = 12;
+                    // _search.minSuggestCharacters = 3;
+                    // _search.viewModel.defaultSymbol.url = "images/SearchPin.png";
+                    // _search.viewModel.defaultSymbol.yoffset = 25;
+                    // _search.viewModel.defaultSymbol.width = 50;
+                    // _search.viewModel.defaultSymbol.height = 50;
+                    // _search.viewModel.defaultSymbol.name = "SearchMarker";
                     this.search.resolve(_search);
                     // console.log("Search", _search)
                 }));

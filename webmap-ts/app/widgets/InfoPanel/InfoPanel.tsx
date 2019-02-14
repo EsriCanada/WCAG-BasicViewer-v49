@@ -68,8 +68,20 @@ import i18n = require("dojo/i18n!../nls/resources");
             this.contentPanel.startup();
             this._showInstructions();
         });
-        this.search.autoSelect = true;
+        // this.search.autoSelect = true;
         this.search.popupEnabled = false;
+
+        this.search.maxResults = 25;
+        this.search.maxSuggestions = 12;
+        this.search.minSuggestCharacters = 3;
+
+        this.search.viewModel.defaultSymbol.url = "images/SearchPin.png";
+        this.search.viewModel.defaultSymbol.yoffset = 25;
+        this.search.viewModel.defaultSymbol.width = 50;
+        this.search.viewModel.defaultSymbol.height = 50;
+        this.search.viewModel.defaultSymbol.name = "SearchMarker";
+
+
         on(this.search,'search-complete', event => this._searchComplete(event));
         console.log("search", this.search);
         // this.search._searchResultRenderer.container = this.contentPanel;
@@ -77,13 +89,13 @@ import i18n = require("dojo/i18n!../nls/resources");
         this.mapView.popup.dockEnabled = true;
 
         this.mapView.popup.actions.removeAll();
-        // const PanAction : any = {
+        // const PanAction = {
         //     title: "Pan To",
         //     id: "pan-to-this",
         //     image: "images/PanTo.16.png"
         // };
 
-        // this.mapView.popup.actions.push(PanAction);
+        // this.mapView.popup.actions.push(PanAction as __esri.ActionButton);
 
         // this.own(this.mapView.popup.on("trigger-action", (event) => {
         //     // Execute the measureThis() function if the measure-this action is clicked
@@ -97,6 +109,7 @@ import i18n = require("dojo/i18n!../nls/resources");
         this.own(this.mapView.popup.watch("selectedFeature", feature => {
             // console.log("selectedFeature", feature);
             this.RemoveLastLocation();
+            if(!feature) return;
             const geometry : Geometry = feature.geometry;
             if(geometry) {
                 const isVisibleAtScale = (layer : any) : boolean => {
