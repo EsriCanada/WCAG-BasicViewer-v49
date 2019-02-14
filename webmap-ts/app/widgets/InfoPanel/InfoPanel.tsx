@@ -88,18 +88,15 @@ import i18n = require("dojo/i18n!../nls/resources");
             // Execute the measureThis() function if the measure-this action is clicked
             if (event.action.id === "pan-to-this") {
                 // console.log("pan-to-this", event, event.target.selectedFeature);
-                let geometry : Geometry = event.target.selectedFeature.geometry;
+                const geometry : Geometry = event.target.selectedFeature.geometry;
                 this.mapView.goTo(geometry);
             }
         }));
 
         this.mapView.popup.watch("selectedFeature", feature => {
             // console.log("selectedFeature", feature);
-            if(this.lastLocation) {
-                this.mapView.graphics.remove(this.lastLocation);
-                this.lastLocation = null;
-            }
-            let geometry : Geometry = feature.geometry;
+            this.RemoveLastLocation();
+            const geometry : Geometry = feature.geometry;
             if(geometry) {
                 this.mapView.goTo(geometry);
                 if(!feature.layer) {
@@ -114,6 +111,12 @@ import i18n = require("dojo/i18n!../nls/resources");
     }
 
     private lastLocation : any;
+    public RemoveLastLocation = () => {
+        if(this.lastLocation) {
+            this.mapView.graphics.remove(this.lastLocation);
+            this.lastLocation = null;
+        }
+    }
 
     private _searchComplete = (event) => {
         console.log("search complete", event);
