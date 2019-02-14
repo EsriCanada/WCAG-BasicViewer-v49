@@ -19,7 +19,7 @@ import i18n = require("dojo/i18n!../nls/resources");
   class InfoPanel extends declared(Widget) {
   
     @property()
-    mapView: __esri.MapView | __esri.SceneView;
+    mapView: __esri.MapView;
 
     @property()
     search: any;
@@ -84,22 +84,36 @@ import i18n = require("dojo/i18n!../nls/resources");
 
         this.mapView.popup.actions.push(PanAction);
 
-        this.mapView.popup.on("trigger-action", (event) => {
+        this.own(this.mapView.popup.on("trigger-action", (event) => {
             // Execute the measureThis() function if the measure-this action is clicked
             if (event.action.id === "pan-to-this") {
-                console.log("pan-to-this", event, event.target.selectedFeature);
-                let geometry :Geometry = event.target.selectedFeature.geometry;
-                // if (geometry.type !== "point") {
-                //     geometry = (geometry as any).getExtent().getCenter() ;
-                // }
-                console.log("geometry", geometry);
+                // console.log("pan-to-this", event, event.target.selectedFeature);
+                let geometry : Geometry = event.target.selectedFeature.geometry;
                 this.mapView.goTo(geometry);
             }
-          });
+        }));
+
+        this.mapView.popup.watch("selectedFeature", feature => {
+            // console.log("selectedFeature", feature);
+            if(this.lastLocation) {
+                this.mapView.graphics.remove(this.lastLocation);
+                this.lastLocation = null;
+            }
+            let geometry : Geometry = feature.geometry;
+            if(geometry) {
+                this.mapView.goTo(geometry);
+                if(!feature.layer) {
+                    this.mapView.graphics.add(feature);
+                    this.lastLocation = feature;
+                }
+            }
+        })
 
         // (this.mapView.popup as any).updateLocationEnabled = true;
         console.log("popup, mapView", this.mapView.popup, this.mapView);
     }
+
+    private lastLocation : any;
 
     private _searchComplete = (event) => {
         console.log("search complete", event);
@@ -130,9 +144,10 @@ import i18n = require("dojo/i18n!../nls/resources");
                                 // +this.makeSerchResultFooter(this.showSearchScore, dataFeatures.length > 1)
                             });
                             if(!feature.symbol) {
+                                // this.search.viewModel.defaultSymbol.name="SearchMarker";
                                 feature.symbol = this.search.viewModel.defaultSymbol;
                             }
-                            console.log("feature", feature);
+                            // console.log("feature", feature);
                         }
         
                         features.push(feature);

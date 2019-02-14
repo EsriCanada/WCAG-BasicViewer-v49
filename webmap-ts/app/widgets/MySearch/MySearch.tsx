@@ -225,6 +225,7 @@ class Search extends declared(Widget) {
             _search.viewModel.defaultSymbol.yoffset = 25;
             _search.viewModel.defaultSymbol.width = 50;
             _search.viewModel.defaultSymbol.height = 50;
+            _search.viewModel.defaultSymbol.name = "SearchMarker";
             this.search.resolve(_search);
             // console.log("Search", _search)
           }));
