@@ -76,6 +76,7 @@ import i18n = require("dojo/i18n!../nls/resources");
         // this.mapView.popup.container = this.contentPanel;
         this.mapView.popup.dockEnabled = true;
 
+        this.mapView.popup.actions.removeAll();
         // const PanAction : any = {
         //     title: "Pan To",
         //     id: "pan-to-this",
