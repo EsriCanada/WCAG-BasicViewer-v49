@@ -49,6 +49,9 @@ const CSS = {
     myToolPage : ToolPage;
 
     @property()
+    myWidget : any;
+
+    @property()
     @renderable()
     active: boolean;
   
