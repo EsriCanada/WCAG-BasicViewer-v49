@@ -97,7 +97,7 @@ define({
             zoomTo: "Zoom To",
             followLink: "Follow Link"
         },
-        popupInfo: {
+        "popupInfo": {
             headerNavigation: "Header navigation panel",
             "footerNavigation": "Footer navigation panel",
             "Next": "Next",
@@ -112,7 +112,7 @@ define({
             "noFeatures": "Nothing to show",
             "noPreselectedFeature": "No feature pre-selected",
             "instructions": "Click the map to select features <br/>or <br/>" +
-                "<a href='#' onclick='dojo.byId(\"mapDiv\").focus();'>Skip to Map</a> and:<br/>" +
+                "<a href='#' id='linkToMap'>Skip to Map</a> and:<br/>" +
                 "<ul>" +
                 "<li>move map with <myKey>arrows</myKey>, or</li>" +
                 "<li>move map cursor with <myKey>SHIFT</myKey> + <myKey>arrows</myKey>, then</li>" +
@@ -126,6 +126,68 @@ define({
             symbol: "Symbol",
             "resultOf": 'Result {0} of {1}'
         },
+        "geoCoding": {
+            "tooltips": "ToolTips",
+            "hideTooltips": "No ToolTips",
+            "showTooltips": "Show ToolTips",
+            "zoomTo": "Zoom to Location",
+            "noAddress": "No Point Address",
+            "noAddressFound": "No Address Found at Point",
+            "clear": "Clear Selection",
+            "instructions": "Click the map to get location address <br/>or <br/>" +
+                "<a href='#' id='linkToMap'>Skip to Map</a> and:<br/>" +
+                "<ul>" +
+                "<li>move map with <myKey>arrows</myKey>, or</li>" +
+                "<li>move map cursor with <myKey>SHIFT</myKey> + <myKey>arrows</myKey>, then</li>" +
+                "<li>press <myKey>ENTER</myKey> to select at cursor.</li>" +
+                "</ul>",
+            "locationToAddress": "Location To Address",
+            "Location": "Location",
+            Copy: "Copy",
+            CopyToClipboard: "Copy to Clipboard",
+            "Address": "Address:",
+            "Block": "Block:",
+            "BldgName": "Building Name:",
+            "LevelName": "Level Name:",
+            "Phone": "Phone:",
+            "Side": "Side:",
+            "StDir": "St. Dir/Type:",
+            "Status": "Status:",
+            "UnitName": "Unit:",
+            "City": "City:",
+            "CountryCode": "Country Code:",
+            "District": "District:",
+            "MetroArea": "Metro Area:",
+            "Neighborhood": "Neighborhood:",
+            "PlaceName": "Place Name:",
+            "PostalCode": "Postal Code:",
+            "Region": "Region:",
+            "Sector": "Sector:",
+            "Territory": "Territory:",
+            "Type": "Type:",
+            "Addr_type": "Addr Type:"
+        },
+        "addrType": {
+            PointAddress: "Address",
+            StreetName: "Street Name",
+            StreetAddress: "Street Address",
+            POI: "Point Of Interest",
+            World: "World",
+            Locality: "Locality",
+            Neighborhood: "Neighborhood",
+            City: "City",
+            Zone: "Zone",
+            Bank: "Bank",
+            Park: "Park",
+            Postal: "Postal Code",
+            College: "College",
+            School: "School",
+            ShoppingCenter: "Shopping Center",
+            BusinessFacility: "Business Facility",
+            County: "County",
+            GolfCourse: "Golf Course",
+            Parking: "Parking"
+        }
 
     }),
     "ar": 1,

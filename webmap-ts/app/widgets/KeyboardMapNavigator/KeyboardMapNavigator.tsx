@@ -20,9 +20,21 @@ import Graphic = require("esri/Graphic");
 import Color = require("esri/Color");
 import FeatureLayer = require("esri/layers/FeatureLayer");
 import { SimpleLineSymbol, SimpleFillSymbol } from "esri/symbols"; 
-// import Query = require("esri/tasks/query");
-import { Has } from "../../utils";
-import { WhiteOrBlack } from "../../customColors";
+import {
+    BACKSPACE,
+    copyKey,
+    DELETE,
+    DOWN_ARROW,
+    END,
+    ENTER,
+    ESCAPE,
+    HOME,
+    LEFT_ARROW,
+    RIGHT_ARROW,
+    SHIFT,
+    TAB,
+    UP_ARROW
+  } from "dojo/keys";
 
 const CSS = {
     base: "toolbar",
@@ -131,14 +143,12 @@ class KeyboardMapNavigator extends declared(Widget) {
 
     private mapScrollPausable;
     private mapScroll = (event) => {
-        // const focusElement = document.querySelector(":focus");
-        // if (!focusElement || focusElement !== this.mapView)
-        //     return;
+        const {code, key, shiftKey, ctrlKey} = event;
 
-        // console.log("event", event.code, event.key, event.code || event.key, event);
+        // console.log("event", code, key, code || key, event);
 
         // ctrl+PgDn|PgUp does not exist or taken by browser
-        const smallStep = event.shiftKey ? 0.2 : event.ctrlKey ? 5.0 : 1.0;
+        const smallStep = shiftKey ? 0.2 : ctrlKey ? 5.0 : 1.0;
 
         const _mapScroll = (x, y, smallStep) => {
             // this.mapScrollPausable.pause();
@@ -147,7 +157,7 @@ class KeyboardMapNavigator extends declared(Widget) {
             //});
         };
 
-        switch (event.code || event.key) {
+        switch (code || key) {
             case "Enter" :
             case "NumpadEnter" :
                 // https://gis.stackexchange.com/questions/78976/how-to-open-infotemplate-programmatically
