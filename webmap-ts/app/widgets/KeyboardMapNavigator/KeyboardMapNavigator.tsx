@@ -6,6 +6,7 @@ import { subclass, declared, property } from "esri/core/accessorSupport/decorato
 import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Widget = require("esri/widgets/Widget");
 import domConstruct = require("dojo/dom-construct");
+import domAttr = require("dojo/dom-attr");
 import domStyle = require("dojo/dom-style");
 import domClass = require("dojo/dom-class");
 import Deferred = require("dojo/Deferred");
@@ -69,8 +70,48 @@ class KeyboardMapNavigator extends declared(Widget) {
                 id="mapSuperCursor"
                 style="position:absolute; pointer-events:none;" 
                 afterCreate={this._addCursor}>
+                <div 
+                    id="mapErrorWrapper" 
+                    class="mapErrorWrapper" 
+                    afterCreate={this._addedErrorWrapper}
+                    // aria-live="assertive" aria-atomic="true" 
+                    tabindex="0">
+                    <img src="images/error.white.24.png" alt="error mark" aria-hidden="true"></img>
+                    <span afterCreate={this._addedErrorText}>Error Text</span>
+                </div>
             </div>
         );
+    }
+
+    private errorWrapper : HTMLDivElement;
+    private _addedErrorWrapper = (element : Element) => {
+        this.errorWrapper = element as HTMLDivElement;
+        this.mapView.ui.add(this.errorWrapper, "bottom-left");
+        this.own(on(this.errorWrapper, "blur", () => this.showError("")));
+        this.own(on(this.errorWrapper, "keydown", (event) => {
+            this.showError("");
+            event.preventDefault();
+            event.stopPropagation();
+        }));
+        this.showError("");
+    }
+
+    private errorText : HTMLSpanElement;
+    private _addedErrorText = (element : Element) => {
+        this.errorText = element as HTMLSpanElement;
+    }
+
+    private showError = (msg:string) => {
+        this.errorText.innerHTML = msg;
+        const show = !msg.isNullOrWhiteSpace();
+        domStyle.set(this.errorWrapper, "display", show ? "" : "none");
+        if(show) {
+            this.errorWrapper.focus();
+            this.clearZone();
+        } 
+        else {
+            this.mapView.focus();
+        }
     }
 
     private Show = () => {
@@ -88,13 +129,11 @@ class KeyboardMapNavigator extends declared(Widget) {
         else {
             this.cursorGroup.remove(this.loadingCursor);
         }
-        console.log("cursor", this.cursorGroup);
     }
 
     private mapSuperCursor;
     private loadingCursor;
     private cursorGroup;
-    private cursorNav;
     private stepX : number;
     private stepY : number;
     private _addCursor = (element: Element) => {
@@ -113,14 +152,14 @@ class KeyboardMapNavigator extends declared(Widget) {
             color:selectionColor
         });
 
-        this.cursorNav = gfx.createSurface(this.mapSuperCursor, 40, 40);
-        this.cursorGroup = this.cursorNav.createGroup();
+        const cursor = gfx.createSurface(this.mapSuperCursor, 40, 40);
+        this.cursorGroup = cursor.createGroup();
         this.cursorGroup.createPath("M20 0 L20 40 M0 20 L40 20").setStroke({color:"#ffffff5c", width:2});
         this.cursorGroup.createPath("M20 1 L20 39 M1 20 L39 20").setStroke({color:this.cursorColor, width:1});
         this.cursorGroup.createCircle({cx:20, cy:20, r:10}).setFill("transparent").setStroke(this.cursorFocusColor);
         this.loadingCursor = this.cursorGroup.createImage({x:0, y:0, width:40, height:40, src: "images/reload2.gif"});
 
-        console.log("loadingCursor", this.loadingCursor, this.cursorGroup);
+        // console.log("loadingCursor", this.loadingCursor, this.cursorGroup);
         
         domStyle.set(this.mapSuperCursor, 'left', "100px");
         domStyle.set(this.mapSuperCursor, 'top', "100px");
@@ -295,7 +334,7 @@ class KeyboardMapNavigator extends declared(Widget) {
             return (layer.minScale <= 0 || this.mapView.scale <= layer.minScale) &&
             (layer.maxScale <= 0 || this.mapView.scale >= layer.maxScale)
         } 
-    // this.showError('');
+        this.showError("");
 
         const deferred = new Deferred();
 
@@ -355,9 +394,8 @@ class KeyboardMapNavigator extends declared(Widget) {
         }
         ,
         (error) => {
-            // console.error(error);
-            alert(error);
-            // this.showError(error);
+            console.error(error);
+            this.showError(error);
             this.loading(false);
         }
         );

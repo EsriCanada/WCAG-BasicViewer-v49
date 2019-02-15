@@ -1273,3 +1273,18 @@ blockquote[lang] {
 .errorText {
     color: #b60000;
 }
+
+.mapErrorWrapper {
+    background: #b60000;
+    color: white;
+    padding: 4px 8px;
+    border: 1px solid white;
+    font-family: 'Comfortaa', cursive;
+    font-weight: 700;
+    font-size: 19px;
+}
+
+.mapErrorWrapper img {
+    vertical-align: top;
+    margin-right: 4px;
+}
