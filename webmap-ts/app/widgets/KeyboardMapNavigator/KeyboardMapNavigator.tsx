@@ -16,6 +16,7 @@ import gfx = require("dojox/gfx");
 import { tsx } from "esri/widgets/support/widget";
 import i18n = require("dojo/i18n!../nls/resources");
 import { Geometry, Point, ScreenPoint, Extent } from "esri/geometry";
+import geometryEngine = require( "esri/geometry/geometryEngine");
 import Circle = require("esri/geometry/Circle");
 import Graphic = require("esri/Graphic");
 import Color = require("esri/Color");
@@ -114,11 +115,11 @@ class KeyboardMapNavigator extends declared(Widget) {
         }
     }
 
-    private Show = () => {
+    private ShowCursor = () => {
         domStyle.set(this.mapSuperCursor, "display", "block");
     }
 
-    private Hide = () => {
+    private HideCursor = () => {
         domStyle.set(this.mapSuperCursor, "display", "none");
     }
 
@@ -165,10 +166,10 @@ class KeyboardMapNavigator extends declared(Widget) {
         domStyle.set(this.mapSuperCursor, 'top', "100px");
         this.loading(false);
         this.cursorToCenter();
-        this.Hide();
+        this.HideCursor();
 
-        this.own(on(this.mapView, 'focus', this.Show));
-        this.own(on(this.mapView, 'blur', this.Hide));
+        this.own(on(this.mapView, 'focus', this.ShowCursor));
+        this.own(on(this.mapView, 'blur', this.HideCursor));
 
         this.own(on(this.mapView, 'click', (evn) => {
             // this.followTheMapMode(false);
@@ -419,7 +420,7 @@ class KeyboardMapNavigator extends declared(Widget) {
             const wc = this.mapView.toMap(new Point({x:c.x+Math.abs(p2.x - p1.x), y:c.y}));
             const w = Math.abs(wc.x - mapPoint.x);
             
-            let shape : Geometry | __esri.Geometry;
+            let shape : any;//Geometry | __esri.Geometry;
 
             switch(mode) {
                 case 'point':
@@ -428,6 +429,7 @@ class KeyboardMapNavigator extends declared(Widget) {
                         geodesic: false,
                         radius: w,
                     });
+                    shape = geometryEngine.intersect(shape, this.mapView.extent);
                     break;
                 case 'disk':
                     shape = new Circle({
@@ -435,6 +437,7 @@ class KeyboardMapNavigator extends declared(Widget) {
                         geodesic: false,
                         radius: w * 5,
                     });
+                    shape = geometryEngine.intersect(shape, this.mapView.extent);
                     break;
                 case 'extent':
                     shape = this.mapView.extent;
