@@ -6,6 +6,7 @@ import { subclass, declared, property } from "esri/core/accessorSupport/decorato
 import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Widget = require("esri/widgets/Widget");
 import domConstruct = require("dojo/dom-construct");
+import domAttr = require("dojo/dom-attr");
 import domStyle = require("dojo/dom-style");
 import domClass = require("dojo/dom-class");
 import Deferred = require("dojo/Deferred");
@@ -14,7 +15,7 @@ import on = require("dojo/on");
 import gfx = require("dojox/gfx");
 import { tsx } from "esri/widgets/support/widget";
 import i18n = require("dojo/i18n!../nls/resources");
-import { Point, ScreenPoint, Extent } from "esri/geometry";
+import { Geometry, Point, ScreenPoint, Extent } from "esri/geometry";
 import Circle = require("esri/geometry/Circle");
 import Graphic = require("esri/Graphic");
 import Color = require("esri/Color");
@@ -69,8 +70,48 @@ class KeyboardMapNavigator extends declared(Widget) {
                 id="mapSuperCursor"
                 style="position:absolute; pointer-events:none;" 
                 afterCreate={this._addCursor}>
+                <div 
+                    id="mapErrorWrapper" 
+                    class="mapErrorWrapper" 
+                    afterCreate={this._addedErrorWrapper}
+                    // aria-live="assertive" aria-atomic="true" 
+                    tabindex="0">
+                    <img src="images/error.white.24.png" alt="error mark" aria-hidden="true"></img>
+                    <span afterCreate={this._addedErrorText}>Error Text</span>
+                </div>
             </div>
         );
+    }
+
+    private errorWrapper : HTMLDivElement;
+    private _addedErrorWrapper = (element : Element) => {
+        this.errorWrapper = element as HTMLDivElement;
+        this.mapView.ui.add(this.errorWrapper, "bottom-left");
+        this.own(on(this.errorWrapper, "blur", () => this.showError("")));
+        this.own(on(this.errorWrapper, "keydown", (event) => {
+            this.showError("");
+            event.preventDefault();
+            event.stopPropagation();
+        }));
+        this.showError("");
+    }
+
+    private errorText : HTMLSpanElement;
+    private _addedErrorText = (element : Element) => {
+        this.errorText = element as HTMLSpanElement;
+    }
+
+    private showError = (msg:string) => {
+        this.errorText.innerHTML = msg;
+        const show = !msg.isNullOrWhiteSpace();
+        domStyle.set(this.errorWrapper, "display", show ? "" : "none");
+        if(show) {
+            this.errorWrapper.focus();
+            this.clearZone();
+        } 
+        else {
+            this.mapView.focus();
+        }
     }
 
     private Show = () => {
@@ -81,8 +122,18 @@ class KeyboardMapNavigator extends declared(Widget) {
         domStyle.set(this.mapSuperCursor, "display", "none");
     }
 
+    private loading = (show: boolean) => {
+        if(show) {
+            this.cursorGroup.add(this.loadingCursor);
+        }
+        else {
+            this.cursorGroup.remove(this.loadingCursor);
+        }
+    }
+
     private mapSuperCursor;
-    private cursorNav;
+    private loadingCursor;
+    private cursorGroup;
     private stepX : number;
     private stepY : number;
     private _addCursor = (element: Element) => {
@@ -101,14 +152,18 @@ class KeyboardMapNavigator extends declared(Widget) {
             color:selectionColor
         });
 
-        this.cursorNav = gfx.createSurface(this.mapSuperCursor, 40, 40);
-        const cursor = this.cursorNav.createGroup();
-        cursor.createPath("M20 0 L20 40 M0 20 L40 20").setStroke({color:"#ffffff5c", width:2});
-        cursor.createPath("M20 1 L20 39 M1 20 L39 20").setStroke({color:this.cursorColor, width:1});
-        cursor.createCircle({cx:20, cy:20, r:10}).setFill("transparent").setStroke(this.cursorFocusColor);
+        const cursor = gfx.createSurface(this.mapSuperCursor, 40, 40);
+        this.cursorGroup = cursor.createGroup();
+        this.cursorGroup.createPath("M20 0 L20 40 M0 20 L40 20").setStroke({color:"#ffffff5c", width:2});
+        this.cursorGroup.createPath("M20 1 L20 39 M1 20 L39 20").setStroke({color:this.cursorColor, width:1});
+        this.cursorGroup.createCircle({cx:20, cy:20, r:10}).setFill("transparent").setStroke(this.cursorFocusColor);
+        this.loadingCursor = this.cursorGroup.createImage({x:0, y:0, width:40, height:40, src: "images/reload2.gif"});
+
+        // console.log("loadingCursor", this.loadingCursor, this.cursorGroup);
         
         domStyle.set(this.mapSuperCursor, 'left', "100px");
         domStyle.set(this.mapSuperCursor, 'top', "100px");
+        this.loading(false);
         this.cursorToCenter();
         this.Hide();
 
@@ -238,18 +293,16 @@ class KeyboardMapNavigator extends declared(Widget) {
         
         this.cursorPos.x += dx;
         this.cursorPos.y += dy;
+        this.mapView.toMap(this.setCursorPos(this.cursorPos));
+
         const bounds = this.mapView.container.getBoundingClientRect();
         if((this.cursorPos.x < 20) || (this.cursorPos.x > bounds.width - 20) || 
             (this.cursorPos.y < 20) || (this.cursorPos.y > bounds.height - 20)
             ){
-                this.mapView.goTo(this.mapView.toMap(this.cursorPos));
-                this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
-                deferred.resolve();
-            }
-            else {
-                this.mapView.toMap(this.setCursorPos(this.cursorPos));
-                deferred.resolve();
-            }
+            this.mapView.goTo(this.mapView.toMap(this.cursorPos));
+            this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
+        }
+        deferred.resolve();
        
         return deferred.promise;
     };
@@ -281,7 +334,7 @@ class KeyboardMapNavigator extends declared(Widget) {
             return (layer.minScale <= 0 || this.mapView.scale <= layer.minScale) &&
             (layer.maxScale <= 0 || this.mapView.scale >= layer.maxScale)
         } 
-    // this.showError('');
+        this.showError("");
 
         const deferred = new Deferred();
 
@@ -341,10 +394,9 @@ class KeyboardMapNavigator extends declared(Widget) {
         }
         ,
         (error) => {
-            // console.error(error);
-            alert(error);
-            // this.showError(error);
-            // this.loading(false);
+            console.error(error);
+            this.showError(error);
+            this.loading(false);
         }
         );
         return deferred.promise;
@@ -352,7 +404,7 @@ class KeyboardMapNavigator extends declared(Widget) {
 
     private features = [];
     private getFeaturesAtPoint = (mapPoint : Point, mode: string, layers) => {
-        // this.loading(true);
+        this.loading(true);
         const deferred = new Deferred();
 
 
@@ -361,18 +413,14 @@ class KeyboardMapNavigator extends declared(Widget) {
             deferred.resolve(this.features);
         else {
 
-            let shape : any = this.mapView.extent;
-            // if(!mapPoint) mapPoint = shape.getCenter();
-            // const w = shape.width/75;
-
-            // console.log("mapPoint", mapPoint);
             const c = this.mapView.toScreen(mapPoint);
             const p1 : Point = new Point({x:c.x, y:c.y});
             const p2 : Point = new Point({x:c.x+10, y:c.y});
             const wc = this.mapView.toMap(new Point({x:c.x+Math.abs(p2.x - p1.x), y:c.y}));
             const w = Math.abs(wc.x - mapPoint.x);
-            // var selectedFeature = this.map.infoWindow.getSelectedFeature();
             
+            let shape : Geometry | __esri.Geometry;
+
             switch(mode) {
                 case 'point':
                     shape = new Circle({
@@ -416,14 +464,12 @@ class KeyboardMapNavigator extends declared(Widget) {
 
             // console.log("mode", mode);
 
-
             this.clearZone();
             this.queryZone = new Graphic({geometry:shape, symbol:this.selectionSymbol});
             this.mapView.graphics.add(this.queryZone);
 
             const deferrs = [];
-            layers
-            .forEach((layer: FeatureLayer) => {
+            layers.forEach((layer: FeatureLayer) => {
                 const q = layer.createQuery();//new Query();
                 q.outFields = ["*"];                    
                 q.where = "1=1";
@@ -439,10 +485,7 @@ class KeyboardMapNavigator extends declared(Widget) {
             });
 
             All(deferrs).then(() => {
-                // this.loading(false);
-                // const features = this.features.filter((f) => {
-                //     return f.getContent() != null;
-                // });
+                this.loading(false);
                 if(this.features.length===0) {
                     deferred.reject(i18n.widgets.popupInfo.noFeatures);
                     return deferred.promise;
@@ -462,8 +505,6 @@ class KeyboardMapNavigator extends declared(Widget) {
         }
     }
 
-
-
     private followTheMapMode = (show) => {
         // if(!has('infoPanel')) 
         return;
@@ -481,9 +522,6 @@ class KeyboardMapNavigator extends declared(Widget) {
         // if(this.badge) 
         //     this.badge(show);
     }
-
-
-
 }
 
 export = KeyboardMapNavigator;
