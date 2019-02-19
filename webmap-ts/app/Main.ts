@@ -149,24 +149,29 @@ class MapExample {
             })
           }
 
+          const homeDiv = domConstruct.create("div", {class:"esri-component esri-zoom esri-widget"});
+          mapView.ui.add(homeDiv, "top-left");
+          
           if(Has(this.config, 'home')) {
             require(["esri/widgets/Home"], (Home) => {
-              var homeBtn = new Home({
-                view: mapView
-              });
+                var homeBtn = new Home({
+                  view: mapView,
+                  container: domConstruct.create("div", {}, homeDiv)
+                });
         
               // Add the home button to the top left corner of the view
-              mapView.ui.add(homeBtn, "top-left");
+              // mapView.ui.add(homeBtn, "top-left");
             });
           }
 
           if(Has(this.config, 'locate')) {
             require(["esri/widgets/Locate"], (Locate) => {
               var locateBtn = new Locate({
-                view: mapView
+                view: mapView,
+                container: domConstruct.create("div", {}, homeDiv)
               });
         
-              mapView.ui.add(locateBtn, "top-left");
+              // mapView.ui.add(locateBtn, "top-left");
             });
           }
 

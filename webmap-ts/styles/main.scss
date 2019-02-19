@@ -1207,9 +1207,9 @@ blockquote[lang] {
     background: #ffffff80;
     padding: 0px 8px;
     pointer-events: none;
-    height: 32px;
-    border-radius: 3px;
-    font-size: 13px;
+    // height: 32px;
+    // border-radius: 3px;
+    // font-size: 13px;
 }
 
 .readVectorMap-speaker_hidingArea {
@@ -1241,13 +1241,12 @@ blockquote[lang] {
     margin: 0;
 }
 
-.readVectorMap-speaker_showingArea,
-.readVectorMap-speaker_hidingArea {
-    -ms-grid-column: 2;
-    grid-column: 2;
-    margin-left: 4px;
-}
-
+// .readVectorMap-speaker_showingArea,
+// .readVectorMap-speaker_hidingArea {
+//     -ms-grid-column: 2;
+//     grid-column: 2;
+//     margin-left: 4px;
+// }
 .infoPanel {
     .infoPanel_Footer {
         position: absolute;
