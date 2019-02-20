@@ -72,6 +72,8 @@ import i18n = require("dojo/i18n!../nls/resources");
         });
 
         // console.log("popup, mapView", this.mapView.popup, this.mapView);
+
+        this.Init();
     }
 
     private _showInstructions = () => {
@@ -131,6 +133,16 @@ import i18n = require("dojo/i18n!../nls/resources");
 
     public ShowError = (error: string) => {
         this.errorText.innerHTML = error;
+    }
+
+    private popup;
+    private Init = () => {
+        // require(["esri/widgets/Popup"], (Popup) => {
+        //     this.popup = new Popup({
+        //         content: "this is my content",
+
+        //     })
+        // }
     }
 }
 
