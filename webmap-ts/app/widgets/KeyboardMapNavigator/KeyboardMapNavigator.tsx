@@ -80,8 +80,23 @@ class KeyboardMapNavigator extends declared(Widget) {
                     <img src="images/error.white.24.png" alt="error mark" aria-hidden="true"></img>
                     <span afterCreate={this._addedErrorText}>Error Text</span>
                 </div>
+                <div aria-live="assertive" aria-atomic="true" style="position:absolute; width:0; height:0; overflow: hidden;" afterCreate={this._addedSpeachElement}></div>
             </div>
         );
+    }
+
+    private tmOut;
+    private speachElement : HTMLDivElement;
+    private _addedSpeachElement  = (element : Element) => {
+        this.speachElement = element as HTMLDivElement;
+    }
+
+    private Say = (text: string) => {
+        if(this.tmOut) {
+            clearTimeout(this.tmOut);
+        }
+        this.speachElement.innerHTML = text;
+        this.tmOut = setTimeout(() => {this.speachElement.innerHTML = ""}, 2000);
     }
 
     private errorWrapper : HTMLDivElement;
@@ -117,15 +132,18 @@ class KeyboardMapNavigator extends declared(Widget) {
 
     private ShowCursor = () => {
         domStyle.set(this.mapSuperCursor, "display", "block");
+        this.Say("Keyboard navigation enabled.")
     }
 
     private HideCursor = () => {
+        this.Say("Keyboard navigation disabled.")
         domStyle.set(this.mapSuperCursor, "display", "none");
     }
 
     private loading = (show: boolean) => {
         if(show) {
             this.cursorGroup.add(this.loadingCursor);
+            // this.Say("Loading.");
         }
         else {
             this.cursorGroup.remove(this.loadingCursor);
@@ -220,15 +238,19 @@ class KeyboardMapNavigator extends declared(Widget) {
             switch(sense) {
                 case "L" :
                 x -= pageWidth;
+                this.Say("Page Left.");
                 break;
                 case "R" :
                 x += pageWidth;
+                this.Say("Page Right.");
                 break;
                 case "U" :
                 y -= pageHeight;
+                this.Say("Page Up.");
                 break;
                 case "D" :
                 y += pageHeight;
+                this.Say("Page Down.");
                 break;
             }
             console.log("x1, y1", x, y);
@@ -275,6 +297,7 @@ class KeyboardMapNavigator extends declared(Widget) {
                 this.showPopup(event);
                 event.preventDefault();
                 event.stopPropagation();
+                // this.Say("Click.");
                 break;
             
             case "ArrowDown": 
@@ -284,6 +307,7 @@ class KeyboardMapNavigator extends declared(Widget) {
             //down
                 event.stopPropagation();
                 mapScroll(0, 1, smallStep);
+                this.Say("Down.");
                 break;
             
             case "ArrowUp": 
@@ -293,6 +317,7 @@ class KeyboardMapNavigator extends declared(Widget) {
             //up
                 event.stopPropagation();
                 mapScroll(0, -1, smallStep);
+                this.Say("Up.");
                 break;
             
             case "ArrowLeft": 
@@ -302,6 +327,7 @@ class KeyboardMapNavigator extends declared(Widget) {
             //left
                 event.stopPropagation();
                 mapScroll(-1, 0, smallStep);
+                this.Say("Left.");
                 break;
 
             case "ArrowRight": 
@@ -310,6 +336,7 @@ class KeyboardMapNavigator extends declared(Widget) {
             case "6":
             //right
                 event.stopPropagation();
+                this.Say("Right.");
                 mapScroll(1, 0, smallStep);
                 break;
             
@@ -318,6 +345,7 @@ class KeyboardMapNavigator extends declared(Widget) {
             case "Numpad5":
             // center
                 this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
+                this.Say("Center of Screen.");
                 break;
         }
     };
@@ -405,7 +433,6 @@ class KeyboardMapNavigator extends declared(Widget) {
         this.followTheMapMode(mode === 'extent');
 
         // this.mapView.popup.close();
-        this.mapView.popup.clear();
         this.getFeaturesAtPoint(this.mapView.toMap(this.cursorPos), mode, visibleLayers).then(
             (features: any[]) => {
 
@@ -414,6 +441,7 @@ class KeyboardMapNavigator extends declared(Widget) {
         
 
             if(features && features !== undefined && features.length > 0) {
+                this.mapView.popup.clear();
                 this.mapView.popup.features = features;
                 this.mapView.popup.visible = true;
             }
@@ -463,6 +491,7 @@ class KeyboardMapNavigator extends declared(Widget) {
                         radius: w,
                     });
                     shape = geometryEngine.intersect(shape, this.mapView.extent);
+                    this.Say("Get Features at point.");
                     break;
                 case 'disk':
                     shape = new Circle({
@@ -471,9 +500,11 @@ class KeyboardMapNavigator extends declared(Widget) {
                         radius: w * 5,
                     });
                     shape = geometryEngine.intersect(shape, this.mapView.extent);
+                    this.Say("Get Features around point.");
                     break;
                 case 'extent':
                     shape = this.mapView.extent;
+                    this.Say("Get all features from view.");
                     break;
                 case 'selection':
                     const feature = this.mapView.popup.selectedFeature;
@@ -485,10 +516,12 @@ class KeyboardMapNavigator extends declared(Widget) {
                                 geodesic: false,
                                 radius: w,
                             });
+                            this.Say("Get Features around selected point.");
                         }
                         else {
                             const extent = shape.extent.expand(1.5);
                             this.mapView.extent = extent;
+                            this.Say("Get Features contained in selected feature.");
                         }
                     }
                     else {
