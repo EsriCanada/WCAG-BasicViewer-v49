@@ -27,13 +27,13 @@ String.prototype.isNullOrWhiteSpace = function() : boolean {
 };
 
 String.prototype.mixIn = function(o: any) : string {
-        var regexp = /{([^{]+)}/g;
+    var regexp = /{([^{]+)}/g;
 
-        return (function(str, o) {
-             return str.replace(regexp, function(ignore, key){
-                   return (key = o[key]) == null ? '' : key;
-             });
-        })(this,o)
+    return (function(str, o) {
+        return str.replace(regexp, function(ignore, key){
+            return (key = o[key]) == null ? '' : key;
+        });
+    })(this,o)
 }
 
 Number.prototype.padLeft = function(n, str) {
@@ -46,4 +46,11 @@ Date.prototype.toSQL = function() : string {
     }
     return this.getFullYear().padLeft(4) + (this.getMonth() + 1).padLeft(2) + this.getDate().padLeft(2);
 };
+
+if (!String.prototype.startsWith) {
+    String.prototype.startsWith = function(search : string, pos? : number) : boolean {
+        pos = !pos || pos < 0 ? 0 : +pos;
+        return this.substring(pos, pos + search.length) === search;
+    }
+}
 

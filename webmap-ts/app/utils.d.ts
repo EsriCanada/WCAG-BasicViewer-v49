@@ -6,6 +6,7 @@ declare interface String {
     stripTags() : string;
     format() : string;
     mixIn(o:any) : string;
+    startsWith(searchString: String, pos?: number) : boolean;
 }
 
 declare interface Date {

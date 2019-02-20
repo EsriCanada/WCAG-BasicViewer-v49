@@ -185,7 +185,7 @@ class KeyboardMapNavigator extends declared(Widget) {
         });
 
         this.own(this.mapView.on('key-down', (event) => {
-            if (event.key.slice(0, 5) === "Arrow") {
+            if (event.key.startsWith("Arrow") || event.key.startsWith("Page")) {
                 // console.log("Arrow", event.key)
                 event.stopPropagation();
             }
@@ -194,10 +194,64 @@ class KeyboardMapNavigator extends declared(Widget) {
         this.mapScrollPausable = on.pausable(this.mapView.container, "keydown", this.mapScroll);
         this.own(this.mapScrollPausable);
 
+        this.mapPageScrollPausable = on.pausable(this.mapView.container, "keyup", this.mapPageScroll);
+        this.own(this.mapPageScrollPausable);
+
         this.deferred.resolve(true);
     }
 
     private mapScrollPausable;
+    private mapPageScrollPausable;
+
+    private mapPageScroll = (event) => {
+        const {code, key, shiftKey} = event;
+        // console.log("event", code, key, code || key, event);
+
+        const mapPageScroll = (sense: "U" | "L" | "D" | "R" ) : any => {
+            const bounds = this.mapView.container.getBoundingClientRect();
+            console.log("bounds", bounds);
+            const pageWidth = bounds.width;
+            const pageHeight = bounds.height;
+            let x = this.cursorPos.x;
+            let y = this.cursorPos.y;
+            // this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
+            console.log("x , y ", x, y);
+
+            switch(sense) {
+                case "L" :
+                x -= pageWidth;
+                break;
+                case "R" :
+                x += pageWidth;
+                break;
+                case "U" :
+                y -= pageHeight;
+                break;
+                case "D" :
+                y += pageHeight;
+                break;
+            }
+            console.log("x1, y1", x, y);
+            this.mapView.goTo(this.mapView.toMap({x: x, y: y}), {duration: 500,  easing: "linear"});
+        }
+
+        switch (code || key) {
+            case "PageUp": 
+            case "Numpad9":
+            case "9":
+                event.stopPropagation();
+                mapPageScroll(shiftKey ? "L" : "U");
+                break;
+
+            case "PageDown": 
+            case "Numpad3":
+            case "3":
+                event.stopPropagation();
+                mapPageScroll(shiftKey ? "R" : "D");
+                break;
+        }
+    }
+
     private mapScroll = (event) => {
         const {code, key, shiftKey, ctrlKey} = event;
 
@@ -206,7 +260,7 @@ class KeyboardMapNavigator extends declared(Widget) {
         // ctrl+PgDn|PgUp does not exist or taken by browser
         const smallStep = shiftKey ? 0.2 : ctrlKey ? 5.0 : 1.0;
 
-        const _mapScroll = (x, y, smallStep) => {
+        const mapScroll = (x, y, smallStep) => {
             // this.mapScrollPausable.pause();
             this.cursorScroll(x * this.stepX * smallStep, y * this.stepY * smallStep);//.then(() => {
                 // this.mapScrollPausable.resume();
@@ -229,7 +283,7 @@ class KeyboardMapNavigator extends declared(Widget) {
             case "2":
             //down
                 event.stopPropagation();
-                _mapScroll(0, 1, smallStep);
+                mapScroll(0, 1, smallStep);
                 break;
             
             case "ArrowUp": 
@@ -238,7 +292,7 @@ class KeyboardMapNavigator extends declared(Widget) {
             case "8":
             //up
                 event.stopPropagation();
-                _mapScroll(0, -1, smallStep);
+                mapScroll(0, -1, smallStep);
                 break;
             
             case "ArrowLeft": 
@@ -247,40 +301,19 @@ class KeyboardMapNavigator extends declared(Widget) {
             case "4":
             //left
                 event.stopPropagation();
-                _mapScroll(-1, 0, smallStep);
+                mapScroll(-1, 0, smallStep);
                 break;
+
             case "ArrowRight": 
             case "Numpad6":
             case "Right": 
             case "6":
             //right
                 event.stopPropagation();
-                _mapScroll(1, 0, smallStep);
-                break;
-            case "Numpad3":
-            case "3":
-            // right + down
-                _mapScroll(1, 1, smallStep);
-                break;
-            case "PageDown": 
-            case "Numpad9":
-            case "9":
-            // right + up
-                _mapScroll(1, -1, smallStep);
-                break;
-            case "Numpad1":
-            case "1":
-            case "End" :
-            // left + down
-                _mapScroll(-1, 1, smallStep);
+                mapScroll(1, 0, smallStep);
                 break;
             
-            case "PageUp": 
-            case "Numpad7":
-            case "7":
-            // left + up
-                _mapScroll(-1, -1, smallStep);
-                break;
+
             case "Home": 
             case "Numpad5":
             // center
