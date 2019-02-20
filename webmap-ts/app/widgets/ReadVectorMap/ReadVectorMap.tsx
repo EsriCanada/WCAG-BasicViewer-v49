@@ -40,13 +40,13 @@ import domClass = require("dojo/dom-class");
         return (
 <div>
     <div id="ReadVectorMapNode" class="readVectorMap-speaker" afterCreate={this._addedNode} afterUpdate={this._layerUpdate} style={show}>
-        <div>
-            <img src={imgSrc} class="readVectorMap-speaker_button" role="button" tabindex="0" afterCreate={this._addedBtn} alt="read map" title={title} aria-hidden="true"/>
-            <div class="readVectorMap-speaker_hidingArea" aria-live="polite">{title}</div>
-        </div>
         <div class={calcClass}>
             <div aria-live={areaLive1} aria-atomic="true" style="font-weight:bold;">{this.title}</div>
             <div aria-live={areaLive2} aria-atomic="true">{this.content}</div>
+        </div>
+        <div>
+            <img src={imgSrc} class="readVectorMap-speaker_button" role="button" tabindex="0" afterCreate={this._addedBtn} alt="read map" title={title} aria-hidden="true"/>
+            <div class="readVectorMap-speaker_hidingArea" aria-live="polite">{title}</div>
         </div>
     </div>
 </div>
@@ -54,7 +54,7 @@ import domClass = require("dojo/dom-class");
     }
 
     private _addedNode = (element: Element) => {
-        this.mapView.ui.add(element as HTMLElement,"bottom-left");
+        this.mapView.ui.add(element as HTMLElement,"top-right");
         domClass.remove(element, "esri-component");
     }
 
