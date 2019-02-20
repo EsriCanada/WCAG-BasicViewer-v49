@@ -281,6 +281,7 @@ class KeyboardMapNavigator extends declared(Widget) {
 
         // ctrl+PgDn|PgUp does not exist or taken by browser
         const smallStep = shiftKey ? 0.2 : ctrlKey ? 5.0 : 1.0;
+        const speeckKey = shiftKey ? "Fine {0}" : ctrlKey ? "Fast {0}" : "{0}";
 
         const mapScroll = (x, y, smallStep) => {
             // this.mapScrollPausable.pause();
@@ -307,7 +308,7 @@ class KeyboardMapNavigator extends declared(Widget) {
             //down
                 event.stopPropagation();
                 mapScroll(0, 1, smallStep);
-                this.Say("Down.");
+                this.Say(speeckKey.Format("Down."));
                 break;
             
             case "ArrowUp": 
@@ -317,7 +318,7 @@ class KeyboardMapNavigator extends declared(Widget) {
             //up
                 event.stopPropagation();
                 mapScroll(0, -1, smallStep);
-                this.Say("Up.");
+                this.Say(speeckKey.Format("Up."));
                 break;
             
             case "ArrowLeft": 
@@ -327,7 +328,7 @@ class KeyboardMapNavigator extends declared(Widget) {
             //left
                 event.stopPropagation();
                 mapScroll(-1, 0, smallStep);
-                this.Say("Left.");
+                this.Say(speeckKey.Format("Left."));
                 break;
 
             case "ArrowRight": 
@@ -336,7 +337,7 @@ class KeyboardMapNavigator extends declared(Widget) {
             case "6":
             //right
                 event.stopPropagation();
-                this.Say("Right.");
+                this.Say(speeckKey.Format("Right."));
                 mapScroll(1, 0, smallStep);
                 break;
             
