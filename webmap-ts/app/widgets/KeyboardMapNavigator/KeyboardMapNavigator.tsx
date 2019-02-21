@@ -228,10 +228,9 @@ class KeyboardMapNavigator extends declared(Widget) {
         const mapPageScroll = (sense: "U" | "L" | "D" | "R" ) : any => {
             const bounds = this.mapView.container.getBoundingClientRect();
             console.log("bounds", bounds);
-            const pageWidth = bounds.width;
-            const pageHeight = bounds.height;
-            let x = this.cursorPos.x;
-            let y = this.cursorPos.y;
+            const pageWidth = bounds.width / 2;
+            const pageHeight = bounds.height / 2;
+            let {x, y} = this.getScreenCenter();
             // this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
             console.log("x , y ", x, y);
 
@@ -370,10 +369,14 @@ class KeyboardMapNavigator extends declared(Widget) {
         return deferred.promise;
     };
 
-    private cursorPos: ScreenPoint;
-    cursorToCenter = () : ScreenPoint => {
+    private getScreenCenter = () : ScreenPoint => {
         const m = this.mapView.ui.container.getBoundingClientRect();
-        this.cursorPos = new ScreenPoint({x:(m.right-m.left)/2, y:(m.bottom-m.top)/2});
+        return new ScreenPoint({x:(m.right-m.left)/2, y:(m.bottom-m.top)/2});
+    }
+
+    private cursorPos: ScreenPoint;
+    private cursorToCenter = () : ScreenPoint => {
+        this.cursorPos = this.getScreenCenter();
 
         domStyle.set(this.mapSuperCursor, 'left', (this.cursorPos.x-20)+'px');
         domStyle.set(this.mapSuperCursor, 'top', (this.cursorPos.y-20)+'px');
