@@ -209,6 +209,17 @@ class KeyboardMapNavigator extends declared(Widget) {
             }
         }));
 
+        this.mapView.on('click', (event : any) => {
+            // console.log("click", event);
+            event.stopPropagation();
+            // event.preventDefault();
+            this.mapView.toMap(this.setCursorPos(event.screenPoint));
+            const {shiftKey, ctrlKey} = event.native;
+            // console.log("shiftKey, ctrlKey", shiftKey, ctrlKey);
+            this.showPopup(shiftKey, ctrlKey);
+        })
+
+
         this.mapScrollPausable = on.pausable(this.mapView.container, "keydown", this.mapScroll);
         this.own(this.mapScrollPausable);
 
@@ -228,10 +239,9 @@ class KeyboardMapNavigator extends declared(Widget) {
         const mapPageScroll = (sense: "U" | "L" | "D" | "R" ) : any => {
             const bounds = this.mapView.container.getBoundingClientRect();
             console.log("bounds", bounds);
-            const pageWidth = bounds.width;
-            const pageHeight = bounds.height;
-            let x = this.cursorPos.x;
-            let y = this.cursorPos.y;
+            const pageWidth = bounds.width / 2;
+            const pageHeight = bounds.height / 2;
+            let {x, y} = this.getScreenCenter();
             // this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
             console.log("x , y ", x, y);
 
@@ -294,11 +304,10 @@ class KeyboardMapNavigator extends declared(Widget) {
             case "Enter" :
             case "NumpadEnter" :
                 // https://gis.stackexchange.com/questions/78976/how-to-open-infotemplate-programmatically
-                this.emit("mapClick", {mapPoint:this.mapView.toMap(this.cursorPos)});
-                this.showPopup(event);
+                // this.emit("mapClick", {mapPoint:this.mapView.toMap(this.cursorPos)});
+                this.showPopup(shiftKey, ctrlKey);
                 event.preventDefault();
                 event.stopPropagation();
-                // this.Say("Click.");
                 break;
             
             case "ArrowDown": 
@@ -370,10 +379,14 @@ class KeyboardMapNavigator extends declared(Widget) {
         return deferred.promise;
     };
 
-    private cursorPos: ScreenPoint;
-    cursorToCenter = () : ScreenPoint => {
+    private getScreenCenter = () : ScreenPoint => {
         const m = this.mapView.ui.container.getBoundingClientRect();
-        this.cursorPos = new ScreenPoint({x:(m.right-m.left)/2, y:(m.bottom-m.top)/2});
+        return new ScreenPoint({x:(m.right-m.left)/2, y:(m.bottom-m.top)/2});
+    }
+
+    private cursorPos: ScreenPoint;
+    private cursorToCenter = () : ScreenPoint => {
+        this.cursorPos = this.getScreenCenter();
 
         domStyle.set(this.mapSuperCursor, 'left', (this.cursorPos.x-20)+'px');
         domStyle.set(this.mapSuperCursor, 'top', (this.cursorPos.y-20)+'px');
@@ -392,7 +405,7 @@ class KeyboardMapNavigator extends declared(Widget) {
 
     private layers;
 
-    private showPopup = (evn, mode:string = null) : any => {
+    private showPopup = (shiftKey: boolean, ctrlKey: boolean, mode:string = null) : any => {
         const isVisibleAtScale = (layer : any) : boolean => {
             return (layer.minScale <= 0 || this.mapView.scale <= layer.minScale) &&
             (layer.maxScale <= 0 || this.mapView.scale >= layer.maxScale)
@@ -414,19 +427,19 @@ class KeyboardMapNavigator extends declared(Widget) {
         // //     mode = 'point';
         
         if(!mode) {
-            if(!evn.shiftKey && !evn.ctrlKey) {
+            if(!shiftKey && !ctrlKey) {
                 mode = 'point';
             }
             else 
-            if(evn.shiftKey && !evn.ctrlKey) {
+            if(shiftKey && !ctrlKey) {
                 mode = 'disk';
             }
             else 
-            if(!evn.shiftKey && evn.ctrlKey) {
+            if(!shiftKey && ctrlKey) {
                 mode = 'extent';
             }
             else 
-            if(evn.shiftKey && evn.ctrlKey) {
+            if(shiftKey && ctrlKey) {
                 mode = 'selection';
             }
         }
