@@ -209,6 +209,17 @@ class KeyboardMapNavigator extends declared(Widget) {
             }
         }));
 
+        this.mapView.on('click', (event : any) => {
+            // console.log("click", event);
+            event.stopPropagation();
+            // event.preventDefault();
+            this.mapView.toMap(this.setCursorPos(event.screenPoint));
+            const {shiftKey, ctrlKey} = event.native;
+            // console.log("shiftKey, ctrlKey", shiftKey, ctrlKey);
+            this.showPopup(shiftKey, ctrlKey);
+        })
+
+
         this.mapScrollPausable = on.pausable(this.mapView.container, "keydown", this.mapScroll);
         this.own(this.mapScrollPausable);
 
@@ -293,11 +304,10 @@ class KeyboardMapNavigator extends declared(Widget) {
             case "Enter" :
             case "NumpadEnter" :
                 // https://gis.stackexchange.com/questions/78976/how-to-open-infotemplate-programmatically
-                this.emit("mapClick", {mapPoint:this.mapView.toMap(this.cursorPos)});
-                this.showPopup(event);
+                // this.emit("mapClick", {mapPoint:this.mapView.toMap(this.cursorPos)});
+                this.showPopup(shiftKey, ctrlKey);
                 event.preventDefault();
                 event.stopPropagation();
-                // this.Say("Click.");
                 break;
             
             case "ArrowDown": 
@@ -395,7 +405,7 @@ class KeyboardMapNavigator extends declared(Widget) {
 
     private layers;
 
-    private showPopup = (evn, mode:string = null) : any => {
+    private showPopup = (shiftKey: boolean, ctrlKey: boolean, mode:string = null) : any => {
         const isVisibleAtScale = (layer : any) : boolean => {
             return (layer.minScale <= 0 || this.mapView.scale <= layer.minScale) &&
             (layer.maxScale <= 0 || this.mapView.scale >= layer.maxScale)
@@ -417,19 +427,19 @@ class KeyboardMapNavigator extends declared(Widget) {
         // //     mode = 'point';
         
         if(!mode) {
-            if(!evn.shiftKey && !evn.ctrlKey) {
+            if(!shiftKey && !ctrlKey) {
                 mode = 'point';
             }
             else 
-            if(evn.shiftKey && !evn.ctrlKey) {
+            if(shiftKey && !ctrlKey) {
                 mode = 'disk';
             }
             else 
-            if(!evn.shiftKey && evn.ctrlKey) {
+            if(!shiftKey && ctrlKey) {
                 mode = 'extent';
             }
             else 
-            if(evn.shiftKey && evn.ctrlKey) {
+            if(shiftKey && ctrlKey) {
                 mode = 'selection';
             }
         }
