@@ -54,3 +54,11 @@ if (!String.prototype.startsWith) {
     }
 }
 
+String.prototype.Format = function (...args) : string {
+    var a = this;
+    for (var k in args) {
+        a = a.replace(new RegExp("\\{" + k + "\\}", 'g'), arguments[k]);
+    }
+    return a
+}
+

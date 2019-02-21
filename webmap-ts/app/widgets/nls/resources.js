@@ -114,14 +114,17 @@ define({
             "instructions": "Click the map to select features <br/>or <br/>" +
                 "<a href='#' id='linkToMap'>Skip to Map</a> and:<br/>" +
                 "<ul>" +
-                "<li>move map with <myKey>arrows</myKey>, or</li>" +
-                "<li>move map cursor with <myKey>SHIFT</myKey> + <myKey>arrows</myKey>, then</li>" +
+                "<li>move the map cursor with <myKey>arrows</myKey>,</li>" +
+                "<li>fine move with <myKey>SHIFT</myKey><myKey>arrows</myKey>, </li>" +
+                "<li>fast move with <myKey aria-label='Control'>CTRL</myKey><myKey>arrows</myKey>, or<br/><br/></li>" +
+                "<li>scroll map up and down with <myKey aria-label='Page Up'>PgUp</myKey> and <myKey aria-label='Page Down'>PgDn</myKey>,</li>" +
+                "<li>scroll map left and right with <myKey>SHIFT</myKey><myKey aria-label='Page Up'>PgUp</myKey> and <myKey>SHIFT</myKey><myKey aria-label='Page Down'>PgDn</myKey>, then<br/><br/></li>" +
                 "<li>press <myKey>ENTER</myKey> to select at cursor, or</li>" +
-                "<li>press <myKey>SHIFT</myKey> + <myKey>ENTER</myKey> to select around cursor (x 10),</li>" +
-                "<li>press <myKey aria-label='Control'>CTRL</myKey> + <myKey>ENTER</myKey> to select all map extent,</li>" +
-                "<li>press <myKey aria-label='Control'>CTRL</myKey> + <myKey>SHIFT</myKey> + <myKey>ENTER</myKey> to select inside or around the selected feature.</li>" +
+                "<li>press <myKey>SHIFT</myKey><myKey>ENTER</myKey> to select around cursor,</li>" +
+                "<li>press <myKey aria-label='Control'>CTRL</myKey><myKey>ENTER</myKey> to select all map extent,</li>" +
+                "<li>press <myKey aria-label='Control'>CTRL</myKey><myKey>SHIFT</myKey><myKey>ENTER</myKey> to select inside or around the selected feature.</li>" +
                 "</ul>" +
-                "Selecting the extent, starts the Follow-the-Map mode.",
+                "<myKey>SHIFT</myKey> and <myKey aria-label='Control'>CTRL</myKey> keys work as well with mouse click.<br/><br/>",
             "addressToLocation": "Address To Location",
             symbol: "Symbol",
             "resultOf": 'Result {0} of {1}'
