@@ -114,9 +114,9 @@ define({
             "instructions": "Click the map to select features <br/>or <br/>" +
                 "<a href='#' id='linkToMap'>Skip to Map</a> and:<br/>" +
                 "<ul>" +
-                "<li>move map cursor with <myKey>arrows</myKey>,</li>" +
-                "<li>fine move map cursor with <myKey>SHIFT</myKey><myKey>arrows</myKey>, </li>" +
-                "<li>fast move map cursor with <myKey aria-label='Control'>CTRL</myKey><myKey>arrows</myKey>, or<br/><br/></li>" +
+                "<li>move the map cursor with <myKey>arrows</myKey>,</li>" +
+                "<li>fine move with <myKey>SHIFT</myKey><myKey>arrows</myKey>, </li>" +
+                "<li>fast move with <myKey aria-label='Control'>CTRL</myKey><myKey>arrows</myKey>, or<br/><br/></li>" +
                 "<li>scroll map up and down with <myKey aria-label='Page Up'>PgUp</myKey> and <myKey aria-label='Page Down'>PgDn</myKey>,</li>" +
                 "<li>scroll map left and right with <myKey>SHIFT</myKey><myKey aria-label='Page Up'>PgUp</myKey> and <myKey>SHIFT</myKey><myKey aria-label='Page Down'>PgDn</myKey>, then<br/><br/></li>" +
                 "<li>press <myKey>ENTER</myKey> to select at cursor, or</li>" +
