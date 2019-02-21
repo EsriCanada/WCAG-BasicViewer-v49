@@ -168,12 +168,23 @@ import i18n = require("dojo/i18n!../nls/resources");
 
         this.own(this.mapView.popup.watch("selectedFeatureIndex", index => {
             this.navContentIndex = index + 1;
-            if(this.navContentCount>0) {
-            }
+            // if(this.navContentCount>0) {
+            //     const popup = this.mapView.popup as any;
+            //     console.log("selectedFeatureWidget", popup.selectedFeatureWidget, popup);
+            //     this.contentPanel.set("content", popup.selectedFeatureWidget.title);
+            // }
             this.navContentSpan.innerHTML = "{0} of {1}".Format(this.navContentIndex, this.navContentCount);
         }));
 
-        // require(["esri/widgets/Popup"], (Popup) => {
+        this.own(this.mapView.popup.watch("selectedFeatureWidget", widget => {
+            console.log("selectedFeatureWidget", widget);
+            if(widget) {
+                // widget._renderContent().then(content => this.contentPanel.set("content", content));
+                setTimeout(() => {this.contentPanel.set("content", widget.title);}, 500)
+                
+            }
+        }));
+            // require(["esri/widgets/Popup"], (Popup) => {
         //     this.popup = new Popup({
         //         content: "this is my content",
 
