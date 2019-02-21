@@ -460,7 +460,9 @@ class KeyboardMapNavigator extends declared(Widget) {
                 this.mapView.popup.visible = true;
             }
             else {
+                this.mapView.popup.clear();
                 this.mapView.popup.visible = false;
+                this.clearZone();
             }
 
             // if(!Has('infoPanel'))
@@ -473,6 +475,7 @@ class KeyboardMapNavigator extends declared(Widget) {
             console.error(error);
             this.showError(error);
             this.loading(false);
+            this.clearZone();
         }
         );
         return deferred.promise;
@@ -569,13 +572,13 @@ class KeyboardMapNavigator extends declared(Widget) {
 
             All(deferrs).then(() => {
                 this.loading(false);
-                if(this.features.length===0) {
-                    deferred.reject(i18n.widgets.popupInfo.noFeatures);
-                    return deferred.promise;
-                } 
-                else {
+                // if(this.features.length == 0) {
+                //     deferred.reject(i18n.popupInfo.noFeatures);
+                //     // return deferred.promise;
+                // } 
+                // else {
                     deferred.resolve(this.features);
-                }
+                // }
             });
         }
         return deferred.promise;
