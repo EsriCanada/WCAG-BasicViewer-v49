@@ -238,12 +238,12 @@ class KeyboardMapNavigator extends declared(Widget) {
 
         const mapPageScroll = (sense: "U" | "L" | "D" | "R" ) : any => {
             const bounds = this.mapView.container.getBoundingClientRect();
-            console.log("bounds", bounds);
+            // console.log("bounds", bounds);
             const pageWidth = bounds.width / 2;
             const pageHeight = bounds.height / 2;
             let {x, y} = this.getScreenCenter();
             // this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
-            console.log("x , y ", x, y);
+            // console.log("x , y ", x, y);
 
             switch(sense) {
                 case "L" :
@@ -263,7 +263,7 @@ class KeyboardMapNavigator extends declared(Widget) {
                 this.Say("Page Down.");
                 break;
             }
-            console.log("x1, y1", x, y);
+            // console.log("x1, y1", x, y);
             this.mapView.goTo(this.mapView.toMap({x: x, y: y}), {duration: 500,  easing: "linear"});
         }
 
