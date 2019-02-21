@@ -137,6 +137,16 @@ import i18n = require("dojo/i18n!../nls/resources");
 
     private popup;
     private Init = () => {
+        console.log("popup", this.mapView.popup);
+        this.own(this.mapView.popup.watch("featureCount", count => {
+            if(count>1) {
+                this._showFooter();
+            }
+            else {
+                this._hideFooter();
+            }
+        }));
+
         // require(["esri/widgets/Popup"], (Popup) => {
         //     this.popup = new Popup({
         //         content: "this is my content",
