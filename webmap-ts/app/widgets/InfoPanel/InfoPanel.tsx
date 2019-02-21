@@ -46,9 +46,9 @@ import i18n = require("dojo/i18n!../nls/resources");
                 </td>
                 <td style='text-align:center;' width='34%' role='navigation'>
                     <div class="infoPanel_Footer--navBar">
-                        <input type='image' src='images/icons_black/downArrow.png' aria-label={i18n.popupInfo.Prev} title={i18n.popupInfo.Prev} class="infoPanel_Footer--navBar-leftArrow" alt='Previous'></input>
+                        <input type='image' src='images/icons_black/downArrow.png' aria-label={i18n.popupInfo.Prev} title={i18n.popupInfo.Prev} class="infoPanel_Footer--navBar-leftArrow" alt='Previous' afterCreate={this._addedPrevBtn}></input>
                         <span aria-live="polite" aria-atomic="true" afterCreate={this._addedNavContent} class="infoPanel_Footer--navContent"></span>
-                        <input type='image' src='images/icons_black/downArrow.png' aria-label={i18n.popupInfo.Next} title={i18n.popupInfo.Next} class="infoPanel_Footer--navBar-rightArrow" alt='Next'></input>
+                        <input type='image' src='images/icons_black/downArrow.png' aria-label={i18n.popupInfo.Next} title={i18n.popupInfo.Next} class="infoPanel_Footer--navBar-rightArrow" alt='Next'  afterCreate={this._addedNextBtn}></input>
                     </div>
                 </td>
                 <td width='33%' style='text-align:right;'>
@@ -90,8 +90,14 @@ import i18n = require("dojo/i18n!../nls/resources");
         this._hideFooter();
     }
 
-    private _showFooter = () => {
-        domStyle.set(this._footer, "display", "");
+    private _showFooter = (index:number, count:number) => {
+        if(this.navContentSpan && count > 1) {
+            this.navContentSpan.innerHTML = "{0} of {1}".Format(index, count);
+            domStyle.set(this._footer, "display", "");
+        }
+        else {
+            domStyle.set(this._footer, "display", "none");
+        }
     }
 
     private _hideFooter = () => {
@@ -147,16 +153,24 @@ import i18n = require("dojo/i18n!../nls/resources");
     private navContentIndex: number = 1;
     private navContentCount: number = 1;
     private Init = () => {
+        this.mapView.popup.featureNavigationEnabled = false;
+
         console.log("popup", this.mapView.popup);
         this.own(this.mapView.popup.watch("featureCount", count => {
-            if(count>1) {
-                this._showFooter();
-                this.navContentCount = count;
-                this.navContentSpan.innerHTML = "{0} of {1}".Format(this.navContentIndex, this.navContentCount);
+            this.navContentCount = count;
+            if(this.navContentCount>0) {
+                this._showFooter(this.navContentIndex, this.navContentCount);
             }
             else {
-                this._hideFooter();
+                this._showInstructions();
             }
+        }));
+
+        this.own(this.mapView.popup.watch("selectedFeatureIndex", index => {
+            this.navContentIndex = index + 1;
+            if(this.navContentCount>0) {
+            }
+            this.navContentSpan.innerHTML = "{0} of {1}".Format(this.navContentIndex, this.navContentCount);
         }));
 
         // require(["esri/widgets/Popup"], (Popup) => {
@@ -165,6 +179,19 @@ import i18n = require("dojo/i18n!../nls/resources");
 
         //     })
         // }
+    }
+
+    private _addedPrevBtn = (element: Element) => {
+        const prevBtn = element as HTMLElement;
+        this.own(on(prevBtn, "click", (event) => {
+            this.mapView.popup.previous();
+        }))
+    }
+    private _addedNextBtn = (element: Element) => {
+        const nextBtn = element as HTMLElement;
+        this.own(on(nextBtn, "click", (event) => {
+            this.mapView.popup.next();
+        }))
     }
 }
 
