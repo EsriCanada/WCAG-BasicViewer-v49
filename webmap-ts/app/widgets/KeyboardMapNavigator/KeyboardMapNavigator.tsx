@@ -16,6 +16,7 @@ import gfx = require("dojox/gfx");
 import { tsx } from "esri/widgets/support/widget";
 import i18n = require("dojo/i18n!../nls/resources");
 import { Geometry, Point, ScreenPoint, Extent } from "esri/geometry";
+import geometryEngine = require( "esri/geometry/geometryEngine");
 import Circle = require("esri/geometry/Circle");
 import Graphic = require("esri/Graphic");
 import Color = require("esri/Color");
@@ -79,8 +80,23 @@ class KeyboardMapNavigator extends declared(Widget) {
                     <img src="images/error.white.24.png" alt="error mark" aria-hidden="true"></img>
                     <span afterCreate={this._addedErrorText}>Error Text</span>
                 </div>
+                <div aria-live="assertive" aria-atomic="true" style="position:absolute; width:0; height:0; overflow: hidden;" afterCreate={this._addedSpeachElement}></div>
             </div>
         );
+    }
+
+    private tmOut;
+    private speachElement : HTMLDivElement;
+    private _addedSpeachElement  = (element : Element) => {
+        this.speachElement = element as HTMLDivElement;
+    }
+
+    private Say = (text: string) => {
+        if(this.tmOut) {
+            clearTimeout(this.tmOut);
+        }
+        this.speachElement.innerHTML = text;
+        this.tmOut = setTimeout(() => {this.speachElement.innerHTML = ""}, 2000);
     }
 
     private errorWrapper : HTMLDivElement;
@@ -114,17 +130,20 @@ class KeyboardMapNavigator extends declared(Widget) {
         }
     }
 
-    private Show = () => {
+    private ShowCursor = () => {
         domStyle.set(this.mapSuperCursor, "display", "block");
+        this.Say("Keyboard navigation enabled.")
     }
 
-    private Hide = () => {
+    private HideCursor = () => {
+        this.Say("Keyboard navigation disabled.")
         domStyle.set(this.mapSuperCursor, "display", "none");
     }
 
     private loading = (show: boolean) => {
         if(show) {
             this.cursorGroup.add(this.loadingCursor);
+            // this.Say("Loading.");
         }
         else {
             this.cursorGroup.remove(this.loadingCursor);
@@ -165,10 +184,10 @@ class KeyboardMapNavigator extends declared(Widget) {
         domStyle.set(this.mapSuperCursor, 'top', "100px");
         this.loading(false);
         this.cursorToCenter();
-        this.Hide();
+        this.HideCursor();
 
-        this.own(on(this.mapView, 'focus', this.Show));
-        this.own(on(this.mapView, 'blur', this.Hide));
+        this.own(on(this.mapView, 'focus', this.ShowCursor));
+        this.own(on(this.mapView, 'blur', this.HideCursor));
 
         this.own(on(this.mapView, 'click', (evn) => {
             // this.followTheMapMode(false);
@@ -184,19 +203,87 @@ class KeyboardMapNavigator extends declared(Widget) {
         });
 
         this.own(this.mapView.on('key-down', (event) => {
-            if (event.key.slice(0, 5) === "Arrow") {
+            if (event.key.startsWith("Arrow") || event.key.startsWith("Page")) {
                 // console.log("Arrow", event.key)
                 event.stopPropagation();
             }
         }));
 
+        this.mapView.on('click', (event : any) => {
+            // console.log("click", event);
+            event.stopPropagation();
+            // event.preventDefault();
+            this.mapView.toMap(this.setCursorPos(event.screenPoint));
+            const {shiftKey, ctrlKey} = event.native;
+            // console.log("shiftKey, ctrlKey", shiftKey, ctrlKey);
+            this.showPopup(shiftKey, ctrlKey);
+        })
+
+
         this.mapScrollPausable = on.pausable(this.mapView.container, "keydown", this.mapScroll);
         this.own(this.mapScrollPausable);
+
+        this.mapPageScrollPausable = on.pausable(this.mapView.container, "keyup", this.mapPageScroll);
+        this.own(this.mapPageScrollPausable);
 
         this.deferred.resolve(true);
     }
 
     private mapScrollPausable;
+    private mapPageScrollPausable;
+
+    private mapPageScroll = (event) => {
+        const {code, key, shiftKey} = event;
+        // console.log("event", code, key, code || key, event);
+
+        const mapPageScroll = (sense: "U" | "L" | "D" | "R" ) : any => {
+            const bounds = this.mapView.container.getBoundingClientRect();
+            // console.log("bounds", bounds);
+            const pageWidth = bounds.width / 2;
+            const pageHeight = bounds.height / 2;
+            let {x, y} = this.getScreenCenter();
+            // this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
+            // console.log("x , y ", x, y);
+
+            switch(sense) {
+                case "L" :
+                x -= pageWidth;
+                this.Say("Page Left.");
+                break;
+                case "R" :
+                x += pageWidth;
+                this.Say("Page Right.");
+                break;
+                case "U" :
+                y -= pageHeight;
+                this.Say("Page Up.");
+                break;
+                case "D" :
+                y += pageHeight;
+                this.Say("Page Down.");
+                break;
+            }
+            // console.log("x1, y1", x, y);
+            this.mapView.goTo(this.mapView.toMap({x: x, y: y}), {duration: 500,  easing: "linear"});
+        }
+
+        switch (code || key) {
+            case "PageUp": 
+            case "Numpad9":
+            case "9":
+                event.stopPropagation();
+                mapPageScroll(shiftKey ? "L" : "U");
+                break;
+
+            case "PageDown": 
+            case "Numpad3":
+            case "3":
+                event.stopPropagation();
+                mapPageScroll(shiftKey ? "R" : "D");
+                break;
+        }
+    }
+
     private mapScroll = (event) => {
         const {code, key, shiftKey, ctrlKey} = event;
 
@@ -204,8 +291,9 @@ class KeyboardMapNavigator extends declared(Widget) {
 
         // ctrl+PgDn|PgUp does not exist or taken by browser
         const smallStep = shiftKey ? 0.2 : ctrlKey ? 5.0 : 1.0;
+        const SpeakKey = shiftKey ? "Fine {0}" : ctrlKey ? "Fast {0}" : "{0}";
 
-        const _mapScroll = (x, y, smallStep) => {
+        const mapScroll = (x, y, smallStep) => {
             // this.mapScrollPausable.pause();
             this.cursorScroll(x * this.stepX * smallStep, y * this.stepY * smallStep);//.then(() => {
                 // this.mapScrollPausable.resume();
@@ -216,8 +304,8 @@ class KeyboardMapNavigator extends declared(Widget) {
             case "Enter" :
             case "NumpadEnter" :
                 // https://gis.stackexchange.com/questions/78976/how-to-open-infotemplate-programmatically
-                this.emit("mapClick", {mapPoint:this.mapView.toMap(this.cursorPos)});
-                this.showPopup(event);
+                // this.emit("mapClick", {mapPoint:this.mapView.toMap(this.cursorPos)});
+                this.showPopup(shiftKey, ctrlKey);
                 event.preventDefault();
                 event.stopPropagation();
                 break;
@@ -228,7 +316,8 @@ class KeyboardMapNavigator extends declared(Widget) {
             case "2":
             //down
                 event.stopPropagation();
-                _mapScroll(0, 1, smallStep);
+                mapScroll(0, 1, smallStep);
+                this.Say(SpeakKey.Format("Down."));
                 break;
             
             case "ArrowUp": 
@@ -237,7 +326,8 @@ class KeyboardMapNavigator extends declared(Widget) {
             case "8":
             //up
                 event.stopPropagation();
-                _mapScroll(0, -1, smallStep);
+                mapScroll(0, -1, smallStep);
+                this.Say(SpeakKey.Format("Up."));
                 break;
             
             case "ArrowLeft": 
@@ -246,44 +336,26 @@ class KeyboardMapNavigator extends declared(Widget) {
             case "4":
             //left
                 event.stopPropagation();
-                _mapScroll(-1, 0, smallStep);
+                mapScroll(-1, 0, smallStep);
+                this.Say(SpeakKey.Format("Left."));
                 break;
+
             case "ArrowRight": 
             case "Numpad6":
             case "Right": 
             case "6":
             //right
                 event.stopPropagation();
-                _mapScroll(1, 0, smallStep);
-                break;
-            case "Numpad3":
-            case "3":
-            // right + down
-                _mapScroll(1, 1, smallStep);
-                break;
-            case "PageDown": 
-            case "Numpad9":
-            case "9":
-            // right + up
-                _mapScroll(1, -1, smallStep);
-                break;
-            case "Numpad1":
-            case "1":
-            case "End" :
-            // left + down
-                _mapScroll(-1, 1, smallStep);
+                this.Say(SpeakKey.Format("Right."));
+                mapScroll(1, 0, smallStep);
                 break;
             
-            case "PageUp": 
-            case "Numpad7":
-            case "7":
-            // left + up
-                _mapScroll(-1, -1, smallStep);
-                break;
+
             case "Home": 
             case "Numpad5":
             // center
                 this.mapView.toMap(this.setCursorPos(this.cursorToCenter()));
+                this.Say("Center of Screen.");
                 break;
         }
     };
@@ -307,10 +379,14 @@ class KeyboardMapNavigator extends declared(Widget) {
         return deferred.promise;
     };
 
-    private cursorPos: ScreenPoint;
-    cursorToCenter = () : ScreenPoint => {
+    private getScreenCenter = () : ScreenPoint => {
         const m = this.mapView.ui.container.getBoundingClientRect();
-        this.cursorPos = new ScreenPoint({x:(m.right-m.left)/2, y:(m.bottom-m.top)/2});
+        return new ScreenPoint({x:(m.right-m.left)/2, y:(m.bottom-m.top)/2});
+    }
+
+    private cursorPos: ScreenPoint;
+    private cursorToCenter = () : ScreenPoint => {
+        this.cursorPos = this.getScreenCenter();
 
         domStyle.set(this.mapSuperCursor, 'left', (this.cursorPos.x-20)+'px');
         domStyle.set(this.mapSuperCursor, 'top', (this.cursorPos.y-20)+'px');
@@ -329,7 +405,7 @@ class KeyboardMapNavigator extends declared(Widget) {
 
     private layers;
 
-    private showPopup = (evn, mode:string = null) : any => {
+    private showPopup = (shiftKey: boolean, ctrlKey: boolean, mode:string = null) : any => {
         const isVisibleAtScale = (layer : any) : boolean => {
             return (layer.minScale <= 0 || this.mapView.scale <= layer.minScale) &&
             (layer.maxScale <= 0 || this.mapView.scale >= layer.maxScale)
@@ -351,19 +427,19 @@ class KeyboardMapNavigator extends declared(Widget) {
         // //     mode = 'point';
         
         if(!mode) {
-            if(!evn.shiftKey && !evn.ctrlKey) {
+            if(!shiftKey && !ctrlKey) {
                 mode = 'point';
             }
             else 
-            if(evn.shiftKey && !evn.ctrlKey) {
+            if(shiftKey && !ctrlKey) {
                 mode = 'disk';
             }
             else 
-            if(!evn.shiftKey && evn.ctrlKey) {
+            if(!shiftKey && ctrlKey) {
                 mode = 'extent';
             }
             else 
-            if(evn.shiftKey && evn.ctrlKey) {
+            if(shiftKey && ctrlKey) {
                 mode = 'selection';
             }
         }
@@ -371,7 +447,6 @@ class KeyboardMapNavigator extends declared(Widget) {
         this.followTheMapMode(mode === 'extent');
 
         // this.mapView.popup.close();
-        this.mapView.popup.clear();
         this.getFeaturesAtPoint(this.mapView.toMap(this.cursorPos), mode, visibleLayers).then(
             (features: any[]) => {
 
@@ -380,11 +455,14 @@ class KeyboardMapNavigator extends declared(Widget) {
         
 
             if(features && features !== undefined && features.length > 0) {
+                this.mapView.popup.clear();
                 this.mapView.popup.features = features;
                 this.mapView.popup.visible = true;
             }
             else {
+                this.mapView.popup.clear();
                 this.mapView.popup.visible = false;
+                this.clearZone();
             }
 
             // if(!Has('infoPanel'))
@@ -397,6 +475,7 @@ class KeyboardMapNavigator extends declared(Widget) {
             console.error(error);
             this.showError(error);
             this.loading(false);
+            this.clearZone();
         }
         );
         return deferred.promise;
@@ -419,7 +498,7 @@ class KeyboardMapNavigator extends declared(Widget) {
             const wc = this.mapView.toMap(new Point({x:c.x+Math.abs(p2.x - p1.x), y:c.y}));
             const w = Math.abs(wc.x - mapPoint.x);
             
-            let shape : Geometry | __esri.Geometry;
+            let shape : any;//Geometry | __esri.Geometry;
 
             switch(mode) {
                 case 'point':
@@ -428,6 +507,8 @@ class KeyboardMapNavigator extends declared(Widget) {
                         geodesic: false,
                         radius: w,
                     });
+                    shape = geometryEngine.intersect(shape, this.mapView.extent);
+                    this.Say("Get Features at point.");
                     break;
                 case 'disk':
                     shape = new Circle({
@@ -435,9 +516,12 @@ class KeyboardMapNavigator extends declared(Widget) {
                         geodesic: false,
                         radius: w * 5,
                     });
+                    shape = geometryEngine.intersect(shape, this.mapView.extent);
+                    this.Say("Get Features around point.");
                     break;
                 case 'extent':
                     shape = this.mapView.extent;
+                    this.Say("Get all features from view.");
                     break;
                 case 'selection':
                     const feature = this.mapView.popup.selectedFeature;
@@ -449,10 +533,12 @@ class KeyboardMapNavigator extends declared(Widget) {
                                 geodesic: false,
                                 radius: w,
                             });
+                            this.Say("Get Features around selected point.");
                         }
                         else {
                             const extent = shape.extent.expand(1.5);
                             this.mapView.extent = extent;
+                            this.Say("Get Features contained in selected feature.");
                         }
                     }
                     else {
@@ -486,13 +572,13 @@ class KeyboardMapNavigator extends declared(Widget) {
 
             All(deferrs).then(() => {
                 this.loading(false);
-                if(this.features.length===0) {
-                    deferred.reject(i18n.widgets.popupInfo.noFeatures);
-                    return deferred.promise;
-                } 
-                else {
+                // if(this.features.length == 0) {
+                //     deferred.reject(i18n.popupInfo.noFeatures);
+                //     // return deferred.promise;
+                // } 
+                // else {
                     deferred.resolve(this.features);
-                }
+                // }
             });
         }
         return deferred.promise;
