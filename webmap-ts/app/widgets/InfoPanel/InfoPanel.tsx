@@ -45,8 +45,11 @@ import i18n = require("dojo/i18n!../nls/resources");
                     <span class='infoPanel_Footer-locator--Score' afterCreate={this._addedScore}>{i18n.popupInfo.Score} <span afterCreate={this._addedScoreValue}></span>%</span>
                 </td>
                 <td style='text-align:center;' width='34%' role='navigation'>
-                    <input type='image' src='images/icons_black/downArrow.png' aria-label={i18n.popupInfo.Prev} title={i18n.popupInfo.Prev} style='transform: rotate(90deg);' alt='Previous' class='popupInfoButton prev'></input>
-                    <input type='image' src='images/icons_black/downArrow.png' aria-label={i18n.popupInfo.Next} title={i18n.popupInfo.Next} style='transform: rotate(-90deg);' alt='Next' class='popupInfoButton next'></input>
+                    <div class="infoPanel_Footer--navBar">
+                        <input type='image' src='images/icons_black/downArrow.png' aria-label={i18n.popupInfo.Prev} title={i18n.popupInfo.Prev} class="infoPanel_Footer--navBar-leftArrow" alt='Previous'></input>
+                        <span aria-live="polite" aria-atomic="true" afterCreate={this._addedNavContent} class="infoPanel_Footer--navContent"></span>
+                        <input type='image' src='images/icons_black/downArrow.png' aria-label={i18n.popupInfo.Next} title={i18n.popupInfo.Next} class="infoPanel_Footer--navBar-rightArrow" alt='Next'></input>
+                    </div>
                 </td>
                 <td width='33%' style='text-align:right;'>
                     <a class='infoPanel_Footer-locator--Copy' tabindex="0" title={i18n.geoCoding.CopyToClipboard} afterCreate={this._addedCopyLink}>{i18n.geoCoding.Copy}</a>
@@ -95,6 +98,11 @@ import i18n = require("dojo/i18n!../nls/resources");
         domStyle.set(this._footer, "display", "none");
     }
 
+    private navContentSpan :HTMLElement;
+    private _addedNavContent = (element: Element) => {
+        this.navContentSpan = element as HTMLElement;
+    }
+
     private scoreWrapper: HTMLElement;
     private _addedScore = (element: Element) => {
         this.scoreWrapper = element as HTMLElement;
@@ -135,12 +143,16 @@ import i18n = require("dojo/i18n!../nls/resources");
         this.errorText.innerHTML = error;
     }
 
-    private popup;
+    // private popup;
+    private navContentIndex: number = 1;
+    private navContentCount: number = 1;
     private Init = () => {
         console.log("popup", this.mapView.popup);
         this.own(this.mapView.popup.watch("featureCount", count => {
             if(count>1) {
                 this._showFooter();
+                this.navContentCount = count;
+                this.navContentSpan.innerHTML = "{0} of {1}".Format(this.navContentIndex, this.navContentCount);
             }
             else {
                 this._hideFooter();

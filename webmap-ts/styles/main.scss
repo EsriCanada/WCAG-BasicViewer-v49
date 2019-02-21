@@ -1287,3 +1287,34 @@ blockquote[lang] {
     vertical-align: top;
     margin-right: 4px;
 }
+
+.infoPanel_Footer--navBar {
+    display: -ms-grid;
+    display: grid;
+    grid-template-columns: auto auto auto;
+    justify-content: center;
+}
+
+.infoPanel_Footer--navBar-leftArrow {
+    -ms-grid-column: 1;
+    -ms-grid-row: 1;
+    grid-column: 1;
+    grid-row: 1;
+    transform: rotate(90deg);
+}
+
+.infoPanel_Footer--navBar-rightArrow {
+    -ms-grid-column: 3;
+    -ms-grid-row: 1;
+    grid-column: 3;
+    grid-row: 1;
+    transform: rotate(-90deg);
+}
+
+.infoPanel_Footer--navContent {
+    -ms-grid-column: 2;
+    -ms-grid-row: 1;
+    grid-column: 2;
+    grid-row: 1;
+    white-space: nowrap;
+}
