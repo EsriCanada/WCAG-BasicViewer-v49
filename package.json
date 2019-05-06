@@ -21,7 +21,7 @@
     ],
     "devDependencies": {
         "@esri/application-base-js": "^0.0.2",
-        "@types/arcgis-js-api": "^4.9.0",
+        "@types/arcgis-js-api": "4.11.0",
         "@types/node": "^10.12.10",
         "autoprefixer": "^6.3.6",
         "dojo-typings": "^1.11.9",

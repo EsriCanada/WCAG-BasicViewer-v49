@@ -15,7 +15,7 @@ import on = require("dojo/on");
 import gfx = require("dojox/gfx");
 import { tsx } from "esri/widgets/support/widget";
 import i18n = require("dojo/i18n!../nls/resources");
-import { Geometry, Point, ScreenPoint, Extent } from "esri/geometry";
+import { Geometry, Point, Extent } from "esri/geometry";
 import geometryEngine = require( "esri/geometry/geometryEngine");
 import Circle = require("esri/geometry/Circle");
 import Graphic = require("esri/Graphic");
@@ -41,6 +41,21 @@ import {
 const CSS = {
     base: "toolbar",
 };
+
+interface ScreenPoint extends Object {
+    /**
+     * The x coordinate.
+     *
+     * [Read more...](https://developers.arcgis.com/javascript/latest/api-reference/esri-views-MapView.html#ScreenPoint)
+     */
+    x: number;
+    /**
+     * The y coordinate.
+     *
+     * [Read more...](https://developers.arcgis.com/javascript/latest/api-reference/esri-views-MapView.html#ScreenPoint)
+     */
+    y: number;
+  };
 
 @subclass("esri.widgets.KeyboardMapNavigator")
 class KeyboardMapNavigator extends declared(Widget) {
@@ -381,7 +396,7 @@ class KeyboardMapNavigator extends declared(Widget) {
 
     private getScreenCenter = () : ScreenPoint => {
         const m = this.mapView.ui.container.getBoundingClientRect();
-        return new ScreenPoint({x:(m.right-m.left)/2, y:(m.bottom-m.top)/2});
+        return {x:(m.right-m.left)/2, y:(m.bottom-m.top)/2};
     }
 
     private cursorPos: ScreenPoint;

@@ -13,7 +13,7 @@ import Deferred = require("dojo/Deferred");
 import Graphic = require("esri/Graphic");
 
 
-import FeatureLayerSearchSource = require("esri/widgets/Search/FeatureLayerSearchSource");
+import FeatureLayerSearchSource = require("esri/widgets/Search/LayerSearchSource");
 import LocatorSearchSource = require("esri/widgets/Search/LocatorSearchSource");
 
 import { tsx } from "esri/widgets/support/widget";
@@ -110,7 +110,7 @@ class Search extends declared(Widget) {
                 const mapLayer = this.mapView.map.layers.find(l => l.id == layer.id );
                 if (mapLayer) {
                     const source : FeatureLayerSearchSource = new FeatureLayerSearchSource({
-                        featureLayer: mapLayer,
+                        layer: mapLayer,
                     });
                     // source.featureLayer = mapLayer;
 
@@ -137,11 +137,11 @@ class Search extends declared(Widget) {
                     source.placeholder === undefined ||
                     source.placeholder === ""
                 ) {
-                    if (source.featureLayer && source.featureLayer.title) {
+                    if (source.layer && source.layer.title) {
                         source.placeholder =
                             i18n.searchEnterCriteria +
                             " " +
-                            source.featureLayer.title;
+                            source.layer.title;
                     } else {
                         source.placeholder = i18n.searchPlaceholder;
                     }
