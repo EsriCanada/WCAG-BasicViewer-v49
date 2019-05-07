@@ -23,6 +23,7 @@ define(
             flag: "Drapeau _"
         },
         tooltips: {
+            "AddressManager": "Address Manager",
             "home": "Etendue par Défaut",
             "locate": "Rechercher mon Site",
             "legend": "Légende",
