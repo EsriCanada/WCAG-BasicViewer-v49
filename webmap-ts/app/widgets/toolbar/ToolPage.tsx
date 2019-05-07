@@ -60,7 +60,7 @@ class ToolPage extends declared(Widget) {
                 class="headerPanel"
                 style="display:none;"
                 >
-                <img src="/webmap-ts/images/reload1.gif" alt="Reloading" title="Reloading"/>
+                <img src="/images/reload1.gif" alt="Reloading" title="Reloading"/>
             </div>
             <div 
                 id={"controls_"+name}

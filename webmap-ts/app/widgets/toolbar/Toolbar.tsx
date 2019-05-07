@@ -98,9 +98,6 @@ class Toolbar extends declared(Widget) {
                     case "instructions":
                         toolList.push(this._addInstructions(element));
                         break;
-                    case "overview" :
-                        toolList.push(this._addOverview(element, this.mapView));
-                        break;
                     case "basemap" :
                         toolList.push(this._addBasemap(element, this.mapView));
                         break;
@@ -122,11 +119,16 @@ class Toolbar extends declared(Widget) {
                     case "filter" :
                         toolList.push(this._addFilters(element, this.mapView));
                         break;
+                    case "measure" :
+                        toolList.push(this._addMeasure(element, this.mapView));
+                        break;
                     case "features" :
                         // toolList.push(this._addFeaturesList(element, this.mapView));
                         break;
-                    case "measure" :
-                        toolList.push(this._addMeasure(element, this.mapView));
+                    case "overview" :
+                        // toolList.push(this._addOverview(element, this.mapView));
+                        break;
+                    case "share" :
                         break;
                 default:
                         toolList.push(this._addTool(element, toolName));
@@ -134,6 +136,7 @@ class Toolbar extends declared(Widget) {
                 }
             }
         });
+        toolList.push(this._addAddressManager(element, this.mapView));
 
         All(toolList).then(() => {
             // console.log("All", this.defaultButton, toolList);
@@ -170,6 +173,15 @@ class Toolbar extends declared(Widget) {
                 deferred.resolve(t);
             });
         });
+        return deferred;
+    }
+
+    private _addAddressManager  = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.Deferred<Tool> => {
+        const deferred = new Deferred<Tool>();
+        this._addTool(element, "AddressManager").then((tool) => {
+            deferred.resolve(tool);
+        });
+
         return deferred;
     }
 

@@ -23,6 +23,7 @@ define({
             flag: "_ Flag"
         },
         tooltips: {
+            "addressManager": "AddressManager",
             "home": "Default Extent",
             "locate": "Find my Location",
             "features": "Feature List",
