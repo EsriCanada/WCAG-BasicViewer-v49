@@ -105,3 +105,5 @@ webmap-ts/app/widgets/MySearch/MySearch\.js
 hub-auth-ts/styles/main\.css
 
 webscene-ts/styles/main\.css
+
+webmap-ts/app/widgets/AddressManager/AddressManager\.js

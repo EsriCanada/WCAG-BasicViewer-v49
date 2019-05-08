@@ -35,7 +35,11 @@ import i18n = require("dojo/i18n!../nls/resources");
 
     render() {
         return ( 
-        <div afterCreate={this._addAddressManagemet}></div>
+        <div afterCreate={this._addAddressManagemet} class="AddressManagement">
+            <div class="toolbar">
+            <input type="image" src="../images/icons_transp/addAddress.bggray.24.png" class="button" title="Add Address Point" data-dojo-attach-event="onclick:_onDigitizeAddressClicked"></input>
+            </div>
+        </div>
         );
     }
 
@@ -49,7 +53,7 @@ import i18n = require("dojo/i18n!../nls/resources");
             this.config = JSON.parse(config);
             // console.log("config", this.config);
         });
-    
+     
     }
 }
 
