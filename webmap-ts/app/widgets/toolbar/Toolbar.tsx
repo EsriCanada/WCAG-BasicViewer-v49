@@ -179,6 +179,12 @@ class Toolbar extends declared(Widget) {
     private _addAddressManager  = (element: Element, mainView: __esri.MapView | __esri.SceneView) : dojo.Deferred<Tool> => {
         const deferred = new Deferred<Tool>();
         this._addTool(element, "AddressManager").then((tool) => {
+            require(["../AddressManager/AddressManager"], (AddressManager) => {
+                tool.myWidget = new AddressManager({
+                    mapView: this.mapView,
+                    container: tool.myToolPage.pageContent
+                })
+            })
             deferred.resolve(tool);
         });
 

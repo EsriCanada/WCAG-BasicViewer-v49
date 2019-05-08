@@ -9,6 +9,8 @@ import dom = require("dojo/dom");
 import on = require("dojo/on");
 import domAttr = require("dojo/dom-attr");
 import domStyle = require("dojo/dom-style");
+// import config from "./AddressManager.json";
+// console.log("config", config);
 
 import { renderable, tsx } from "esri/widgets/support/widget";
 
@@ -26,10 +28,13 @@ import i18n = require("dojo/i18n!../nls/resources");
   
     constructor() {
         super();
+        
     }
 
+    config = {}
+
     render() {
-        return (
+        return ( 
         <div afterCreate={this._addAddressManagemet}></div>
         );
     }
@@ -38,9 +43,11 @@ import i18n = require("dojo/i18n!../nls/resources");
         require([
             "esri/Map",
             "esri/views/MapView",
-            "esri/core/watchUtils"
-        ], (Map, MapView, watchUtils) => {
-            
+            "esri/core/watchUtils",
+            "dojo/text!./AddressManager.json"
+        ], (Map, MapView, watchUtils, config) => {
+            this.config = JSON.parse(config);
+            // console.log("config", this.config);
         });
     
     }

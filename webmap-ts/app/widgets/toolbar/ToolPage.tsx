@@ -38,7 +38,7 @@ class ToolPage extends declared(Widget) {
           };
         
         const pageTitle: string = i18n.tooltips[this.tool] || this.tool;
-        console.log("tool", pageTitle, i18n);
+        // console.log("tool", pageTitle, i18n);
 
         const pageId = `page_${this.tool}`;
         const name=this.tool;

@@ -28,12 +28,16 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
         // scaleFactor: number = 2;
         function AddressManagemet() {
             var _this = _super.call(this) || this;
+            _this.config = {};
             _this._addAddressManagemet = function (element) {
                 require([
                     "esri/Map",
                     "esri/views/MapView",
-                    "esri/core/watchUtils"
-                ], function (Map, MapView, watchUtils) {
+                    "esri/core/watchUtils",
+                    "dojo/text!./AddressManager.json"
+                ], function (Map, MapView, watchUtils, config) {
+                    _this.config = JSON.parse(config);
+                    // console.log("config", this.config);
                 });
             };
             return _this;

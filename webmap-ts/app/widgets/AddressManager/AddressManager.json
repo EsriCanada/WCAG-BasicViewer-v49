@@ -1,0 +1,84 @@
+{
+    "services": {
+        "parcel": "https://services.arcgis.com/zmLUiqh7X11gGV2d/arcgis/rest/services/Woodstock/FeatureServer/2",
+        "siteaddresspoint": "https://services.arcgis.com/zmLUiqh7X11gGV2d/arcgis/rest/services/Woodstock/FeatureServer/0",
+        "roadsegment": "https://services.arcgis.com/zmLUiqh7X11gGV2d/arcgis/rest/services/Woodstock/FeatureServer/1",
+        "subaddress": "https://services.arcgis.com/zmLUiqh7X11gGV2d/arcgis/rest/services/Woodstock/FeatureServer/3"
+    },
+    "ignoreAttributes": [
+        "Alternate Name 1",
+        "Alternate Name 2",
+        "st_article",
+        "add_range",
+        "rotation",
+        "add_pt_key"
+    ],
+    "title": "full_add",
+    "addressPattern": "({add_num_pre!=None} )({add_num})( {add_num_suf!=None})( {dir_prefix!=None}{mod_prefix})( {strtypre})( {name_body})( {strtysuf!=None}{mod_suffix})( - {dir_suffix!=None})(, {municipality})( - {province})( / {postalcode})",
+    "specialAttributes": {
+        "full_add": {
+            "clipboard": true,
+            "required": true,
+            "readOnly": true,
+            "menu": { "statistics": false, "filter": false, "sort": false, "copy": false, "series": false, "default": false },
+            "multiline": 2
+        },
+        "name_body": { "readOnly": true, "required": true, "pickRoad": true, "multiline": 1, "menu": { "series": false } },
+        "add_num": { "format": "^[1-9]\\d{0,4}$", "placeholder": "10000", "required": true, "menu": { "filter": false, "copy": false, "default": false } },
+        "add_num_pre": { "menu": { "filter": false, "series": false } },
+        "add_num_suf": { "menu": { "filter": false, "series": false } },
+        "postalcode": { "required": true, "uppercase": "true", "placeholder": "A9A 9A9", "format": "^[A-Za-z]\\d[A-Za-z] ?\\d[A-Za-z]\\d$", "menu": { "series": false } },
+        "unitnumber": { "requires": "unittype", "format": "^\\d{0,3}$", "placeholder": "900", "menu": { "filter": false } },
+        "pointtype": { "default": "Parcel Centroid", "menu": { "series": false } },
+        "parcelid": { "menu": { "filter": false, "series": false } },
+        "creation_date": { "required": true },
+        "status": { "required": true, "series": false },
+        "addressnotes": { "multiline": 3, "menu": { "filter": false, "series": false } },
+        "OBJECTID": { "hidden": true },
+        "globalid": { "hidden": true },
+        "featureid": { "hidden": true },
+        "feature_hash": { "hidden": true },
+        "bldgname": { "hidden": true },
+        "bldgclass": { "hidden": true },
+        "bldgtype": { "hidden": true },
+        "unittype": { "hidden": true },
+
+        "municipality": { "menu": { "series": false } },
+        "strtypre": { "menu": { "series": false } },
+        "strtysuf": { "menu": { "series": false } },
+        "dir_prefix": { "menu": { "series": false } },
+        "dir_suffix": { "menu": { "series": false } },
+        "mod_prefix": { "menu": { "series": false } },
+        "mod_suffix": { "menu": { "series": false } }
+
+    },
+    "addressAttributes": [
+        "municipality",
+        "name_body",
+        "strtypre",
+        "mod_prefix",
+        "strtysuf",
+        "mod_suffix",
+        "dir_prefix",
+        "dir_suffix",
+        "add_num_pre",
+        "add_num",
+        "add_num_suf",
+        "postalcode",
+        "unitnumber",
+        "unitnumsuffix",
+        "pointtype",
+        "parcelid"
+    ],
+    "statusAttributes": [
+        "status",
+        "Creator",
+        "Editor",
+        "CreationDate",
+        "EditDate",
+        "revision_date",
+        "approved_date",
+        "retired_date",
+        "addressnotes"
+    ]
+}
