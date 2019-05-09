@@ -20,7 +20,7 @@ import i18n = require("dojo/i18n!../nls/resources");
   
     render() {
         return ( 
-        <div class="ClonePanel">
+        <div class="ClonePanel" style="display:none;" afterCreate={this._addClonePanel}>
             <div class="toolbar">
                 <input type="image" src="../images/icons_transp/pickRoad2.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onPickRoadClicked" title="Pick Road" aria-label="Pick Road"/>
                 <input type="image" src="../images/icons_transp/Cut.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onCutClicked" title="Cut Line" aria-label="Cut Line"/>
@@ -93,6 +93,17 @@ import i18n = require("dojo/i18n!../nls/resources");
             */}</div> 
         </div>
         );
+    }
+
+    clonePanelDiv = null;
+
+    public show(showing:boolean) {
+        console.log("showing", showing);
+        domStyle.set(this.clonePanelDiv, "display", showing ? "": "none");
+    }
+
+    private _addClonePanel = (element) => {
+        this.clonePanelDiv = element;
     }
 
 }

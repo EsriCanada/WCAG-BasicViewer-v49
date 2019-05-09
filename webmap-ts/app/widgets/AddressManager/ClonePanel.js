@@ -19,15 +19,20 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/core/tsSupport/decorateHelper", "esri/core/accessorSupport/decorators", "esri/widgets/Widget", "esri/widgets/support/widget"], function (require, exports, __extends, __decorate, decorators_1, Widget, widget_1) {
+define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/core/tsSupport/decorateHelper", "esri/core/accessorSupport/decorators", "esri/widgets/Widget", "dojo/dom-style", "esri/widgets/support/widget"], function (require, exports, __extends, __decorate, decorators_1, Widget, domStyle, widget_1) {
     "use strict";
     var ClonePanel = /** @class */ (function (_super) {
         __extends(ClonePanel, _super);
         function ClonePanel() {
-            return _super !== null && _super.apply(this, arguments) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.clonePanelDiv = null;
+            _this._addClonePanel = function (element) {
+                _this.clonePanelDiv = element;
+            };
+            return _this;
         }
         ClonePanel.prototype.render = function () {
-            return (widget_1.tsx("div", { class: "ClonePanel" },
+            return (widget_1.tsx("div", { class: "ClonePanel", style: "display:none;", afterCreate: this._addClonePanel },
                 widget_1.tsx("div", { class: "toolbar" },
                     widget_1.tsx("input", { type: "image", src: "../images/icons_transp/pickRoad2.bgwhite.24.png", class: "button", "data-dojo-attach-event": "click:_onPickRoadClicked", title: "Pick Road", "aria-label": "Pick Road" }),
                     widget_1.tsx("input", { type: "image", src: "../images/icons_transp/Cut.bgwhite.24.png", class: "button", "data-dojo-attach-event": "click:_onCutClicked", title: "Cut Line", "aria-label": "Cut Line" }),
@@ -74,6 +79,10 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                                 widget_1.tsx("label", { for: "StreeNumStep" }, "Street # Step:")),
                             widget_1.tsx("td", null)))),
                 widget_1.tsx("div", { class: "clone_panel-footer" })));
+        };
+        ClonePanel.prototype.show = function (showing) {
+            console.log("showing", showing);
+            domStyle.set(this.clonePanelDiv, "display", showing ? "" : "none");
         };
         ClonePanel = __decorate([
             decorators_1.subclass("esri.widgets.ClonePanel")
