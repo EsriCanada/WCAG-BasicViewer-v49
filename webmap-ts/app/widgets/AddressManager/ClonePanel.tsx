@@ -63,28 +63,28 @@ import i18n = require("dojo/i18n!../nls/resources");
                     <tr>
                         <th style="border-top: 1px solid gray; border-left: 1px solid gray;"><label for="unitCount">Unit Count:</label></th>
                         <td style="border-top: 1px solid gray; border-right: 1px solid gray;">
-                            {/* <input type="number" id="unitCount" style="width:80px; height:16px;" min="3" max="500" step="1" name="unitCountDist" value="10" data-dojo-attach-point="unitCount" data-dojo-attach-event="change:_onUnitCountChange,input:_onUnitCountInput"> */}
-                            {/* <input type="radio" checked name="units" value="unitCount" data-dojo-attach-point="unitCountRadio"> */}
+                            <input type="number" id="unitCount" style="width:100px; height:16px;" min="3" max="500" step="1" name="unitCountDist" value="10" data-dojo-attach-point="unitCount" data-dojo-attach-event="change:_onUnitCountChange,input:_onUnitCountInput"/>
+                            <input type="radio" checked name="units" value="unitCount" data-dojo-attach-point="unitCountRadio"/>
                         </td>
                     </tr> 
                     <tr>
                         <th style="border-bottom: 1px solid gray; border-left: 1px solid gray;"><label for="unitDist">Unit Distance:</label></th>
                         <td style="border-bottom: 1px solid gray; border-right: 1px solid gray;">
-                            {/* <input type="number" id="unitDist" style="width:80px; height:16px;" min="20" max="100" step="1" name="unitCountDist" value="25" data-dojo-attach-point="unitDist" data-dojo-attach-event="change:_onUnitDistChange,input:_onUnitDistInput">
-                            <input type="radio" name="units" value="unitDist" data-dojo-attach-point="unitDistRadio"></input> */}
+                            <input type="number" id="unitDist" style="width:100px; height:16px;" min="20" max="100" step="1" name="unitCountDist" value="25" data-dojo-attach-point="unitDist" data-dojo-attach-event="change:_onUnitDistChange,input:_onUnitDistInput"/>
+                            <input type="radio" name="units" value="unitDist" data-dojo-attach-point="unitDistRadio"></input>
                         </td>
                     </tr>
                     <tr>
                         <th><label for="StreeNumStart">Street # Start:</label></th>
                         <td>
-                            {/* <input type="number" id="StreeNumStart" style="width:80px; height:16px;" min="1" step="1" name="StreeNumStart" value="1" data-dojo-attach-point="StreeNumStart" data-dojo-attach-event="change:_onUnitCountChange,input:_onUnitCountInput">
-                        */}</td> 
+                            <input type="number" id="StreeNumStart" style="width:100px; height:16px;" min="1" step="1" name="StreeNumStart" value="1" data-dojo-attach-point="StreeNumStart" data-dojo-attach-event="change:_onUnitCountChange,input:_onUnitCountInput"/>
+                        </td> 
                     </tr>
                     <tr>
                         <th><label for="StreeNumStep">Street # Step:</label></th>
                         <td>
-                            {/* <input type="number" id="StreeNumStep" style="width:80px; height:16px;" min="1" max="8" step="1" name="StreeNumStep" value="2" data-dojo-attach-point="StreeNumStep" data-dojo-attach-event="change:_onUnitCountChange,input:_onUnitCountInput">
-                        */}</td> 
+                            <input type="number" id="StreeNumStep" style="width:100px; height:16px;" min="1" max="8" step="1" name="StreeNumStep" value="2" data-dojo-attach-point="StreeNumStep" data-dojo-attach-event="change:_onUnitCountChange,input:_onUnitCountInput"/>
+                        </td> 
                     </tr>
                 </table>
             </div>

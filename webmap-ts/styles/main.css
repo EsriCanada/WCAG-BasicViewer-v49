@@ -1332,10 +1332,6 @@ blockquote[lang] {
     font-family: 'Avenir Light', Verdana, Geneva, sans-serif;
 }
 
-.AddressManager hide {
-    display: none;
-}
-
 .AddressManager table {
     border-bottom: 1px solid black;
     width: 100%;
@@ -1344,7 +1340,7 @@ blockquote[lang] {
     border-collapse: collapse;
 }
 
-.AddressManager table tr:nth-child(odd) {
+.AddressManager table tr:nth-child(even) {
     background-color: #00000f0f;
 }
 
@@ -1392,4 +1388,12 @@ blockquote[lang] {
     display: flex;
     flex-direction: column;
     border: inset;
+}
+
+min-width: 300px;
+display: flex;
+flex-direction: column;
+border: inset;
+
+}   border: inset;
 }
