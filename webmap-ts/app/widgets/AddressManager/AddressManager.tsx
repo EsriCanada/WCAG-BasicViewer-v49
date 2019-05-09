@@ -38,6 +38,11 @@ import i18n = require("dojo/i18n!../nls/resources");
         <div afterCreate={this._addAddressManager} class="AddressManager">
             <div class="toolbar">
             <input type="image" src="../images/icons_transp/addAddress.bggray.24.png" class="button" title="Add Address Point" data-dojo-attach-event="onclick:_onDigitizeAddressClicked"></input>
+            <div class="dropdown_moreTools">
+            <input type="image" src="../images/icons_transp/Generate.bggray.24.png" class="button" data-dojo-attach-event="click:_dropdownMoreToolsToggle" aria-label="Clone Addresses" title="Clone Addresses"></input>
+
+            </div>
+            <input type="image" src="../images/icons_transp/parcels.bggray.24.png" class="button" data-dojo-attach-event="click:_onFillParcelClicked" aria-label="Fill Parcels" title="Fill Parcels"></input>
             </div>
         </div>
         );
