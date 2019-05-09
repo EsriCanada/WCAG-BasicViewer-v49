@@ -1328,15 +1328,20 @@ blockquote[lang] {
     margin: 0 4px
 }
 
-.AddressManage {
+.AddressManager {
     font-family: 'Avenir Light', Verdana, Geneva, sans-serif;
 }
 
+.AddressManager hide {
+    display: none;
+}
+
 .AddressManager table {
-    border: 1px solid black;
+    border-bottom: 1px solid black;
     width: 100%;
     margin-bottom: 8px;
     table-layout: fixed;
+    border-collapse: collapse;
 }
 
 .AddressManager table tr:nth-child(odd) {
@@ -1346,9 +1351,17 @@ blockquote[lang] {
 .AddressManager th,
 .AddressManager td {
     padding: 1px 4px;
-    font-weight: bold;
-    text-align: right;
     font-size: 15px;
+}
+
+.AddressManager th {
+    text-align: right;
+    font-weight: normal;
+}
+
+.AddressManager td {
+    text-align: left;
+    font-weight: bold;
 }
 
 .AddressManager .toolbar {

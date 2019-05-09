@@ -29,7 +29,7 @@ import i18n = require("dojo/i18n!../nls/resources");
                 <input type="image" src="../images/icons_transp/restart.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onRestartCutsClicked" title="Restart Cuts" aria-label="Restart Cuts"/>
             </div>
             <div class="clone_panel-content">
-                <table>
+                <table style="border-collapse: collapse;">
                     <tr>
                         <th colspan="2" style="text-align: left;">
                             <span data-dojo-attach-point="streetName"></span>
@@ -51,7 +51,7 @@ import i18n = require("dojo/i18n!../nls/resources");
                     <tr>
                         <th><label for="distRoad">Dist from Road:</label></th>
                         <td>
-                            {/* <input type="range" style="width:80px; height:16px;" min="10" max="50" step="5" name="distRoad" value="20"/> */}
+                            <input type="range" style="width:100px; height:16px; vertical-align: bottom;" min="10" max="50" step="5" name="distRoad" value="20"/>
 
                             <span style="margin-left: 4px;" data-dojo-attach-point="distRoad">20</span>
                         </td>
