@@ -33,7 +33,7 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
         }
         ClonePanel.prototype.render = function () {
             return (widget_1.tsx("div", { class: "ClonePanel", style: "display:none;", afterCreate: this._addClonePanel },
-                widget_1.tsx("div", { class: "toolbar" },
+                widget_1.tsx("div", { class: "toolbar", style: "background: #EEEEEE;" },
                     widget_1.tsx("input", { type: "image", src: "../images/icons_transp/pickRoad2.bgwhite.24.png", class: "button", "data-dojo-attach-event": "click:_onPickRoadClicked", title: "Pick Road", "aria-label": "Pick Road" }),
                     widget_1.tsx("input", { type: "image", src: "../images/icons_transp/Cut.bgwhite.24.png", class: "button", "data-dojo-attach-event": "click:_onCutClicked", title: "Cut Line", "aria-label": "Cut Line" }),
                     widget_1.tsx("input", { type: "image", src: "../images/icons_transp/Flip1.bgwhite.24.png", class: "button", "data-dojo-attach-event": "click:_onFlipSideClicked", title: "Flip Side", "aria-label": "Flip Side" }),
@@ -85,7 +85,8 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                                 widget_1.tsx("label", { for: "StreeNumStep" }, "Street # Step:")),
                             widget_1.tsx("td", null,
                                 widget_1.tsx("input", { type: "number", id: "StreeNumStep", style: "width:100px; height:16px;", min: "1", max: "8", step: "1", name: "StreeNumStep", value: "2", "data-dojo-attach-point": "StreeNumStep", "data-dojo-attach-event": "change:_onUnitCountChange,input:_onUnitCountInput" }))))),
-                widget_1.tsx("div", { class: "clone_panel-footer" })));
+                widget_1.tsx("div", { class: "footer" },
+                    widget_1.tsx("input", { type: "button", id: "apply", class: "pageBtn rightBtn", "data-dojo-attach-point": "submitCloneApply", value: "Apply" }))));
         };
         ClonePanel.prototype.show = function (showing) {
             console.log("showing", showing);

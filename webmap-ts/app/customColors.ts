@@ -248,6 +248,11 @@ export function CustomColors(config: ApplicationConfig) : void {
 .AddressManager .toolbar .button.active {
   background: red;
 }
+
+.pageBtn:hover {
+  background-color: ${bgColor};
+  color: ${WhiteOrBlack(bgColor)};
+}
 `;
   }
 

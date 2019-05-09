@@ -21,7 +21,7 @@ import i18n = require("dojo/i18n!../nls/resources");
     render() {
         return ( 
         <div class="ClonePanel" style="display:none;" afterCreate={this._addClonePanel}>
-            <div class="toolbar">
+            <div class="toolbar" style="background: #EEEEEE;">
                 <input type="image" src="../images/icons_transp/pickRoad2.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onPickRoadClicked" title="Pick Road" aria-label="Pick Road"/>
                 <input type="image" src="../images/icons_transp/Cut.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onCutClicked" title="Cut Line" aria-label="Cut Line"/>
                 <input type="image" src="../images/icons_transp/Flip1.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onFlipSideClicked" title="Flip Side" aria-label="Flip Side"/>
@@ -88,9 +88,9 @@ import i18n = require("dojo/i18n!../nls/resources");
                     </tr>
                 </table>
             </div>
-            <div class="clone_panel-footer">
-                {/* <input type="button" id="apply" class="pageBtn rightBtn" data-dojo-attach-point="submitCloneApply" value="Apply">
-            */}</div> 
+            <div class="footer">
+                <input type="button" id="apply" class="pageBtn rightBtn" data-dojo-attach-point="submitCloneApply" value="Apply"/>
+            </div> 
         </div>
         );
     }

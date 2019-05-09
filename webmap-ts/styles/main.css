@@ -1332,12 +1332,14 @@ blockquote[lang] {
     font-family: 'Avenir Light', Verdana, Geneva, sans-serif;
 }
 
+.AddressManager .hide {
+    display:none;
+}
+
 .AddressManager table {
-    border-bottom: 1px solid black;
+    /* border-bottom: 1px solid black; */
     width: 100%;
-    margin-bottom: 8px;
     table-layout: fixed;
-    border-collapse: collapse;
 }
 
 .AddressManager table tr:nth-child(even) {
@@ -1390,10 +1392,27 @@ blockquote[lang] {
     border: inset;
 }
 
-min-width: 300px;
-display: flex;
-flex-direction: column;
-border: inset;
+.AddressManager .pageBtn {
+    background: transparent;
+    color: gray;
+    padding: 4px 12px;
+    margin-right: 4px;
+    font-weight: bold;
+    font-size: 14px;
+    font-family: 'Avenir Light', Verdana, Geneva, sans-serif;
+    border: none;
+    border-radius: 2px;
+}
 
-}   border: inset;
+.AddressManager .rightBtn {
+    float: right;
+    margin: 0;
+}
+
+.AddressManager .ClonePanel .footer {
+    flex-grow: 0;
+    padding: 12px;
+    border-top: 1px solid #999999;
+    /* border: outset; */
+    background: #EEEEEE;
 }
