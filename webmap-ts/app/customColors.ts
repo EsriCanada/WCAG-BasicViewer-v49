@@ -242,7 +242,7 @@ export function CustomColors(config: ApplicationConfig) : void {
 }
 
 .AddressManager .toolbar .button:hover {
-  background: ${WhiteOrBlack(hoverColor)};
+  background: black;
 }
 
 .AddressManager .toolbar .button.active {

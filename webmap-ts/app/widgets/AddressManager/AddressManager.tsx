@@ -9,8 +9,7 @@ import dom = require("dojo/dom");
 import on = require("dojo/on");
 import domAttr = require("dojo/dom-attr");
 import domStyle = require("dojo/dom-style");
-// import config from "./AddressManager.json";
-// console.log("config", config);
+import html = require("dojo/_base/html");
 
 import { renderable, tsx } from "esri/widgets/support/widget";
 
@@ -40,7 +39,7 @@ import i18n = require("dojo/i18n!../nls/resources");
             <input type="image" src="../images/icons_transp/addAddress.bggray.24.png" class="button" title="Add Address Point" data-dojo-attach-event="onclick:_onDigitizeAddressClicked"></input>
             <div class="dropdown_moreTools">
             <input type="image" src="../images/icons_transp/Generate.bggray.24.png" class="button" data-dojo-attach-event="click:_dropdownMoreToolsToggle" aria-label="Clone Addresses" title="Clone Addresses"></input>
-
+            <div afterCreate={this._addClonePanel} ></div>
             </div>
             <input type="image" src="../images/icons_transp/parcels.bggray.24.png" class="button" data-dojo-attach-event="click:_onFillParcelClicked" aria-label="Fill Parcels" title="Fill Parcels"></input>
             </div>
@@ -59,6 +58,13 @@ import i18n = require("dojo/i18n!../nls/resources");
             // console.log("config", this.config);
         });
      
+    }
+
+    private _addClonePanel = (element: Element) => {
+        console.log("element", element);
+        require(["./ClonePanel"], ClonePanel =>{
+            const clonePanel = new ClonePanel({ container: element});
+        });
     }
 }
 
