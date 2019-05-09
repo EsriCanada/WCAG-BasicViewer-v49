@@ -31,7 +31,7 @@ import i18n = require("dojo/i18n!../nls/resources");
             <div class="clone_panel-content">
                 <table>
                     <tr>
-                        <th colspan="2">
+                        <th colspan="2" style="text-align: left;">
                             <span data-dojo-attach-point="streetName"></span>
                         </th>
                     </tr>
@@ -41,7 +41,7 @@ import i18n = require("dojo/i18n!../nls/resources");
                         </th>
                     </tr>
                     <tr>
-                        <th colspan="2">
+                        <th colspan="2" style="text-align: left;">
                         <label>
                             <input type="checkbox" data-dojo-attach-point="useCurrentSeed" data-dojo-attach-event="change:_onUseCurrentSeedGhange"/>
                             <span> Use current address as seed.</span>
@@ -52,18 +52,19 @@ import i18n = require("dojo/i18n!../nls/resources");
                         <th><label for="distRoad">Dist from Road:</label></th>
                         <td>
                             {/* <input type="range" style="width:80px; height:16px;" min="10" max="50" step="5" name="distRoad" value="20"/> */}
+
                             <span style="margin-left: 4px;" data-dojo-attach-point="distRoad">20</span>
                         </td>
                     </tr>
                     <tr>
                         <th><label for="polylineLength">Length (meters):</label></th>
-                        <td><span id="polylineLength" data-dojo-attach-point="polylineLength"></span></td>
+                        <td><span id="polylineLength" data-dojo-attach-point="polylineLength"></span></td> 
                     </tr>
                     <tr>
                         <th style="border-top: 1px solid gray; border-left: 1px solid gray;"><label for="unitCount">Unit Count:</label></th>
                         <td style="border-top: 1px solid gray; border-right: 1px solid gray;">
                             {/* <input type="number" id="unitCount" style="width:80px; height:16px;" min="3" max="500" step="1" name="unitCountDist" value="10" data-dojo-attach-point="unitCount" data-dojo-attach-event="change:_onUnitCountChange,input:_onUnitCountInput"> */}
-                            <input type="radio" checked name="units" value="unitCount" data-dojo-attach-point="unitCountRadio"></input>
+                            {/* <input type="radio" checked name="units" value="unitCount" data-dojo-attach-point="unitCountRadio"> */}
                         </td>
                     </tr> 
                     <tr>
