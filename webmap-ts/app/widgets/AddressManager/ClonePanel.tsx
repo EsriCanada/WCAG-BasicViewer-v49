@@ -51,9 +51,9 @@ import i18n = require("dojo/i18n!../nls/resources");
                     <tr>
                         <th><label for="distRoad">Dist from Road:</label></th>
                         <td>
-                            <input type="range" style="width:100px; height:16px; vertical-align: bottom;" min="10" max="50" step="5" name="distRoad" value="20"/>
+                            <input type="range" afterCreate={this._addDistRoadRange} style="width:100px; height:16px; vertical-align: bottom;" min="10" max="50" step="5" name="distRoad" value="20"/>
 
-                            <span style="margin-left: 4px;" data-dojo-attach-point="distRoad">20</span>
+                            <span style="margin-left: 4px;" afterCreate={this._addDistRoadValue}>20</span>
                         </td>
                     </tr>
                     <tr>
@@ -95,15 +95,32 @@ import i18n = require("dojo/i18n!../nls/resources");
         );
     }
 
-    clonePanelDiv = null;
+    private clonePanelDiv: HTMLElement;
+    private distRoadRange: HTMLElement;
+    private distRoadValue: HTMLElement;
 
-    public show(showing:boolean) {
-        console.log("showing", showing);
+    public show(showing:boolean):void {
         domStyle.set(this.clonePanelDiv, "display", showing ? "": "none");
     }
 
-    private _addClonePanel = (element) => {
-        this.clonePanelDiv = element;
+    private _addClonePanel = (element: Element) => {
+        this.clonePanelDiv = element as HTMLElement;
+    }
+
+    private _addDistRoadRange = (element: Element) => {
+        this.distRoadRange = element as HTMLElement;
+        this.own(on(this.distRoadRange, "change", lang.hitch(this, this._distRoadRangeChange)));
+    }
+
+    private _addDistRoadValue = (element: Element) => {
+        console.log("value", element);
+        this.distRoadValue = element as HTMLElement;
+    }
+
+    private _distRoadRangeChange = (event) => {
+        const value = event.target.value;
+        // console.log("value", value);
+        this.distRoadValue.innerHTML = value;
     }
 
 }
