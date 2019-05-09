@@ -35,7 +35,7 @@ import i18n = require("dojo/i18n!../nls/resources");
 
     render() {
         return ( 
-        <div afterCreate={this._addAddressManagemet} class="AddressManagement">
+        <div afterCreate={this._addAddressManager} class="AddressManager">
             <div class="toolbar">
             <input type="image" src="../images/icons_transp/addAddress.bggray.24.png" class="button" title="Add Address Point" data-dojo-attach-event="onclick:_onDigitizeAddressClicked"></input>
             </div>
@@ -43,7 +43,7 @@ import i18n = require("dojo/i18n!../nls/resources");
         );
     }
 
-    private _addAddressManagemet = (element: Element) => {
+    private _addAddressManager = (element: Element) => {
         require([
             "esri/Map",
             "esri/views/MapView",
