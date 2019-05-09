@@ -236,6 +236,18 @@ export function CustomColors(config: ApplicationConfig) : void {
   background-color: ${hoverColor};
   color: ${WhiteOrBlack(hoverColor)};
 }
+
+.AddressManager .toolbar .button {
+  background: ${bgColor};
+}
+
+.AddressManager .toolbar .button:hover {
+  background: ${WhiteOrBlack(hoverColor)};
+}
+
+.AddressManager .toolbar .button.active {
+  background: red;
+}
 `;
   }
 
