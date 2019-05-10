@@ -113,13 +113,11 @@ import i18n = require("dojo/i18n!../nls/resources");
     }
 
     private _addDistRoadValue = (element: Element) => {
-        console.log("value", element);
         this.distRoadValue = element as HTMLElement;
     }
 
     private _distRoadRangeChange = (event) => {
         const value = event.target.value;
-        // console.log("value", value);
         this.distRoadValue.innerHTML = value;
     }
 

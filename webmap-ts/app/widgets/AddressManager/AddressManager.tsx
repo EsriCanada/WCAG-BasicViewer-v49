@@ -15,8 +15,8 @@ import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
 
-@subclass("esri.widgets.AddressManagemet")
-  class AddressManagemet extends declared(Widget) {
+@subclass("esri.widgets.AddressManager")
+  class AddressManager extends declared(Widget) {
   
     @property()
     mainView: __esri.MapView;
@@ -94,4 +94,4 @@ import i18n = require("dojo/i18n!../nls/resources");
 }
 
 
-export = AddressManagemet;
+export = AddressManager;
