@@ -1,9 +1,8 @@
 {
     "services": {
-        "parcel": "https://services.arcgis.com/zmLUiqh7X11gGV2d/arcgis/rest/services/Woodstock/FeatureServer/2",
-        "siteaddresspoint": "https://services.arcgis.com/zmLUiqh7X11gGV2d/arcgis/rest/services/Woodstock/FeatureServer/0",
-        "roadsegment": "https://services.arcgis.com/zmLUiqh7X11gGV2d/arcgis/rest/services/Woodstock/FeatureServer/1",
-        "subaddress": "https://services.arcgis.com/zmLUiqh7X11gGV2d/arcgis/rest/services/Woodstock/FeatureServer/3"
+        "parcel": "Woodstock - parcel",
+        "siteaddresspoint": "Woodstock - siteaddresspoint",
+        "roadsegment": "Woodstock - roadsegment"
     },
     "ignoreAttributes": [
         "Alternate Name 1",
