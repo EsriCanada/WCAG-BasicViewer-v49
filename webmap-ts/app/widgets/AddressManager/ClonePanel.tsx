@@ -169,51 +169,13 @@ import i18n = require("dojo/i18n!../nls/resources");
         this.own(on(element as HTMLElement, "click", lang.hitch(this, this._onPickRoadClicked)));
     }
 
-    private PICK_ROAD = function(map, draw, roadLayerObj) {
-        // const deferred = new Deferred();
-        // map.setInfoWindowOnClick(false);
-        // map.infoWindow.hide();
-
-        // let drawDrawEnd = draw.on("draw-complete", lang.hitch(this, pickRoad));
-        // draw.create("point");
-
-        // function pickRoad(evt) {
-        //     draw.deactivate();
-        //     drawDrawEnd.remove();
-
-        //     const buffer = GeometryEngine.buffer(evt.geometry, 10, "meters");
-
-        //     const q = new Query();
-        //     q.outFields = ["*"];
-        //     q.where = "1=1";
-        //     q.geometry = buffer;
-        //     q.spatialRelationship = "esriSpatialRelIntersects";
-        //     q.returnGeometry = true;
-
-        //     roadLayerObj.selectFeatures(
-        //         q, FeatureLayer.SELECTION_NEW,
-        //         (roads) => {
-        //             if (roads.length == 1) {
-        //                 // const roadMarker = geometryEngine.buffer(roads[0].geometry, 5, GeometryService.UNIT_METER);
-        //                 // const road = new Graphic(roadMarker, this.BUFFER_SYMBOL);
-        //                 // road.attributes = roads[0].attributes;
-        //                 // // map.graphics.add(new Graphic(roadMarker, this.BUFFER_SYMBOL));
-        //                 deferred.resolve(roads[0]);
-        //             } else {
-        //                 deferred.cancel("No matches")
-        //             }
-        //         }
-        //     )
-
-        // }
-        // return deferred.promise;
-    }
-
     private _onPickRoadClicked = (event) => {
         html.addClass(event.target, "activeBtn");
         
-        console.log("_onPickRoadClicked", myUtils.PICK_ROAD);//, this.mapView.map, this.draw, this.roadsLayer.layerObject)
-        // myUtils.PICK_ROAD(this.mapView.map, this.draw, this.roadsLayer.layerObject).then(
+        // console.log("_onPickRoadClicked", myUtils.PICK_ROAD);//, this.mapView.map, this.draw, this.roadsLayer.layerObject)
+        myUtils.PICK_ROAD(this.mapView, this.roadsLayer);
+            
+        // ].then(
         //     roadSegment => {
         //         const found = this.roadSegments.find(road => roadSegment.attributes.OBJECTID == road.attributes.OBJECTID);
         //         if (!found) {

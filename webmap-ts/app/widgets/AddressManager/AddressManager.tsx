@@ -76,6 +76,7 @@ import i18n = require("dojo/i18n!../nls/resources");
 
             const getLayer = lang.hitch(this, function(alias:string) {
                 const layers = this.mapView.map.allLayers.items;
+                // console.log("layers", layers);
                 const result = layers.find((layer) => { 
                     return layer.title == this.config.services[alias]; 
                 });
