@@ -168,7 +168,7 @@ import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
         sketchVM.on("create", function(event) {
             if (event.state === "complete") {
                 const graphic = event.graphic;
-                console.log("event.graphic", event.graphic);
+                // console.log("event.graphic", event.graphic);
 
                 // sketchVM.layer.remove(graphic);
                 // mapView.graphics.add(graphic);
@@ -176,16 +176,17 @@ import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
                 tempGraphicsLayer.destroy();
 
                 const buffer = geometryEngine.buffer(event.graphic.geometry, 10, "meters");
-                console.log("buffer", buffer);
+                // console.log("buffer", buffer);
 
-                console.log("BUFFER_SYMBOL", BUFFER_SYMBOL);
-                const gr = { 
-                    geometry: (buffer as any), 
+                // console.log("BUFFER_SYMBOL", BUFFER_SYMBOL);
+                let gr = { 
+                    geometry: buffer, 
                     symbol: BUFFER_SYMBOL
                 };
-                console.log("gr", gr);
+                // console.log("gr", gr);
 
                 mapView.graphics.add(gr as any);
+                setTimeout(lang.hitch(function() { mapView.graphics.removeAll() }), 250);
           
             //   // use the graphic.geometry to query features that intersect it
             //   selectFeatures(event.graphic.geometry);
