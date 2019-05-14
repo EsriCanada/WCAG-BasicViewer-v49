@@ -14,6 +14,7 @@ import Deferred = require("dojo/Deferred");
 
 import Map = require("esri/Map");
 import MapView = require("esri/views/MapView");
+import FeatureLayer = require("esri/layers/FeatureLayer");
 import Graphic = require("esri/Graphic");
 import Point = require("esri/geometry/Point");
 import SimpleMarkerSymbol = require("esri/symbols/SimpleMarkerSymbol");
@@ -149,7 +150,7 @@ import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
     //     graphicLayer.add(new Graphic({geometry: point, symbol:symbol}));
     // }
 
-    exports.PICK_ROAD = function(mapView : MapView, roadLayer) {
+    exports.PICK_ROAD = function(mapView : MapView, roadLayer: FeatureLayer) {
         const deferred = new Deferred();
         // mapView.setInfoWindowOnClick(false);
         // mapView.infoWindow.hide();
@@ -175,7 +176,7 @@ import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
 
                 tempGraphicsLayer.destroy();
 
-                const buffer = geometryEngine.buffer(event.graphic.geometry, 10, "meters");
+                const buffer = geometryEngine.buffer(event.graphic.geometry, 5, "meters");
                 // console.log("buffer", buffer);
 
                 // console.log("BUFFER_SYMBOL", BUFFER_SYMBOL);
@@ -186,11 +187,38 @@ import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
                 // console.log("gr", gr);
 
                 mapView.graphics.add(gr as any);
-                setTimeout(lang.hitch(function() { mapView.graphics.removeAll() }), 250);
           
-            //   // use the graphic.geometry to query features that intersect it
-            //   selectFeatures(event.graphic.geometry);
-                deferred.resolve();
+                const q = roadLayer.createQuery();
+                q.outFields = ["*"];
+                q.where = "1=1";
+                q.geometry = buffer as any;
+                q.spatialRelationship = "intersects";
+                q.returnGeometry = true;
+        
+                roadLayer.queryFeatures(q).then(
+                    results => {
+                        const roads = results.features;
+                        if (roads.length == 1) {
+                            const roadMarker = geometryEngine.buffer(roads[0].geometry, 2.5, "meters");
+                            const roadGraphic = { geometry: roadMarker, symbol: BUFFER_SYMBOL, attributes: roads[0].attributes};
+                            // 
+                            setTimeout(lang.hitch(function() { 
+                                mapView.graphics.removeAll(); 
+                                mapView.graphics.add(roadGraphic as any);
+                            }), 250);
+                            deferred.resolve(roads[0]);
+                        } else {
+                            setTimeout(lang.hitch(function() { mapView.graphics.removeAll() }), 250);
+                            deferred.cancel("Too many or no matches")
+                        }
+                    },
+                    error => {
+                        console.error("PICK_ROAD", error)
+                        deferred.cancel(error);
+                        setTimeout(lang.hitch(function() { mapView.graphics.removeAll() }), 250);
+                    }
+                );
+
             }
 
         });
