@@ -10,6 +10,15 @@ import on = require("dojo/on");
 import domAttr = require("dojo/dom-attr");
 import domStyle = require("dojo/dom-style");
 import html = require("dojo/_base/html");
+import myUtils = require("./Utils"); 
+
+import Deferred = require("dojo/Deferred");
+
+import GeometryService = require("esri/tasks/GeometryService");
+import GeometryEngine = require("esri/geometry/geometryEngine");
+import GraphicsLayer = require("esri/layers/GraphicsLayer");
+import Graphic = require("esri/Graphic");
+import Draw = require("esri/views/draw/Draw");
 
 import { renderable, tsx } from "esri/widgets/support/widget";
 
@@ -18,11 +27,46 @@ import i18n = require("dojo/i18n!../nls/resources");
 @subclass("esri.widgets.ClonePanel")
   class ClonePanel extends declared(Widget) {
   
+    @property()
+    mapView: __esri.MapView;
+
+    @property()
+    siteAddressPointLayer;
+
+    @property()
+    roadsLayer;
+
+    @property()
+    parcelsLayer;
+
+    @property()
+    roadFieldName: string;
+
+    private roadSegments = [] as any;
+    private polyline = null;
+    private roadGeometries = null;
+    private roadGraphicsLayer = null;
+    private roadMarker = null;
+    private draw = null;
+    private roadGraphic = null;
+    private addressRoadGraphic = null;
+    private addressRoadGeometry = null;
+    private deep = 20;
+
+    constructor() {
+        super();
+        // this.draw = new Draw({
+        //     view: this.mapView
+        //   });
+        // this.roadGraphicsLayer =  new GraphicsLayer();
+        // (this.mapView.map as any).addLayer(this.roadGraphicsLayer);
+    }
+
     render() {
         return ( 
         <div class="ClonePanel" style="display:none;" afterCreate={this._addClonePanel}>
             <div class="toolbar" style="background: #EEEEEE;">
-                <input type="image" src="../images/icons_transp/pickRoad2.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onPickRoadClicked" title="Pick Road" aria-label="Pick Road"/>
+                <input type="image" src="../images/icons_transp/pickRoad2.bgwhite.24.png" class="button" afterCreate={this._addPickRoadBtn} title="Pick Road" aria-label="Pick Road"/>
                 <input type="image" src="../images/icons_transp/Cut.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onCutClicked" title="Cut Line" aria-label="Cut Line"/>
                 <input type="image" src="../images/icons_transp/Flip1.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onFlipSideClicked" title="Flip Side" aria-label="Flip Side"/>
                 <input type="image" src="../images/icons_transp/Flip2.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onReverseClicked" title="Reverse Direction" aria-label="Reverse Direction"/>
@@ -89,7 +133,7 @@ import i18n = require("dojo/i18n!../nls/resources");
                 </table>
             </div>
             <div class="footer">
-                <input type="button" id="apply" class="pageBtn rightBtn" data-dojo-attach-point="submitCloneApply" value="Apply"/>
+                <input type="button" id="apply" class="pageBtn rightBtn" data-dojo-attach-point="submitCloneApply" value="Apply"/>>
             </div> 
         </div>
         );
@@ -121,7 +165,91 @@ import i18n = require("dojo/i18n!../nls/resources");
         this.distRoadValue.innerHTML = value;
     }
 
-}
+    private _addPickRoadBtn = (element:Element) => {
+        this.own(on(element as HTMLElement, "click", lang.hitch(this, this._onPickRoadClicked)));
+    }
 
+    private PICK_ROAD = function(map, draw, roadLayerObj) {
+        // const deferred = new Deferred();
+        // map.setInfoWindowOnClick(false);
+        // map.infoWindow.hide();
+
+        // let drawDrawEnd = draw.on("draw-complete", lang.hitch(this, pickRoad));
+        // draw.create("point");
+
+        // function pickRoad(evt) {
+        //     draw.deactivate();
+        //     drawDrawEnd.remove();
+
+        //     const buffer = GeometryEngine.buffer(evt.geometry, 10, "meters");
+
+        //     const q = new Query();
+        //     q.outFields = ["*"];
+        //     q.where = "1=1";
+        //     q.geometry = buffer;
+        //     q.spatialRelationship = "esriSpatialRelIntersects";
+        //     q.returnGeometry = true;
+
+        //     roadLayerObj.selectFeatures(
+        //         q, FeatureLayer.SELECTION_NEW,
+        //         (roads) => {
+        //             if (roads.length == 1) {
+        //                 // const roadMarker = geometryEngine.buffer(roads[0].geometry, 5, GeometryService.UNIT_METER);
+        //                 // const road = new Graphic(roadMarker, this.BUFFER_SYMBOL);
+        //                 // road.attributes = roads[0].attributes;
+        //                 // // map.graphics.add(new Graphic(roadMarker, this.BUFFER_SYMBOL));
+        //                 deferred.resolve(roads[0]);
+        //             } else {
+        //                 deferred.cancel("No matches")
+        //             }
+        //         }
+        //     )
+
+        // }
+        // return deferred.promise;
+    }
+
+    private _onPickRoadClicked = (event) => {
+        html.addClass(event.target, "activeBtn");
+        
+        console.log("_onPickRoadClicked", myUtils.PICK_ROAD);//, this.mapView.map, this.draw, this.roadsLayer.layerObject)
+        // myUtils.PICK_ROAD(this.mapView.map, this.draw, this.roadsLayer.layerObject).then(
+        //     roadSegment => {
+        //         const found = this.roadSegments.find(road => roadSegment.attributes.OBJECTID == road.attributes.OBJECTID);
+        //         if (!found) {
+        //             this.roadSegments.push(roadSegment);
+        //         } else {
+        //             this.roadSegments.splice(this.roadSegments.indexOf(found), 1);
+        //         }
+        //         // this.doStreetNameRule();
+
+        //         this.polyline = null;
+
+        //         this.roadGraphicsLayer.clear();
+        //         const geometries = this.roadGeometries = this.roadSegments.map(segment => segment.geometry);
+        //         const roadMarker = GeometryEngine.geodesicBuffer(geometries, [5], (GeometryService as any).UNIT_METER, true) as any;
+        //         this.roadMarker = roadMarker;
+        //         this.roadGraphic = new Graphic({geometry: roadMarker, symbol: myUtils.BUFFER_SYMBOL});
+        //         this.roadGraphicsLayer.add(this.roadGraphic);
+
+        //         const buffer = GeometryEngine.geodesicBuffer(geometries, [this.deep], (GeometryService as any).UNIT_METER, true) as any;
+        //         this.addressRoadGraphic = new Graphic({geometry: buffer, symbol: myUtils.ADDRESS_ROAD_BUFFER_SYMBOL});
+        //         this.roadGraphicsLayer.add(this.addressRoadGraphic);
+
+        //         this.addressRoadGeometry = buffer;
+
+        //         // this.mapView.map.setInfoWindowOnClick(true);
+        //         html.removeClass(event.target, "activeBtn"); 
+        //     },
+        //     err => {
+        //         console.log("PICK_ROAD", err);
+
+        //         // this.mapView.map.setInfoWindowOnClick(true);
+        //         html.removeClass(event.target, "activeBtn");
+        //     }
+        // );
+    }
+
+}
 
 export = ClonePanel;

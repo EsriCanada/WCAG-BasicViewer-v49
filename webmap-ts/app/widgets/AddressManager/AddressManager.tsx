@@ -4,12 +4,12 @@
 import {subclass, declared, property} from "esri/core/accessorSupport/decorators";
 import Widget = require("esri/widgets/Widget");
 import lang = require("dojo/_base/lang");
+import on = require("dojo/on");
+import domClass = require("dojo/dom-class");
 import domConstruct = require("dojo/dom-construct");
 import dom = require("dojo/dom");
-import on = require("dojo/on");
 import domAttr = require("dojo/dom-attr");
 import domStyle = require("dojo/dom-style");
-import domClass = require("dojo/dom-class");
 
 import { renderable, tsx } from "esri/widgets/support/widget";
 
@@ -19,20 +19,37 @@ import i18n = require("dojo/i18n!../nls/resources");
   class AddressManager extends declared(Widget) {
   
     @property()
-    mainView: __esri.MapView;
+    mapView: __esri.MapView;
 
     // @property()
     // @renderable()
     // scaleFactor: number = 2;
   
     constructor() {
-        super();
+        super(); 
     }
 
+    @property()
     clonePanel = null;
-    config = {}
+
+    @property()
+    config: any = {};
+
+    @property()
+    siteAddressPointLayer;
+
+    @property()
+    roadsLayer;
+
+    @property()
+    parcelsLayer;
+
+    @property()
+    roadFieldName: string;
+
 
     render() {
+        // console.log("mapView", this.mapView);
         return ( 
         <div afterCreate={this._addAddressManager} class="AddressManager">
             <div class="toolbar">
@@ -55,15 +72,37 @@ import i18n = require("dojo/i18n!../nls/resources");
             "dojo/text!./AddressManager.json"
         ], (Map, MapView, watchUtils, config) => {
             this.config = JSON.parse(config);
-            // console.log("config", this.config);
+            // console.log("config", this.config, this);
+
+            const getLayer = lang.hitch(this, function(alias:string) {
+                const layers = this.mapView.map.allLayers.items;
+                const result = layers.find((layer) => { 
+                    return layer.title == this.config.services[alias]; 
+                });
+                return result;
+            });
+
+            this.siteAddressPointLayer = getLayer("siteaddresspoint");
+            this.roadsLayer = getLayer("roadsegment");
+            this.parcelsLayer = getLayer("parcel");
+            this.roadFieldName = "fullname";
         });
      
     }
 
+    private 
+
     private _addClonePanel = (element: Element) => {
         // console.log("element", element);
         require(["./ClonePanel"], ClonePanel =>{
-            this.clonePanel = new ClonePanel({container: element});
+            this.clonePanel = new ClonePanel({
+                mapView: this.mapView,
+                siteAddressPointLayer: this.siteAddressPointLayer,
+                roadsLayer: this.roadsLayer,
+                parcelsLayer : this.parcelsLayer,
+                roadFieldName: this.roadFieldName,
+                container: element as HTMLElement
+            });
         });
     }
 
