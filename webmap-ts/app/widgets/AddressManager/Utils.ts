@@ -15,7 +15,6 @@ import Deferred = require("dojo/Deferred");
 import Map = require("esri/Map");
 import MapView = require("esri/views/MapView");
 import Graphic = require("esri/Graphic");
-import FillSymbol = require("esri/symbols/FillSymbol");
 import Point = require("esri/geometry/Point");
 import SimpleMarkerSymbol = require("esri/symbols/SimpleMarkerSymbol");
 import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
@@ -109,11 +108,16 @@ import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
     //     return symb;
     // }
 
-    exports.BUFFER_SYMBOL = new SimpleFillSymbol({
-        // name: "addressBuffer",
-        color: [255, 30, 30, 50],
-        style: "solid",
+    const BUFFER_SYMBOL = new SimpleFillSymbol({
+        // type:"simple-fill",
+        color: [255, 0, 0, 0.25],
+        outline: {
+            color:"transparent",
+            width:0,
+            style:"solid"
+        }
     })
+    exports.BUFFER_SYMBOL;
 
     // exports.ADDRESS_ROAD_BUFFER_SYMBOL = new SimpleFillSymbol({
     //     // name: "addressRoadBuffer",
@@ -166,24 +170,18 @@ import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
                 const graphic = event.graphic;
                 console.log("event.graphic", event.graphic);
 
-                sketchVM.layer.remove(graphic);
-                mapView.graphics.add(graphic);
+                // sketchVM.layer.remove(graphic);
+                // mapView.graphics.add(graphic);
 
                 tempGraphicsLayer.destroy();
 
                 const buffer = geometryEngine.buffer(event.graphic.geometry, 10, "meters");
                 console.log("buffer", buffer);
 
+                console.log("BUFFER_SYMBOL", BUFFER_SYMBOL);
                 const gr = { 
                     geometry: (buffer as any), 
-                    symbol: {
-                        type:"simple-fill",
-                        color: [255, 0, 0, 0.25],
-                        outline: {
-                            color:"transparent",
-                            width:0
-                        }
-                      }
+                    symbol: BUFFER_SYMBOL
                 };
                 console.log("gr", gr);
 
