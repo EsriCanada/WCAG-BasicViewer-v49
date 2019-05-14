@@ -10,7 +10,7 @@ import on = require("dojo/on");
 import domAttr = require("dojo/dom-attr");
 import domStyle = require("dojo/dom-style");
 import html = require("dojo/_base/html");
-import myUtils = require("./Utils"); 
+import * as myUtils from "./Utils"; 
 
 import Deferred = require("dojo/Deferred");
 
@@ -58,8 +58,12 @@ import i18n = require("dojo/i18n!../nls/resources");
         // this.draw = new Draw({
         //     view: this.mapView
         //   });
-        // this.roadGraphicsLayer =  new GraphicsLayer();
-        // (this.mapView.map as any).addLayer(this.roadGraphicsLayer);
+    }
+
+    postInitialize() {
+        this.roadGraphicsLayer =  new GraphicsLayer();
+        this.mapView.map.add(this.roadGraphicsLayer);
+        // console.log("myUtils", myUtils);
     }
 
     render() {
@@ -170,46 +174,50 @@ import i18n = require("dojo/i18n!../nls/resources");
     }
 
     private _onPickRoadClicked = (event) => {
-        html.addClass(event.target, "activeBtn");
+        html.addClass(event.target, "active");
         
         // console.log("_onPickRoadClicked", myUtils.PICK_ROAD);//, this.mapView.map, this.draw, this.roadsLayer.layerObject)
-        myUtils.PICK_ROAD(this.mapView, this.roadsLayer);
-            
-        // ].then(
-        //     roadSegment => {
-        //         const found = this.roadSegments.find(road => roadSegment.attributes.OBJECTID == road.attributes.OBJECTID);
-        //         if (!found) {
-        //             this.roadSegments.push(roadSegment);
-        //         } else {
-        //             this.roadSegments.splice(this.roadSegments.indexOf(found), 1);
-        //         }
-        //         // this.doStreetNameRule();
+        (myUtils as any).PICK_ROAD(this.mapView, this.roadsLayer).then(
+            roadSegment => {
+                // console.log("roadSegment", roadSegment);
+                const found = this.roadSegments.find(road => roadSegment.attributes.OBJECTID == road.attributes.OBJECTID);
+                if (!found) {
+                    this.roadSegments.push(roadSegment);
+                } else {
+                    this.roadSegments.splice(this.roadSegments.indexOf(found), 1);
+                }
+                // console.log("this.roadSegments", this.roadSegments);
+                // this.doStreetNameRule();
 
-        //         this.polyline = null;
+                this.polyline = null;
 
-        //         this.roadGraphicsLayer.clear();
-        //         const geometries = this.roadGeometries = this.roadSegments.map(segment => segment.geometry);
-        //         const roadMarker = GeometryEngine.geodesicBuffer(geometries, [5], (GeometryService as any).UNIT_METER, true) as any;
-        //         this.roadMarker = roadMarker;
-        //         this.roadGraphic = new Graphic({geometry: roadMarker, symbol: myUtils.BUFFER_SYMBOL});
-        //         this.roadGraphicsLayer.add(this.roadGraphic);
+                this.roadGraphicsLayer.removeAll();
+                
+                const geometries = this.roadGeometries = this.roadSegments.map(segment => segment.geometry);
+                const roadMarker = GeometryEngine.geodesicBuffer(geometries, [2.5], "meters", true) as any;
+                this.roadMarker = roadMarker;
+                // console.log("roadMarker", roadMarker);
+                this.roadGraphic = {geometry: roadMarker[0], symbol: (myUtils as any).BUFFER_SYMBOL};
+                // console.log("roadGraphic", this.roadGraphic);
 
-        //         const buffer = GeometryEngine.geodesicBuffer(geometries, [this.deep], (GeometryService as any).UNIT_METER, true) as any;
-        //         this.addressRoadGraphic = new Graphic({geometry: buffer, symbol: myUtils.ADDRESS_ROAD_BUFFER_SYMBOL});
-        //         this.roadGraphicsLayer.add(this.addressRoadGraphic);
+                this.roadGraphicsLayer.add(this.roadGraphic);
 
-        //         this.addressRoadGeometry = buffer;
+                // const buffer = GeometryEngine.geodesicBuffer(geometries, [this.deep], "meters", true) as any;
+                // this.addressRoadGraphic = new Graphic({geometry: buffer, symbol: myUtils.ADDRESS_ROAD_BUFFER_SYMBOL});
+                // this.roadGraphicsLayer.add(this.addressRoadGraphic);
 
-        //         // this.mapView.map.setInfoWindowOnClick(true);
-        //         html.removeClass(event.target, "activeBtn"); 
-        //     },
-        //     err => {
-        //         console.log("PICK_ROAD", err);
+                // this.addressRoadGeometry = buffer;
 
-        //         // this.mapView.map.setInfoWindowOnClick(true);
-        //         html.removeClass(event.target, "activeBtn");
-        //     }
-        // );
+                // this.mapView.map.setInfoWindowOnClick(true);
+                html.removeClass(event.target, "active"); 
+            },
+            error => {
+                console.error("PICK_ROAD", error);
+
+                // this.mapView.map.setInfoWindowOnClick(true);
+                html.removeClass(event.target, "active");
+            }
+        );
     }
 
 }

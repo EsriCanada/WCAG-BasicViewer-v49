@@ -109,16 +109,16 @@ import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
     //     return symb;
     // }
 
-    const BUFFER_SYMBOL = new SimpleFillSymbol({
-        // type:"simple-fill",
+    const BUFFER_SYMBOL = {
+        type:"simple-fill",
         color: [255, 0, 0, 0.25],
         outline: {
             color:"transparent",
             width:0,
             style:"solid"
         }
-    })
-    exports.BUFFER_SYMBOL;
+    }
+    exports.BUFFER_SYMBOL = BUFFER_SYMBOL;
 
     // exports.ADDRESS_ROAD_BUFFER_SYMBOL = new SimpleFillSymbol({
     //     // name: "addressRoadBuffer",
@@ -204,7 +204,7 @@ import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
                             // 
                             setTimeout(lang.hitch(function() { 
                                 mapView.graphics.removeAll(); 
-                                mapView.graphics.add(roadGraphic as any);
+                                // mapView.graphics.add(roadGraphic as any);
                             }), 250);
                             deferred.resolve(roads[0]);
                         } else {
@@ -213,7 +213,7 @@ import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
                         }
                     },
                     error => {
-                        console.error("PICK_ROAD", error)
+                        // console.error("PICK_ROAD", error);
                         deferred.cancel(error);
                         setTimeout(lang.hitch(function() { mapView.graphics.removeAll() }), 250);
                     }
@@ -223,35 +223,6 @@ import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
 
         });
 
-        // function pickRoad(evt) {
-        //     draw.deactivate();
-        //     drawDrawEnd.remove();
-
-        //     const buffer = geometryEngine.buffer(evt.geometry, 10, GeometryService.UNIT_METER);
-
-        //     const q = new Query();
-        //     q.outFields = ["*"];
-        //     q.where = "1=1";
-        //     q.geometry = buffer;
-        //     q.spatialRelationship = "esriSpatialRelIntersects";
-        //     q.returnGeometry = true;
-
-        //     roadLayerObj.selectFeatures(
-        //         q, FeatureLayer.SELECTION_NEW,
-        //         (roads) => {
-        //             if (roads.length == 1) {
-        //                 // const roadMarker = geometryEngine.buffer(roads[0].geometry, 5, GeometryService.UNIT_METER);
-        //                 // const road = new Graphic(roadMarker, this.BUFFER_SYMBOL);
-        //                 // road.attributes = roads[0].attributes;
-        //                 // // map.graphics.add(new Graphic(roadMarker, this.BUFFER_SYMBOL));
-        //                 deferred.resolve(roads[0]);
-        //             } else {
-        //                 deferred.cancel("No matches")
-        //             }
-        //         }
-        //     )
-
-        // }
-        return deferred.promise;
+       return deferred.promise;
     }
 
