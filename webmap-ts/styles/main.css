@@ -1333,7 +1333,7 @@ blockquote[lang] {
 }
 
 .AddressManager .hide {
-    display:none;
+    display: none;
 }
 
 .AddressManager table {
@@ -1415,4 +1415,14 @@ blockquote[lang] {
     border-top: 1px solid #999999;
     /* border: outset; */
     background: #EEEEEE;
+}
+
+.AddressManager .ClonePanel .ErrorCell {
+    background: darkred;
+    color: white;
+}
+
+.AddressManager .ClonePanel .RoadCell {
+    border-bottom: 1px solid gray;
+    font-weight: bold;
 }

@@ -120,17 +120,18 @@ import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
     }
     exports.BUFFER_SYMBOL = BUFFER_SYMBOL;
 
-    // exports.ADDRESS_ROAD_BUFFER_SYMBOL = new SimpleFillSymbol({
-    //     // name: "addressRoadBuffer",
-    //     color: [255, 30, 30, 0],
-    //     style: "esriSFSSolid",
-    //     outline: {
-    //         color: [255, 30, 30, 127],
-    //         width: 2,
-    //         // type: "esriSLS",
-    //         style: "esriSFSSolid"
-    //     }
-    // })
+    const ADDRESS_ROAD_BUFFER_SYMBOL = new SimpleFillSymbol({
+        // name: "addressRoadBuffer",
+        color: [255, 30, 30, 0],
+        style: "esriSFSSolid",
+        outline: {
+            color: [255, 30, 30, 127],
+            width: 2,
+            // type: "esriSLS",
+            style: "esriSFSSolid"
+        }
+    })
+    exports.ADDRESS_ROAD_BUFFER_SYMBOL = ADDRESS_ROAD_BUFFER_SYMBOL;
 
     // exports.SHOW_POINT = function(point, color, graphicLayer) {
     //     const symbol = new SimpleMarkerSymbol({

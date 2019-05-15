@@ -79,13 +79,14 @@ import i18n = require("dojo/i18n!../nls/resources");
             <div class="clone_panel-content">
                 <table style="border-collapse: collapse;">
                     <tr>
-                        <th colspan="2" style="text-align: left;">
-                            <span data-dojo-attach-point="streetName"></span>
+                        <th colspan="2" style="text-align: left;"  class="RoadCell">
+                            <span afterCreate={this._addStreetName}></span>
                         </th>
                     </tr>
-                    <tr data-dojo-attach-point="streetNameErrorRow" class="hide">
-                        <th colspan="2">
-                            <span data-dojo-attach-point="streetNameError" style="color:red;"></span>
+                    <tr afterCreate={this._addStreetNameErrorRow} class="hide">
+                        <th colspan="2" style="text-align: left;" class="ErrorCell">
+                            <span afterCreate={this._addStreetNameError}></span>
+                            <img src="../../images/error.white.24.png" style="height:17px; float:right;"/>
                         </th>
                     </tr>
                     <tr>
@@ -146,6 +147,9 @@ import i18n = require("dojo/i18n!../nls/resources");
     private clonePanelDiv: HTMLElement;
     private distRoadRange: HTMLElement;
     private distRoadValue: HTMLElement;
+    private streetName:HTMLElement;
+    private streetNameErrorRow:HTMLElement;
+    private streetNameError:HTMLElement;
 
     public show(showing:boolean):void {
         domStyle.set(this.clonePanelDiv, "display", showing ? "": "none");
@@ -173,6 +177,18 @@ import i18n = require("dojo/i18n!../nls/resources");
         this.own(on(element as HTMLElement, "click", lang.hitch(this, this._onPickRoadClicked)));
     }
 
+    private _addStreetName = (element:Element) => {
+        this.streetName = element as HTMLElement;
+    }
+
+    private _addStreetNameErrorRow = (element:Element) => {
+        this.streetNameErrorRow = element as HTMLElement;
+    }
+
+    private _addStreetNameError = (element:Element) => {
+        this.streetNameError = element as HTMLElement;
+    }
+
     private _onPickRoadClicked = (event) => {
         html.addClass(event.target, "active");
         
@@ -187,26 +203,26 @@ import i18n = require("dojo/i18n!../nls/resources");
                     this.roadSegments.splice(this.roadSegments.indexOf(found), 1);
                 }
                 // console.log("this.roadSegments", this.roadSegments);
-                // this.doStreetNameRule();
+                this._doStreetNameRule();
 
                 this.polyline = null;
 
                 this.roadGraphicsLayer.removeAll();
                 
                 const geometries = this.roadGeometries = this.roadSegments.map(segment => segment.geometry);
-                const roadMarker = GeometryEngine.geodesicBuffer(geometries, [2.5], "meters", true) as any;
-                this.roadMarker = roadMarker;
+                const [roadMarker] = GeometryEngine.geodesicBuffer(geometries, [2.5], "meters", true) as any;
+                this.roadMarker = roadMarker[0];
                 // console.log("roadMarker", roadMarker);
-                this.roadGraphic = {geometry: roadMarker[0], symbol: (myUtils as any).BUFFER_SYMBOL};
+                this.roadGraphic = {geometry: roadMarker, symbol: (myUtils as any).BUFFER_SYMBOL};
                 // console.log("roadGraphic", this.roadGraphic);
 
                 this.roadGraphicsLayer.add(this.roadGraphic);
 
-                // const buffer = GeometryEngine.geodesicBuffer(geometries, [this.deep], "meters", true) as any;
-                // this.addressRoadGraphic = new Graphic({geometry: buffer, symbol: myUtils.ADDRESS_ROAD_BUFFER_SYMBOL});
-                // this.roadGraphicsLayer.add(this.addressRoadGraphic);
+                const [buffer] = GeometryEngine.geodesicBuffer(geometries, [this.deep], "meters", true) as any;
+                this.addressRoadGraphic = new Graphic({geometry: buffer, symbol: (myUtils as any).ADDRESS_ROAD_BUFFER_SYMBOL});
+                this.roadGraphicsLayer.add(this.addressRoadGraphic);
 
-                // this.addressRoadGeometry = buffer;
+                this.addressRoadGeometry = buffer;
 
                 // this.mapView.map.setInfoWindowOnClick(true);
                 html.removeClass(event.target, "active"); 
@@ -218,6 +234,21 @@ import i18n = require("dojo/i18n!../nls/resources");
                 html.removeClass(event.target, "active");
             }
         );
+    }
+
+    private _doStreetNameRule =() => {
+        if (this.roadSegments && this.roadSegments.length > 0) {
+            const streetName = this.streetName.innerHTML = this.roadSegments[0].attributes.fullname;
+            html.addClass(this.streetNameErrorRow, "hide");
+            if (this.roadSegments.length > 1) {
+                this.roadSegments.forEach(segment => {
+                    if (streetName != segment.attributes.fullname) {
+                        html.removeClass(this.streetNameErrorRow, "hide");
+                        this.streetNameError.innerHTML = segment.attributes.fullname;
+                    }
+                })
+            }
+        }
     }
 
 }
