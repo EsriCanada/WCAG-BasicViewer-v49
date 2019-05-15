@@ -7,8 +7,8 @@
         {
             "type": "chrome",
             "request": "launch",
-            "name": "Launch Chrome against localhost",
-            "url": "http://localhost:8080",
+            "name": "AddressManager / Chrome",
+            "url": "https://ccgis18.esri.local:8802/index.html?appid=281df9fdfd444e71838d0748189f60ac&locale=en-us",
             "webRoot": "${workspaceFolder}"
         }
     ]

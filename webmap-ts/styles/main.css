@@ -1426,3 +1426,9 @@ blockquote[lang] {
     border-bottom: 1px solid gray;
     font-weight: bold;
 }
+
+.AddressManager .ClonePanel .distRoadRange {
+    width:100px; 
+    height:16px; 
+    vertical-align: bottom;
+}

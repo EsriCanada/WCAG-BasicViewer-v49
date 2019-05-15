@@ -15,7 +15,7 @@ import * as myUtils from "./Utils";
 import Deferred = require("dojo/Deferred");
 
 import GeometryService = require("esri/tasks/GeometryService");
-import GeometryEngine = require("esri/geometry/geometryEngine");
+import geometryEngine = require("esri/geometry/geometryEngine");
 import GraphicsLayer = require("esri/layers/GraphicsLayer");
 import Graphic = require("esri/Graphic");
 import Draw = require("esri/views/draw/Draw");
@@ -23,6 +23,9 @@ import Draw = require("esri/views/draw/Draw");
 import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
+import Polyline = require("esri/geometry/Polyline");
+import Point = require("esri/geometry/Point");
+import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
 
 @subclass("esri.widgets.ClonePanel")
   class ClonePanel extends declared(Widget) {
@@ -52,6 +55,10 @@ import i18n = require("dojo/i18n!../nls/resources");
     private addressRoadGraphic = null;
     private addressRoadGeometry = null;
     private deep = 20;
+    private polylineGraph: Graphic;
+    private cutters: any[] = [];
+    private flip: boolean = false;
+    private length: Number = 0;
 
     constructor() {
         super();
@@ -86,13 +93,13 @@ import i18n = require("dojo/i18n!../nls/resources");
                     <tr afterCreate={this._addStreetNameErrorRow} class="hide">
                         <th colspan="2" style="text-align: left;" class="ErrorCell">
                             <span afterCreate={this._addStreetNameError}></span>
-                            <img src="../../images/error.white.24.png" style="height:17px; float:right;"/>
+                            <img src="../../images/error.white.24.png" style="height:17px; float:right;" title="(Remove roads by selecting again.)"/>
                         </th>
                     </tr>
                     <tr>
                         <th colspan="2" style="text-align: left;">
                         <label>
-                            <input type="checkbox" data-dojo-attach-point="useCurrentSeed" data-dojo-attach-event="change:_onUseCurrentSeedGhange"/>
+                            <input type="checkbox" afterCreate={this._addUseCurrentSeed}/>
                             <span> Use current address as seed.</span>
                             </label>
                             </th>
@@ -100,7 +107,7 @@ import i18n = require("dojo/i18n!../nls/resources");
                     <tr>
                         <th><label for="distRoad">Dist from Road:</label></th>
                         <td>
-                            <input type="range" afterCreate={this._addDistRoadRange} style="width:100px; height:16px; vertical-align: bottom;" min="10" max="50" step="5" name="distRoad" value="20"/>
+                            <input type="range" afterCreate={this._addDistRoadRange} class="distRoadRange" min="10" max="50" step="5" name="distRoad" value="20"/>
 
                             <span style="margin-left: 4px;" afterCreate={this._addDistRoadValue}>20</span>
                         </td>
@@ -138,7 +145,7 @@ import i18n = require("dojo/i18n!../nls/resources");
                 </table>
             </div>
             <div class="footer">
-                <input type="button" id="apply" class="pageBtn rightBtn" data-dojo-attach-point="submitCloneApply" value="Apply"/>>
+                <input type="button" id="apply" class="pageBtn rightBtn" data-dojo-attach-point="submitCloneApply" value="Apply"/>
             </div> 
         </div>
         );
@@ -150,6 +157,7 @@ import i18n = require("dojo/i18n!../nls/resources");
     private streetName:HTMLElement;
     private streetNameErrorRow:HTMLElement;
     private streetNameError:HTMLElement;
+    private useCurrentSeed:HTMLElement;
 
     public show(showing:boolean):void {
         domStyle.set(this.clonePanelDiv, "display", showing ? "": "none");
@@ -171,6 +179,20 @@ import i18n = require("dojo/i18n!../nls/resources");
     private _distRoadRangeChange = (event) => {
         const value = event.target.value;
         this.distRoadValue.innerHTML = value;
+
+        debugger;
+        if (this.roadGeometries && this.roadGeometries.length > 0) {
+            if (this.addressRoadGraphic) {
+                this.roadGraphicsLayer.remove(this.addressRoadGraphic);
+            }
+            const [buffer] = geometryEngine.geodesicBuffer(this.roadGeometries, [this.deep = value], "meters", true) as any;
+            this.addressRoadGraphic = new Graphic({geometry: buffer, symbol: (myUtils as any).ADDRESS_ROAD_BUFFER_SYMBOL});
+            this.roadGraphicsLayer.add(this.addressRoadGraphic);
+
+            this.addressRoadGeometry = buffer;
+            this._splitPolyline();
+        }
+    
     }
 
     private _addPickRoadBtn = (element:Element) => {
@@ -187,6 +209,10 @@ import i18n = require("dojo/i18n!../nls/resources");
 
     private _addStreetNameError = (element:Element) => {
         this.streetNameError = element as HTMLElement;
+    }
+
+    private _addUseCurrentSeed = (element:Element) => {
+        this.useCurrentSeed = element as HTMLElement;
     }
 
     private _onPickRoadClicked = (event) => {
@@ -210,7 +236,7 @@ import i18n = require("dojo/i18n!../nls/resources");
                 this.roadGraphicsLayer.removeAll();
                 
                 const geometries = this.roadGeometries = this.roadSegments.map(segment => segment.geometry);
-                const [roadMarker] = GeometryEngine.geodesicBuffer(geometries, [2.5], "meters", true) as any;
+                const [roadMarker] = geometryEngine.geodesicBuffer(geometries, [2.5], "meters", true) as any;
                 this.roadMarker = roadMarker[0];
                 // console.log("roadMarker", roadMarker);
                 this.roadGraphic = {geometry: roadMarker, symbol: (myUtils as any).BUFFER_SYMBOL};
@@ -218,7 +244,7 @@ import i18n = require("dojo/i18n!../nls/resources");
 
                 this.roadGraphicsLayer.add(this.roadGraphic);
 
-                const [buffer] = GeometryEngine.geodesicBuffer(geometries, [this.deep], "meters", true) as any;
+                const [buffer] = geometryEngine.geodesicBuffer(geometries, [this.deep], "meters", true) as any;
                 this.addressRoadGraphic = new Graphic({geometry: buffer, symbol: (myUtils as any).ADDRESS_ROAD_BUFFER_SYMBOL});
                 this.roadGraphicsLayer.add(this.addressRoadGraphic);
 
@@ -236,21 +262,87 @@ import i18n = require("dojo/i18n!../nls/resources");
         );
     }
 
-    private _doStreetNameRule =() => {
+    private _doStreetNameRule = () => {
         if (this.roadSegments && this.roadSegments.length > 0) {
             const streetName = this.streetName.innerHTML = this.roadSegments[0].attributes.fullname;
             html.addClass(this.streetNameErrorRow, "hide");
             if (this.roadSegments.length > 1) {
+                let more = "";
                 this.roadSegments.forEach(segment => {
                     if (streetName != segment.attributes.fullname) {
                         html.removeClass(this.streetNameErrorRow, "hide");
-                        this.streetNameError.innerHTML = segment.attributes.fullname;
+                        this.streetNameError.innerHTML = segment.attributes.fullname + more;
+                        more = " ...";
                     }
                 })
+            } else {
+                this.streetNameError.innerHTML = "";
+            }
+        }
+    }
+
+    private _mesurePolyline() {
+        // throw new Error("Method not implemented.");
+    }
+
+    private _getLength(): Number {
+        // throw new Error("Method not implemented.");
+        return 0;
+    }
+
+
+
+    private _splitPolyline() {
+        if (this.cutters.length != 2) return;
+        
+        this.roadGraphicsLayer.clear();
+        this.roadGraphicsLayer.add(this.roadGraphic);
+
+        this.cutters.forEach(cutter => this.roadGraphicsLayer.add(cutter));
+
+        this.polyline = new Polyline({spatialReference: this.mapView.spatialReference});
+        this.polyline.addPath(this.addressRoadGeometry.rings[0]);
+
+        const pieces = geometryEngine.cut(this.polyline, this.cutters[0].geometry);
+        if (pieces.length == 2) {
+            this.roadGraphicsLayer.remove(this.addressRoadGraphic);
+
+            this.polyline = new Polyline({spatialReference: this.mapView.spatialReference});
+            let point0 = new Point({ x: (pieces[1]as any).paths[0][0][0], y: (pieces[1]as any).paths[0][0][1] });
+
+            if (geometryEngine.contains(this.cutters[0].geometry, point0)) {
+                this.polyline.addPath(
+                    [...pieces[1].paths[0], ...pieces[0].paths[0]]
+                );
+            } else {
+                this.polyline.addPath(
+                    [...pieces[0].paths[0], ...pieces[1].paths[0]]
+                );
+            }
+
+            const pieces1 = geometryEngine.cut(this.polyline, this.cutters[1].geometry);
+            if (pieces1.length == 2) {
+                this.roadGraphicsLayer.remove(this.polylineGraph);
+
+                this.polyline = new Polyline(this.addressRoadGeometry.spatialReference);
+                switch (this.flip) {
+                    case false:
+                        this.polyline.addPath((pieces1[0] as any).paths[0]);
+                        break;
+                    case true:
+                        this.polyline.addPath((pieces1[1] as any).paths[0]);
+                        break;
+                }
+                const symb = new SimpleLineSymbol({ style: "solid", color: [255, 0, 0, 63], width:2 });
+                this.polylineGraph = new Graphic({geometry: this.polyline,  symbol: symb});
+                this.roadGraphicsLayer.add(this.polylineGraph);
+
+                this.length = this._getLength();
+
+                this._mesurePolyline();
             }
         }
     }
 
 }
-
 export = ClonePanel;

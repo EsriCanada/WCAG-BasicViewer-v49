@@ -8,7 +8,10 @@
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "jsx": "react",
-    "jsxFactory": "tsx"
+    "jsxFactory": "tsx",
+    "esModuleInterop": true,
+    "preserveConstEnums": true,
+    "suppressImplicitAnyIndexErrors": true
   },
   "include": [
     "./**/*"

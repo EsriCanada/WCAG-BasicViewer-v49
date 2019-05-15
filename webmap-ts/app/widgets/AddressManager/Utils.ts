@@ -123,12 +123,12 @@ import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
     const ADDRESS_ROAD_BUFFER_SYMBOL = new SimpleFillSymbol({
         // name: "addressRoadBuffer",
         color: [255, 30, 30, 0],
-        style: "esriSFSSolid",
+        style: "solid",
         outline: {
             color: [255, 30, 30, 127],
             width: 2,
             // type: "esriSLS",
-            style: "esriSFSSolid"
+            style: "solid"
         }
     })
     exports.ADDRESS_ROAD_BUFFER_SYMBOL = ADDRESS_ROAD_BUFFER_SYMBOL;
