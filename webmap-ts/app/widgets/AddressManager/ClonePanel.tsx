@@ -113,8 +113,9 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
                         </td>
                     </tr>
                     <tr>
-                        <th><label for="polylineLength">Length (meters):</label></th>
-                        <td><span id="polylineLength" data-dojo-attach-point="polylineLength"></span></td> 
+                        <th><label for="polylineLength">Length:</label></th>
+                        <td><span id="polylineLength" data-dojo-attach-point="polylineLength"></span>
+                        <span style="float:right; font-weight: normal; margin-right: 10px;">meters</span></td> 
                     </tr>
                     <tr>
                         <th style="border-top: 1px solid gray; border-left: 1px solid gray;"><label for="unitCount">Unit Count:</label></th>
@@ -180,7 +181,6 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
         const value = event.target.value;
         this.distRoadValue.innerHTML = value;
 
-        debugger;
         if (this.roadGeometries && this.roadGeometries.length > 0) {
             if (this.addressRoadGraphic) {
                 this.roadGraphicsLayer.remove(this.addressRoadGraphic);
