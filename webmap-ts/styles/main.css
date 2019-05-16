@@ -29,6 +29,11 @@ body {
     color: #000000cf
 }
 
+caption,
+th {
+    text-align: left;
+}
+
 .configurable-application__view-container {
     padding: 0;
     margin: 0;
@@ -1349,7 +1354,7 @@ blockquote[lang] {
 }
 
 .AddressManager th {
-    text-align: right;
+    /* text-align: right; */
     font-weight: normal;
 }
 
@@ -1453,4 +1458,16 @@ AddressManager th,
 .AddressManager td {
     padding: 1px 4px;
     font-weight: bold;
+}
+
+.AddressManager .rowImg {
+    display: inline-block;
+    width: 17px !important;
+    height: 17px !important;
+}
+
+.AddressManager table input[type="image"] {
+    background: #0079c1;
+    margin-left: 1px;
+    border-radius: 2px;
 }

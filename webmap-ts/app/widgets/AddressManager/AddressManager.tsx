@@ -279,7 +279,7 @@ import Field = require("esri/layers/support/Field");
             if (attributes.hasOwnProperty("pickRoad")) {
                 const pickRoadBtn = html.create("input", {
                         type: "image",
-                        src: "./widgets/AddressManager/images/pickRoad2.bgwhite.24.png",
+                        src: "../images/icons_transp/pickRoad2.bgwhite.24.png",
                         class: "rowImg",
                         title: "Pick Road",
                         "aria-label": "Pick Road"
@@ -323,7 +323,7 @@ import Field = require("esri/layers/support/Field");
 
                 this.distanceBtn = html.create("input", {
                         type: "image",
-                        src: "./widgets/AddressManager/images/Distance.bgwhite.24.png",
+                        src: "../images/icons_transp/Distance.bgwhite.24.png",
                         class: "rowImg",
                         title: "Roads by Distance",
                         "aria-label": "Pick Road by Distance"
