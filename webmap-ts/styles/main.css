@@ -1342,10 +1342,6 @@ blockquote[lang] {
     table-layout: fixed;
 }
 
-.AddressManager table tr:nth-child(even) {
-    background-color: #00000f0f;
-}
-
 .AddressManager th,
 .AddressManager td {
     padding: 1px 4px;
@@ -1409,6 +1405,10 @@ blockquote[lang] {
     margin: 0;
 }
 
+.AddressManager .ClonePanel {
+    background: white;
+}
+
 .AddressManager .ClonePanel .footer {
     flex-grow: 0;
     padding: 12px;
@@ -1428,7 +1428,29 @@ blockquote[lang] {
 }
 
 .AddressManager .ClonePanel .distRoadRange {
-    width:100px; 
-    height:16px; 
+    width: 100px;
+    height: 16px;
     vertical-align: bottom;
+}
+
+.AddressManager table {
+    border: 1px solid black;
+    width: 100%;
+    margin-bottom: 8px;
+    table-layout: fixed;
+}
+
+.AddressManager table caption {
+    font-weight: bold;
+    font-size: large;
+}
+
+.AddressManager table tr:nth-child(odd) {
+    background-color: white;
+}
+
+AddressManager th,
+.AddressManager td {
+    padding: 1px 4px;
+    font-weight: bold;
 }

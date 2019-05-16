@@ -253,6 +253,11 @@ export function CustomColors(config: ApplicationConfig) : void {
   background-color: ${bgColor};
   color: ${WhiteOrBlack(bgColor)};
 }
+
+.AddressManager table tr:nth-child(even) {
+  background-color: ${LightenDarkenColor(bgColor, 200)};
+}
+
 `;
   }
 
