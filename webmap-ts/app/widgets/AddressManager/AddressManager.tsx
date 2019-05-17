@@ -19,12 +19,15 @@ import i18n = require("dojo/i18n!../nls/resources");
 import FeatureLayer = require("esri/layers/FeatureLayer");
 import html = require("dojo/_base/html");
 import Field = require("esri/layers/support/Field");
+import UtilsViewModel = require("./UtilsViewModel");
 
 @subclass("esri.widgets.AddressManager")
   class AddressManager extends declared(Widget) {
   
     @property()
     mapView: __esri.MapView;
+
+    private UtilsVM : UtilsViewModel = new UtilsViewModel({mapView:this.mapView});
     
     private siteaddresspointLayerFields: any;
     private ignoreAttributes: any;

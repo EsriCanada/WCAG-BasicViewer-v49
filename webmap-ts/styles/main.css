@@ -1471,3 +1471,7 @@ AddressManager th,
     margin-left: 1px;
     border-radius: 2px;
 }
+
+.AddressManager table input[type="text"] {
+    background: transparent;
+}

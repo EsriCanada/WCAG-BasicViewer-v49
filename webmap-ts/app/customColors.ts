@@ -14,12 +14,12 @@ export function CustomColors(config: ApplicationConfig) : void {
         const bgColor = theme;
         const fcColor = color;
         // console.log("bgColor", bgColor, HexToRGB(bgColor));
-        const bgLightenColor = LightenDarkenColor(bgColor, 1.50);
+        const bgLightenColor = LightenDarkenColor(bgColor, 50);
         // console.log("bgLightenColor", bgColor, "-> ", bgLightenColor)
         const borderActiveColor = LightenDarkenColor(activeColor, isDark(activeColor) ? 1.75: 1/1.75);
         const backgroundActiveHoverColor = MixColors(activeColor, hoverColor, 0.33);
         const menuBackground = "#ededed";
-        const menuHeaderBackground = LightenDarkenColor(menuBackground, isDark(menuBackground) ? 1.75: 1/1.75);
+        const menuHeaderBackground = LightenDarkenColor(menuBackground, isDark(menuBackground) ? 75: -75);
         // const backgroundActiveFocusColor = MixColors(activeColor, focusColor, 0.33);
 
         configurableStyles.innerHTML = `
@@ -157,7 +157,7 @@ export function CustomColors(config: ApplicationConfig) : void {
 .esri-basemap-gallery__item:hover
 {
   background-color: ${hoverColor};
-  border-left-color: ${LightenDarkenColor(hoverColor, isDark(hoverColor) ? 1.75: 1/1.75)};
+  border-left-color: ${LightenDarkenColor(hoverColor, isDark(hoverColor) ? 75: -75)};
   color: ${WhiteOrBlack(hoverColor)};
 } 
 
@@ -255,7 +255,7 @@ export function CustomColors(config: ApplicationConfig) : void {
 }
 
 .AddressManager table tr:nth-child(even) {
-  background-color: ${LightenDarkenColor(bgColor, 2.5)};
+  background-color: ${Transparent(bgColor, "1f")};
 }
 
 `;
@@ -286,15 +286,15 @@ export function LightenDarkenColor(col: string, amt: number): string {
 
   // amt = 1.5; 
 // debugger
-  let r = (10 + RGB.r) * amt;
+  let r = RGB.r + amt;
   if (r > 255) r = 255;
   else if  (r < 0) r = 0;
 
-  let b = (10 + RGB.b) * amt;
+  let b = RGB.b + amt;
   if (b > 255) b = 255;
   else if  (b < 0) b = 0;
 
-  let g = (10 + RGB.g) * amt;
+  let g = RGB.g + amt;
   if (g > 255) g = 255;
   else if (g < 0) g = 0;
 
@@ -338,4 +338,8 @@ export function Negate(col: string): string {
 
 export function WhiteOrBlack(col: string): string {
   return isDark(col) ? "#ffffff": "#000000";
+}
+
+export function Transparent(col: string, a: string): string {
+  return col + a;
 }

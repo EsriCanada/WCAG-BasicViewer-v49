@@ -12,6 +12,9 @@ import domStyle = require("dojo/dom-style");
 import html = require("dojo/_base/html");
 import * as myUtils from "./Utils"; 
 
+import UtilsViewModel = require("./UtilsViewModel");
+
+
 import Deferred = require("dojo/Deferred");
 
 import GeometryService = require("esri/tasks/GeometryService");
@@ -45,6 +48,8 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
     @property()
     roadFieldName: string;
 
+    private UtilsVM : UtilsViewModel;
+
     private roadSegments = [] as any;
     private polyline = null;
     private roadGeometries = null;
@@ -62,15 +67,12 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
 
     constructor() {
         super();
-        // this.draw = new Draw({
-        //     view: this.mapView
-        //   });
     }
 
     postInitialize() {
         this.roadGraphicsLayer =  new GraphicsLayer();
         this.mapView.map.add(this.roadGraphicsLayer);
-        // console.log("myUtils", myUtils);
+        this.UtilsVM = new UtilsViewModel({mapView:this.mapView, roadsLayer: this.roadsLayer});
     }
 
     render() {
@@ -186,7 +188,7 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
                 this.roadGraphicsLayer.remove(this.addressRoadGraphic);
             }
             const [buffer] = geometryEngine.geodesicBuffer(this.roadGeometries, [this.deep = value], "meters", true) as any;
-            this.addressRoadGraphic = new Graphic({geometry: buffer, symbol: (myUtils as any).ADDRESS_ROAD_BUFFER_SYMBOL});
+            this.addressRoadGraphic = new Graphic({geometry: buffer, symbol: this.UtilsVM.ADDRESS_ROAD_BUFFER_SYMBOL});
             this.roadGraphicsLayer.add(this.addressRoadGraphic);
 
             this.addressRoadGeometry = buffer;
@@ -219,10 +221,10 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
         html.addClass(event.target, "active");
         
         // console.log("_onPickRoadClicked", myUtils.PICK_ROAD);//, this.mapView.map, this.draw, this.roadsLayer.layerObject)
-        (myUtils as any).PICK_ROAD(this.mapView, this.roadsLayer).then(
+        this.UtilsVM.PICK_ROAD().then(
             roadSegment => {
                 // console.log("roadSegment", roadSegment);
-                const found = this.roadSegments.find(road => roadSegment.attributes.OBJECTID == road.attributes.OBJECTID);
+                const found = this.roadSegments.find(road => (roadSegment as any).attributes.OBJECTID == road.attributes.OBJECTID);
                 if (!found) {
                     this.roadSegments.push(roadSegment);
                 } else {
@@ -239,13 +241,13 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
                 const [roadMarker] = geometryEngine.geodesicBuffer(geometries, [2.5], "meters", true) as any;
                 this.roadMarker = roadMarker[0];
                 // console.log("roadMarker", roadMarker);
-                this.roadGraphic = {geometry: roadMarker, symbol: (myUtils as any).BUFFER_SYMBOL};
+                this.roadGraphic = {geometry: roadMarker, symbol: this.UtilsVM.BUFFER_SYMBOL};
                 // console.log("roadGraphic", this.roadGraphic);
 
                 this.roadGraphicsLayer.add(this.roadGraphic);
 
                 const [buffer] = geometryEngine.geodesicBuffer(geometries, [this.deep], "meters", true) as any;
-                this.addressRoadGraphic = new Graphic({geometry: buffer, symbol: (myUtils as any).ADDRESS_ROAD_BUFFER_SYMBOL});
+                this.addressRoadGraphic = new Graphic({geometry: buffer, symbol: this.UtilsVM.ADDRESS_ROAD_BUFFER_SYMBOL});
                 this.roadGraphicsLayer.add(this.addressRoadGraphic);
 
                 this.addressRoadGeometry = buffer;
