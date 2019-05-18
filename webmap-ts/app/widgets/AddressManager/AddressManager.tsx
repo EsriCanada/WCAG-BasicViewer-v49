@@ -90,7 +90,7 @@ import UtilsViewModel = require("./UtilsViewModel");
         return ( 
         <div afterCreate={this._addAddressManager} class="AddressManager">
             <div class="toolbar">
-                <input type="image" src="../images/icons_transp/addAddress.bggray.24.png" class="button" afterCreate={this._addAddressButton} aria-label="Add Address Point" title="Add Address Point"></input>
+                <input id="addAddressPointBtn" type="image" src="../images/icons_transp/addAddress.bggray.24.png" class="button" afterCreate={this._addAddressButton} aria-label="Add Address Point" title="Add Address Point"></input>
                 <div class="dropdown_moreTools">
                     <input type="image" src="../images/icons_transp/Generate.bggray.24.png" class="button" afterCreate={this._addMoreToolsButton} aria-label="Clone Addresses" title="Clone Addresses"></input>
                     <div afterCreate={this._addClonePanel} ></div>

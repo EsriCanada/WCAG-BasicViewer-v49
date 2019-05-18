@@ -11,6 +11,7 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
 import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
 import geometryEngine = require("esri/geometry/geometryEngine");
 import lang = require("dojo/_base/lang");
+import html = require("dojo/_base/html");
 
 @subclass("esri.guide.UtilsViewModel")
 class UtilsViewModel extends declared(Accessor) {
@@ -68,7 +69,7 @@ class UtilsViewModel extends declared(Accessor) {
         type:"simple-marker",
         style: "circle",
         color: [255, 30, 30, 0],
-        size: 15,
+        size: 7,
         outline: {
             color: [0, 0, 0, 1],
             width: 1,
@@ -213,17 +214,18 @@ class UtilsViewModel extends declared(Accessor) {
         const sketchVM = new SketchViewModel({
             layer: this.addressGraphicsLayer,
             view: this.mapView,
+            pointSymbol: this.NEW_ADDRESS_SYMBOL
           })
         sketchVM.create("point");
         sketchVM.on("create", lang.hitch(this, function(event) {
             if (event.state === "complete") {
-                // const graphic = event.graphic;
-                const feature = {geometry: event.graphic.geometry, symbol: this.NEW_ADDRESS_SYMBOL, attributes: { "status": 0 }, Dirty: true};
-                this.addressGraphicsLayer.add(feature);
-                console.log("feature", event, feature);
+                const feature = event.graphic;
+                feature.attributes = { "status": 0 };
+                feature.Dirty = true;
+                // console.log("feature", event, feature);
 
                 // map.setInfoWindowOnClick(true);
-                // domClass.remove(event.target, "activeBtn");
+                html.removeClass(html.byId("addAddressPointBtn"), "active");
                 deferred.resolve(feature);
             }
         }));
