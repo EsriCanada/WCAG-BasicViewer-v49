@@ -10,7 +10,6 @@ import on = require("dojo/on");
 import domAttr = require("dojo/dom-attr");
 import domStyle = require("dojo/dom-style");
 import html = require("dojo/_base/html");
-import * as myUtils from "./Utils"; 
 
 import UtilsViewModel = require("./UtilsViewModel");
 
@@ -220,7 +219,6 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
     private _onPickRoadClicked = (event) => {
         html.addClass(event.target, "active");
         
-        // console.log("_onPickRoadClicked", myUtils.PICK_ROAD);//, this.mapView.map, this.draw, this.roadsLayer.layerObject)
         this.UtilsVM.PICK_ROAD().then(
             roadSegment => {
                 // console.log("roadSegment", roadSegment);

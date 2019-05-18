@@ -48,6 +48,84 @@ class UtilsViewModel extends declared(Accessor) {
         }
     }
 
+    @property({ readOnly: true })
+    SELECTED_ADDRESS_SYMBOL = {
+        type:"simple-marker",
+        color: [255, 30, 30, 0],
+        size: 10,
+        outline: {
+            color: [255, 30, 39, 255],
+            width: 1,
+            type: "simple-line",
+            style: "solid"
+        }
+    }
+
+    @property({ readOnly: true })
+    NEW_ADDRESS_SYMBOL = {
+        type:"simple-marker",
+        color: [255, 30, 30, 0],
+        size: 5,
+        outline: {
+            color: [0, 0, 0, 1],
+            width: 1,
+            type: "simple-line",
+            style: "solid"
+        }
+    }
+
+    @property({ readOnly: true })
+    SELECTED_PARCEL_SYMBOL = {
+        type:"simple-fill",
+        color: [255, 30, 30, 255],
+        outline: {
+            color: [255, 30, 30, 255],
+            width: 1,
+            type: "simple-line",
+            style: "solid"
+        }
+    }
+        
+    @property({ readOnly: true })
+    SELECTED_ROAD_SYMBOL = {
+        color: [255, 30, 30, 255],
+    }
+        
+    LABEL_SYMBOL = function(labelText?: string) {
+        const symb = {
+            type: "text",
+            text: labelText,
+            color:[0, 0, 0, 255],
+            haloColor:[255, 200, 200, 255],
+            haloSize:1,
+            horizontalAlignment: "center",
+            xoffset:0,
+            yoffset: -22,
+            font: {
+                family : "'Avenir Light', Verdana, Geneva, sans-serif",
+                size: "12px",
+                weight: "bold"
+            }
+        };
+        (symb as any).name = "Label";
+        return symb;
+    }
+
+    SHOW_POINT = function(point, color, graphicsLayer: GraphicsLayer) {
+        const symbol = {
+            color: [255, 255, 255, 255],
+            size: 5,
+            type: "simple-marker",
+            outline: {
+                color: color,
+                width: 2,
+                style: "solid"
+            }
+        }
+
+        graphicsLayer.graphics.add({geometry: point, symbol:symbol} as any);
+    }
+
     PICK_ROAD() {
         const deferred = new Deferred();
         // mapView.setInfoWindowOnClick(false);
@@ -120,7 +198,36 @@ class UtilsViewModel extends declared(Accessor) {
        return deferred.promise;
     }
 
+    ADD_NEW_ADDRESS = function() {
+        const deferred = new Deferred();
+        // map.setInfoWindowOnClick(false);
+        // map.infoWindow.hide();
 
+        if(!this.addressGraphicsLayer) {
+            this.addressGraphicsLayer = new GraphicsLayer();
+
+            this.mapView.map.add(this.addressGraphicsLayer);
+        }
+        const sketchVM = new SketchViewModel({
+            layer: this.addressGraphicsLayer,
+            view: this.mapView,
+          })
+        sketchVM.create("point");
+        sketchVM.on("create", lang.hitch(this, function(event) {
+            if (event.state === "complete") {
+                // const graphic = event.graphic;
+
+                const feature = {geometry: event.geometry, symbol: this.NEW_ADDRESS_SYMBOL, attributes: { "status": 0 }, Dirty: true};
+                this.addressGraphicsLayer.graphics.add(feature);
+
+                // map.setInfoWindowOnClick(true);
+                // domClass.remove(event.target, "activeBtn");
+                deferred.resolve(feature);
+            }
+        }));
+
+        return deferred.promise;
+    }
 }
 
 export = UtilsViewModel;

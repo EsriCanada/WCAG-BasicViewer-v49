@@ -11,8 +11,6 @@ import dom = require("dojo/dom");
 import domAttr = require("dojo/dom-attr");
 import domStyle = require("dojo/dom-style");
 
-import * as myUtils from "./Utils"; 
-
 import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
@@ -23,11 +21,27 @@ import UtilsViewModel = require("./UtilsViewModel");
 
 @subclass("esri.widgets.AddressManager")
   class AddressManager extends declared(Widget) {
-  
     @property()
     mapView: __esri.MapView;
 
-    private UtilsVM : UtilsViewModel = new UtilsViewModel({mapView:this.mapView});
+    @property()
+    config: any = {};
+
+    @property()
+    siteAddressPointLayer: FeatureLayer;
+
+    @property()
+    roadsLayer;
+
+    @property()
+    parcelsLayer;
+
+    @property()
+    roadFieldName: string;
+    
+    private clonePanel = null;
+
+    private UtilsVM : UtilsViewModel;
     
     private siteaddresspointLayerFields: any;
     private ignoreAttributes: any;
@@ -46,35 +60,39 @@ import UtilsViewModel = require("./UtilsViewModel");
   
     constructor() {
         super(); 
+
     }
 
-    @property()
-    clonePanel = null;
+    postInitialize() {
+        require([
+            "dojo/text!./AddressManager.json"
+        ], (config) => {
+            this.config = JSON.parse(config);
 
-    @property()
-    config: any = {};
+            const getLayer = lang.hitch(this, function(alias:string):FeatureLayer {
+                const layers = this.mapView.map.allLayers.items;
+                // console.log("layers", layers);
+                const result = layers.find((layer) => { 
+                    return layer.title == this.config.services[alias]; 
+                });
+                return result;
+            });
+            this.siteAddressPointLayer = getLayer("siteaddresspoint");
+            this.roadsLayer = getLayer("roadsegment");
+            this.parcelsLayer = getLayer("parcel");
+            this.UtilsVM = new UtilsViewModel({mapView:this.mapView, roadsLayer: this.roadsLayer});
+        });
+    }
 
-    @property()
-    siteAddressPointLayer: FeatureLayer;
-
-    @property()
-    roadsLayer;
-
-    @property()
-    parcelsLayer;
-
-    @property()
-    roadFieldName: string;
-
-
+ 
     render() {
         // console.log("mapView", this.mapView);
         return ( 
         <div afterCreate={this._addAddressManager} class="AddressManager">
             <div class="toolbar">
-                <input type="image" src="../images/icons_transp/addAddress.bggray.24.png" class="button" afterCreate={this._addAddressButton} title="Add Address Point" data-dojo-attach-event="onclick:_onDigitizeAddressClicked"></input>
+                <input type="image" src="../images/icons_transp/addAddress.bggray.24.png" class="button" afterCreate={this._addAddressButton} aria-label="Add Address Point" title="Add Address Point"></input>
                 <div class="dropdown_moreTools">
-                    <input type="image" src="../images/icons_transp/Generate.bggray.24.png" class="button" afterCreate={this._addMoreToolsButton} data-dojo-attach-event="click:_dropdownMoreToolsToggle" aria-label="Clone Addresses" title="Clone Addresses"></input>
+                    <input type="image" src="../images/icons_transp/Generate.bggray.24.png" class="button" afterCreate={this._addMoreToolsButton} aria-label="Clone Addresses" title="Clone Addresses"></input>
                     <div afterCreate={this._addClonePanel} ></div>
                 </div>
                 <input type="image" src="../images/icons_transp/parcels.bggray.24.png" class="button"  afterCreate={this._addFillParcelsButton} data-dojo-attach-event="click:_onFillParcelClicked" aria-label="Fill Parcels" title="Fill Parcels"></input>
@@ -118,6 +136,8 @@ import UtilsViewModel = require("./UtilsViewModel");
             this.parcelsLayer = getLayer("parcel");
             this.roadFieldName = "fullname";
 
+            this.UtilsVM = new UtilsViewModel({mapView:this.mapView, roadsLayer: this.roadsLayer});
+
             this.ignoreAttributes = this.config.ignoreAttributes;
             this.specialAttributes = this.config.specialAttributes;
             this.addressAttributes = this.config.addressAttributes;
@@ -133,7 +153,7 @@ import UtilsViewModel = require("./UtilsViewModel");
 
     private _addAddressButton = (element: Element) => {
         this.own(on(element, "click", this._activateButton));
-        
+        this.own(on(element, "click", lang.hitch(this, this._addSingleAddressClicked)));
     }
 
     private _addClonePanel = (element: Element) => {
@@ -178,7 +198,22 @@ import UtilsViewModel = require("./UtilsViewModel");
         }
     }
 
-    
+    private _addSingleAddressClicked(event) {
+        // https://developers.arcgis.com/javascript/3/sandbox/sandbox.html?sample=fl_featureCollection
+
+        this.UtilsVM.ADD_NEW_ADDRESS().then(feature => {
+            // // this._removeMarker(myUtils.SELECTED_ADDRESS_SYMBOL.name);
+            // // this._clearLabels();
+
+            // this.addressPointFeatures.push(feature);
+            // this.addressPointFeaturesIndex = this.addressPointFeatures.length - 1;
+            // this._populateAddressTable(this.addressPointFeaturesIndex);
+            html.removeClass(event.target, "activeBtn");
+        });
+
+    };
+
+
     private _makeAddressTableLayout():void {
         this._showNavigator(false);
 
