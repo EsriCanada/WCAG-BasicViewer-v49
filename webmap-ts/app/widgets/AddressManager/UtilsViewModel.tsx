@@ -27,7 +27,7 @@ class UtilsViewModel extends declared(Accessor) {
     @property({ readOnly: true })
     BUFFER_SYMBOL = {
         type:"simple-fill",
-        color: [255, 0, 0, 0.25],
+        color: [255, 0, 0, 0.35],
         outline: {
             color:"transparent",
             width:0,
@@ -41,7 +41,7 @@ class UtilsViewModel extends declared(Accessor) {
         color: [255, 30, 30, 0],
         style: "solid",
         outline: {
-            color: [255, 30, 30, 127],
+            color: [255, 30, 30, 0.5],
             width: 2,
             type: "simple-line",
             style: "solid"
@@ -51,10 +51,11 @@ class UtilsViewModel extends declared(Accessor) {
     @property({ readOnly: true })
     SELECTED_ADDRESS_SYMBOL = {
         type:"simple-marker",
+        style: "circle",
         color: [255, 30, 30, 0],
         size: 10,
         outline: {
-            color: [255, 30, 39, 255],
+            color: [255, 30, 39, 1],
             width: 1,
             type: "simple-line",
             style: "solid"
@@ -63,14 +64,14 @@ class UtilsViewModel extends declared(Accessor) {
 
     @property({ readOnly: true })
     NEW_ADDRESS_SYMBOL = {
+        name: "NEW_ADDRESS_SYMBOL",
         type:"simple-marker",
+        style: "circle",
         color: [255, 30, 30, 0],
-        size: 5,
+        size: 15,
         outline: {
             color: [0, 0, 0, 1],
             width: 1,
-            type: "simple-line",
-            style: "solid"
         }
     }
 
@@ -116,6 +117,7 @@ class UtilsViewModel extends declared(Accessor) {
             color: [255, 255, 255, 255],
             size: 5,
             type: "simple-marker",
+            style: "circle",
             outline: {
                 color: color,
                 width: 2,
@@ -216,9 +218,9 @@ class UtilsViewModel extends declared(Accessor) {
         sketchVM.on("create", lang.hitch(this, function(event) {
             if (event.state === "complete") {
                 // const graphic = event.graphic;
-
-                const feature = {geometry: event.geometry, symbol: this.NEW_ADDRESS_SYMBOL, attributes: { "status": 0 }, Dirty: true};
-                this.addressGraphicsLayer.graphics.add(feature);
+                const feature = {geometry: event.graphic.geometry, symbol: this.NEW_ADDRESS_SYMBOL, attributes: { "status": 0 }, Dirty: true};
+                this.addressGraphicsLayer.add(feature);
+                console.log("feature", event, feature);
 
                 // map.setInfoWindowOnClick(true);
                 // domClass.remove(event.target, "activeBtn");
