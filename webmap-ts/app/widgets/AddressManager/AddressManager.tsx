@@ -22,6 +22,7 @@ import AddressManagerViewModel = require("./AddressManagerViewModel");
 import Graphic = require("esri/Graphic");
 import Feature = require("esri/widgets/Feature");
 import Collection = require("esri/core/Collection");
+import query = require("dojo/query");
 
 @subclass("esri.widgets.AddressManager")
   class AddressManager extends declared(Widget) {
@@ -44,21 +45,21 @@ import Collection = require("esri/core/Collection");
     roadFieldName: string;
     
     @property()
-    @aliasOf("ViewModel.addressPointFeatures")
+    @aliasOf("viewModel.addressPointFeatures")
     addressPointFeatures: Collection<Feature>;
 
     @property()
-    @aliasOf("ViewModel.addressPointFeaturesIndex")
+    @aliasOf("viewModel.addressPointFeaturesIndex")
     addressPointFeaturesIndex;
 
     @property()
-    @aliasOf("ViewModel.selectedAddressPointFeature")
+    @aliasOf("viewModel.selectedAddressPointFeature")
     selectedAddressPointFeature: Feature;
 
     private clonePanel = null;
 
     private UtilsVM : UtilsViewModel;
-    private ViewModel : AddressManagerViewModel;
+    private viewModel : AddressManagerViewModel;
     
     private siteaddresspointLayerFields: any;
     private ignoreAttributes: any;
@@ -69,7 +70,11 @@ import Collection = require("esri/core/Collection");
     private inputControls: any = {};
     private statusTable: any;
     private hiddenFields: any;
-    distanceBtn: HTMLElement;
+    private distanceBtn: HTMLElement;
+    private zoomBtn: HTMLElement;
+    private addressPointNavigatorDiv: HTMLElement;
+    private addressPointIndexEl: HTMLElement;
+    private addressPointCountEl: HTMLElement;
 
     constructor() {
         super(); 
@@ -92,16 +97,19 @@ import Collection = require("esri/core/Collection");
             this.siteAddressPointLayer = getLayer("siteaddresspoint");
             this.roadsLayer = getLayer("roadsegment");
             this.parcelsLayer = getLayer("parcel");
-            this.ViewModel = new AddressManagerViewModel();
+            this.viewModel = new AddressManagerViewModel();
             this.UtilsVM = new UtilsViewModel({mapView:this.mapView, roadsLayer: this.roadsLayer});
 
             this.addressPointFeatures.watch("length", (newValue) => {
+                html.setStyle(this.zoomBtn, "display", newValue > 0 ? "": "none");
+                html.setStyle(this.addressPointNavigatorDiv, "display", newValue > 1 ? "": "none");
 
+                this.addressPointIndexEl.innerHTML = (this.addressPointFeaturesIndex+1)+"";
+                this.addressPointCountEl.innerHTML = this.addressPointFeatures.length+"";
             });
         });
     }
 
- 
     render() {
         // console.log("mapView", this.mapView);
         return ( 
@@ -112,22 +120,25 @@ import Collection = require("esri/core/Collection");
                     <input type="image" src="../images/icons_transp/Generate.bggray.24.png" class="button" afterCreate={this._addMoreToolsButton} aria-label="Clone Addresses" title="Clone Addresses"></input>
                     <div afterCreate={this._addClonePanel} ></div>
                 </div>
-                <input type="image" src="../images/icons_transp/parcels.bggray.24.png" class="button"  afterCreate={this._addFillParcelsButton} data-dojo-attach-event="click:_onFillParcelClicked" aria-label="Fill Parcels" title="Fill Parcels"></input>
+                <input type="image" src="../images/icons_transp/parcels.bggray.24.png" class="button" afterCreate={this._addFillParcelsButton} data-dojo-attach-event="click:_onFillParcelClicked" aria-label="Fill Parcels" title="Fill Parcels"></input>
 
                 <div style="float:right;">
                     {/* <img src="../images/reload.gif" alt="Loading..."/> */}
-                    <div data-dojo-attach-point="addressPointNavigator" class="addressPointNavigator">
+                    <div class="addressPointNavigator" afterCreate={this._addAddressPointNavigator} style="display:none;">
                         <input type="image" src="../images/icons_transp/arrow.left.bgwhite.24.png" class="button-right showNav" title="Previous" data-dojo-attach-event="onclick:_onPreviousClicked"/>
                         <div aria-live="polite" aria-atomic="true">
                             <div class="showNav">
-                                <div style="width:0; height:0; overflow: hidden;">Address </div><span data-dojo-attach-point="addressPointIndex">0</span><span> of </span><span data-dojo-attach-point="addressPointCount">0</span>
+                                <div style="width:0; height:0; overflow: hidden;">Address </div>
+                                <span afterCreate={this._addAddressPointIndex}>0</span>
+                                <span> of </span>
+                                <span afterCreate={this._addAddressPointCount}>0</span>
                                 <div style="width:0; height:0; overflow: hidden;">! </div>
                             </div>
                             <div data-dojo-attach-point="brokenRulesAlert" style="width:0; height:0px; overflow:hidden;"></div>
                         </div>
                         <input type="image" src="../images/icons_transp/arrow.right.bgwhite.24.png" class="button-right showNav" title="Next" data-dojo-attach-event="onclick:_onNextClicked"/>
-                        <input type="image" src="../images/icons_transp/zoom.bgwhite.24.png" class="button-right showNav" title="Zoom" data-dojo-attach-event="onclick:_onZoomClicked"/>
                     </div>
+                    <input type="image" src="../images/icons_transp/zoom.bgwhite.24.png" class="button-right showZoom" title="Zoom" style="display:none;" afterCreate={this._addZoomBtn}/>
                 </div>
             </div>
 
@@ -182,8 +193,6 @@ import Collection = require("esri/core/Collection");
      
     }
 
-    private 
-
     private _addAddressButton = (element: Element) => {
         this.own(on(element, "click", this._activateButton));
         this.own(on(element, "click", lang.hitch(this, this._addSingleAddressClicked)));
@@ -237,15 +246,29 @@ import Collection = require("esri/core/Collection");
         this.UtilsVM.ADD_NEW_ADDRESS().then(feature => {
             // // this._removeMarker(myUtils.SELECTED_ADDRESS_SYMBOL.name);
             // // this._clearLabels();
-
             this.addressPointFeatures.push(feature as Feature);
-            // this.addressPointFeaturesIndex = this.addressPointFeatures.length - 1;
+            this.addressPointFeaturesIndex = this.addressPointFeatures.length - 1;
             // this._populateAddressTable(this.addressPointFeaturesIndex);
             html.removeClass(event.target, "activeBtn");
         });
 
     };
 
+    private _addZoomBtn = (element: Element) => {
+        this.zoomBtn = element as HTMLElement;
+    };
+
+    private _addAddressPointNavigator = (element: Element) => {
+        this.addressPointNavigatorDiv = element as HTMLElement;
+    };
+
+    private _addAddressPointIndex = (element: Element) => {
+        this.addressPointIndexEl = element as HTMLElement;
+    };
+
+    private _addAddressPointCount = (element: Element) => {
+        this.addressPointCountEl = element as HTMLElement;
+    };
 
     private _makeAddressTableLayout():void {
         this._showNavigator(false);

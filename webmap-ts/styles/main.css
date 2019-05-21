@@ -1379,9 +1379,8 @@ blockquote[lang] {
 }
 
 .AddressManager .toolbar .button-right {
-    width: 26px;
+    width: 24px;
     background: black;
-    margin-left: 4px;
 }
 
 .AddressManager .toolbar .dropdown_moreTools {
@@ -1484,6 +1483,6 @@ AddressManager th,
 
 .AddressManager .toolbar .addressPointNavigator {
     display: -webkit-inline-box;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
 }

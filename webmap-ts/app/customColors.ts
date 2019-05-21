@@ -237,16 +237,22 @@ export function CustomColors(config: ApplicationConfig) : void {
   color: ${WhiteOrBlack(hoverColor)};
 }
 
-.AddressManager .toolbar .button {
-  background: ${bgColor};
+.AddressManager .toolbar .button,
+.AddressManager .toolbar .button-right {
+    background: ${bgColor};
 }
 
-.AddressManager .toolbar .button:hover {
+.AddressManager .toolbar .button:hover,
+.AddressManager .toolbar .button-right:hover {
   background: black;
 }
 
 .AddressManager .toolbar .button.active {
   background: red;
+}
+
+.AddressManager .toolbar .showNav {
+  color: ${bgColor};
 }
 
 .pageBtn:hover {
