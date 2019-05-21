@@ -75,6 +75,8 @@ import query = require("dojo/query");
     private addressPointNavigatorDiv: HTMLElement;
     private addressPointIndexEl: HTMLElement;
     private addressPointCountEl: HTMLElement;
+    previousBtn: HTMLElement;
+    nextBtn: HTMLElement;
 
     constructor() {
         super(); 
@@ -104,7 +106,6 @@ import query = require("dojo/query");
                 html.setStyle(this.zoomBtn, "display", newValue > 0 ? "": "none");
                 html.setStyle(this.addressPointNavigatorDiv, "display", newValue > 1 ? "": "none");
 
-                this.addressPointIndexEl.innerHTML = (this.addressPointFeaturesIndex+1)+"";
                 this.addressPointCountEl.innerHTML = this.addressPointFeatures.length+"";
             });
         });
@@ -125,7 +126,7 @@ import query = require("dojo/query");
                 <div style="float:right;">
                     {/* <img src="../images/reload.gif" alt="Loading..."/> */}
                     <div class="addressPointNavigator" afterCreate={this._addAddressPointNavigator} style="display:none;">
-                        <input type="image" src="../images/icons_transp/arrow.left.bgwhite.24.png" class="button-right showNav" title="Previous" data-dojo-attach-event="onclick:_onPreviousClicked"/>
+                        <input type="image" src="../images/icons_transp/arrow.left.bgwhite.24.png" class="button-right showNav" title="Previous" afterCreate={this._addPreviousBtn}/>
                         <div aria-live="polite" aria-atomic="true">
                             <div class="showNav">
                                 <div style="width:0; height:0; overflow: hidden;">Address </div>
@@ -136,7 +137,7 @@ import query = require("dojo/query");
                             </div>
                             <div data-dojo-attach-point="brokenRulesAlert" style="width:0; height:0px; overflow:hidden;"></div>
                         </div>
-                        <input type="image" src="../images/icons_transp/arrow.right.bgwhite.24.png" class="button-right showNav" title="Next" data-dojo-attach-event="onclick:_onNextClicked"/>
+                        <input type="image" src="../images/icons_transp/arrow.right.bgwhite.24.png" class="button-right showNav" title="Next" afterCreate={this._addNextBtn}/>
                     </div>
                     <input type="image" src="../images/icons_transp/zoom.bgwhite.24.png" class="button-right showZoom" title="Zoom" style="display:none;" afterCreate={this._addZoomBtn}/>
                 </div>
@@ -247,11 +248,31 @@ import query = require("dojo/query");
             // // this._removeMarker(myUtils.SELECTED_ADDRESS_SYMBOL.name);
             // // this._clearLabels();
             this.addressPointFeatures.push(feature as Feature);
-            this.addressPointFeaturesIndex = this.addressPointFeatures.length - 1;
-            // this._populateAddressTable(this.addressPointFeaturesIndex);
+
+            this._populateAddressTable(this.addressPointFeatures.length - 1);
+
             html.removeClass(event.target, "activeBtn");
         });
 
+    };
+
+    private _addPreviousBtn = (element: Element) => {
+        this.previousBtn = element as HTMLElement;
+
+        this.own(on(this.previousBtn, "click", (event) => {
+            const index = (this.addressPointFeatures.length + this.addressPointFeaturesIndex - 1) % this.addressPointFeatures.length;
+            this._populateAddressTable(index);
+        }));
+
+    };
+
+    private _addNextBtn = (element: Element) => {
+        this.nextBtn = element as HTMLElement;
+
+        this.own(on(this.nextBtn, "click", (event) => {
+            const index = (this.addressPointFeaturesIndex + 1) % this.addressPointFeatures.length;
+            this._populateAddressTable(index);
+        }));
     };
 
     private _addZoomBtn = (element: Element) => {
@@ -296,6 +317,12 @@ import query = require("dojo/query");
 
         return addressFields;
     }
+
+    private _populateAddressTable(addressPointFeaturesIndex: any) {
+        this.addressPointFeaturesIndex = addressPointFeaturesIndex;
+        this.addressPointIndexEl.innerHTML = (this.addressPointFeaturesIndex + 1) + "";
+    }
+
     
     private getAddressFields() {
         console.log("ignoreAttributes", this.ignoreAttributes);

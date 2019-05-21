@@ -39,9 +39,9 @@ class AddressManagerViewModel extends declared(Accessor) {
 
     constructor() {
         super();
-        this.addressPointFeatures.watch("length", (newValue) => {
-            this.addressPointFeaturesIndex = this.addressPointFeatures.length > 0 ? 0 : -1; 
-        })
+        // this.addressPointFeatures.watch("length", (newValue) => {
+        //     // this.addressPointFeaturesIndex = this.addressPointFeatures.length > 0 ? 0 : -1; 
+        // })
     }
 
 }
