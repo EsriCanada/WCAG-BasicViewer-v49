@@ -1378,6 +1378,12 @@ blockquote[lang] {
     margin-left: 4px;
 }
 
+.AddressManager .toolbar .button-right {
+    width: 26px;
+    background: black;
+    margin-left: 4px;
+}
+
 .AddressManager .toolbar .dropdown_moreTools {
     position: relative;
     display: inline-block;
@@ -1474,4 +1480,10 @@ AddressManager th,
 
 .AddressManager table input[type="text"] {
     background: transparent;
+}
+
+.AddressManager .toolbar .addressPointNavigator {
+    display: -webkit-inline-box;
+    font-size: 20px;
+    font-weight: bold;
 }

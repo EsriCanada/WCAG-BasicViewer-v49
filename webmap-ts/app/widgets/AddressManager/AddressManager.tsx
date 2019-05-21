@@ -73,11 +73,6 @@ import Collection = require("esri/core/Collection");
 
     constructor() {
         super(); 
-        this.addressPointFeatures.watch("length", (newValue)=> {
-            if(newValue > 0) {
-                this.addressPointFeaturesIndex = (newValue > 0) ? 0 : -1;
-            }
-        })
     }
 
     postInitialize() {
@@ -99,6 +94,10 @@ import Collection = require("esri/core/Collection");
             this.parcelsLayer = getLayer("parcel");
             this.ViewModel = new AddressManagerViewModel();
             this.UtilsVM = new UtilsViewModel({mapView:this.mapView, roadsLayer: this.roadsLayer});
+
+            this.addressPointFeatures.watch("length", (newValue) => {
+
+            });
         });
     }
 
@@ -114,6 +113,22 @@ import Collection = require("esri/core/Collection");
                     <div afterCreate={this._addClonePanel} ></div>
                 </div>
                 <input type="image" src="../images/icons_transp/parcels.bggray.24.png" class="button"  afterCreate={this._addFillParcelsButton} data-dojo-attach-event="click:_onFillParcelClicked" aria-label="Fill Parcels" title="Fill Parcels"></input>
+
+                <div style="float:right;">
+                    {/* <img src="../images/reload.gif" alt="Loading..."/> */}
+                    <div data-dojo-attach-point="addressPointNavigator" class="addressPointNavigator">
+                        <input type="image" src="../images/icons_transp/arrow.left.bgwhite.24.png" class="button-right showNav" title="Previous" data-dojo-attach-event="onclick:_onPreviousClicked"/>
+                        <div aria-live="polite" aria-atomic="true">
+                            <div class="showNav">
+                                <div style="width:0; height:0; overflow: hidden;">Address </div><span data-dojo-attach-point="addressPointIndex">0</span><span> of </span><span data-dojo-attach-point="addressPointCount">0</span>
+                                <div style="width:0; height:0; overflow: hidden;">! </div>
+                            </div>
+                            <div data-dojo-attach-point="brokenRulesAlert" style="width:0; height:0px; overflow:hidden;"></div>
+                        </div>
+                        <input type="image" src="../images/icons_transp/arrow.right.bgwhite.24.png" class="button-right showNav" title="Next" data-dojo-attach-event="onclick:_onNextClicked"/>
+                        <input type="image" src="../images/icons_transp/zoom.bgwhite.24.png" class="button-right showNav" title="Zoom" data-dojo-attach-event="onclick:_onZoomClicked"/>
+                    </div>
+                </div>
             </div>
 
             <div data-dojo-attach-point="hiddenFields" style="display:none;"></div>
@@ -223,7 +238,7 @@ import Collection = require("esri/core/Collection");
             // // this._removeMarker(myUtils.SELECTED_ADDRESS_SYMBOL.name);
             // // this._clearLabels();
 
-            // this.addressPointFeatures.push(feature);
+            this.addressPointFeatures.push(feature as Feature);
             // this.addressPointFeaturesIndex = this.addressPointFeatures.length - 1;
             // this._populateAddressTable(this.addressPointFeaturesIndex);
             html.removeClass(event.target, "activeBtn");
