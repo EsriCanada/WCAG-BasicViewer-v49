@@ -51,6 +51,7 @@ class UtilsViewModel extends declared(Accessor) {
 
     @property({ readOnly: true })
     SELECTED_ADDRESS_SYMBOL = {
+        name: "SELECTED_ADDRESS_SYMBOL",
         type:"simple-marker",
         style: "circle",
         color: [255, 30, 30, 0],
@@ -224,14 +225,23 @@ class UtilsViewModel extends declared(Accessor) {
                 feature.Dirty = true;
                 // console.log("feature", event, feature);
 
-                // map.setInfoWindowOnClick(true);
-                html.removeClass(html.byId("addAddressPointBtn"), "active");
                 deferred.resolve(feature);
             }
         }));
 
         return deferred.promise;
     }
+
+    _removeMarker = function(markerName:string) {
+        for (let i = 0; i < this.mapView.graphics.length; i++) {
+            const gr = this.mapView.graphics.toArray()[i];
+            if (gr.symbol && gr.symbol.name == markerName) {
+                this.mapView.graphics.remove(gr);
+                break;
+            }
+        };
+    }
+
 }
 
 export = UtilsViewModel;

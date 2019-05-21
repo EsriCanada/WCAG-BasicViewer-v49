@@ -245,13 +245,13 @@ import query = require("dojo/query");
         // https://developers.arcgis.com/javascript/3/sandbox/sandbox.html?sample=fl_featureCollection
 
         this.UtilsVM.ADD_NEW_ADDRESS().then(feature => {
-            // // this._removeMarker(myUtils.SELECTED_ADDRESS_SYMBOL.name);
             // // this._clearLabels();
             this.addressPointFeatures.push(feature as Feature);
 
             this._populateAddressTable(this.addressPointFeatures.length - 1);
 
-            html.removeClass(event.target, "activeBtn");
+            // map.setInfoWindowOnClick(true);
+            html.removeClass(event.target, "active");
         });
 
     };
@@ -318,9 +318,15 @@ import query = require("dojo/query");
         return addressFields;
     }
 
-    private _populateAddressTable(addressPointFeaturesIndex: any) {
-        this.addressPointFeaturesIndex = addressPointFeaturesIndex;
+    private _populateAddressTable(index: any) {
+        this.UtilsVM._removeMarker(this.UtilsVM.SELECTED_ADDRESS_SYMBOL.name);
+
+        this.addressPointFeaturesIndex = index;
         this.addressPointIndexEl.innerHTML = (this.addressPointFeaturesIndex + 1) + "";
+
+        const feature = this.selectedAddressPointFeature = this.addressPointFeatures.toArray()[index];
+        const graphic = new Graphic({geometry: (feature as any).geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
+        this.mapView.graphics.add(graphic as any);
     }
 
     
