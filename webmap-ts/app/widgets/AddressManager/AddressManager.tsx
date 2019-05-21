@@ -1,7 +1,7 @@
 /// <amd-dependency path="esri/core/tsSupport/declareExtendsHelper" name="__extends" />
 /// <amd-dependency path="esri/core/tsSupport/decorateHelper" name="__decorate" />
 
-import {subclass, declared, property} from "esri/core/accessorSupport/decorators";
+import {subclass, declared, property, aliasOf} from "esri/core/accessorSupport/decorators";
 import Widget = require("esri/widgets/Widget");
 import lang = require("dojo/_base/lang");
 import on = require("dojo/on");
@@ -18,6 +18,10 @@ import FeatureLayer = require("esri/layers/FeatureLayer");
 import html = require("dojo/_base/html");
 import Field = require("esri/layers/support/Field");
 import UtilsViewModel = require("./UtilsViewModel");
+import AddressManagerViewModel = require("./AddressManagerViewModel");
+import Graphic = require("esri/Graphic");
+import Feature = require("esri/widgets/Feature");
+import Collection = require("esri/core/Collection");
 
 @subclass("esri.widgets.AddressManager")
   class AddressManager extends declared(Widget) {
@@ -39,9 +43,22 @@ import UtilsViewModel = require("./UtilsViewModel");
     @property()
     roadFieldName: string;
     
+    @property()
+    @aliasOf("ViewModel.addressPointFeatures")
+    addressPointFeatures: Collection<Feature>;
+
+    @property()
+    @aliasOf("ViewModel.addressPointFeaturesIndex")
+    addressPointFeaturesIndex;
+
+    @property()
+    @aliasOf("ViewModel.selectedAddressPointFeature")
+    selectedAddressPointFeature: Feature;
+
     private clonePanel = null;
 
     private UtilsVM : UtilsViewModel;
+    private ViewModel : AddressManagerViewModel;
     
     private siteaddresspointLayerFields: any;
     private ignoreAttributes: any;
@@ -54,13 +71,13 @@ import UtilsViewModel = require("./UtilsViewModel");
     private hiddenFields: any;
     distanceBtn: HTMLElement;
 
-    // @property()
-    // @renderable()
-    // scaleFactor: number = 2;
-  
     constructor() {
         super(); 
-
+        this.addressPointFeatures.watch("length", (newValue)=> {
+            if(newValue > 0) {
+                this.addressPointFeaturesIndex = (newValue > 0) ? 0 : -1;
+            }
+        })
     }
 
     postInitialize() {
@@ -80,6 +97,7 @@ import UtilsViewModel = require("./UtilsViewModel");
             this.siteAddressPointLayer = getLayer("siteaddresspoint");
             this.roadsLayer = getLayer("roadsegment");
             this.parcelsLayer = getLayer("parcel");
+            this.ViewModel = new AddressManagerViewModel();
             this.UtilsVM = new UtilsViewModel({mapView:this.mapView, roadsLayer: this.roadsLayer});
         });
     }

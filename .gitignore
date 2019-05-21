@@ -111,3 +111,5 @@ webmap-ts/app/widgets/AddressManager/ClonePanel\.js
 webmap-ts/app/widgets/AddressManager/Utils\.js
 
 webmap-ts/app/widgets/AddressManager/UtilsViewModel\.js
+
+webmap-ts/app/widgets/AddressManager/AddressManagerViewModel\.js
