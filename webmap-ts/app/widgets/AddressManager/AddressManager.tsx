@@ -362,7 +362,16 @@ import query = require("dojo/query");
     }
 
     private _makeStatusTableLayout() {
-        return [];
+        let statusFields = [];
+        this.statusAttributes.forEach(attribute => {
+            const field = this.siteaddresspointLayerFields.find(field => field.name == attribute);
+            if (field) {
+                statusFields.push(field);
+                this._addTableRow(field, this.statusTable);
+            }
+        });
+
+        return statusFields;
     }
 
     private _populateAddressTable(index: any) {
@@ -413,15 +422,13 @@ import query = require("dojo/query");
         }
 
         const row = html.create("tr", {}, table);
-        const head = html.create("th", { style: "vertical-align: top;" }, row);
-        const labelContainer = html.create("div", {
-            style: "display: inline-block; width: 100%;"
-        }, head);
+        const head = html.create("th", {}, row);
+        const labelContainer = html.create("div", {}, head);
         const label = html.create("label", {
             for: field.name + "_input",
             innerHTML: field.alias + ":"
         }, labelContainer);
-        const labelBtns = html.create("div", { style: "vertical-align: top;  float:right;" }, labelContainer);
+        const labelBtns = html.create("div", {}, labelContainer);
 
         if (this.specialAttributes.hasOwnProperty(field.name)) {
             const attributes = this.specialAttributes[field.name];
@@ -530,7 +537,7 @@ import query = require("dojo/query");
             html.addClass(cell, "doubleCell");
             html.setStyle(labelContainer, "width", "calc(100% - 14px)");
         } else {
-            cell = html.create("td", { style: "vertical-align: top;" }, row);
+            cell = html.create("td", {}, row);
         }
         const cellContainer = html.create("div", {
             class: "AddressManager_Tables_dataCell-container"
@@ -630,23 +637,25 @@ import query = require("dojo/query");
             }
         }
 
-        switch (field.type) {
-            case "esriFieldTypeString":
-                if (field.hasOwnProperty("domain")) {
-                    if (field.domain.type == "codedValue") {
-                        input = html.create("select", {});
-                        html.create("option", {
-                            value: "",
-                            innerHTML: ""
-                        }, input);
-                        field.domain.codedValues.forEach(codeValue => {
-                            html.create("option", {
-                                value: codeValue.code,
-                                innerHTML: codeValue.name
-                            }, input);
-                        })
-                    }
-                } else {
+        console.log("field", field.name, field.type, field.domain);
+        if (("domain" in field) && field.domain) {
+            console.log()
+            if (field.domain.type == "coded-value") {
+                input = html.create("select", {});
+                html.create("option", {
+                    value: "",
+                    innerHTML: ""
+                }, input);
+                field.domain.codedValues.forEach(codeValue => {
+                    html.create("option", {
+                        value: codeValue.code,
+                        innerHTML: codeValue.name
+                    }, input);
+                })
+            }
+        } else {
+            switch (field.type) {
+                case "string":
                     if (!attributes.hasOwnProperty("multiline")) {
                         input = html.create("input", {
                             type: "text",
@@ -657,47 +666,31 @@ import query = require("dojo/query");
                             rows: attributes["multiline"]
                         });
                     }
-                }
-                break;
-            case "esriFieldTypeDate":
-                input = html.create("input", {
-                    type: "date"
-                });
-                break;
-            case "esriFieldTypeDouble":
-                input = html.create("input", {
-                    type: "number"
-                });
-                break;
-            case "esriFieldTypeInteger":
-            case "esriFieldTypeSmallInteger":
-                if (field.hasOwnProperty("domain")) {
-                    if (field.domain.type == "codedValue") {
-                        input = html.create("select", {});
-                        html.create("option", {
-                            value: "",
-                            innerHTML: ""
-                        }, input);
-                        field.domain.codedValues.forEach(codeValue => {
-                            html.create("option", {
-                                value: codeValue.code,
-                                innerHTML: codeValue.name
-                            }, input);
-                        })
-                    }
-                } else {
+                    break;
+                case "date":
+                    input = html.create("input", {
+                        type: "date"
+                    });
+                    break;
+                case "double":
                     input = html.create("input", {
                         type: "number"
                     });
-                }
-                break;
-            default:
-                input = html.create("input", {
-                    type: "text",
-                    autocomplete: "off"
-                });
-                break;
-        };
+                    break;
+                case "integer":
+                case "small-integer":
+                    input = html.create("input", {
+                        type: "number"
+                    });
+                    break;
+                default:
+                    input = html.create("input", {
+                        type: "text",
+                        autocomplete: "off"
+                    });
+                    break;
+            };
+        }
         input.id = field.name + "_input";
         input["data-fieldName"] = field.name;
         setSpecialAttributes(input);

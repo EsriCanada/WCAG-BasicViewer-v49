@@ -283,7 +283,11 @@ export function CustomColors(config: ApplicationConfig) : void {
 
 .AddressManager table {
   border: 1px solid ${bgColor};
+}
 
+.AddressManager table textarea[readonly] {
+  background: ${Transparent(bgColor, "0f")};
+}
 `;
   }
 
