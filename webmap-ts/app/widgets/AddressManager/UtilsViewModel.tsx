@@ -235,7 +235,7 @@ class UtilsViewModel extends declared(Accessor) {
     _removeMarker = function(markerName:string) {
         for (let i = 0; i < this.mapView.graphics.length; i++) {
             const gr = this.mapView.graphics.toArray()[i];
-            if (gr.symbol && gr.symbol.name == markerName) {
+            if (gr.symbol && ("name" in gr.symbol) && gr.symbol.name == markerName) {
                 this.mapView.graphics.remove(gr);
                 break;
             }
