@@ -264,6 +264,26 @@ export function CustomColors(config: ApplicationConfig) : void {
   background-color: ${Transparent(bgColor, "1f")};
 }
 
+.AddressManager .toolbar,
+.AddressManager .footer {
+  background: ${Transparent(bgColor, "1f")};
+}
+
+.AddressManager .toolbar {
+  border-bottom: 1px solid #004da8;
+}
+
+.AddressManager .footer {
+  border-top: 1px solid #004da8;
+}
+
+.AddressManager table caption {
+  color: ${bgColor};
+}
+
+.AddressManager table {
+  border: 1px solid ${bgColor};
+
 `;
   }
 

@@ -1386,7 +1386,7 @@ blockquote[lang] {
 .AddressManager .toolbar .dropdown_moreTools {
     position: relative;
     display: inline-block;
-    background-color: white;
+    /* background-color: white; */
 }
 
 .AddressManager .ClonePanel {
@@ -1482,7 +1482,72 @@ AddressManager th,
 }
 
 .AddressManager .toolbar .addressPointNavigator {
-    display: -webkit-inline-box;
+    display: inline-flex;
     font-size: 18px;
     font-weight: bold;
+}
+
+.AddressManager .container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.AddressManager .tables {
+    overflow-y: auto;
+    flex-grow: 1;
+    padding: 12px;
+}
+
+.AddressManager .footer {
+    flex-grow: 0;
+    /* margin-top: 8px; */
+    padding: 12px;
+    background: white;
+    border-top: 1px solid #999999;
+}
+
+.AddressManager .footer input[type="button"] {
+    background: transparent;
+    color: gray;
+    padding: 4px 12px;
+    margin-right: 4px;
+    font-weight: bold;
+    font-size: 14px;
+    font-family: 'Avenir Light', Verdana, Geneva, sans-serif;
+    border: none;
+    border-radius: 2px;
+}
+
+.AddressManager .blueBtn {
+    background: navy !important;
+    color: #ffffffe0 !important;
+}
+
+.AddressManager .greenBtn {
+    background: seagreen !important;
+    color: #ffffffe0 !important;
+}
+
+.AddressManager .orangeBtn {
+    background: orange !important;
+    Color: black !important;
+}
+
+.AddressManager .blankBtn {
+    background: transparent !important;
+    Color: black !important;
+}
+
+.AddressManager .verifyBtn {
+    width: 26px;
+    background: black;
+    border-radius: 5px;
+}
+
+.AddressManager .toolbar .rightTools {
+    float: right;
+    background: white;
+    padding: 2px 2px 0px 2px;
+    border-radius: 5px;
 }

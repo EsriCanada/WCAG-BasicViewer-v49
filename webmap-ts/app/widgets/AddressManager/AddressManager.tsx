@@ -115,44 +115,56 @@ import query = require("dojo/query");
         // console.log("mapView", this.mapView);
         return ( 
         <div afterCreate={this._addAddressManager} class="AddressManager">
-            <div class="toolbar">
-                <input id="addAddressPointBtn" type="image" src="../images/icons_transp/addAddress.bggray.24.png" class="button" afterCreate={this._addAddressButton} aria-label="Add Address Point" title="Add Address Point"></input>
-                <div class="dropdown_moreTools">
-                    <input type="image" src="../images/icons_transp/Generate.bggray.24.png" class="button" afterCreate={this._addMoreToolsButton} aria-label="Clone Addresses" title="Clone Addresses"></input>
-                    <div afterCreate={this._addClonePanel} ></div>
-                </div>
-                <input type="image" src="../images/icons_transp/parcels.bggray.24.png" class="button" afterCreate={this._addFillParcelsButton} data-dojo-attach-event="click:_onFillParcelClicked" aria-label="Fill Parcels" title="Fill Parcels"></input>
+            <div class="container" data-dojo-attach-point="AddressManagerContainer">
 
-                <div style="float:right;">
-                    {/* <img src="../images/reload.gif" alt="Loading..."/> */}
-                    <div class="addressPointNavigator" afterCreate={this._addAddressPointNavigator} style="display:none;">
-                        <input type="image" src="../images/icons_transp/arrow.left.bgwhite.24.png" class="button-right showNav" title="Previous" afterCreate={this._addPreviousBtn}/>
-                        <div aria-live="polite" aria-atomic="true">
-                            <div class="showNav">
-                                <div style="width:0; height:0; overflow: hidden;">Address </div>
-                                <span afterCreate={this._addAddressPointIndex}>0</span>
-                                <span> of </span>
-                                <span afterCreate={this._addAddressPointCount}>0</span>
-                                <div style="width:0; height:0; overflow: hidden;">! </div>
-                            </div>
-                            <div data-dojo-attach-point="brokenRulesAlert" style="width:0; height:0px; overflow:hidden;"></div>
-                        </div>
-                        <input type="image" src="../images/icons_transp/arrow.right.bgwhite.24.png" class="button-right showNav" title="Next" afterCreate={this._addNextBtn}/>
+                <div class="toolbar">
+                    <input id="addAddressPointBtn" type="image" src="../images/icons_transp/addAddress.bggray.24.png" class="button" afterCreate={this._addAddressButton} aria-label="Add Address Point" title="Add Address Point"></input>
+                    <div class="dropdown_moreTools">
+                        <input type="image" src="../images/icons_transp/Generate.bggray.24.png" class="button" afterCreate={this._addMoreToolsButton} aria-label="Clone Addresses" title="Clone Addresses"></input>
+                        <div afterCreate={this._addClonePanel} ></div>
                     </div>
-                    <input type="image" src="../images/icons_transp/zoom.bgwhite.24.png" class="button-right showZoom" title="Zoom" style="display:none;" afterCreate={this._addZoomBtn}/>
+                    <input type="image" src="../images/icons_transp/parcels.bggray.24.png" class="button" afterCreate={this._addFillParcelsButton} data-dojo-attach-event="click:_onFillParcelClicked" aria-label="Fill Parcels" title="Fill Parcels"></input>
+
+                    <div class="rightTools">
+                        {/* <img src="../images/reload.gif" alt="Loading..."/> */}
+                        <div class="addressPointNavigator" afterCreate={this._addAddressPointNavigator} style="display:none;">
+                            <input type="image" src="../images/icons_transp/arrow.left.bgwhite.24.png" class="button-right showNav" title="Previous" afterCreate={this._addPreviousBtn}/>
+                            <div aria-live="polite" aria-atomic="true">
+                                <div class="showNav">
+                                    <div style="width:0; height:0; overflow: hidden;">Address </div>
+                                    <span afterCreate={this._addAddressPointIndex}>0</span>
+                                    <span> of </span>
+                                    <span afterCreate={this._addAddressPointCount}>0</span>
+                                    <div style="width:0; height:0; overflow: hidden;">! </div>
+                                </div>
+                                <div data-dojo-attach-point="brokenRulesAlert" style="width:0; height:0px; overflow:hidden;"></div>
+                            </div>
+                            <input type="image" src="../images/icons_transp/arrow.right.bgwhite.24.png" class="button-right showNav" title="Next" afterCreate={this._addNextBtn}/>
+                        </div>
+                        <input type="image" src="../images/icons_transp/zoom.bgwhite.24.png" class="button-right showZoom" title="Zoom" style="display:none;" afterCreate={this._addZoomBtn}/>
+                    </div>
                 </div>
-            </div>
 
-            <div data-dojo-attach-point="hiddenFields" style="display:none;"></div>
+                <div data-dojo-attach-point="hiddenFields" style="display:none;"></div>
 
-            <table id="addressTable" afterCreate={this._addAddressTable}>
-                <caption>Address Fields</caption>
-            </table>
-            <table id="statusTable" afterCreate={this._addStatusTable}>
-                <caption>Status</caption>
-            </table>
- 
+                <div class="tables" data-dojo-attach-point="AddressManager_Tables">
+                    <table id="addressTable" afterCreate={this._addAddressTable}>
+                        <caption>Address Fields</caption>
+                    </table>
+                    <table id="statusTable" afterCreate={this._addStatusTable}>
+                        <caption>Status</caption>
+                    </table>
+                </div>
+    
+                <div class="footer">
+                    <input type="button" id="sumbitAddressForm" data-dojo-attach-point="submitAddressForm" data-dojo-attach-event="onclick:_onSubmitAddressClicked" value="Save"/>
+                    <input type="button" id="sumbitAddressAll" data-dojo-attach-point="submitAddressAll" data-dojo-attach-event="onclick:_onSubmitSaveAllClicked" value="Save All"/>
+                    <input type="image" src="../images/icons_transp/verify.bgwhite.24.png" data-dojo-attach-point="verifyRules" class="verifyBtn" data-dojo-attach-event="onclick:_checkRules" title="Verify Address Point Record" style="vertical-align: bottom;" />
+                    <input type="button" id="Cancel" class="rightBtn" data-dojo-attach-point="submitCancel" data-dojo-attach-event="onclick:_onCancelClicked" value="Cancel"/>
+                    <input type="button" id="Delete" class="orangeBtn rightBtn" data-dojo-attach-point="submitDdelete" data-dojo-attach-event="onclick:_onDeleteClicked" value="Delete"/>
+                </div>
 
+            </div>        
         </div>
         );
     }
