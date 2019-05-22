@@ -67,7 +67,8 @@
         "unitnumber",
         "unitnumsuffix",
         "pointtype",
-        "parcelid"
+        "parcelid",
+        "full_add"
     ],
     "statusAttributes": [
         "status",

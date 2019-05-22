@@ -1479,6 +1479,7 @@ AddressManager th,
 
 .AddressManager table input[type="text"] {
     background: transparent;
+    width: calc(100% - 14px);
 }
 
 .AddressManager .toolbar .addressPointNavigator {
@@ -1551,3 +1552,17 @@ AddressManager th,
     padding: 2px 2px 0px 2px;
     border-radius: 5px;
 }
+
+.AddressManager .addressTitle {
+    font-weight: bold;
+    margin-top: 0;
+    margin-bottom: 8px;
+    background-color: black;
+    color: white;
+    padding: 2px;
+    min-height: 21px;
+    font-size: large;
+    padding: 2px 12px 4px 12px;
+}
+
+

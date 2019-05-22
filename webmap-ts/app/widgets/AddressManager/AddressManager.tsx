@@ -75,8 +75,9 @@ import query = require("dojo/query");
     private addressPointNavigatorDiv: HTMLElement;
     private addressPointIndexEl: HTMLElement;
     private addressPointCountEl: HTMLElement;
-    previousBtn: HTMLElement;
-    nextBtn: HTMLElement;
+    private previousBtn: HTMLElement;
+    private nextBtn: HTMLElement;
+    private addressCopyAttributeNames: any[];
 
     constructor() {
         super(); 
@@ -145,9 +146,11 @@ import query = require("dojo/query");
                     </div>
                 </div>
 
-                <div data-dojo-attach-point="hiddenFields" style="display:none;"></div>
+                <div afterCreate={this._addHiddenFields} style="display:none;"></div>
 
+                <h1 class="addressTitle">[Full Address]</h1>
                 <div class="tables" data-dojo-attach-point="AddressManager_Tables">
+
                     <table id="addressTable" afterCreate={this._addAddressTable}>
                         <caption>Address Fields</caption>
                     </table>
@@ -195,12 +198,35 @@ import query = require("dojo/query");
 
             this.UtilsVM = new UtilsViewModel({mapView:this.mapView, roadsLayer: this.roadsLayer});
 
+            // console.log("this.config", this.config);
             this.ignoreAttributes = this.config.ignoreAttributes;
             this.specialAttributes = this.config.specialAttributes;
             this.addressAttributes = this.config.addressAttributes;
             this.statusAttributes = this.config.statusAttributes;
 
-            this._makeAddressTableLayout();
+            let addressFilterAttributes = [...this._makeAddressTableLayout(), ...this._makeStatusTableLayout()];
+            // console.log("addressFilterAttributes", addressFilterAttributes);
+
+            this.addressCopyAttributeNames = [...addressFilterAttributes.filter(f => {
+                if (this.specialAttributes.hasOwnProperty(f.name)) {
+                    const attributes = this.specialAttributes[f.name];
+                    return attributes.hasOwnProperty("menu") && (!attributes["menu"].hasOwnProperty("copy") || attributes["menu"]["copy"])
+                }
+            }).map(f => f.name)];
+            addressFilterAttributes = addressFilterAttributes.filter(f => {
+                let hidden = false;
+                if (this.specialAttributes.hasOwnProperty(f.name)) {
+                    const attributes = this.specialAttributes[f.name];
+                    hidden = attributes.hasOwnProperty("hidden");
+                    if (!hidden) {
+                        hidden = attributes.hasOwnProperty("menu") && (attributes["menu"].hasOwnProperty("filter") && attributes["menu"]["filter"])
+                    }
+                }
+                return !hidden && !this.ignoreAttributes.includes(f.name) && !this.ignoreAttributes.includes(f.alias);
+            });
+            console.log("inputControls", this.inputControls);
+
+            // this._makeAddressTableLayout();
 
         });
      
@@ -235,6 +261,10 @@ import query = require("dojo/query");
 
     private _addAddressTable = (element: Element) => {
         this.addressTable = element as HTMLElement;
+    }
+
+    private _addHiddenFields = (element: Element) => {
+        this.hiddenFields = element as HTMLElement;
     }
 
     private _addStatusTable = (element: Element) => {
@@ -303,7 +333,7 @@ import query = require("dojo/query");
         this.addressPointCountEl = element as HTMLElement;
     };
 
-    private _makeAddressTableLayout():void {
+    private _makeAddressTableLayout() {
         this._showNavigator(false);
 
         this.getAddressFields();
@@ -320,6 +350,7 @@ import query = require("dojo/query");
         });
 
         fieldNames.forEach(fieldName => {
+            debugger;
             const attribute = this.siteaddresspointLayerFields.find(field => field.name == fieldName);
             const field = this.siteaddresspointLayerFields.find(field => field.name == attribute.name);
             if (field) {
@@ -328,6 +359,10 @@ import query = require("dojo/query");
         });
 
         return addressFields;
+    }
+
+    private _makeStatusTableLayout() {
+        return [];
     }
 
     private _populateAddressTable(index: any) {
@@ -343,9 +378,9 @@ import query = require("dojo/query");
 
     
     private getAddressFields() {
-        console.log("ignoreAttributes", this.ignoreAttributes);
+        // console.log("ignoreAttributes", this.ignoreAttributes);
         const siteaddresspointLayerFields = this.siteAddressPointLayer.fields;
-        console.log("siteaddresspoint", this.siteAddressPointLayer, this.siteAddressPointLayer.title, siteaddresspointLayerFields);
+        // console.log("siteaddresspoint", this.siteAddressPointLayer, this.siteAddressPointLayer.title, siteaddresspointLayerFields);
         return this.siteaddresspointLayerFields = siteaddresspointLayerFields;
     }
 
@@ -393,7 +428,7 @@ import query = require("dojo/query");
             if (attributes.hasOwnProperty("clipboard")) {
                 const clipboardBtn = html.create("input", {
                         type: "image",
-                        src: "./widgets/AddressManager/images/clipboard.bgwhite.24.png",
+                        src: "../images/icons_transp/clipboard.bgwhite.24.png", 
                         class: "rowImg",
                         title: "Copy to Clipboard",
                         "aria-label": "Copy to Clipboard",
@@ -614,7 +649,8 @@ import query = require("dojo/query");
                 } else {
                     if (!attributes.hasOwnProperty("multiline")) {
                         input = html.create("input", {
-                            type: "text"
+                            type: "text",
+                            autocomplete: "off"
                         });
                     } else {
                         input = html.create("textarea", {
@@ -657,7 +693,8 @@ import query = require("dojo/query");
                 break;
             default:
                 input = html.create("input", {
-                    type: "text"
+                    type: "text",
+                    autocomplete: "off"
                 });
                 break;
         };
