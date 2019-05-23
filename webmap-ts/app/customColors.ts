@@ -288,6 +288,12 @@ export function CustomColors(config: ApplicationConfig) : void {
 .AddressManager table textarea[readonly] {
   background: ${Transparent(bgColor, "0f")};
 }
+
+.AddressManager .doubleCell {
+  box-shadow: inset 0 0 4px #000;
+  border-radius: 3px;
+  padding: 4px;
+}
 `;
   }
 

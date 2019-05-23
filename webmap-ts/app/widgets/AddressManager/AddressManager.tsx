@@ -637,7 +637,7 @@ import query = require("dojo/query");
             }
         }
 
-        console.log("field", field.name, field.type, field.domain);
+        // console.log("field", field.name, field.type, field.domain);
         if (("domain" in field) && field.domain) {
             console.log()
             if (field.domain.type == "coded-value") {
