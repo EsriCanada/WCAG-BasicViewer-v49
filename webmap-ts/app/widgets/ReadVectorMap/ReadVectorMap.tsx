@@ -65,15 +65,19 @@ import domClass = require("dojo/dom-class");
             switch (this.mode) {
                 case "play" :
                     this.mode = "view";
+                    if(this.mouseHandler) this.mouseHandler.resume();
                     break;
                 case "view" :
                     this.mode = "mute";
+                    if(this.mouseHandler) this.mouseHandler.pause();
                     break;
                 case "mute" :
                     this.mode = "play"
+                    if(this.mouseHandler) this.mouseHandler.resume();
                     break;
                 default :
                     this.mode = "play"
+                    if(this.mouseHandler) this.mouseHandler.resume();
                     break;
             }
         }));
@@ -90,8 +94,12 @@ import domClass = require("dojo/dom-class");
         this.title = this.vectorLayer ? this.vectorLayer.title : "";
         // this.content = "";
 
-        if(this.vectorLayer) {
+        if(this.vectorLayer && !this.mouseHandler) {
             this.mouseHandler = on.pausable(this.mapView, "pointer-move",(event) => {
+                if(this.mode == "mute") {
+                    if(this.mouseHandler) this.mouseHandler.pause();
+                    return;
+                }
                 this.mapView.hitTest({x:event.x, y:event.y}).then((things) => {
                     // console.log("hitTest", things.results);
                     var g = things.results.filter(t => { return t.graphic.layer.type == "vector-tile"; }).map(t => t.graphic);
@@ -105,7 +113,7 @@ import domClass = require("dojo/dom-class");
                         }
                     }
                     this.mouseHandler.pause();
-                    setTimeout(() => {this.mouseHandler.resume();}, 150);
+                    setTimeout(() => {this.mouseHandler.resume();}, 250);
                 });
             })
             this.own(this.mouseHandler);

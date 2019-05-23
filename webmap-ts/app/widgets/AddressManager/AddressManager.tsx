@@ -350,7 +350,6 @@ import query = require("dojo/query");
         });
 
         fieldNames.forEach(fieldName => {
-            debugger;
             const attribute = this.siteaddresspointLayerFields.find(field => field.name == fieldName);
             const field = this.siteaddresspointLayerFields.find(field => field.name == attribute.name);
             if (field) {
