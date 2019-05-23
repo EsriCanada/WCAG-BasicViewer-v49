@@ -25,7 +25,7 @@ import domClass = require("dojo/dom-class");
 
     @property()
     @renderable()
-    mode: string = "play";
+    mode: string = "mute";
 
     @property()
     mapView: __esri.MapView | __esri.SceneView;
