@@ -150,6 +150,55 @@ import query = require("dojo/query");
 
                 <h1 class="addressTitle">[Full Address]</h1>
                 <div class="tables" data-dojo-attach-point="AddressManager_Tables">
+                
+                    <table data-dojo-attach-point="locationTable">
+                        <caption>Location</caption>
+                        <tr>
+                            <th>
+                                <div><label for="x_input">x:</label>
+                                    <div style="float:right;">
+                                        <input type="image" src="../images/icons_transp/centroid.bgwhite.24.png" title="Centroid" aria-label="Place Address Point to Centroid" data-dojo-attach-event="onclick:_onCentroidClicked" class="rowImg"/>
+                                        <input type="image" src="../images/icons_transp/movePoint.bgwhite.24.png" title="Move" aria-label="Move Address Point" data-dojo-attach-event="onclick:_onMoveAddressPointClicked" data-dojo-attach-point="moveAddressPoint" class="rowImg"/>
+                                    </div>
+                                </div>
+                            </th>
+                            <td>
+                                <div class="AddressManager_Tables_dataCell-container">
+                                    <input type="text" id="x_input" data-dojo-attach-point="x"/>
+                                    <div class="dropdown hide">
+                                        <input type="image" src="../images/Burger.24.png" class="button" aria-label="X coordinate" data-field="x" data-dojo-attach-event="click:_dropdownLocationToggle"/>
+                                        <div class="dropdown-content hide" data-dojo-attach-point="menuLocationContent_x">
+                                            <div class="sortItem">
+                                                <a ahref="#" data-dojo-attach-point="sort_x" data-dojo-attach-event="click:_onMenuItemLocationSort" data-field="x">Sort On This</a>
+                                                <label title="Sort Order">
+                                                </label>
+                                            </div>
+                                            <a ahref="#" data-dojo-attach-point="centroidAll" data-dojo-attach-event="click:_onMenuItemCenterAll">Center All</a>
+                                            <a ahref="#" data-dojo-attach-point="moveAll" data-dojo-attach-event="click:_onMenuItemMoveAll">Move All</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><label for="y_input">y:</label></th>
+                            <td>
+                                <div class="AddressManager_Tables_dataCell-container">
+                                    <input type="text" id="y_input" data-dojo-attach-point="y"/>
+                                    <div class="dropdown hide">
+                                        <input type="image" src="../images/Burger.24.png" class="button" aria-label="Y coordinate" data-field="y" data-dojo-attach-event="click:_dropdownLocationToggle"/>
+                                        <div class="dropdown-content hide" data-dojo-attach-point="menuLocationContent_y">
+                                            <div class="sortItem">
+                                                <a ahref="#" data-dojo-attach-point="sort_y" data-dojo-attach-event="click:_onMenuItemLocationSort" data-field="y">Sort On This</a>
+                                                <label title="Sort Order">
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
 
                     <table id="addressTable" afterCreate={this._addAddressTable}>
                         <caption>Address Fields</caption>
@@ -162,7 +211,7 @@ import query = require("dojo/query");
                 <div class="footer">
                     <input type="button" id="sumbitAddressForm" data-dojo-attach-point="submitAddressForm" data-dojo-attach-event="onclick:_onSubmitAddressClicked" value="Save"/>
                     <input type="button" id="sumbitAddressAll" data-dojo-attach-point="submitAddressAll" data-dojo-attach-event="onclick:_onSubmitSaveAllClicked" value="Save All"/>
-                    <input type="image" src="../images/icons_transp/verify.bgwhite.24.png" data-dojo-attach-point="verifyRules" class="verifyBtn" data-dojo-attach-event="onclick:_checkRules" title="Verify Address Point Record" style="vertical-align: bottom;" />
+                    <input type="image" src="../images/icons_transp/verify.bgwhite.24.png" alt="Verify Rules" data-dojo-attach-point="verifyRules" class="verifyBtn" data-dojo-attach-event="onclick:_checkRules" title="Verify Address Point Record" style="vertical-align: bottom;" />
                     <input type="button" id="Cancel" class="rightBtn" data-dojo-attach-point="submitCancel" data-dojo-attach-event="onclick:_onCancelClicked" value="Cancel"/>
                     <input type="button" id="Delete" class="orangeBtn rightBtn" data-dojo-attach-point="submitDdelete" data-dojo-attach-event="onclick:_onDeleteClicked" value="Delete"/>
                 </div>
@@ -171,6 +220,9 @@ import query = require("dojo/query");
         </div>
         );
     }
+
+//  <input type="checkbox" data-dojo-attach-point="directionSortOn_y" />
+//  <img src="../images/icons_transp/ascending.black.18.png" /> */}
 
     private _addAddressManager = (element: Element) => {
         require([
