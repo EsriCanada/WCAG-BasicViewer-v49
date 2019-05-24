@@ -1337,10 +1337,6 @@
         font-family: 'Avenir Light', Verdana, Geneva, sans-serif;
     }
     
-    .AddressManager .hide {
-        display: none;
-    }
-    
     .AddressManager table {
         /* border-bottom: 1px solid black; */
         width: 100%;
@@ -1606,3 +1602,51 @@
         font-size: large;
         padding: 2px 12px 4px 12px;
     }
+
+    .AddressManager .dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.AddressManager .dropdown-content {
+    /* display: none; */
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    overflow: auto;
+    border: silver 1px solid;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    right: 0;
+}
+
+.AddressManager .dropdown-content a {
+    color: black;
+    padding: 8px 16px;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.AddressManager .dropdown a:hover {
+    background-color: #ddd;
+}
+    
+.AddressManager .hide {
+    display: none;
+}
+
+.AddressManager .dropdown-button {
+    height: 19px;
+    width: 12px !important;
+    background: transparent !important;
+    flex: 0;
+    margin-left: 4px;
+    opacity: 0.33;
+}
+
+.AddressManager .dataCell-container {
+    display: flex;
+    flex-direction: row;
+}

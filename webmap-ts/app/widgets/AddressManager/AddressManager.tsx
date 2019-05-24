@@ -163,14 +163,16 @@ import query = require("dojo/query");
                                 </div>
                             </th>
                             <td>
-                                <div class="AddressManager_Tables_dataCell-container">
+                                <div class="dataCell-container">
                                     <input type="text" id="x_input" data-dojo-attach-point="x"/>
                                     <div class="dropdown hide">
-                                        <input type="image" src="../images/Burger.24.png" class="button" aria-label="X coordinate" data-field="x" data-dojo-attach-event="click:_dropdownLocationToggle"/>
+                                        <input type="image" src="../images/Burger.24.png" class="dropdown-button" aria-label="X coordinate" data-field="x" data-dojo-attach-event="click:_dropdownLocationToggle"/>
                                         <div class="dropdown-content hide" data-dojo-attach-point="menuLocationContent_x">
                                             <div class="sortItem">
                                                 <a ahref="#" data-dojo-attach-point="sort_x" data-dojo-attach-event="click:_onMenuItemLocationSort" data-field="x">Sort On This</a>
                                                 <label title="Sort Order">
+                                                    <input type="checkbox" data-dojo-attach-point="directionSortOn_y" />
+                                                    <img src="../images/icons_transp/ascending.black.18.png" />
                                                 </label>
                                             </div>
                                             <a ahref="#" data-dojo-attach-point="centroidAll" data-dojo-attach-event="click:_onMenuItemCenterAll">Center All</a>
@@ -183,14 +185,16 @@ import query = require("dojo/query");
                         <tr>
                             <th><label for="y_input">y:</label></th>
                             <td>
-                                <div class="AddressManager_Tables_dataCell-container">
+                                <div class="dataCell-container">
                                     <input type="text" id="y_input" data-dojo-attach-point="y"/>
                                     <div class="dropdown hide">
-                                        <input type="image" src="../images/Burger.24.png" class="button" aria-label="Y coordinate" data-field="y" data-dojo-attach-event="click:_dropdownLocationToggle"/>
+                                        <input type="image" src="../images/Burger.24.png" class="dropdown-button" aria-label="Y coordinate" data-field="y" data-dojo-attach-event="click:_dropdownLocationToggle"/>
                                         <div class="dropdown-content hide" data-dojo-attach-point="menuLocationContent_y">
                                             <div class="sortItem">
                                                 <a ahref="#" data-dojo-attach-point="sort_y" data-dojo-attach-event="click:_onMenuItemLocationSort" data-field="y">Sort On This</a>
                                                 <label title="Sort Order">
+                                                    <input type="checkbox" data-dojo-attach-point="directionSortOn_y" />
+                                                    <img src="../images/icons_transp/ascending.black.18.png" />
                                                 </label>
                                             </div>
                                         </div>
@@ -591,7 +595,7 @@ import query = require("dojo/query");
             cell = html.create("td", {}, row);
         }
         const cellContainer = html.create("div", {
-            class: "AddressManager_Tables_dataCell-container"
+            class: "dataCell-container"
         }, cell);
         domAttr.set(input, "data-alias", field.alias);
         html.place(input, cellContainer);
@@ -604,8 +608,8 @@ import query = require("dojo/query");
         }, cellContainer);
         const dropdownBtn = html.create("input", {
             type: "image",
-            src: "./widgets/AddressManager/images/Burger.24.png",
-            class: "AddressManager_Tables_dataCell-button",
+            src: "../images/Burger.24.png",
+            class: "dropdown-button",
             "aria-label": "More Options",
             "data-field": field.name
         }, dropdown);
