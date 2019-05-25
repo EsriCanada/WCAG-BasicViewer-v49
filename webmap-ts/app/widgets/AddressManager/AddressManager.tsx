@@ -466,14 +466,14 @@ import query = require("dojo/query");
         this.addressPointFeaturesIndex = index;
         this.addressPointIndexEl.innerHTML = (this.addressPointFeaturesIndex + 1) + "";
 
-        const feature = this.selectedAddressPointFeature = this.addressPointFeatures.toArray()[index];
-        const graphic = new Graphic({geometry: (feature as any).geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
+        const feature = this.selectedAddressPointFeature = this.addressPointFeatures.toArray()[index] as any;
+        const graphic = new Graphic({geometry: feature.geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
         this.mapView.graphics.add(graphic as any);
 
         this.x.value = (feature as any).geometry["x"];
         this.y.value = (feature as any).geometry["y"];
 
-        if (feature.hasOwnProperty("originalValues") && (feature as any).originalValues.hasOwnProperty("geometry")) {
+        if ("originalValues" in feature && "geometry" in feature.originalValues) {
             html.addClass(this.x, "dirty");
             html.addClass(this.y, "dirty");
         } else {
@@ -481,8 +481,8 @@ import query = require("dojo/query");
             html.removeClass(this.y, "dirty");
         };
 
-        if (feature.hasOwnProperty("attributes")) {
-            const attributes = (feature as any).attributes
+        if ("attributes" in feature) {
+            const attributes = feature.attributes
             if (attributes.hasOwnProperty(this.config.title)) {
                 // this.addressCompiler.set("address", feature.attributes[this.config.title]);
             }
@@ -508,7 +508,7 @@ import query = require("dojo/query");
                     }
                     input.title = input.value;
 
-                    if (feature.hasOwnProperty("originalValues") && (feature as any).originalValues.hasOwnProperty(fieldName) && (feature as any).originalValues[fieldName] != input.value) {
+                    if ("originalValues" in feature && feature.originalValues.hasOwnProperty(fieldName) && feature.originalValues[fieldName] != input.value) {
                         html.addClass(input, "dirty");
                     } else {
                         html.removeClass(input, "dirty");
