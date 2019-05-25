@@ -78,6 +78,9 @@ import query = require("dojo/query");
     private previousBtn: HTMLElement;
     private nextBtn: HTMLElement;
     private addressCopyAttributeNames: any[];
+    private submitDelete: HTMLElement;
+    private x: HTMLInputElement;
+    private y: HTMLInputElement;
 
     constructor() {
         super(); 
@@ -164,7 +167,7 @@ import query = require("dojo/query");
                             </th>
                             <td>
                                 <div class="dataCell-container">
-                                    <input type="text" id="x_input" data-dojo-attach-point="x"/>
+                                    <input type="text" id="x_input" afterCreate={this._addX}/>
                                     <div class="dropdown hide">
                                         <input type="image" src="../images/Burger.24.png" class="dropdown-button" aria-label="X coordinate" data-field="x" data-dojo-attach-event="click:_dropdownLocationToggle"/>
                                         <div class="dropdown-content hide" data-dojo-attach-point="menuLocationContent_x">
@@ -186,7 +189,7 @@ import query = require("dojo/query");
                             <th><label for="y_input">y:</label></th>
                             <td>
                                 <div class="dataCell-container">
-                                    <input type="text" id="y_input" data-dojo-attach-point="y"/>
+                                    <input type="text" id="y_input" afterCreate={this._addY}/>
                                     <div class="dropdown hide">
                                         <input type="image" src="../images/Burger.24.png" class="dropdown-button" aria-label="Y coordinate" data-field="y" data-dojo-attach-event="click:_dropdownLocationToggle"/>
                                         <div class="dropdown-content hide" data-dojo-attach-point="menuLocationContent_y">
@@ -217,7 +220,7 @@ import query = require("dojo/query");
                     <input type="button" id="sumbitAddressAll" data-dojo-attach-point="submitAddressAll" data-dojo-attach-event="onclick:_onSubmitSaveAllClicked" value="Save All"/>
                     <input type="image" src="../images/icons_transp/verify.bgwhite.24.png" alt="Verify Rules" data-dojo-attach-point="verifyRules" class="verifyBtn" data-dojo-attach-event="onclick:_checkRules" title="Verify Address Point Record" style="vertical-align: bottom;" />
                     <input type="button" id="Cancel" class="rightBtn" data-dojo-attach-point="submitCancel" data-dojo-attach-event="onclick:_onCancelClicked" value="Cancel"/>
-                    <input type="button" id="Delete" class="orangeBtn rightBtn" data-dojo-attach-point="submitDdelete" data-dojo-attach-event="onclick:_onDeleteClicked" value="Delete"/>
+                    <input type="button" id="Delete" class="orangeBtn rightBtn" afterCreate={this._addSubmitDelete} data-dojo-attach-event="onclick:_onDeleteClicked" value="Delete"/>
                 </div>
 
             </div>        
@@ -313,6 +316,18 @@ import query = require("dojo/query");
 
     private _addFillParcelsButton = (element: Element) => {
         this.own(on(element, "click", this._activateButton));
+    }
+
+    private _addSubmitDelete = (element: Element) => {
+        this.submitDelete = element as HTMLElement;
+    }
+
+    private _addX = (element: Element) => {
+        this.x = element as HTMLInputElement;
+    }
+
+    private _addY = (element: Element) => {
+        this.y = element as HTMLInputElement;
     }
 
     private _addAddressTable = (element: Element) => {
@@ -438,6 +453,59 @@ import query = require("dojo/query");
         const feature = this.selectedAddressPointFeature = this.addressPointFeatures.toArray()[index];
         const graphic = new Graphic({geometry: (feature as any).geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
         this.mapView.graphics.add(graphic as any);
+
+        this.x.value = (feature as any).geometry["x"];
+        this.y.value = (feature as any).geometry["y"];
+
+        if (feature.hasOwnProperty("originalValues") && (feature as any).originalValues.hasOwnProperty("geometry")) {
+            html.addClass(this.x, "dirty");
+            html.addClass(this.y, "dirty");
+        } else {
+            html.removeClass(this.x, "dirty");
+            html.removeClass(this.y, "dirty");
+        };
+
+        if (feature.hasOwnProperty("attributes")) {
+            const attributes = (feature as any).attributes
+            if (attributes.hasOwnProperty(this.config.title)) {
+                // this.addressCompiler.set("address", feature.attributes[this.config.title]);
+            }
+            const canDelete = !attributes.hasOwnProperty("OBJECTID") || !attributes["OBJECTID"];
+            if (canDelete) {
+                html.removeClass(this.submitDelete, "hide");
+            } else {
+                html.addClass(this.submitDelete, "hide");
+            }
+
+            for (let fieldName in this.inputControls) {
+                if (this.inputControls.hasOwnProperty(fieldName)) {
+                    const input = this.inputControls[fieldName];
+
+                    if (attributes.hasOwnProperty(fieldName)) {
+                        // if (input.type === "date") {
+                        //     input.value = new Date(attributes[fieldName]).toInputDate()
+                        // } else {
+                            input.value = attributes[fieldName];
+                        // }
+                    } else {
+                        input.value = null;
+                    }
+                    input.title = input.value;
+
+                    if (feature.hasOwnProperty("originalValues") && (feature as any).originalValues.hasOwnProperty(fieldName) && (feature as any).originalValues[fieldName] != input.value) {
+                        html.addClass(input, "dirty");
+                    } else {
+                        html.removeClass(input, "dirty");
+                    };
+                }
+            }
+        }
+
+        // this.addressCompiler.evaluate(feature);
+        // this._setDirtyBtns();
+        // this.checkRules(feature);
+        // this._showLoading(false);
+        // this.map.setInfoWindowOnClick(true);
     }
 
     
