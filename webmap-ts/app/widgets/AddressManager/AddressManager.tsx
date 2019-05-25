@@ -375,6 +375,7 @@ import query = require("dojo/query");
         this.UtilsVM.ADD_NEW_ADDRESS().then(feature => {
             // // this._clearLabels();
             this.addressPointFeatures.push(feature as Feature);
+            // console.log("feature", feature);
 
             this._populateAddressTable(this.addressPointFeatures.length - 1);
 
@@ -524,7 +525,7 @@ import query = require("dojo/query");
     }
 
     private isDirty(feature) {
-        return feature.hasOwnProperty("Dirty") && feature["Dirty"];
+        return "Dirty" in feature && feature["Dirty"];
     }
 
     private _setDirtyBtns() {
