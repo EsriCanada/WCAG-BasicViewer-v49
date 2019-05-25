@@ -81,6 +81,9 @@ import query = require("dojo/query");
     private submitDelete: HTMLElement;
     private x: HTMLInputElement;
     private y: HTMLInputElement;
+    submitAddressForm: HTMLElement;
+    submitAddressAll: HTMLElement;
+    submitCancel: HTMLElement;
 
     constructor() {
         super(); 
@@ -216,11 +219,11 @@ import query = require("dojo/query");
                 </div>
     
                 <div class="footer">
-                    <input type="button" id="sumbitAddressForm" data-dojo-attach-point="submitAddressForm" data-dojo-attach-event="onclick:_onSubmitAddressClicked" value="Save"/>
-                    <input type="button" id="sumbitAddressAll" data-dojo-attach-point="submitAddressAll" data-dojo-attach-event="onclick:_onSubmitSaveAllClicked" value="Save All"/>
+                    <input type="button" id="sumbitAddressForm" afterCreate={this._addSubmitAddressForm} data-dojo-attach-event="onclick:_onSubmitAddressClicked" value="Save"/>
+                    <input type="button" id="sumbitAddressAll" afterCreate={this._addSubmitAddressAll} data-dojo-attach-event="onclick:_onSubmitSaveAllClicked" value="Save All"/>
                     <input type="image" src="../images/icons_transp/verify.bgwhite.24.png" alt="Verify Rules" data-dojo-attach-point="verifyRules" class="verifyBtn" data-dojo-attach-event="onclick:_checkRules" title="Verify Address Point Record" style="vertical-align: bottom;" />
-                    <input type="button" id="Cancel" class="rightBtn" data-dojo-attach-point="submitCancel" data-dojo-attach-event="onclick:_onCancelClicked" value="Cancel"/>
-                    <input type="button" id="Delete" class="orangeBtn rightBtn" afterCreate={this._addSubmitDelete} data-dojo-attach-event="onclick:_onDeleteClicked" value="Delete"/>
+                    <input type="button" id="Cancel" class="rightBtn" afterCreate={this._addSubmitCancel} data-dojo-attach-event="onclick:_onCancelClicked" value="Cancel"/>
+                    <input type="button" id="Delete" class="orangeBtn rightBtn hide" afterCreate={this._addSubmitDelete} data-dojo-attach-event="onclick:_onDeleteClicked" value="Delete"/>
                 </div>
 
             </div>        
@@ -328,6 +331,18 @@ import query = require("dojo/query");
 
     private _addY = (element: Element) => {
         this.y = element as HTMLInputElement;
+    }
+    
+    private _addSubmitAddressForm = (element: Element) => {
+        this.submitAddressForm = element as HTMLElement;
+    }
+
+    private _addSubmitAddressAll = (element: Element) => {
+        this.submitAddressAll= element as HTMLElement;
+    }
+
+    private _addSubmitCancel = (element: Element) => {
+        this.submitCancel = element as HTMLElement;
     }
 
     private _addAddressTable = (element: Element) => {
@@ -502,13 +517,34 @@ import query = require("dojo/query");
         }
 
         // this.addressCompiler.evaluate(feature);
-        // this._setDirtyBtns();
+        this._setDirtyBtns();
         // this.checkRules(feature);
         // this._showLoading(false);
         // this.map.setInfoWindowOnClick(true);
     }
 
-    
+    private isDirty(feature) {
+        return feature.hasOwnProperty("Dirty") && feature["Dirty"];
+    }
+
+    private _setDirtyBtns() {
+        html.removeClass(this.submitAddressForm, "blueBtn");
+        html.removeClass(this.submitAddressAll, "greenBtn");
+        html.removeClass(this.submitCancel, "blankBtn");
+        if (this.addressPointFeatures.length > 0) {
+            if (this.isDirty(this.selectedAddressPointFeature)) {
+                html.addClass(this.submitAddressForm, "blueBtn");
+                html.addClass(this.submitCancel, "blankBtn");
+            }
+            this.addressPointFeatures.forEach(feature => {
+                if (this.selectedAddressPointFeature != feature && this.isDirty(feature)) {
+                    html.addClass(this.submitAddressAll, "greenBtn");
+                    html.addClass(this.submitCancel, "blankBtn");
+                }
+            })
+        }
+    }
+
     private getAddressFields() {
         // console.log("ignoreAttributes", this.ignoreAttributes);
         const siteaddresspointLayerFields = this.siteAddressPointLayer.fields;
