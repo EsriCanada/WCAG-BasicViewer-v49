@@ -1661,4 +1661,5 @@ AddressManager th,
     background-image: url("../images/icons_transp/broken8.red.19.png");
     background-repeat: no-repeat;
     background-position: right top;
+    border: 2px solid red;
 }
