@@ -247,7 +247,7 @@ export function CustomColors(config: ApplicationConfig) : void {
   background: black;
 }
 
-.AddressManager .toolbar .button.active {
+.AddressManager .active {
   background: red;
 }
 

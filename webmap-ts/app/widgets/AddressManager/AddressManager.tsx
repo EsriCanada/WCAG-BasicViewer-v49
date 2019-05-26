@@ -81,9 +81,11 @@ import query = require("dojo/query");
     private submitDelete: HTMLElement;
     private x: HTMLInputElement;
     private y: HTMLInputElement;
-    submitAddressForm: HTMLElement;
-    submitAddressAll: HTMLElement;
-    submitCancel: HTMLElement;
+    private submitAddressForm: HTMLElement;
+    private submitAddressAll: HTMLElement;
+    private submitCancel: HTMLElement;
+    private verifyRules: HTMLElement;
+    private brokenRulesAlert: HTMLElement;
 
     constructor() {
         super(); 
@@ -144,7 +146,7 @@ import query = require("dojo/query");
                                     <span afterCreate={this._addAddressPointCount}>0</span>
                                     <div style="width:0; height:0; overflow: hidden;">! </div>
                                 </div>
-                                <div data-dojo-attach-point="brokenRulesAlert" style="width:0; height:0px; overflow:hidden;"></div>
+                                <div afterCreate={this._addBrokenRulesAlert} style="width:0; height:0px; overflow:hidden;"></div>
                             </div>
                             <input type="image" src="../images/icons_transp/arrow.right.bgwhite.24.png" class="button-right showNav" title="Next" afterCreate={this._addNextBtn}/>
                         </div>
@@ -221,7 +223,7 @@ import query = require("dojo/query");
                 <div class="footer">
                     <input type="button" id="sumbitAddressForm" afterCreate={this._addSubmitAddressForm} data-dojo-attach-event="onclick:_onSubmitAddressClicked" value="Save"/>
                     <input type="button" id="sumbitAddressAll" afterCreate={this._addSubmitAddressAll} data-dojo-attach-event="onclick:_onSubmitSaveAllClicked" value="Save All"/>
-                    <input type="image" src="../images/icons_transp/verify.bgwhite.24.png" alt="Verify Rules" data-dojo-attach-point="verifyRules" class="verifyBtn" data-dojo-attach-event="onclick:_checkRules" title="Verify Address Point Record" style="vertical-align: bottom;" />
+                    <input type="image" src="../images/icons_transp/verify.bgwhite.24.png" alt="Verify Rules" afterCreate={this._addVerifyRules} class="verifyBtn" data-dojo-attach-event="onclick:_checkRules" title="Verify Address Point Record" style="vertical-align: bottom;" />
                     <input type="button" id="Cancel" class="rightBtn" afterCreate={this._addSubmitCancel} data-dojo-attach-event="onclick:_onCancelClicked" value="Cancel"/>
                     <input type="button" id="Delete" class="orangeBtn rightBtn hide" afterCreate={this._addSubmitDelete} data-dojo-attach-event="onclick:_onDeleteClicked" value="Delete"/>
                 </div>
@@ -323,6 +325,14 @@ import query = require("dojo/query");
 
     private _addSubmitDelete = (element: Element) => {
         this.submitDelete = element as HTMLElement;
+    }
+
+    private _addVerifyRules = (element: Element) => {
+        this.verifyRules = element as HTMLElement;
+    }
+
+    private _addBrokenRulesAlert = (element: Element) => {
+        this.brokenRulesAlert = element as HTMLElement;
     }
 
     private _addX = (element: Element) => {
@@ -519,9 +529,62 @@ import query = require("dojo/query");
 
         // this.addressCompiler.evaluate(feature);
         this._setDirtyBtns();
-        // this.checkRules(feature);
+        this._checkRules(feature);
         // this._showLoading(false);
         // this.map.setInfoWindowOnClick(true);
+    }
+
+    private _checkRules(feature) {
+        const brokenRules = [];
+        for (let fieldName in this.inputControls) {
+            const input = this.inputControls[fieldName];
+            const alias = html.getAttr(input, "data-alias");
+
+            if (this.specialAttributes.hasOwnProperty(fieldName)) {
+                const fieldConfig = this.specialAttributes[fieldName];
+                domAttr.set(input, "title", input.value);
+                if ("required" in fieldConfig && fieldConfig["required"] && input.value.isNullOrWhiteSpace()) {
+                    const brokenRule = "'" + alias + "' is required but not provided.";
+                    brokenRules.push(brokenRule);
+                    domAttr.set(input, "title", domAttr.get(input, "title") + "\n" + brokenRule);
+                    html.addClass(input, "brokenRule");
+                } else {
+                    html.removeClass(input, "brokenRule");
+                    html.setAttr(input, "title", input.value);
+                }
+                if (fieldConfig.hasOwnProperty("format")) {
+                    if (!input.value.match(new RegExp(fieldConfig["format"]))) {
+                        let brokenRule = "'" + alias + "' has incorrect format.";
+                        if (fieldConfig.hasOwnProperty("placeholder")) {
+                            brokenRule += " (Try '" + fieldConfig["placeholder"] + "')";
+                        }
+                        brokenRules.push(brokenRule);
+                        domAttr.set(input, "title", domAttr.get(input, "title") + "\n" + brokenRule);
+                        html.addClass(input, "brokenRule");
+                    } else {
+                        html.removeClass(input, "brokenRule");
+                        domAttr.set(input, "title", input.value);
+                    }
+                }
+            }
+        }
+
+        html.removeClass(this.verifyRules, "active");
+        // html.setStyle(this.brokenRulesAlert, "display", "none");
+        this.brokenRulesAlert.innerHTML = "";
+        this.verifyRules.title = "Verify Address Point Record";
+        if (brokenRules.length > 0) {
+            const messages = brokenRules.join("\n");
+            this.verifyRules.title = messages;
+            html.addClass(this.verifyRules, "active");
+            this.brokenRulesAlert.innerHTML = messages;
+            // html.setStyle(this.brokenRulesAlert, "display", "");
+        }
+    }
+
+    private onCheckRules(event) {
+        if (this.addressPointFeatures.length === 0) return;
+        this._checkRules(this.selectedAddressPointFeature);
     }
 
     private isDirty(feature) {
@@ -704,7 +767,7 @@ import query = require("dojo/query");
         }, cell);
         domAttr.set(input, "data-alias", field.alias);
         html.place(input, cellContainer);
-        html.addClass(input, "AddressManager_Tables_dataCell-input");
+        html.addClass(input, "dataCell-input");
 
         // https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_js_dropdown
         // https://w3bits.com/css-responsive-nav-menu/
