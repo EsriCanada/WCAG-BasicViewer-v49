@@ -86,6 +86,7 @@ import query = require("dojo/query");
     private submitCancel: HTMLElement;
     private verifyRules: HTMLElement;
     private brokenRulesAlert: HTMLElement;
+    displayBrokenRules: HTMLElement;
 
     constructor() {
         super(); 
@@ -160,7 +161,7 @@ import query = require("dojo/query");
                 <div class="tables" data-dojo-attach-point="AddressManager_Tables">
                 
                     <table data-dojo-attach-point="locationTable">
-                        <caption>Location</caption>
+                        <caption><h2>Location</h2></caption>
                         <tr>
                             <th>
                                 <div><label for="x_input">x:</label>
@@ -213,17 +214,18 @@ import query = require("dojo/query");
                     </table>
 
                     <table id="addressTable" afterCreate={this._addAddressTable}>
-                        <caption>Address Fields</caption>
+                        <caption><h2>Address Fields</h2></caption>
                     </table>
                     <table id="statusTable" afterCreate={this._addStatusTable}>
-                        <caption>Status</caption>
+                        <caption><h2>Status</h2></caption>
                     </table>
                 </div>
     
+                <div afterCreate={this._addDisplayBrokenRules} class="displayBrokenRules hide"><h1>Broken Rules</h1></div>
                 <div class="footer">
                     <input type="button" id="sumbitAddressForm" afterCreate={this._addSubmitAddressForm} data-dojo-attach-event="onclick:_onSubmitAddressClicked" value="Save"/>
                     <input type="button" id="sumbitAddressAll" afterCreate={this._addSubmitAddressAll} data-dojo-attach-event="onclick:_onSubmitSaveAllClicked" value="Save All"/>
-                    <input type="image" src="../images/icons_transp/verify.bgwhite.24.png" alt="Verify Rules" afterCreate={this._addVerifyRules} class="verifyBtn" data-dojo-attach-event="onclick:_checkRules" title="Verify Address Point Record" style="vertical-align: bottom;" />
+                    <input type="image" src="../images/icons_transp/verify.bgwhite.24.png" alt="Verify Rules" afterCreate={this._addVerifyRules} class="verifyBtn" title="Verify Address Point Record" style="vertical-align: bottom;" />
                     <input type="button" id="Cancel" class="rightBtn" afterCreate={this._addSubmitCancel} data-dojo-attach-event="onclick:_onCancelClicked" value="Cancel"/>
                     <input type="button" id="Delete" class="orangeBtn rightBtn hide" afterCreate={this._addSubmitDelete} data-dojo-attach-event="onclick:_onDeleteClicked" value="Delete"/>
                 </div>
@@ -327,8 +329,16 @@ import query = require("dojo/query");
         this.submitDelete = element as HTMLElement;
     }
 
+    private _addDisplayBrokenRules = (element: Element) => {
+        this.displayBrokenRules = element as HTMLElement;
+    }
+
     private _addVerifyRules = (element: Element) => {
         this.verifyRules = element as HTMLElement;
+        // console.log("this.verifyRules", this.verifyRules);
+        this.own(on(this.verifyRules, "click", (event) => {
+            html.toggleClass(this.displayBrokenRules, "hide");
+        }))
     }
 
     private _addBrokenRulesAlert = (element: Element) => {

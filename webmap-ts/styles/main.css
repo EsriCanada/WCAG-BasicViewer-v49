@@ -1446,9 +1446,11 @@ blockquote[lang] {
     table-layout: fixed;
 }
 
-.AddressManager table caption {
+.AddressManager table caption h2 {
     font-weight: bold;
     font-size: large;
+    margin: 0;
+    padding: 0;
 }
 
 .AddressManager table tr:nth-child(odd) {
@@ -1662,4 +1664,18 @@ AddressManager th,
     background-repeat: no-repeat;
     background-position: right top;
     border: 2px solid red;
+}
+
+.AddressManager .displayBrokenRules {
+    width: 100%;
+    min-height: 40px;
+    background: darkred;
+    padding: 2px 12px 4px 12px;
+    color: white
+}
+
+.AddressManager .displayBrokenRules h1 {
+    margin: 0;
+    padding: 0;
+    font-size: large;
 }
