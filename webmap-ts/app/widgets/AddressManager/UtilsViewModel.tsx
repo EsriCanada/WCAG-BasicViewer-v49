@@ -129,6 +129,8 @@ class UtilsViewModel extends declared(Accessor) {
 
         graphicsLayer.graphics.add({geometry: point, symbol:symbol} as any);
     }
+    
+    private PICK_ROAD_sketchVM: SketchViewModel = null;
 
     PICK_ROAD() {
         const deferred = new Deferred();
@@ -141,12 +143,21 @@ class UtilsViewModel extends declared(Accessor) {
 
         this.mapView.map.add(tempGraphicsLayer);
 
-        const sketchVM = new SketchViewModel({
-            layer: tempGraphicsLayer,
-            view: this.mapView,
-          })
-        sketchVM.create("point");
-        sketchVM.on("create", lang.hitch(this, function(event) {
+        if(!this.PICK_ROAD_sketchVM) {
+            this.PICK_ROAD_sketchVM = new SketchViewModel({
+                layer: tempGraphicsLayer,
+                view: this.mapView,
+            })
+        }
+        if (this.PICK_ROAD_sketchVM.state == "active") {
+            this.PICK_ROAD_sketchVM.cancel();
+            deferred.cancel("User Cancel");
+            setTimeout(() => { this.mapView.graphics.removeAll(); }, 250);
+            return deferred.promise;
+        }
+
+        this.PICK_ROAD_sketchVM.create("point");
+        this.PICK_ROAD_sketchVM.on("create", lang.hitch(this, function(event) {
             
             if (event.state === "complete") {
                 const graphic = event.graphic;

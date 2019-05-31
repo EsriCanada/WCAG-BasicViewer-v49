@@ -63,6 +63,7 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
     private cutters: any[] = [];
     private flip: boolean = false;
     private length: Number = 0;
+    pickRoadBtn: HTMLElement;
 
     constructor() {
         super();
@@ -147,7 +148,8 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
                 </table>
             </div>
             <div class="footer">
-                <input type="button" id="apply" class="pageBtn rightBtn" data-dojo-attach-point="submitCloneApply" value="Apply"/>
+            <input type="button" class="pageBtn" data-dojo-attach-point="submitCloneApply" value="Apply"/>
+            <input type="button" class="pageBtn rightBtn" data-dojo-attach-point="submitCloneACancel" value="Cancel"/>
             </div> 
         </div>
         );
@@ -197,7 +199,8 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
     }
 
     private _addPickRoadBtn = (element:Element) => {
-        this.own(on(element as HTMLElement, "click", lang.hitch(this, this._onPickRoadClicked)));
+        this.pickRoadBtn = element as HTMLElement;
+        this.own(on(this.pickRoadBtn, "click", lang.hitch(this, this._onPickRoadClicked)));
     }
 
     private _addStreetName = (element:Element) => {
@@ -221,7 +224,9 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
         
         this.UtilsVM.PICK_ROAD().then(
             roadSegment => {
-                // console.log("roadSegment", roadSegment);
+                html.removeClass(event.target, "active"); 
+                // this.mapView.map.setInfoWindowOnClick(true);
+
                 const found = this.roadSegments.find(road => (roadSegment as any).attributes.OBJECTID == road.attributes.OBJECTID);
                 if (!found) {
                     this.roadSegments.push(roadSegment);
@@ -249,9 +254,6 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
                 this.roadGraphicsLayer.add(this.addressRoadGraphic);
 
                 this.addressRoadGeometry = buffer;
-
-                // this.mapView.map.setInfoWindowOnClick(true);
-                html.removeClass(event.target, "active"); 
             },
             error => {
                 console.error("PICK_ROAD", error);

@@ -247,10 +247,6 @@ export function CustomColors(config: ApplicationConfig) : void {
   background: black;
 }
 
-.AddressManager .active {
-  background: red;
-}
-
 .AddressManager .toolbar .showNav {
   color: ${bgColor};
 }
@@ -294,6 +290,11 @@ export function CustomColors(config: ApplicationConfig) : void {
   border-radius: 3px;
   padding: 4px;
 }
+
+.AddressManager .active {
+  background: red !important;
+}
+
 `;
   }
 
