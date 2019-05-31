@@ -1681,3 +1681,7 @@ AddressManager th,
     font-size: large;
     color: #ffcbd4;
 }
+
+.AddressManager .brokenRulesAlert {
+    font-size: 14px;
+}

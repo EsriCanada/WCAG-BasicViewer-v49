@@ -589,7 +589,7 @@ import query = require("dojo/query");
             const messages = brokenRules.join("\n");
             this.verifyRules.title = messages;
             html.addClass(this.verifyRules, "active");
-            this.brokenRulesAlert.innerHTML = messages.replace(/\n/, "<br/>");
+            this.brokenRulesAlert.innerHTML = messages.replace(/\n/, "<br />");
         } else {
             html.addClass(this.displayBrokenRules, "hide");
         }
