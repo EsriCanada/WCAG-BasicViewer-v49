@@ -147,7 +147,6 @@ import query = require("dojo/query");
                                     <span afterCreate={this._addAddressPointCount}>0</span>
                                     <div style="width:0; height:0; overflow: hidden;">! </div>
                                 </div>
-                                <div afterCreate={this._addBrokenRulesAlert} style="width:0; height:0px; overflow:hidden;"></div>
                             </div>
                             <input type="image" src="../images/icons_transp/arrow.right.bgwhite.24.png" class="button-right showNav" title="Next" afterCreate={this._addNextBtn}/>
                         </div>
@@ -221,7 +220,10 @@ import query = require("dojo/query");
                     </table>
                 </div>
     
-                <div afterCreate={this._addDisplayBrokenRules} class="displayBrokenRules hide"><h1>Broken Rules</h1></div>
+                <div afterCreate={this._addDisplayBrokenRules} class="displayBrokenRules hide">
+                    <h1>Broken Rules</h1>
+                    <div afterCreate={this._addBrokenRulesAlert}></div>
+                    </div>
                 <div class="footer">
                     <input type="button" id="sumbitAddressForm" afterCreate={this._addSubmitAddressForm} data-dojo-attach-event="onclick:_onSubmitAddressClicked" value="Save"/>
                     <input type="button" id="sumbitAddressAll" afterCreate={this._addSubmitAddressAll} data-dojo-attach-event="onclick:_onSubmitSaveAllClicked" value="Save All"/>
@@ -587,8 +589,9 @@ import query = require("dojo/query");
             const messages = brokenRules.join("\n");
             this.verifyRules.title = messages;
             html.addClass(this.verifyRules, "active");
-            this.brokenRulesAlert.innerHTML = messages;
-            // html.setStyle(this.brokenRulesAlert, "display", "");
+            this.brokenRulesAlert.innerHTML = messages.replace(/\n/, "<br/>");
+        } else {
+            html.addClass(this.displayBrokenRules, "hide");
         }
     }
 

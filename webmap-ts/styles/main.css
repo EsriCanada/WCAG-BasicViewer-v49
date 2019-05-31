@@ -1667,15 +1667,17 @@ AddressManager th,
 }
 
 .AddressManager .displayBrokenRules {
-    width: 100%;
-    min-height: 40px;
+    width: calc(100% - 24px);
+    max-height: 150px;
+    overflow-y: auto;
     background: darkred;
     padding: 2px 12px 4px 12px;
-    color: white
+    color: white;
 }
 
 .AddressManager .displayBrokenRules h1 {
     margin: 0;
     padding: 0;
     font-size: large;
+    color: #ffcbd4;
 }
