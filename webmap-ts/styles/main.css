@@ -1334,7 +1334,7 @@ blockquote[lang] {
 }
 
 .AddressManager {
-    font-family: 'Avenir Light', Verdana, Geneva, sans-serif;
+    font-family: Raleway, 'Avenir Light', Verdana, Geneva, sans-serif;
 }
 
 .AddressManager table {
@@ -1388,10 +1388,12 @@ blockquote[lang] {
 .AddressManager .ClonePanel {
     position: absolute;
     min-height: 50px;
-    min-width: 300px;
+    min-width: 280px;
     display: flex;
     flex-direction: column;
     border: inset;
+    font-family: 'Roboto Condensed', sans-serif;
+    background: white;
 }
 
 .AddressManager .pageBtn {
@@ -1411,8 +1413,10 @@ blockquote[lang] {
     margin: 0;
 }
 
-.AddressManager .ClonePanel {
-    background: white;
+.AddressManager .ClonePanel .numInput {
+    width:100px; 
+    height:16px;
+    font-family: Raleway, 'Avenir Light', Verdana, Geneva, sans-serif;
 }
 
 .AddressManager .ClonePanel .footer {
@@ -1474,6 +1478,10 @@ AddressManager th,
     vertical-align: top;
 }
 
+.AddressManager table th {
+    font-family: 'Roboto Condensed', sans-serif;
+}
+
 .AddressManager table th>div {
     display: inline-block;
     width: 100%;
@@ -1494,6 +1502,7 @@ AddressManager th,
 .AddressManager table input[type="date"] {
     background: transparent;
     width: calc(100% - 14px);
+    font-family: Raleway, 'Avenir Light', Verdana, Geneva, sans-serif;
 }
 
 .AddressManager table textarea {
@@ -1507,6 +1516,7 @@ AddressManager th,
     width: calc(100% - 11px);
     border-style: inset;
     border-width: 2px;
+    font-family: Raleway, 'Avenir Light', Verdana, Geneva, sans-serif;
 }
 
 .AddressManager table input[required],
@@ -1555,7 +1565,7 @@ AddressManager th,
     margin-right: 4px;
     font-weight: bold;
     font-size: 14px;
-    font-family: 'Avenir Light', Verdana, Geneva, sans-serif;
+    font-family: Raleway, 'Avenir Light', Verdana, Geneva, sans-serif;
     border: none;
     border-radius: 2px;
 }
@@ -1671,15 +1681,19 @@ AddressManager th,
     max-height: 150px;
     overflow-y: hidden;
     border-top: 4px solid red;
-    background: #fce9ec;
+    /* background: #fce9ec; */
 }
 
 .AddressManager .displayBrokenRules h1 {
-    margin: 0;
-    padding: 0;
-    font-size: large;
-    color: brown;
     padding: 2px 12px 4px 12px;
+    margin: 0;
+    font-size: 18px;
+    color: red;
+    background-color: white;
+    /* background-image: linear-gradient(white, #fce9ec); */
+    background-image: url(../images/icons_transp/broken8.red.19.png);
+    background-repeat: no-repeat;
+    background-position: right top;
 }
 
 .AddressManager .displayBrokenRules ul {
@@ -1691,7 +1705,11 @@ AddressManager th,
     color: black;
 }
 
-.AddressManager .displayBrokenRules ul li {}
+.AddressManager .displayBrokenRules ul li {
+    font-size: 14px;
+    font-weight: bold;
+    color: brown;
+}
 
 .AddressManager .brokenRulesAlert {
     font-size: 14px;
