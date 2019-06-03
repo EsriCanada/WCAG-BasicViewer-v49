@@ -111,26 +111,26 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
                         <td>
                             <input type="range" afterCreate={this._addDistRoadRange} class="distRoadRange" min="10" max="50" step="5" name="distRoad" value="20"/>
 
-                            <span style="margin-left: 4px;" afterCreate={this._addDistRoadValue}>20</span>
+                            <span style="float: right;" afterCreate={this._addDistRoadValue}>20</span>
                         </td>
                     </tr>
                     <tr>
                         <th><label for="polylineLength">Length:</label></th>
                         <td><span id="polylineLength" data-dojo-attach-point="polylineLength"></span>
-                        <span style="float:right; font-weight: normal; margin-right: 10px;">meters</span></td> 
+                        <span style="float:right; font-weight: normal; float: right;">meters</span></td> 
                     </tr>
                     <tr>
                         <th style="border-top: 1px solid gray; border-left: 1px solid gray;"><label for="unitCount">Unit Count:</label></th>
                         <td style="border-top: 1px solid gray; border-right: 1px solid gray;">
                             <input type="number" class="numInput" id="unitCount" min="3" max="500" step="1" name="unitCountDist" value="10" data-dojo-attach-point="unitCount" data-dojo-attach-event="change:_onUnitCountChange,input:_onUnitCountInput"/>
-                            <input type="radio" checked name="units" value="unitCount" data-dojo-attach-point="unitCountRadio"/>
+                            <input type="radio" checked name="units" value="unitCount" style="float: right;" data-dojo-attach-point="unitCountRadio"/>
                         </td>
                     </tr> 
                     <tr>
                         <th style="border-bottom: 1px solid gray; border-left: 1px solid gray;"><label for="unitDist">Unit Distance:</label></th>
                         <td style="border-bottom: 1px solid gray; border-right: 1px solid gray;">
                             <input type="number" class="numInput" id="unitDist" min="20" max="100" step="1" name="unitCountDist" value="25" data-dojo-attach-point="unitDist" data-dojo-attach-event="change:_onUnitDistChange,input:_onUnitDistInput"/>
-                            <input type="radio" name="units" value="unitDist" data-dojo-attach-point="unitDistRadio"></input>
+                            <input type="radio" name="units" value="unitDist" style="float: right;" data-dojo-attach-point="unitDistRadio"></input>
                         </td>
                     </tr>
                     <tr>
