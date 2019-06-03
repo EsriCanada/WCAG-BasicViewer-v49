@@ -222,7 +222,7 @@ import query = require("dojo/query");
     
                 <div afterCreate={this._addDisplayBrokenRules} class="displayBrokenRules hide">
                     <h1>Broken Rules</h1>
-                    <div afterCreate={this._addBrokenRulesAlert}></div>
+                    <ul afterCreate={this._addBrokenRulesAlert}></ul>
                     </div>
                 <div class="footer">
                     <input type="button" id="sumbitAddressForm" afterCreate={this._addSubmitAddressForm} data-dojo-attach-event="onclick:_onSubmitAddressClicked" value="Save"/>
@@ -589,7 +589,10 @@ import query = require("dojo/query");
             const messages = brokenRules.join("\n");
             this.verifyRules.title = messages;
             html.addClass(this.verifyRules, "active");
-            this.brokenRulesAlert.innerHTML = messages.replace(/\n/, "<br />");
+            // this.brokenRulesAlert.innerHTML = messages.replace(/\n/, "<br />");
+            brokenRules.forEach(msg => {
+                this.brokenRulesAlert.innerHTML += "<li>"+msg+"</li>";
+            });
         } else {
             html.addClass(this.displayBrokenRules, "hide");
         }
