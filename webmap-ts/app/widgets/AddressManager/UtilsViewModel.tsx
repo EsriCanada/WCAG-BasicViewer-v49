@@ -141,7 +141,7 @@ class UtilsViewModel extends declared(Accessor) {
         // draw.activate(Draw.POINT);
         const tempGraphicsLayer = new GraphicsLayer();
 
-        this.mapView.map.add(tempGraphicsLayer);
+        this.mapView.map.add(tempGraphicsLayer); 
 
         if(!this.PICK_ROAD_sketchVM) {
             this.PICK_ROAD_sketchVM = new SketchViewModel({

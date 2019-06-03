@@ -295,6 +295,15 @@ export function CustomColors(config: ApplicationConfig) : void {
   background: red !important;
 }
 
+.AddressManager .ClonePanel {
+  border: 2px solid ${bgColor};
+  box-shadow: 4px 4px 5px ${Transparent(bgColor, "7f")};
+}
+
+.AddressManager .ClonePanel .RoadCell {
+  border-bottom: 1px solid ${bgColor};
+}
+
 `;
   }
 

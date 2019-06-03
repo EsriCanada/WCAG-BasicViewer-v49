@@ -53,8 +53,6 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
     private polyline = null;
     private roadGeometries = null;
     private roadGraphicsLayer = null;
-    private roadMarker = null;
-    private draw = null;
     private roadGraphic = null;
     private addressRoadGraphic = null;
     private addressRoadGeometry = null;
@@ -63,7 +61,9 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
     private cutters: any[] = [];
     private flip: boolean = false;
     private length: Number = 0;
-    pickRoadBtn: HTMLElement;
+    private pickRoadBtn: HTMLElement;
+    private roadCell: HTMLElement;
+    private roadMarker: any = null;
 
     constructor() {
         super();
@@ -78,17 +78,17 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
     render() {
         return ( 
         <div class="ClonePanel" style="display:none;" afterCreate={this._addClonePanel}>
-            <div class="toolbar" style="background: #EEEEEE;">
+            <div class="toolbar">
                 <input type="image" src="../images/icons_transp/pickRoad2.bgwhite.24.png" class="button" afterCreate={this._addPickRoadBtn} title="Pick Road" aria-label="Pick Road"/>
                 <input type="image" src="../images/icons_transp/Cut.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onCutClicked" title="Cut Line" aria-label="Cut Line"/>
                 <input type="image" src="../images/icons_transp/Flip1.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onFlipSideClicked" title="Flip Side" aria-label="Flip Side"/>
                 <input type="image" src="../images/icons_transp/Flip2.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onReverseClicked" title="Reverse Direction" aria-label="Reverse Direction"/>
                 <input type="image" src="../images/icons_transp/restart.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onRestartCutsClicked" title="Restart Cuts" aria-label="Restart Cuts"/>
             </div>
-            <div class="clone_panel-content">
-                <table style="border-collapse: collapse;">
+            <div class="content">
+                <table style="border-collapse: collapse; border: none;">
                     <tr>
-                        <th colspan="2" style="text-align: left;"  class="RoadCell">
+                        <th colspan="2" style="text-align: left;" afterCreate={this._addRoadCell} class="RoadCell hide">
                             <span afterCreate={this._addStreetName}></span>
                         </th>
                     </tr>
@@ -99,7 +99,7 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
                         </th>
                     </tr>
                     <tr>
-                        <th colspan="2" style="text-align: left;">
+                        <th colspan="2" style="text-align: left; padding: 0;">
                         <label>
                             <input type="checkbox" afterCreate={this._addUseCurrentSeed}/>
                             <span> Use current address as seed.</span>
@@ -107,7 +107,7 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
                             </th>
                     </tr>
                     <tr>
-                        <th><label for="distRoad">Dist from Road:</label></th>
+                        <th><label for="distRoad">Distance from Road:</label></th>
                         <td>
                             <input type="range" afterCreate={this._addDistRoadRange} class="distRoadRange" min="10" max="50" step="5" name="distRoad" value="20"/>
 
@@ -147,9 +147,9 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
                     </tr>
                 </table>
             </div>
-            <div class="footer">
-            <input type="button" class="pageBtn" data-dojo-attach-point="submitCloneApply" value="Apply"/>
-            <input type="button" class="pageBtn rightBtn" data-dojo-attach-point="submitCloneACancel" value="Cancel"/>
+            <div class="footer footer2cells">
+            <input type="button" class="pageBtn" style="justify-self: left;" data-dojo-attach-point="submitCloneApply" value="Apply"/>
+            <input type="button" class="pageBtn blankBtn" style="justify-self: right;" data-dojo-attach-point="submitCloneCancel" value="Cancel"/>
             </div> 
         </div>
         );
@@ -205,6 +205,10 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
 
     private _addStreetName = (element:Element) => {
         this.streetName = element as HTMLElement;
+    }
+
+    private _addRoadCell = (element:Element) => {
+        this.roadCell = element as HTMLElement;
     }
 
     private _addStreetNameErrorRow = (element:Element) => {
@@ -266,6 +270,7 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
 
     private _doStreetNameRule = () => {
         if (this.roadSegments && this.roadSegments.length > 0) {
+            html.removeClass(this.roadCell, "hide");
             const streetName = this.streetName.innerHTML = this.roadSegments[0].attributes.fullname;
             html.addClass(this.streetNameErrorRow, "hide");
             if (this.roadSegments.length > 1) {
@@ -280,6 +285,8 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
             } else {
                 this.streetNameError.innerHTML = "";
             }
+        } else {
+            html.addClass(this.roadCell, "hide");
         }
     }
 

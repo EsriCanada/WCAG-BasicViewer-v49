@@ -1388,7 +1388,7 @@ blockquote[lang] {
 .AddressManager .ClonePanel {
     position: absolute;
     min-height: 50px;
-    min-width: 280px;
+    min-width: 300px;
     display: flex;
     flex-direction: column;
     border: inset;
@@ -1414,17 +1414,20 @@ blockquote[lang] {
 }
 
 .AddressManager .ClonePanel .numInput {
-    width:100px; 
-    height:16px;
+    width: 100px;
+    height: 16px;
     font-family: Raleway, 'Avenir Light', Verdana, Geneva, sans-serif;
+    font-weight: bold;
+}
+
+.AddressManager .ClonePanel .content {
+    padding: 12px;
 }
 
 .AddressManager .ClonePanel .footer {
     flex-grow: 0;
     padding: 12px;
     border-top: 1px solid #999999;
-    /* border: outset; */
-    background: #EEEEEE;
 }
 
 .AddressManager .ClonePanel .ErrorCell {
@@ -1551,16 +1554,25 @@ AddressManager th,
 }
 
 .AddressManager .footer {
-    flex-grow: 0;
-    /* margin-top: 8px; */
     padding: 12px;
     background: white;
     border-top: 1px solid #999999;
 }
 
+.AddressManager .footer5cells {
+    display: grid;
+    grid-template-columns: 1fr 1fr 3fr 1fr 1fr;
+    grid-column-gap: 4px;
+}
+
+.AddressManager .footer2cells {
+    display: grid;
+    grid-template-columns: auto auto;
+}
+
 .AddressManager .footer input[type="button"] {
     background: transparent;
-    color: gray;
+    color: #303030;
     padding: 4px 12px;
     margin-right: 4px;
     font-weight: bold;
@@ -1586,7 +1598,7 @@ AddressManager th,
 }
 
 .AddressManager .blankBtn {
-    background: transparent !important;
+    background: white !important;
     Color: black !important;
 }
 

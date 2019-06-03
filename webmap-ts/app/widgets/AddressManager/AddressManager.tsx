@@ -86,7 +86,8 @@ import query = require("dojo/query");
     private submitCancel: HTMLElement;
     private verifyRules: HTMLElement;
     private brokenRulesAlert: HTMLElement;
-    displayBrokenRules: HTMLElement;
+    private displayBrokenRules: HTMLElement;
+    private addressPointButton: HTMLElement;
 
     constructor() {
         super(); 
@@ -128,7 +129,7 @@ import query = require("dojo/query");
             <div class="container" data-dojo-attach-point="AddressManagerContainer">
 
                 <div class="toolbar">
-                    <input id="addAddressPointBtn" type="image" src="../images/icons_transp/addAddress.bggray.24.png" class="button" afterCreate={this._addAddressButton} aria-label="Add Address Point" title="Add Address Point"></input>
+                    <input type="image" src="../images/icons_transp/addAddress.bggray.24.png" class="button" afterCreate={this._addAddressPointButton} aria-label="Add Address Point" title="Add Address Point"></input>
                     <div class="dropdown_moreTools">
                         <input type="image" src="../images/icons_transp/Generate.bggray.24.png" class="button" afterCreate={this._addMoreToolsButton} aria-label="Clone Addresses" title="Clone Addresses"></input>
                         <div afterCreate={this._addClonePanel} ></div>
@@ -224,12 +225,12 @@ import query = require("dojo/query");
                     <h1>Broken Rules</h1>
                     <ul afterCreate={this._addBrokenRulesAlert}></ul>
                     </div>
-                <div class="footer">
-                    <input type="button" id="sumbitAddressForm" afterCreate={this._addSubmitAddressForm} data-dojo-attach-event="onclick:_onSubmitAddressClicked" value="Save"/>
-                    <input type="button" id="sumbitAddressAll" afterCreate={this._addSubmitAddressAll} data-dojo-attach-event="onclick:_onSubmitSaveAllClicked" value="Save All"/>
-                    <input type="image" src="../images/icons_transp/verify.bgwhite.24.png" alt="Verify Rules" afterCreate={this._addVerifyRules} class="verifyBtn" title="Verify Address Point Record" style="vertical-align: bottom;" />
-                    <input type="button" id="Cancel" class="rightBtn" afterCreate={this._addSubmitCancel} data-dojo-attach-event="onclick:_onCancelClicked" value="Cancel"/>
-                    <input type="button" id="Delete" class="orangeBtn rightBtn hide" afterCreate={this._addSubmitDelete} data-dojo-attach-event="onclick:_onDeleteClicked" value="Delete"/>
+                <div class="footer footer5cells">
+                    <input type="button" id="sumbitAddressForm" afterCreate={this._addSubmitAddressForm} style="justify-self: left;" data-dojo-attach-event="onclick:_onSubmitAddressClicked" value="Save"/>
+                    <input type="button" id="sumbitAddressAll" afterCreate={this._addSubmitAddressAll} style="justify-self: left;" data-dojo-attach-event="onclick:_onSubmitSaveAllClicked" value="Save All"/>
+                    <input type="image" src="../images/icons_transp/verify.bgwhite.24.png" alt="Verify Rules" afterCreate={this._addVerifyRules} style="justify-self: center;" class="verifyBtn" title="Verify Address Point Record" />
+                    <input type="button" id="Delete" class="orangeBtn hide" afterCreate={this._addSubmitDelete} style="justify-self: right;" data-dojo-attach-event="onclick:_onDeleteClicked" value="Delete"/>
+                    <input type="button" id="Cancel" afterCreate={this._addSubmitCancel} style="justify-self: right; grid-column-start: 5" data-dojo-attach-event="onclick:_onCancelClicked" value="Cancel"/>
                 </div>
 
             </div>        
@@ -300,7 +301,8 @@ import query = require("dojo/query");
      
     }
 
-    private _addAddressButton = (element: Element) => {
+    private _addAddressPointButton = (element: Element) => {
+        this.addressPointButton = element as HTMLElement;
         this.own(on(element, "click", this._activateButton));
         this.own(on(element, "click", lang.hitch(this, this._addSingleAddressClicked)));
     }
