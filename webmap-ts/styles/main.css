@@ -1500,7 +1500,8 @@ blockquote[lang] {
     background: transparent;
 }
 
-.AddressManager table input[type="text"] {
+.AddressManager table input[type="text"],
+.AddressManager table select {
     min-width: 25px;
 }
 

@@ -334,6 +334,25 @@ import query = require("dojo/query");
 
     private _addSubmitDelete = (element: Element) => {
         this.submitDelete = element as HTMLElement;
+        this.own(on(element, "click", lang.hitch(this, this._onDeleteClicked)));
+    }
+
+    private _onDeleteClicked(event) {
+        const btn = event.target;
+        // debugger;
+        if(domClass.contains(btn, "orangeBtn")) {
+            // this._clearLabels();
+            this._RemoveGraphic(this.selectedAddressPointFeature as any);
+            this.addressPointFeatures.remove(this.selectedAddressPointFeature);
+            this._populateAddressTable(0);
+        }
+    }
+
+    private _RemoveGraphic(feature) {
+        const layer = feature.layer;
+        const geometry = feature.geometry;
+        const selected = layer.graphics.find(g => g.geometry === geometry);
+        layer.graphics.remove(selected);
     }
 
     private _addDisplayBrokenRules = (element: Element) => {
