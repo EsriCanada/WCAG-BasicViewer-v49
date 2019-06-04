@@ -408,6 +408,12 @@ import query = require("dojo/query");
 
             // map.setInfoWindowOnClick(true);
             html.removeClass(event.target, "active");
+        },
+        error => {
+            console.error("ADD_NEW_ADDRESS", error);
+
+            // this.mapView.map.setInfoWindowOnClick(true);
+            html.removeClass(event.target, "active");
         });
 
     };

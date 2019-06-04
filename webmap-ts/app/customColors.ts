@@ -304,6 +304,10 @@ export function CustomColors(config: ApplicationConfig) : void {
   border-bottom: 1px solid ${bgColor};
 }
 
+.AddressManager .footer input[type="button"] {
+  color: ${Transparent(bgColor, "7f")};
+}
+
 `;
   }
 

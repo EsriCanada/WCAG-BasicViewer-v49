@@ -214,6 +214,8 @@ class UtilsViewModel extends declared(Accessor) {
        return deferred.promise;
     }
 
+    private ADD_NEW_ADDRESS_sketchVM: SketchViewModel = null;
+    
     ADD_NEW_ADDRESS = function() {
         const deferred = new Deferred();
         // map.setInfoWindowOnClick(false);
@@ -224,13 +226,22 @@ class UtilsViewModel extends declared(Accessor) {
 
             this.mapView.map.add(this.addressGraphicsLayer);
         }
-        const sketchVM = new SketchViewModel({
+
+        if(!this.ADD_NEW_ADDRESS_sketchVM) {
+            this.ADD_NEW_ADDRESS_sketchVM = new SketchViewModel({
             layer: this.addressGraphicsLayer,
             view: this.mapView,
             pointSymbol: this.NEW_ADDRESS_SYMBOL
           })
-        sketchVM.create("point");
-        sketchVM.on("create", lang.hitch(this, function(event) {
+        }
+        if (this.ADD_NEW_ADDRESS_sketchVM.state == "active") {
+            this.ADD_NEW_ADDRESS_sketchVM.cancel();
+            deferred.cancel("User Cancel");
+            // setTimeout(() => { this.mapView.graphics.removeAll(); }, 250);
+            return deferred.promise;
+        }
+        this.ADD_NEW_ADDRESS_sketchVM.create("point");
+        this.ADD_NEW_ADDRESS_sketchVM.on("create", lang.hitch(this, function(event) {
             if (event.state === "complete") {
                 const feature = event.graphic;
                 feature.attributes = { "status": 0 };
