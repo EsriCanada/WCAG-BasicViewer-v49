@@ -174,7 +174,7 @@ import query = require("dojo/query");
                             </th>
                             <td>
                                 <div class="dataCell-container">
-                                    <input type="text" id="x_input" afterCreate={this._addX}/>
+                                    <input type="text" id="x_input" class="dataCell-input" afterCreate={this._addX}/>
                                     <div class="dropdown hide">
                                         <input type="image" src="../images/Burger.24.png" class="dropdown-button" aria-label="X coordinate" data-field="x" data-dojo-attach-event="click:_dropdownLocationToggle"/>
                                         <div class="dropdown-content hide" data-dojo-attach-point="menuLocationContent_x">
@@ -196,7 +196,7 @@ import query = require("dojo/query");
                             <th><label for="y_input">y:</label></th>
                             <td>
                                 <div class="dataCell-container">
-                                    <input type="text" id="y_input" afterCreate={this._addY}/>
+                                    <input type="text" id="y_input" class="dataCell-input" afterCreate={this._addY}/>
                                     <div class="dropdown hide">
                                         <input type="image" src="../images/Burger.24.png" class="dropdown-button" aria-label="Y coordinate" data-field="y" data-dojo-attach-event="click:_dropdownLocationToggle"/>
                                         <div class="dropdown-content hide" data-dojo-attach-point="menuLocationContent_y">

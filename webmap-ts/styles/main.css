@@ -1498,8 +1498,10 @@ blockquote[lang] {
 .AddressManager table input[type="text"],
 .AddressManager table input[type="date"] {
     background: transparent;
-    width: calc(100% - 14px);
-    /* font-family: 'Roboto Condensed', sans-serif; */
+}
+
+.AddressManager table input[type="text"] {
+    min-width: 25px;
 }
 
 .AddressManager table textarea {
@@ -1510,10 +1512,9 @@ blockquote[lang] {
 
 .AddressManager table select {
     background: transparent;
-    width: calc(100% - 11px);
+    /* width: calc(100% - 11px); */
     border-style: inset;
     border-width: 2px;
-    /* font-family: Raleway, 'Avenir Light', Verdana, Geneva, sans-serif; */
 }
 
 .AddressManager table input[required],
@@ -1684,11 +1685,9 @@ blockquote[lang] {
 
 .AddressManager .dataCell-input {
     flex: 1;
-    /* width: auto !important; */
 }
 
 .AddressManager .dataCell-input.brokenRule {
-    /* box-shadow: -4px 0 4px -1px red inset; */
     background-image: url("../images/icons_transp/broken8.red.19.png");
     background-repeat: no-repeat;
     background-position: right top;
@@ -1696,11 +1695,9 @@ blockquote[lang] {
 }
 
 .AddressManager .displayBrokenRules {
-    /* width: calc(100% - 24px); */
     max-height: 150px;
     overflow-y: hidden;
     border-top: 4px solid red;
-    /* background: #fce9ec; */
 }
 
 .AddressManager .displayBrokenRules h1 {
