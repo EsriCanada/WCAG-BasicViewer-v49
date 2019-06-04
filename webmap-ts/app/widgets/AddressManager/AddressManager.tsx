@@ -88,6 +88,7 @@ import query = require("dojo/query");
     private brokenRulesAlert: HTMLElement;
     private displayBrokenRules: HTMLElement;
     private addressPointButton: HTMLElement;
+    moreToolsButton: HTMLElement;
 
     constructor() {
         super(); 
@@ -316,12 +317,14 @@ import query = require("dojo/query");
                 roadsLayer: this.roadsLayer,
                 parcelsLayer : this.parcelsLayer,
                 roadFieldName: this.roadFieldName,
+                onClose: () => this.moreToolsButton.click(),
                 container: element as HTMLElement
             });
         });
     }
 
     private _addMoreToolsButton = (element: Element) => {
+        this.moreToolsButton = element as HTMLElement;
         this.own(on(element, "click", lang.hitch(this, this._toggleMoreToolsButton)));
     }
 

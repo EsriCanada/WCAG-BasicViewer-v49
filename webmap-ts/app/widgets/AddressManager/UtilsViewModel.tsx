@@ -166,9 +166,10 @@ class UtilsViewModel extends declared(Accessor) {
                 // sketchVM.layer.remove(graphic);
                 // mapView.graphics.add(graphic);
 
-                tempGraphicsLayer.destroy();
+                // tempGraphicsLayer.destroy();
+                tempGraphicsLayer.removeAll();
 
-                const buffer = geometryEngine.buffer(event.graphic.geometry, 5, "meters");
+                const buffer = geometryEngine.buffer(graphic.geometry, 5, "meters");
     
                 const gr = { 
                     geometry: buffer, 

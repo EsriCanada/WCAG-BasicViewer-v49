@@ -9,6 +9,7 @@ import dom = require("dojo/dom");
 import on = require("dojo/on");
 import domAttr = require("dojo/dom-attr");
 import domStyle = require("dojo/dom-style");
+import domClass = require("dojo/dom-class");
 import html = require("dojo/_base/html");
 
 import UtilsViewModel = require("./UtilsViewModel");
@@ -47,6 +48,9 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
     @property()
     roadFieldName: string;
 
+    @property()
+    onClose:any = null;
+
     private UtilsVM : UtilsViewModel;
 
     private roadSegments = [] as any;
@@ -64,6 +68,7 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
     private pickRoadBtn: HTMLElement;
     private roadCell: HTMLElement;
     private roadMarker: any = null;
+    private submitCloneCancel: HTMLElement;
 
     constructor() {
         super();
@@ -149,7 +154,7 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
             </div>
             <div class="footer footer2cells">
             <input type="button" class="pageBtn" style="justify-self: left;" data-dojo-attach-point="submitCloneApply" value="Apply"/>
-            <input type="button" class="pageBtn blankBtn" style="justify-self: right;" data-dojo-attach-point="submitCloneCancel" value="Cancel"/>
+            <input type="button" class="pageBtn blankBtn" style="justify-self: right;" afterCreate={this._addSubmitCloneCancel} value="Cancel"/>
             </div> 
         </div>
         );
@@ -169,6 +174,21 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
 
     private _addClonePanel = (element: Element) => {
         this.clonePanelDiv = element as HTMLElement;
+    }
+
+    private _addSubmitCloneCancel = (element: Element) => {
+        this.submitCloneCancel = element as HTMLElement;
+        this.own(on(this.submitCloneCancel, "click", lang.hitch(this, function(event) {
+            this.streetNameError.innerHTML = "";
+            html.addClass(this.streetNameErrorRow, "hide");
+            html.addClass(this.roadCell, "hide");
+            this.roadGraphicsLayer.removeAll();
+            this.roadSegments.length = 0;
+
+            // console.log("onClose", this.onClose);
+
+            if(this.onClose) this.onClose();
+        })));
     }
 
     private _addDistRoadRange = (element: Element) => {
