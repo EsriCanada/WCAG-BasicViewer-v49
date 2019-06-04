@@ -1596,6 +1596,19 @@ blockquote[lang] {
     Color: black !important;
 }
 
+.AddressManager .blueBtn:hover,
+.AddressManager .greenBtn:hover,
+.AddressManager .orangeBtn:hover,
+.AddressManager .blankBtn:hover,
+.AddressManager .verifyBtn.active:hover,
+.AddressManager .toolbar .button:hover,
+.AddressManager .toolbar .button-right:hover {
+    transform: translate(-2px, -2px);
+    -webkit-box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.75);
+    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.75);
+}
+
 .AddressManager .verifyBtn {
     width: 26px;
     background: black;

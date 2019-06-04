@@ -230,7 +230,7 @@ import query = require("dojo/query");
                     <input type="button" id="sumbitAddressForm" afterCreate={this._addSubmitAddressForm} style="justify-self: left;" data-dojo-attach-event="onclick:_onSubmitAddressClicked" value="Save"/>
                     <input type="button" id="sumbitAddressAll" afterCreate={this._addSubmitAddressAll} style="justify-self: left;" data-dojo-attach-event="onclick:_onSubmitSaveAllClicked" value="Save All"/>
                     <input type="image" src="../images/icons_transp/verify.bgwhite.24.png" alt="Verify Rules" afterCreate={this._addVerifyRules} style="justify-self: center;" class="verifyBtn" title="Verify Address Point Record" />
-                    <input type="button" id="Delete" class="orangeBtn hide" afterCreate={this._addSubmitDelete} style="justify-self: right;" data-dojo-attach-event="onclick:_onDeleteClicked" value="Delete"/>
+                    <input type="button" id="Delete" afterCreate={this._addSubmitDelete} style="justify-self: right;" data-dojo-attach-event="onclick:_onDeleteClicked" value="Delete"/>
                     <input type="button" id="Cancel" afterCreate={this._addSubmitCancel} style="justify-self: right; grid-column-start: 5" data-dojo-attach-event="onclick:_onCancelClicked" value="Cancel"/>
                 </div>
 
@@ -514,10 +514,10 @@ import query = require("dojo/query");
                 // this.addressCompiler.set("address", feature.attributes[this.config.title]);
             }
             const canDelete = !attributes.hasOwnProperty("OBJECTID") || !attributes["OBJECTID"];
-            if (canDelete) {
-                html.removeClass(this.submitDelete, "hide");
+            if (!canDelete) {
+                html.removeClass(this.submitDelete, "orangeBtn");
             } else {
-                html.addClass(this.submitDelete, "hide");
+                html.addClass(this.submitDelete, "orangeBtn");
             }
 
             for (let fieldName in this.inputControls) {
