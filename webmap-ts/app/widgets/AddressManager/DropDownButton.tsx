@@ -14,15 +14,20 @@ import domStyle = require("dojo/dom-style");
 import domClass = require("dojo/dom-class");
 import html = require("dojo/_base/html");
 import Deferred = require("dojo/Deferred");
+import { isConstructSignatureDeclaration } from "typescript";
 
 @subclass("esri.widgets.DropDownButton")
   class DropDownButton extends declared(Widget) {
 
     private dropDownArrowBtn;
     private dropDownButtonContent: HTMLElement;
+    private defaultItemIndex = 0;
 
     @property()
     parent;
+  
+    @property()
+    items;
   
     constructor() {
         super();
@@ -46,6 +51,7 @@ import Deferred = require("dojo/Deferred");
 
     private _addDropDownArrowBtn = (element: Element) => {
         this.dropDownArrowBtn = element as HTMLElement;
+
         this.own(on(this.dropDownArrowBtn, "click", (event) => {
             html.toggleClass(this.dropDownButtonContent, "hide");
             if (!domClass.contains(this.dropDownButtonContent, "hide")) {
@@ -56,6 +62,35 @@ import Deferred = require("dojo/Deferred");
 
     private _addDropDownButtonContent = (element: Element) => {
         this.dropDownButtonContent = element as HTMLElement;
+
+        this.items.forEach((item, index) => {
+            const itemWrapper = html.create("div", { class: "itemWrapper" }, this.dropDownButtonContent);
+            const label = html.create("label", {}, itemWrapper);
+
+            const btn = html.create("input", {
+                    type: "image",
+                    src: item.src,
+                    value: index,
+                    // click: (event) => {
+                    //     // console.log("click", event.target);
+                    //     this.defaultItemIndex = Number(event.target.value);
+                    //     this.DropDownButton.src = this.items[this.defaultItemIndex].src;
+                    //     if (this.btnClickHandler) {
+                    //         this.btnClickHandler.remove();
+                    //     }
+                    //     this.btnClickHandler = on(this.DropDownButton, "click", lang.hitch(this, this.items[this.defaultItemIndex].callback));
+                    //     domAttr.set(this.DropDownButton, "title", this.items[this.defaultItemIndex].label);
+                    //     this.DropDownButton.click();
+                    //     html.removeClass(this.DropDownArrowButton, "expand");
+                    //     html.addClass(this.DropDownButtonContent, "hide");
+                    // }
+                },
+                label);
+
+            const text = html.create("span", {
+                innerHTML: item.label,
+            }, label);
+        });
     }
 
 }

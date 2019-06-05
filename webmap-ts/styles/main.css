@@ -1642,7 +1642,7 @@ blockquote[lang] {
 .AddressManager .dropdown-content {
     /* display: none; */
     position: absolute;
-    background-color: #f1f1f1;
+    background-color: #b3b3b3;
     min-width: 160px;
     overflow: auto;
     border: silver 1px solid;
@@ -1749,6 +1749,7 @@ blockquote[lang] {
     display: -webkit-inline-box;
     margin-left: 4px;
     line-height: 10px;
+    font-family: 'Roboto Condensed', sans-serif;
 }
 
 .AddressManager .DropDownButton:hover {
@@ -1778,4 +1779,27 @@ blockquote[lang] {
     display: flex;
     flex-direction: column;
     border: inset;
+}
+
+.AddressManager .itemWrapper {
+    white-space: nowrap;
+    font-weight: bold;
+}
+
+.AddressManager .itemWrapper:hover {
+    background: white;
+}
+
+.AddressManager .itemWrapper input {
+    margin: 2px;
+    vertical-align: middle;
+    background: white;
+}
+
+.AddressManager .itemWrapper:hover input {
+    background: royalblue;
+}
+
+.AddressManager .itemWrapper label {
+    margin-right: 8px;
 }

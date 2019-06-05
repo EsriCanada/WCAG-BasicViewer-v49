@@ -330,7 +330,9 @@ export function CustomColors(config: ApplicationConfig) : void {
   background: ${bgColor};
 }
 
-
+.AddressManager .itemWrapper:hover input {
+  background: ${bgColor};
+}
 `;
   }
 
