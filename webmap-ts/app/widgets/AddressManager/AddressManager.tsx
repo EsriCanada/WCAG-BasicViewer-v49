@@ -88,7 +88,8 @@ import query = require("dojo/query");
     private brokenRulesAlert: HTMLElement;
     private displayBrokenRules: HTMLElement;
     private addressPointButton: HTMLElement;
-    moreToolsButton: HTMLElement;
+    private moreToolsButton: HTMLElement;
+    private addressTitle: HTMLElement;
 
     constructor() {
         super(); 
@@ -142,7 +143,7 @@ import query = require("dojo/query");
                         <div class="addressPointNavigator" afterCreate={this._addAddressPointNavigator} style="display:none;">
                             <input type="image" src="../images/icons_transp/arrow.left.bgwhite.24.png" class="button-right showNav" title="Previous" afterCreate={this._addPreviousBtn}/>
                             <div aria-live="polite" aria-atomic="true">
-                                <div class="showNav">
+                                <div class="showNav" style="margin: 0 4px;">
                                     <div style="width:0; height:0; overflow: hidden;">Address </div>
                                     <span afterCreate={this._addAddressPointIndex}>0</span>
                                     <span> of </span>
@@ -158,7 +159,7 @@ import query = require("dojo/query");
 
                 <div afterCreate={this._addHiddenFields} style="display:none;"></div>
 
-                <h1 class="addressTitle">[Full Address]</h1>
+                <h1 class="addressTitle" afterCreate={this._addAddressTitle}>[Full Address]</h1>
                 <div class="tables" data-dojo-attach-point="AddressManager_Tables">
                 
                     <table data-dojo-attach-point="locationTable">
@@ -229,7 +230,7 @@ import query = require("dojo/query");
                 <div class="footer footer5cells">
                     <input type="button" id="sumbitAddressForm" afterCreate={this._addSubmitAddressForm} style="justify-self: left;" data-dojo-attach-event="onclick:_onSubmitAddressClicked" value="Save"/>
                     <input type="button" id="sumbitAddressAll" afterCreate={this._addSubmitAddressAll} style="justify-self: left;" data-dojo-attach-event="onclick:_onSubmitSaveAllClicked" value="Save All"/>
-                    <input type="image" src="../images/icons_transp/verify.bgwhite.24.png" alt="Verify Rules" afterCreate={this._addVerifyRules} style="justify-self: center;" class="verifyBtn" title="Verify Address Point Record" />
+                    <input type="image" src="../images/icons_transp/verify.bgwhite.24.png" alt="Broken Rules" afterCreate={this._addVerifyRules} style="justify-self: center;" class="verifyBtn" title="Display Broken Rules" />
                     <input type="button" id="Delete" afterCreate={this._addSubmitDelete} style="justify-self: right;" data-dojo-attach-event="onclick:_onDeleteClicked" value="Delete"/>
                     <input type="button" id="Cancel" afterCreate={this._addSubmitCancel} style="justify-self: right; grid-column-start: 5" data-dojo-attach-event="onclick:_onCancelClicked" value="Cancel"/>
                 </div>
@@ -302,6 +303,10 @@ import query = require("dojo/query");
      
     }
 
+    private _addAddressTitle = (element: Element) => {
+        this.addressTitle = element as HTMLElement;
+    }
+
     private _addAddressPointButton = (element: Element) => {
         this.addressPointButton = element as HTMLElement;
         this.own(on(element, "click", this._activateButton));
@@ -365,7 +370,6 @@ import query = require("dojo/query");
 
     private _addVerifyRules = (element: Element) => {
         this.verifyRules = element as HTMLElement;
-        // console.log("this.verifyRules", this.verifyRules);
         this.own(on(this.verifyRules, "click", (event) => {
             html.toggleClass(this.displayBrokenRules, "hide");
         }))
@@ -576,6 +580,8 @@ import query = require("dojo/query");
             }
 
             // this.addressCompiler.evaluate(feature);
+        } else {
+            this._clearForm();
         }
         this._setDirtyBtns();
         this._checkRules(feature);
@@ -583,36 +589,59 @@ import query = require("dojo/query");
         // this.map.setInfoWindowOnClick(true);
     }
 
+    private _clearForm() {
+        // this._showFieldMenus(false);
+        this.x.value = "";
+        this.y.value = "";
+        // this.map.setInfoWindowOnClick(true);
+
+        for (let fieldName in this.inputControls) {
+            if (this.inputControls.hasOwnProperty(fieldName)) {
+                const input = this.inputControls[fieldName];
+                input.value = null;
+                html.removeAttr(input, "title");
+                html.removeClass(input, "brokenRule");
+            }
+        }
+
+        // const [addressTitle] = query(".addressTitle");
+        if (this.addressTitle) {
+            html.empty(this.addressTitle);
+        }
+    }
+
     private _checkRules(feature) {
         const brokenRules = [];
-        for (let fieldName in this.inputControls) {
-            const input = this.inputControls[fieldName];
-            const alias = html.getAttr(input, "data-alias");
+        if(feature) {
+            for (let fieldName in this.inputControls) {
+                const input = this.inputControls[fieldName];
+                const alias = html.getAttr(input, "data-alias");
 
-            if (this.specialAttributes.hasOwnProperty(fieldName)) {
-                const fieldConfig = this.specialAttributes[fieldName];
-                domAttr.set(input, "title", input.value);
-                if ("required" in fieldConfig && fieldConfig["required"] && input.value.isNullOrWhiteSpace()) {
-                    const brokenRule = "'" + alias + "' is required but not provided.";
-                    brokenRules.push(brokenRule);
-                    domAttr.set(input, "title", domAttr.get(input, "title") + "\n" + brokenRule);
-                    html.addClass(input, "brokenRule");
-                } else {
-                    html.removeClass(input, "brokenRule");
-                    html.setAttr(input, "title", input.value);
-                }
-                if (fieldConfig.hasOwnProperty("format")) {
-                    if (!input.value.match(new RegExp(fieldConfig["format"]))) {
-                        let brokenRule = "'" + alias + "' has incorrect format.";
-                        if (fieldConfig.hasOwnProperty("placeholder")) {
-                            brokenRule += " (Try '" + fieldConfig["placeholder"] + "')";
-                        }
+                if (this.specialAttributes.hasOwnProperty(fieldName)) {
+                    const fieldConfig = this.specialAttributes[fieldName];
+                    domAttr.set(input, "title", input.value);
+                    if ("required" in fieldConfig && fieldConfig["required"] && input.value.isNullOrWhiteSpace()) {
+                        const brokenRule = "'" + alias + "' is required but not provided.";
                         brokenRules.push(brokenRule);
                         domAttr.set(input, "title", domAttr.get(input, "title") + "\n" + brokenRule);
                         html.addClass(input, "brokenRule");
                     } else {
                         html.removeClass(input, "brokenRule");
-                        domAttr.set(input, "title", input.value);
+                        html.setAttr(input, "title", input.value);
+                    }
+                    if (fieldConfig.hasOwnProperty("format")) {
+                        if (!input.value.match(new RegExp(fieldConfig["format"]))) {
+                            let brokenRule = "'" + alias + "' has incorrect format.";
+                            if (fieldConfig.hasOwnProperty("placeholder")) {
+                                brokenRule += " (Try '" + fieldConfig["placeholder"] + "')";
+                            }
+                            brokenRules.push(brokenRule);
+                            domAttr.set(input, "title", domAttr.get(input, "title") + "\n" + brokenRule);
+                            html.addClass(input, "brokenRule");
+                        } else {
+                            html.removeClass(input, "brokenRule");
+                            domAttr.set(input, "title", input.value);
+                        }
                     }
                 }
             }
@@ -635,10 +664,10 @@ import query = require("dojo/query");
         }
     }
 
-    private onCheckRules(event) {
-        if (this.addressPointFeatures.length === 0) return;
-        this._checkRules(this.selectedAddressPointFeature);
-    }
+    // private onCheckRules(event) {
+    //     if (this.addressPointFeatures.length === 0) return;
+    //     this._checkRules(this.selectedAddressPointFeature);
+    // }
 
     private isDirty(feature) {
         return "Dirty" in feature && feature["Dirty"];

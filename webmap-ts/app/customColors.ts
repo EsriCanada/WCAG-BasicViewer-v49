@@ -308,6 +308,18 @@ export function CustomColors(config: ApplicationConfig) : void {
   color: ${Transparent(bgColor, "7f")};
 }
 
+::-webkit-input-placeholder {
+  color: ${bgColor};
+}
+
+*:-ms-input-placeholder {
+  color: ${bgColor};
+}
+
+*::placeholder {
+  color: ${bgColor};
+}
+
 `;
   }
 

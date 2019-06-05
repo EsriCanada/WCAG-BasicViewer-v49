@@ -21,14 +21,6 @@ body {
     opacity: 1
 }
 
-*:-ms-input-placeholder {
-    color: #000000cf
-}
-
-*::-ms-input-placeholder {
-    color: #000000cf
-}
-
 caption,
 th {
     text-align: left;

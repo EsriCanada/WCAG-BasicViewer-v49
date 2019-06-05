@@ -34,7 +34,7 @@ class AddressManagerViewModel extends declared(Accessor) {
         if(this.addressPointFeaturesIndex >= this.addressPointFeatures.length) {
             this.addressPointFeaturesIndex = this.addressPointFeatures.length-1; // ?
         }
-        return this.addressPointFeatures[this.addressPointFeaturesIndex];
+        return this.addressPointFeatures.toArray()[this.addressPointFeaturesIndex]; 
     }
 
     constructor() {
