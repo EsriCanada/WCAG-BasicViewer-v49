@@ -320,6 +320,10 @@ export function CustomColors(config: ApplicationConfig) : void {
   color: ${bgColor};
 }
 
+.AddressManager table input[type="image"] {
+  background: ${bgColor};
+}
+
 `;
   }
 
