@@ -295,7 +295,8 @@ export function CustomColors(config: ApplicationConfig) : void {
   background: red !important;
 }
 
-.AddressManager .ClonePanel {
+.AddressManager .ClonePanel,
+.AddressManager .dropdown-content {
   border: 2px solid ${bgColor};
   box-shadow: 4px 4px 5px ${Transparent(bgColor, "7f")};
 }
@@ -323,6 +324,12 @@ export function CustomColors(config: ApplicationConfig) : void {
 .AddressManager table input[type="image"] {
   background: ${bgColor};
 }
+
+.AddressManager .dropDownButton-main,
+.AddressManager .dropDownButton-arrow {
+  background: ${bgColor};
+}
+
 
 `;
   }

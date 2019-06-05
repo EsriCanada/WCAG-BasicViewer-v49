@@ -1357,6 +1357,11 @@ blockquote[lang] {
     padding: 12px;
     background: white;
     border-bottom: 1px solid #999999;
+    line-height: 10px;
+}
+
+.AddressManager .toolbar .showNav {
+    line-height: initial;
 }
 
 .AddressManager .toolbar .button {
@@ -1374,7 +1379,8 @@ blockquote[lang] {
 .AddressManager .toolbar .dropdown_moreTools {
     position: relative;
     display: inline-block;
-    /* background-color: white; */
+    line-height: 10px;
+    background: transparent;
 }
 
 .AddressManager .ClonePanel {
@@ -1722,4 +1728,54 @@ blockquote[lang] {
 
 .AddressManager .brokenRulesAlert {
     font-size: 14px;
+}
+
+.AddressManager .dropDownButton-arrow {
+    display: -webkit-inline-box;
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
+    margin-left: -3px;
+    /* margin-bottom: -4px; */
+    background: black;
+    opacity: 0.5;
+}
+
+.AddressManager .dropDownButton-arrow:hover,
+.AddressManager .dropDownButton-arrow:focus {
+    opacity: 1;
+}
+
+.AddressManager .DropDownButton {
+    display: -webkit-inline-box;
+    margin-left: 4px;
+    line-height: 10px;
+}
+
+.AddressManager .DropDownButton:hover {
+    transform: translate(-2px, -2px);
+    -webkit-box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.75);
+    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 0.75);
+}
+
+.AddressManager .dropDownButton-main {
+    height: 26px;
+    width: 26px;
+    border-bottom-left-radius: 5px;
+    border-top-left-radius: 5px;
+    background: black;
+}
+
+.AddressManager .dropdown_moreTools .dropdown-content {
+    right: auto;
+    left: 0;
+}
+
+.AddressManager .dropdown_moreTools .dropdown-content--clone {
+    position: relative;
+    min-height: 50px;
+    min-width: 250px;
+    display: flex;
+    flex-direction: column;
+    border: inset;
 }

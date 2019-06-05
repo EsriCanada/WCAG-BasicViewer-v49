@@ -90,6 +90,8 @@ import query = require("dojo/query");
     private addressPointButton: HTMLElement;
     private moreToolsButton: HTMLElement;
     private addressTitle: HTMLElement;
+    selectDropDownBtn: HTMLElement;
+    selectDropDownDiv: HTMLElement;
 
     constructor() {
         super(); 
@@ -137,6 +139,7 @@ import query = require("dojo/query");
                         <div afterCreate={this._addClonePanel} ></div>
                     </div>
                     <input type="image" src="../images/icons_transp/parcels.bggray.24.png" class="button" afterCreate={this._addFillParcelsButton} data-dojo-attach-event="click:_onFillParcelClicked" aria-label="Fill Parcels" title="Fill Parcels"></input>
+                    <div afterCreate={this._addSelectDropDownBtn} ></div>
 
                     <div class="rightTools">
                         {/* <img src="../images/reload.gif" alt="Loading..."/> */}
@@ -301,6 +304,32 @@ import query = require("dojo/query");
 
         });
      
+    }
+
+    private _addSelectDropDownBtn = (element: Element) => {
+        // this.selectDropDownDiv = element as HTMLElement;
+        require(["./DropDownButton"], DropDownButton =>{
+            this.selectDropDownBtn = new DropDownButton({
+                parent: this,
+                items: [{
+                        src: "../images/icons_transp/pickAddressRange.bggray.24.png",
+                        label: "Select Parcels",
+                        // callback: event => lang.hitch(this, this._onPickAddressRangeClicked(event))
+                    },
+                    {
+                        src: "../images/icons_transp/pickAddress.bggray.24.png",
+                        label: "Pick Single Address or Parcel",
+                        // callback: event => lang.hitch(this, this._onPickAddressClicked(event))
+                    },
+                    {
+                        src: "../images/icons_transp/pickMultipleAddresses.bggray.24.png",
+                        label: "Select Multiple Addresses",
+                        // callback: event => lang.hitch(this, this._onPickMultipleAddressClicked(event))
+                    }
+                ],
+            container: element as HTMLElement
+            })
+        })
     }
 
     private _addAddressTitle = (element: Element) => {
