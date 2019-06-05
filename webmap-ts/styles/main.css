@@ -1642,7 +1642,7 @@ blockquote[lang] {
 .AddressManager .dropdown-content {
     /* display: none; */
     position: absolute;
-    background-color: #b3b3b3;
+    background-color: white;
     min-width: 160px;
     overflow: auto;
     border: silver 1px solid;
@@ -1800,6 +1800,6 @@ blockquote[lang] {
     background: royalblue;
 }
 
-.AddressManager .itemWrapper label {
-    margin-right: 8px;
+.AddressManager .itemWrapper label span {
+    margin: 0 8px 0 4px;
 }

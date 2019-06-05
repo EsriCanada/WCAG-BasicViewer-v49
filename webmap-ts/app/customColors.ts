@@ -333,6 +333,11 @@ export function CustomColors(config: ApplicationConfig) : void {
 .AddressManager .itemWrapper:hover input {
   background: ${bgColor};
 }
+
+.AddressManager .itemWrapper:hover {
+  background: ${bgColor};
+  color: ${WhiteOrBlack(bgColor)};
+}
 `;
   }
 
