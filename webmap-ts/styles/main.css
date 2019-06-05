@@ -1705,7 +1705,7 @@ blockquote[lang] {
     padding: 2px 12px 4px 12px;
     margin: 0;
     font-size: 18px;
-    color: red;
+    /* color: red; */
     background-color: white;
     /* background-image: linear-gradient(white, #fce9ec); */
     background-image: url(../images/icons_transp/broken8.red.19.png);

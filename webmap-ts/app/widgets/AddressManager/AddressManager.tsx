@@ -350,9 +350,13 @@ import query = require("dojo/query");
 
     private _RemoveGraphic(feature) {
         const layer = feature.layer;
-        const geometry = feature.geometry;
-        const selected = layer.graphics.find(g => g.geometry === geometry);
-        layer.graphics.remove(selected);
+        if(layer) {
+            const geometry = feature.geometry;
+            const selected = layer.graphics.find(g => g.geometry === geometry);
+            if(selected) {
+                layer.graphics.remove(selected);
+            }
+        }
     }
 
     private _addDisplayBrokenRules = (element: Element) => {
@@ -516,60 +520,63 @@ import query = require("dojo/query");
         this.UtilsVM._removeMarker(this.UtilsVM.SELECTED_ADDRESS_SYMBOL.name);
 
         this.addressPointFeaturesIndex = index;
+        const feature = this.selectedAddressPointFeature = this.addressPointFeatures.toArray()[index] as any;
+
         this.addressPointIndexEl.innerHTML = (this.addressPointFeaturesIndex + 1) + "";
 
-        const feature = this.selectedAddressPointFeature = this.addressPointFeatures.toArray()[index] as any;
-        const graphic = new Graphic({geometry: feature.geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
-        this.mapView.graphics.add(graphic as any);
+        if(feature) {
+            const graphic = new Graphic({geometry: feature.geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
+            this.mapView.graphics.add(graphic as any);
 
-        this.x.value = (feature as any).geometry["x"];
-        this.y.value = (feature as any).geometry["y"];
+            this.x.value = (feature as any).geometry["x"];
+            this.y.value = (feature as any).geometry["y"];
 
-        if ("originalValues" in feature && "geometry" in feature.originalValues) {
-            html.addClass(this.x, "dirty");
-            html.addClass(this.y, "dirty");
-        } else {
-            html.removeClass(this.x, "dirty");
-            html.removeClass(this.y, "dirty");
-        };
-
-        if ("attributes" in feature) {
-            const attributes = feature.attributes
-            if (attributes.hasOwnProperty(this.config.title)) {
-                // this.addressCompiler.set("address", feature.attributes[this.config.title]);
-            }
-            const canDelete = !attributes.hasOwnProperty("OBJECTID") || !attributes["OBJECTID"];
-            if (!canDelete) {
-                html.removeClass(this.submitDelete, "orangeBtn");
+            if ("originalValues" in feature && "geometry" in feature.originalValues) {
+                html.addClass(this.x, "dirty");
+                html.addClass(this.y, "dirty");
             } else {
-                html.addClass(this.submitDelete, "orangeBtn");
-            }
+                html.removeClass(this.x, "dirty");
+                html.removeClass(this.y, "dirty");
+            };
 
-            for (let fieldName in this.inputControls) {
-                if (this.inputControls.hasOwnProperty(fieldName)) {
-                    const input = this.inputControls[fieldName];
+            if ("attributes" in feature) {
+                const attributes = feature.attributes
+                if (attributes.hasOwnProperty(this.config.title)) {
+                    // this.addressCompiler.set("address", feature.attributes[this.config.title]);
+                }
+                const canDelete = !attributes.hasOwnProperty("OBJECTID") || !attributes["OBJECTID"];
+                if (!canDelete) {
+                    html.removeClass(this.submitDelete, "orangeBtn");
+                } else {
+                    html.addClass(this.submitDelete, "orangeBtn");
+                }
 
-                    if (attributes.hasOwnProperty(fieldName)) {
-                        // if (input.type === "date") {
-                        //     input.value = new Date(attributes[fieldName]).toInputDate()
-                        // } else {
-                            input.value = attributes[fieldName];
-                        // }
-                    } else {
-                        input.value = null;
+                for (let fieldName in this.inputControls) {
+                    if (this.inputControls.hasOwnProperty(fieldName)) {
+                        const input = this.inputControls[fieldName];
+
+                        if (attributes.hasOwnProperty(fieldName)) {
+                            // if (input.type === "date") {
+                            //     input.value = new Date(attributes[fieldName]).toInputDate()
+                            // } else {
+                                input.value = attributes[fieldName];
+                            // }
+                        } else {
+                            input.value = null;
+                        }
+                        input.title = input.value;
+
+                        if ("originalValues" in feature && feature.originalValues.hasOwnProperty(fieldName) && feature.originalValues[fieldName] != input.value) {
+                            html.addClass(input, "dirty");
+                        } else {
+                            html.removeClass(input, "dirty");
+                        };
                     }
-                    input.title = input.value;
-
-                    if ("originalValues" in feature && feature.originalValues.hasOwnProperty(fieldName) && feature.originalValues[fieldName] != input.value) {
-                        html.addClass(input, "dirty");
-                    } else {
-                        html.removeClass(input, "dirty");
-                    };
                 }
             }
-        }
 
-        // this.addressCompiler.evaluate(feature);
+            // this.addressCompiler.evaluate(feature);
+        }
         this._setDirtyBtns();
         this._checkRules(feature);
         // this._showLoading(false);
@@ -640,11 +647,18 @@ import query = require("dojo/query");
     private _setDirtyBtns() {
         html.removeClass(this.submitAddressForm, "blueBtn");
         html.removeClass(this.submitAddressAll, "greenBtn");
+        html.removeClass(this.submitDelete, "orangeBtn");
         html.removeClass(this.submitCancel, "blankBtn");
         if (this.addressPointFeatures.length > 0) {
             if (this.isDirty(this.selectedAddressPointFeature)) {
                 html.addClass(this.submitAddressForm, "blueBtn");
                 html.addClass(this.submitCancel, "blankBtn");
+                
+                const attributes = (this.selectedAddressPointFeature as any).attributes;
+                const canDelete = !attributes || !("OBJECTID" in attributes) || !attributes["OBJECTID"];
+                if (canDelete) {
+                    html.addClass(this.submitDelete, "orangeBtn");
+                }
             }
             this.addressPointFeatures.forEach(feature => {
                 if (this.selectedAddressPointFeature != feature && this.isDirty(feature)) {
