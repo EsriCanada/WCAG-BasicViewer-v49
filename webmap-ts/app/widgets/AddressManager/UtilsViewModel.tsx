@@ -9,9 +9,11 @@ import Deferred = require("dojo/Deferred");
 import FeatureLayer = require("esri/layers/FeatureLayer");
 import GraphicsLayer = require("esri/layers/GraphicsLayer");
 import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
+import Draw = require("esri/views/draw/Draw");
 import geometryEngine = require("esri/geometry/geometryEngine");
 import lang = require("dojo/_base/lang");
 import html = require("dojo/_base/html");
+import Query = require("esri/tasks/support/Query");
 
 @subclass("esri.guide.UtilsViewModel")
 class UtilsViewModel extends declared(Accessor) {
@@ -252,6 +254,99 @@ class UtilsViewModel extends declared(Accessor) {
             }
         }));
 
+        return deferred.promise;
+    }
+
+    private PICK_ADDRESS_FROM_PARCEL_RANGE_draw: Draw = null;
+    
+    PICK_ADDRESS_FROM_PARCEL_RANGE = (addressLayerObj, parcelLayerObj) => {
+        const deferred = new Deferred();
+        // map.setInfoWindowOnClick(false);
+        // map.infoWindow.hide();
+
+        if(!this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw) {
+            this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw = new Draw({
+            view: this.mapView
+            })
+        }
+        if (this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw.activeAction) {
+            this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw.reset();
+            deferred.cancel("User Cancel");
+            // setTimeout(() => { this.mapView.graphics.removeAll(); }, 250);
+            return deferred.promise;
+        }
+        const drawAction = this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw.create("polyline");//, {mode:"freehand"});
+        drawAction.on([
+            "vertex-add",
+            "vertex-remove",
+            "cursor-update",
+            "redo",
+            "undo",
+            // "draw-complete"
+          ], lang.hitch(this, function(event) {
+            if (event.vertices.length > 1) {
+                // const result = createGraphic(event);
+                // const vertices = ;
+                this.mapView.graphics.removeAll();
+
+                const graphic = {
+                    geometry: {
+                      type: "polyline",
+                      paths: event.vertices,
+                      spatialReference: this.mapView.spatialReference
+                    },
+                    symbol: {
+                      type: "simple-line", // autocasts as new SimpleFillSymbol
+                      color: [255, 30, 30],
+                      width: 2,
+                      cap: "round",
+                      join: "round"
+                    }
+                };
+                this.mapView.graphics.add(graphic);
+            }
+          }));
+        drawAction.on("draw-complete", lang.hitch(this, function(event) {
+            this.mapView.graphics.removeAll();
+
+            const q = parcelLayerObj.createQuery();
+            q.outFields = ["OBJECTID"];
+            // q.where = "1=1";
+            q.geometry = {
+                type: "polyline",
+                paths: event.vertices,
+                spatialReference: this.mapView.spatialReference
+            };
+            q.spatialRelationship = "crosses";
+            q.returnGeometry = true;
+
+            parcelLayerObj.queryFeatures(q).then(result => {
+                const parcels = result.features;
+                if (parcels.length > 0) {
+                    const geoes = parcels.map(p => p.geometry);
+                    const union = geometryEngine.buffer(geoes, 2.5, "meters", true)[0];
+                    const graphic = { geometry:union, symbol:this.SELECTED_PARCEL_SYMBOL };
+                    this.mapView.graphics.add(graphic);
+                    q.geometry = union;
+                    q.outFields = ["*"];
+                    q.spatialRelationship = "esriSpatialRelContains";
+                    addressLayerObj.selectFeatures(q).then(features => {
+                        if (features && features.length > 0) {
+                            if (features.length > 1) {
+                                const graphic = { geometry:q.geometry, symbol: this.SELECTED_PARCEL_SYMBOL };
+                                this.mapView.graphics.add(graphic);
+                            }
+
+                            deferred.resolve(features);
+                        } else {
+                            deferred.cancel("No Addresses Found");
+                        }
+                    })
+                } else {
+                    deferred.cancel("No Parcels Found");
+                }
+            })
+        }))
         return deferred.promise;
     }
 

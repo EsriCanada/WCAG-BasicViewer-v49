@@ -6,10 +6,7 @@ import Widget = require("esri/widgets/Widget");
 import lang = require("dojo/_base/lang");
 import on = require("dojo/on");
 import domClass = require("dojo/dom-class");
-import domConstruct = require("dojo/dom-construct");
-import dom = require("dojo/dom");
 import domAttr = require("dojo/dom-attr");
-import domStyle = require("dojo/dom-style");
 
 import { renderable, tsx } from "esri/widgets/support/widget";
 
@@ -314,7 +311,7 @@ import query = require("dojo/query");
                 items: [{
                         src: "../images/icons_transp/pickAddressRange.bggray.24.png",
                         label: "Select Parcels",
-                        // callback: event => lang.hitch(this, this._onPickAddressRangeClicked(event))
+                        callback: this._onPickAddressRangeClicked
                     },
                     {
                         src: "../images/icons_transp/pickAddress.bggray.24.png",
@@ -331,6 +328,31 @@ import query = require("dojo/query");
             })
         })
     }
+
+    private _onPickAddressRangeClicked = (event) => {
+        // console.log("_onPickAddressRangeClicked", event, this);
+        html.addClass(event.target, "active");
+        this.mapView.graphics.removeAll();
+        // this._clearLabels();
+
+        this.UtilsVM.PICK_ADDRESS_FROM_PARCEL_RANGE(this.siteAddressPointLayer, this.parcelsLayer)
+            .then(features => {
+                html.removeClass(event.target, "active");
+                this.addressPointFeatures.removeAll();
+                this.addressPointFeatures.unshift(...(features as []));
+                this._populateAddressTable(0);
+
+                // this._showLoading(false);
+                // this.map.setInfoWindowOnClick(true);
+            }, err => {
+                console.log("PICK_ADDRESS_FROM_PARCEL_RANGE", err);
+                // this._onCancelClicked(null);
+
+                // this._showLoading(false);
+                // this.map.setInfoWindowOnClick(true);
+                html.removeClass(event.target, "active");
+            });
+        }
 
     private _addAddressTitle = (element: Element) => {
         this.addressTitle = element as HTMLElement;
