@@ -82,12 +82,12 @@ class UtilsViewModel extends declared(Accessor) {
     @property({ readOnly: true })
     SELECTED_PARCEL_SYMBOL = {
         type:"simple-fill",
-        color: [255, 30, 30, 255],
+        color: [0, 0, 0, 0],
         outline: {
             color: [255, 30, 30, 255],
-            width: 1,
+            width: 2,
             type: "simple-line",
-            style: "solid"
+            style: "short-dot"
         }
     }
         
@@ -216,7 +216,7 @@ class UtilsViewModel extends declared(Accessor) {
        return deferred.promise;
     }
 
-    private ADD_NEW_ADDRESS_sketchVM: SketchViewModel = null;
+    ADD_NEW_ADDRESS_sketchVM: SketchViewModel = null;
     
     ADD_NEW_ADDRESS = function() {
         const deferred = new Deferred();
@@ -257,9 +257,9 @@ class UtilsViewModel extends declared(Accessor) {
         return deferred.promise;
     }
 
-    private PICK_ADDRESS_FROM_PARCEL_RANGE_draw: Draw = null;
+    PICK_ADDRESS_FROM_PARCEL_RANGE_draw: Draw = null;
     
-    PICK_ADDRESS_FROM_PARCEL_RANGE = (addressLayerObj, parcelLayerObj) => {
+    PICK_ADDRESS_FROM_PARCEL_RANGE = (addressLayer, parcelLayer) => {
         const deferred = new Deferred();
         // map.setInfoWindowOnClick(false);
         // map.infoWindow.hide();
@@ -275,7 +275,7 @@ class UtilsViewModel extends declared(Accessor) {
             // setTimeout(() => { this.mapView.graphics.removeAll(); }, 250);
             return deferred.promise;
         }
-        const drawAction = this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw.create("polyline");//, {mode:"freehand"});
+        const drawAction = this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw.create("polyline", {mode:"freehand"});
         drawAction.on([
             "vertex-add",
             "vertex-remove",
@@ -307,9 +307,10 @@ class UtilsViewModel extends declared(Accessor) {
             }
           }));
         drawAction.on("draw-complete", lang.hitch(this, function(event) {
+            this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw.activeAction = null;
             this.mapView.graphics.removeAll();
 
-            const q = parcelLayerObj.createQuery();
+            const q = parcelLayer.createQuery();
             q.outFields = ["OBJECTID"];
             // q.where = "1=1";
             q.geometry = {
@@ -317,20 +318,17 @@ class UtilsViewModel extends declared(Accessor) {
                 paths: event.vertices,
                 spatialReference: this.mapView.spatialReference
             };
-            q.spatialRelationship = "crosses";
+            q.spatialRelationship = "intersects";
             q.returnGeometry = true;
 
-            parcelLayerObj.queryFeatures(q).then(result => {
+            parcelLayer.queryFeatures(q).then(result => {
                 const parcels = result.features;
                 if (parcels.length > 0) {
-                    const geoes = parcels.map(p => p.geometry);
-                    const union = geometryEngine.buffer(geoes, 2.5, "meters", true)[0];
-                    const graphic = { geometry:union, symbol:this.SELECTED_PARCEL_SYMBOL };
-                    this.mapView.graphics.add(graphic);
-                    q.geometry = union;
+                    q.geometry = geometryEngine.buffer(parcels.map(p => p.geometry), 2.5, "meters", true)[0];
                     q.outFields = ["*"];
-                    q.spatialRelationship = "esriSpatialRelContains";
-                    addressLayerObj.selectFeatures(q).then(features => {
+                    q.spatialRelationship = "contains";
+                    addressLayer.queryFeatures(q).then(result => {
+                        const features = result.features;
                         if (features && features.length > 0) {
                             if (features.length > 1) {
                                 const graphic = { geometry:q.geometry, symbol: this.SELECTED_PARCEL_SYMBOL };
@@ -341,11 +339,13 @@ class UtilsViewModel extends declared(Accessor) {
                         } else {
                             deferred.cancel("No Addresses Found");
                         }
-                    })
+                    },
+                    err => { deferred.cancel(err)})
                 } else {
                     deferred.cancel("No Parcels Found");
                 }
-            })
+            },
+            err => { deferred.cancel(err)})
         }))
         return deferred.promise;
     }
