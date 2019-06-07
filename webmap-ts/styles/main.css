@@ -1420,6 +1420,7 @@ blockquote[lang] {
 
 .AddressManager .ClonePanel .content {
     padding: 12px;
+    line-height: 18px;
 }
 
 .AddressManager .ClonePanel .footer {

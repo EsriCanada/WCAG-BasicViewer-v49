@@ -132,12 +132,12 @@ class UtilsViewModel extends declared(Accessor) {
         graphicsLayer.graphics.add({geometry: point, symbol:symbol} as any);
     }
     
-    private PICK_ROAD_sketchVM: SketchViewModel = null;
+    PICK_ROAD_sketchVM: SketchViewModel = null;
 
-    PICK_ROAD() {
+    PICK_ROAD = function()  {
         const deferred = new Deferred();
         // mapView.setInfoWindowOnClick(false);
-        // mapView.infoWindow.hide();
+        this.mapView.popup.close();
 
         // let drawDrawEnd = draw.on("draw-complete", lang.hitch(this, pickRoad));
         // draw.activate(Draw.POINT);
@@ -221,7 +221,7 @@ class UtilsViewModel extends declared(Accessor) {
     ADD_NEW_ADDRESS = function() {
         const deferred = new Deferred();
         // map.setInfoWindowOnClick(false);
-        // map.infoWindow.hide();
+        this.mapView.popup.close();
 
         if(!this.addressGraphicsLayer) {
             this.addressGraphicsLayer = new GraphicsLayer();
@@ -262,7 +262,7 @@ class UtilsViewModel extends declared(Accessor) {
     PICK_ADDRESS_FROM_PARCEL_RANGE = (addressLayer, parcelLayer) => {
         const deferred = new Deferred();
         // map.setInfoWindowOnClick(false);
-        // map.infoWindow.hide();
+        this.mapView.popup.close();
 
         if(!this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw) {
             this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw = new Draw({
@@ -272,7 +272,6 @@ class UtilsViewModel extends declared(Accessor) {
         if (this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw.activeAction) {
             this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw.reset();
             deferred.cancel("User Cancel");
-            // setTimeout(() => { this.mapView.graphics.removeAll(); }, 250);
             return deferred.promise;
         }
         const drawAction = this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw.create("polyline", {mode:"freehand"});
@@ -282,25 +281,22 @@ class UtilsViewModel extends declared(Accessor) {
             "cursor-update",
             "redo",
             "undo",
-            // "draw-complete"
           ], lang.hitch(this, function(event) {
             if (event.vertices.length > 1) {
-                // const result = createGraphic(event);
-                // const vertices = ;
                 this.mapView.graphics.removeAll();
 
                 const graphic = {
                     geometry: {
-                      type: "polyline",
-                      paths: event.vertices,
-                      spatialReference: this.mapView.spatialReference
+                        type: "polyline",
+                        paths: event.vertices,
+                        spatialReference: this.mapView.spatialReference
                     },
                     symbol: {
-                      type: "simple-line", // autocasts as new SimpleFillSymbol
-                      color: [255, 30, 30],
-                      width: 2,
-                      cap: "round",
-                      join: "round"
+                        type: "simple-line", 
+                        color: [255, 30, 30],
+                        width: 2,
+                        cap: "round",
+                        join: "round"
                     }
                 };
                 this.mapView.graphics.add(graphic);
