@@ -343,13 +343,13 @@ import query = require("dojo/query");
                 this._populateAddressTable(0);
 
                 // this._showLoading(false);
-                // this.map.setInfoWindowOnClick(true);
+                // this.mapView.popup.autoOpenEnabled = true; // ?
             }, err => {
                 console.log("PICK_ADDRESS_FROM_PARCEL_RANGE", err);
                 // this._onCancelClicked(null);
 
                 // this._showLoading(false);
-                // this.map.setInfoWindowOnClick(true);
+                // this.mapView.popup.autoOpenEnabled = true; // ?
                 html.removeClass(event.target, "active");
             });
         }
@@ -484,13 +484,13 @@ import query = require("dojo/query");
 
             this._populateAddressTable(this.addressPointFeatures.length - 1);
 
-            // map.setInfoWindowOnClick(true);
+            // this.mapView.popup.autoOpenEnabled = true; // ?
             html.removeClass(event.target, "active");
         },
         error => {
             console.error("ADD_NEW_ADDRESS", error);
 
-            // this.mapView.map.setInfoWindowOnClick(true);
+            // this.mapView.popup.autoOpenEnabled = true; // ?
             html.removeClass(event.target, "active");
         });
 
@@ -637,14 +637,14 @@ import query = require("dojo/query");
         this._setDirtyBtns();
         this._checkRules(feature);
         // this._showLoading(false);
-        // this.map.setInfoWindowOnClick(true);
+        // this.mapView.popup.autoOpenEnabled = true; // ?
     }
 
     private _clearForm() {
         // this._showFieldMenus(false);
         this.x.value = "";
         this.y.value = "";
-        // this.map.setInfoWindowOnClick(true);
+        // this.mapView.popup.autoOpenEnabled = true; // ?
 
         for (let fieldName in this.inputControls) {
             if (this.inputControls.hasOwnProperty(fieldName)) {
@@ -850,13 +850,13 @@ import query = require("dojo/query");
                         //             } else {
                         //                 html.removeClass(input, "remove");
                         //             };
-                        //             this.map.setInfoWindowOnClick(true);
+                        //             // this.mapView.popup.autoOpenEnabled = true; // ?
                         //             html.removeClass(event.target, "activeBtn");
                         //         },
                         //         err => {
                         //             console.log("PICK_ROAD", err);
 
-                        //             this.map.setInfoWindowOnClick(true);
+                        //             // this.mapView.popup.autoOpenEnabled = true; // ?
                         //             html.removeClass(event.target, "activeBtn");
                         //         }
                         //     );

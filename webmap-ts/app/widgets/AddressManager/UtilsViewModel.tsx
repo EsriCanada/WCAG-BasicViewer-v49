@@ -136,7 +136,7 @@ class UtilsViewModel extends declared(Accessor) {
 
     PICK_ROAD = function()  {
         const deferred = new Deferred();
-        // mapView.setInfoWindowOnClick(false);
+        // this.mapView.popup.autoOpenEnabled = false; // ?
         this.mapView.popup.close();
 
         // let drawDrawEnd = draw.on("draw-complete", lang.hitch(this, pickRoad));
@@ -220,7 +220,7 @@ class UtilsViewModel extends declared(Accessor) {
     
     ADD_NEW_ADDRESS = function() {
         const deferred = new Deferred();
-        // map.setInfoWindowOnClick(false);
+        // this.mapView.popup.autoOpenEnabled = false; // ?
         this.mapView.popup.close();
 
         if(!this.addressGraphicsLayer) {
@@ -261,7 +261,7 @@ class UtilsViewModel extends declared(Accessor) {
     
     PICK_ADDRESS_FROM_PARCEL_RANGE = (addressLayer, parcelLayer) => {
         const deferred = new Deferred();
-        // map.setInfoWindowOnClick(false);
+        // this.mapView.popup.autoOpenEnabled = false; // ?
         this.mapView.popup.close();
 
         if(!this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw) {
