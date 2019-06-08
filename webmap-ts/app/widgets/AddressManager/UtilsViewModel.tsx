@@ -6,6 +6,7 @@ import Accessor = require("esri/core/Accessor");
 import { subclass, declared, property } from "esri/core/accessorSupport/decorators";
 import MapView = require("esri/views/MapView");
 import Deferred = require("dojo/Deferred");
+import All = require("dojo/promise/all");
 import FeatureLayer = require("esri/layers/FeatureLayer");
 import GraphicsLayer = require("esri/layers/GraphicsLayer");
 import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
@@ -14,6 +15,7 @@ import geometryEngine = require("esri/geometry/geometryEngine");
 import lang = require("dojo/_base/lang");
 import html = require("dojo/_base/html");
 import Query = require("esri/tasks/support/Query");
+import { ENGINE_METHOD_ALL } from "constants";
 
 @subclass("esri.guide.UtilsViewModel")
 class UtilsViewModel extends declared(Accessor) {
@@ -217,8 +219,9 @@ class UtilsViewModel extends declared(Accessor) {
     }
 
     ADD_NEW_ADDRESS_sketchVM: SketchViewModel = null;
+    addressGraphicsLayer = null;
     
-    ADD_NEW_ADDRESS = function() {
+    ADD_NEW_ADDRESS = () => {
         const deferred = new Deferred();
         // this.mapView.popup.autoOpenEnabled = false; // ?
         this.mapView.popup.close();
@@ -323,8 +326,14 @@ class UtilsViewModel extends declared(Accessor) {
                     q.geometry = geometryEngine.buffer(parcels.map(p => p.geometry), 2.5, "meters", true)[0];
                     q.outFields = ["*"];
                     q.spatialRelationship = "contains";
-                    addressLayer.queryFeatures(q).then(result => {
-                        const features = result.features;
+                    const oldaddresses = addressLayer.queryFeatures(q);
+                    const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);//this.addressGraphicsLayer.queryFeatures(q);
+                    All([oldaddresses, newAddresses])
+                    // addressLayer.queryFeatures(q)
+                    .then(results => {
+                        const features = [...(results[0] as any).features];
+                        features.push(...(results[1] as any));
+                        
                         if (features && features.length > 0) {
                             if (features.length > 1) {
                                 const graphic = { geometry:q.geometry, symbol: this.SELECTED_PARCEL_SYMBOL };
@@ -333,17 +342,28 @@ class UtilsViewModel extends declared(Accessor) {
 
                             deferred.resolve(features);
                         } else {
-                            deferred.cancel("No Addresses Found");
+                            deferred.resolve(null);
+                            // deferred.cancel("No Addresses Found");
                         }
                     },
                     err => { deferred.cancel(err)})
                 } else {
-                    deferred.cancel("No Parcels Found");
+                    deferred.resolve(null);
+                    // deferred.cancel("No Parcels Found");
                 }
             },
             err => { deferred.cancel(err)})
         }))
         return deferred.promise;
+    }
+    _getFeaturesWithin = function(graphicsLayer, geometry) {
+        const deferred = new Deferred();
+        if(graphicsLayer) {
+            const within = graphicsLayer.graphics.items.filter(g => geometryEngine.within(g.geometry, geometry) )
+            deferred.resolve(within);
+            return deferred.promise;
+        } 
+        return null;
     }
 
     _removeMarker = function(markerName:string) {
