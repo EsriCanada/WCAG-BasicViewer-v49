@@ -260,7 +260,7 @@ class UtilsViewModel extends declared(Accessor) {
         return deferred.promise;
     }
 
-    PICK_ADDRESS_FROM_PARCEL_RANGE_draw: Draw = null;
+    private PICK_ADDRESS_FROM_PARCEL_RANGE_draw: Draw = null;
     
     PICK_ADDRESS_FROM_PARCEL_RANGE = (addressLayer, parcelLayer) => {
         const deferred = new Deferred();
@@ -331,8 +331,7 @@ class UtilsViewModel extends declared(Accessor) {
                     All([oldaddresses, newAddresses])
                     // addressLayer.queryFeatures(q)
                     .then(results => {
-                        const features = [...(results[0] as any).features];
-                        features.push(...(results[1] as any));
+                        const features = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
                         
                         if (features && features.length > 0) {
                             if (features.length > 1) {
@@ -356,14 +355,13 @@ class UtilsViewModel extends declared(Accessor) {
         }))
         return deferred.promise;
     }
-    _getFeaturesWithin = function(graphicsLayer, geometry) {
-        const deferred = new Deferred();
+    
+    private _getFeaturesWithin = function(graphicsLayer, geometry) {
+        let within = null
         if(graphicsLayer) {
-            const within = graphicsLayer.graphics.items.filter(g => geometryEngine.within(g.geometry, geometry) )
-            deferred.resolve(within);
-            return deferred.promise;
+            within = graphicsLayer.graphics.items.filter(g => geometryEngine.within(g.geometry, geometry) )
         } 
-        return null;
+        return {features: within};
     }
 
     _removeMarker = function(markerName:string) {
