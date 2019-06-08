@@ -1695,7 +1695,7 @@ blockquote[lang] {
 }
 
 .AddressManager .displayBrokenRules {
-    max-height: 150px;
+    height: 150px;
     overflow-y: hidden;
     border-top: 4px solid red;
 }
