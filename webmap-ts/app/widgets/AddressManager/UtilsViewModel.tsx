@@ -293,7 +293,6 @@ class UtilsViewModel extends declared(Accessor) {
             };
             this.mapView.graphics.add(clickMarker as any);
       
-
             const q = new Query();
             q.outFields = ["*"];
             q.where = "1=1";
@@ -301,9 +300,11 @@ class UtilsViewModel extends declared(Accessor) {
             q.spatialRelationship = "contains";
             q.returnGeometry = true;
 
-            addressLayer.queryFeatures(q).then(
-            result => {
-                const features = result.features;
+            const oldaddresses = addressLayer.queryFeatures(q);
+            const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);
+            All([oldaddresses, newAddresses])
+            .then(results => {
+                const features = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
                 if (features && features.length == 1) {
                     deferred.resolve(features);
                     setTimeout(() => { this._removeGraphic(clickMarker, this.mapView.graphics); }, 250);
@@ -316,23 +317,23 @@ class UtilsViewModel extends declared(Accessor) {
                         if (features && features.length == 1) {
                             q.geometry = features[0].geometry;
                             q.spatialRelationship = "contains";
-                            addressLayer.queryFeatures(q).then(
-                                result => {
-                                    const features = result.features;
-                                    // console.log("features", results);
-                                    if (features && features.length > 0) {
-                                        if (features.length > 1) {
-                                            const g = { geometry: q.geometry, symbol: this.SELECTED_PARCEL_SYMBOL} as any;
-                                            this.mapView.graphics.add(g);
-                                        }
-                                        deferred.resolve(features);
-                                        setTimeout(() => { this._removeGraphic(clickMarker, this.mapView.graphics); }, 250);
-                                    } else {
-                                        deferred.cancel("No Addresses Found");
-                                        setTimeout(() => { this._removeGraphic(clickMarker, this.mapView.graphics); }, 250);
+                            const oldaddresses = addressLayer.queryFeatures(q);
+                            const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);
+                            All([oldaddresses, newAddresses])
+                            .then(results => {
+                                const features = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
+                                if (features && features.length > 0) {
+                                    if (features.length > 1) {
+                                        const g = { geometry: q.geometry, symbol: this.SELECTED_PARCEL_SYMBOL} as any;
+                                        this.mapView.graphics.add(g);
                                     }
+                                    deferred.resolve(features);
+                                    setTimeout(() => { this._removeGraphic(clickMarker, this.mapView.graphics); }, 250);
+                                } else {
+                                    deferred.cancel("No Addresses Found");
+                                    setTimeout(() => { this._removeGraphic(clickMarker, this.mapView.graphics); }, 250);
                                 }
-                            )
+                            })
                         } else {
                             deferred.cancel("No Parcel Found");
                             setTimeout(() => { this._removeGraphic(clickMarker, this.mapView.graphics); }, 250);
