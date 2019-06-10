@@ -20,6 +20,7 @@ import Graphic = require("esri/Graphic");
 import Feature = require("esri/widgets/Feature");
 import Collection = require("esri/core/Collection");
 import query = require("dojo/query");
+// import AddressCompiler = require("./AddressCompiler");
 
 @subclass("esri.widgets.AddressManager")
   class AddressManager extends declared(Widget) {
@@ -87,8 +88,9 @@ import query = require("dojo/query");
     private addressPointButton: HTMLElement;
     private moreToolsButton: HTMLElement;
     private addressTitle: HTMLElement;
-    selectDropDownBtn: HTMLElement;
-    selectDropDownDiv: HTMLElement;
+    private selectDropDownBtn: HTMLElement;
+    private selectDropDownDiv: HTMLElement;
+    private addressCompiler: any;
 
     constructor() {
         super(); 
@@ -298,6 +300,29 @@ import query = require("dojo/query");
             console.log("inputControls", this.inputControls);
 
             // this._makeAddressTableLayout();
+
+            require(["./AddressCompiler"], AddressCompiler =>{
+                this.addressCompiler = new AddressCompiler({
+                    pattern: this.config.addressPattern,
+                    inputControls: this.inputControls,
+                    addressLayer: this.siteAddressPointLayer,
+                    addressReady: lang.hitch(this, function(address) {
+                        const input = this.inputControls["full_add"];
+                        this.inputControls["full_add"].value = address;
+                        // this._inputChanged("full_add");
+                        if (this.setDirty(this.selectedAddressPointFeature, "full_add", address)) {
+                            html.addClass(input, "dirty");
+                        } else {
+                            html.removeClass(input, "dirty");
+                        };
+                        this._inputChanged("full_add");
+                    }),
+                    // addressTitle: this.addressTitle,
+                    container: this.addressTitle
+                });
+            })
+    
+    
 
         });
      
@@ -655,7 +680,7 @@ import query = require("dojo/query");
                 }
             }
 
-            // this.addressCompiler.evaluate(feature);
+            this.addressCompiler.evaluate(feature);
         } else {
             this._clearForm();
         }
@@ -1104,9 +1129,9 @@ import query = require("dojo/query");
             html.removeClass(input, "dirty");
         };
 
-        // if (this.addressCompiler.fields.includes(fieldName)) {
-        //     this.addressCompiler.evaluate(this.selectedAddressPointFeature);
-        // }
+        if (this.addressCompiler.fields.includes(fieldName)) {
+            this.addressCompiler.evaluate(this.selectedAddressPointFeature);
+        }
     }
 
     _setDirty = (feature, fieldName, value) => {

@@ -115,3 +115,5 @@ webmap-ts/app/widgets/AddressManager/UtilsViewModel\.js
 webmap-ts/app/widgets/AddressManager/AddressManagerViewModel\.js
 
 webmap-ts/app/widgets/AddressManager/DropDownButton\.js
+
+webmap-ts/app/widgets/AddressManager/AddressCompiler\.js
