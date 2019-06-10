@@ -287,6 +287,12 @@ class UtilsViewModel extends declared(Accessor) {
             const clickedPoint = new Point({ x: event.coordinates[0], y:event.coordinates[1], spatialReference: this.mapView.spatialReference} );
 
             const buffer = geometryEngine.buffer(clickedPoint, 5, "meters");
+            const clickMarker = { 
+                geometry: buffer, 
+                symbol: this.BUFFER_SYMBOL
+            };
+            this.mapView.graphics.add(clickMarker as any);
+      
 
             const q = new Query();
             q.outFields = ["*"];
@@ -319,13 +325,16 @@ class UtilsViewModel extends declared(Accessor) {
                                             this.mapView.graphics.add(g);
                                         }
                                         deferred.resolve(features);
+                                        setTimeout(() => { this._removeGraphic(clickMarker, this.mapView.graphics); }, 250);
                                     } else {
                                         deferred.cancel("No Addresses Found");
+                                        setTimeout(() => { this._removeGraphic(clickMarker, this.mapView.graphics); }, 250);
                                     }
                                 }
                             )
                         } else {
                             deferred.cancel("No Parcel Found");
+                            setTimeout(() => { this._removeGraphic(clickMarker, this.mapView.graphics); }, 250);
                         }
                     })
                     
@@ -448,6 +457,18 @@ class UtilsViewModel extends declared(Accessor) {
             }
         };
     }
+
+    _removeGraphic = function(graphic, layer) {
+        if(layer) {
+            const geometry = graphic.geometry;
+            const selected = layer.find(g => g.geometry === geometry);
+            if(selected) {
+                layer.remove(selected);
+            }
+        }
+    }
+
+    
 
 }
 
