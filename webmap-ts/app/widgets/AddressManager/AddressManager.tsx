@@ -1084,11 +1084,54 @@ import query = require("dojo/query");
         setSpecialAttributes(input);
         on(input, "change", event => {
             // console.log("change", event, this.selectedAddressPointFeature);
-            // this._inputChanged(event.target["data-fieldName"]);
+            this._inputChanged(event.target["data-fieldName"]);
         });
         return input;
     }
 
+    _inputChanged = (fieldName: string) => {
+        const input = this.inputControls[fieldName];
+        let value = input.value;
+        if (this.specialAttributes.hasOwnProperty(fieldName)) {
+            const fieldConfig = this.specialAttributes[fieldName];
+            if (fieldConfig.hasOwnProperty("uppercase") && fieldConfig["uppercase"]) {
+                this.inputControls[fieldName].value = value = value.toUpperCase();
+            }
+        }
+        if (this._setDirty(this.selectedAddressPointFeature, fieldName, value)) {
+            html.addClass(input, "dirty");
+        } else {
+            html.removeClass(input, "dirty");
+        };
+
+        // if (this.addressCompiler.fields.includes(fieldName)) {
+        //     this.addressCompiler.evaluate(this.selectedAddressPointFeature);
+        // }
+    }
+
+    _setDirty = (feature, fieldName, value) => {
+        if (!feature) return false;
+        if (fieldName == "geometry" || feature.attributes[fieldName] != value) {
+            if (!feature.hasOwnProperty("originalValues")) {
+                feature["originalValues"] = {};
+            }
+            if (!feature.originalValues.hasOwnProperty(fieldName)) {
+                feature.originalValues[fieldName] = fieldName == "geometry" ? JSON.parse(JSON.stringify(feature.geometry)) : feature.attributes[fieldName];
+            }
+
+            if (fieldName != "geometry") {
+                feature.attributes[fieldName] = value;
+            }
+            feature.Dirty = true;
+
+            this._setDirtyBtns();
+
+            if (feature === this.selectedAddressPointFeature) {
+                this._checkRules(feature);
+            }
+        }
+        return "originalValues" in feature && fieldName in feature.originalValues;
+    }
 
 }
 

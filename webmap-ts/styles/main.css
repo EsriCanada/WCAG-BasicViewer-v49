@@ -1804,3 +1804,7 @@ blockquote[lang] {
 .AddressManager .itemWrapper label span {
     margin: 0 8px 0 4px;
 }
+
+.AddressManager .dirty {
+    font-weight: bold;
+}
