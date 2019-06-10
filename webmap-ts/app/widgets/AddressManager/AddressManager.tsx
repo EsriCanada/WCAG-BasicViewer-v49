@@ -306,27 +306,47 @@ import query = require("dojo/query");
                     pattern: this.config.addressPattern,
                     inputControls: this.inputControls,
                     addressLayer: this.siteAddressPointLayer,
-                    addressReady: lang.hitch(this, function(address) {
-                        const input = this.inputControls["full_add"];
-                        this.inputControls["full_add"].value = address;
-                        // this._inputChanged("full_add");
-                        if (this.setDirty(this.selectedAddressPointFeature, "full_add", address)) {
-                            html.addClass(input, "dirty");
-                        } else {
-                            html.removeClass(input, "dirty");
-                        };
-                        this._inputChanged("full_add");
-                    }),
-                    // addressTitle: this.addressTitle,
                     container: this.addressTitle
                 });
-            })
-    
-    
 
+                this.addressCompiler.watch("address", (newValue) => {
+                    const fullAddrInput = this.inputControls["full_add"];
+                    fullAddrInput.value = newValue;
+                    if (this.setDirty(this.selectedAddressPointFeature, "full_add", newValue)) {
+                        html.addClass(fullAddrInput, "dirty");
+                    } else {
+                        html.removeClass(fullAddrInput, "dirty");
+                    };
+                    this._inputChanged("full_add");
+                })
+            })
         });
-     
     }
+
+    setDirty = (feature, fieldName, value) => {
+        if (!feature) return false;
+        if (fieldName == "geometry" || feature.attributes[fieldName] != value) {
+            if (!feature.hasOwnProperty("originalValues")) {
+                feature["originalValues"] = {};
+            }
+            if (!feature.originalValues.hasOwnProperty(fieldName)) {
+                feature.originalValues[fieldName] = fieldName == "geometry" ? JSON.parse(JSON.stringify(feature.geometry)) : feature.attributes[fieldName];
+            }
+
+            if (fieldName != "geometry") {
+                feature.attributes[fieldName] = value;
+            }
+            feature.Dirty = true;
+
+            this._setDirtyBtns();
+
+            if (feature === this.selectedAddressPointFeature) {
+                this._checkRules(feature);
+            }
+        }
+        return "originalValues" in feature && feature.originalValues.hasOwnProperty(fieldName);
+    }
+
 
     private _addSelectDropDownBtn = (element: Element) => {
         // this.selectDropDownDiv = element as HTMLElement;

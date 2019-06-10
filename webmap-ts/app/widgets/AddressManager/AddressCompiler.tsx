@@ -3,30 +3,9 @@
 
 import {subclass, declared, property} from "esri/core/accessorSupport/decorators";
 import Widget = require("esri/widgets/Widget");
-import lang = require("dojo/_base/lang");
-import domConstruct = require("dojo/dom-construct");
-import dom = require("dojo/dom");
-import on = require("dojo/on");
-import domAttr = require("dojo/dom-attr");
-import domStyle = require("dojo/dom-style");
-import domClass = require("dojo/dom-class");
-import html = require("dojo/_base/html");
-import Deferred = require("dojo/Deferred");
-
-import UtilsViewModel = require("./UtilsViewModel");
-
-import GeometryService = require("esri/tasks/GeometryService");
-import geometryEngine = require("esri/geometry/geometryEngine");
-import GraphicsLayer = require("esri/layers/GraphicsLayer");
-import Graphic = require("esri/Graphic");
-import Draw = require("esri/views/draw/Draw"); 
-
 import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
-import Polyline = require("esri/geometry/Polyline");
-import Point = require("esri/geometry/Point");
-import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
 
 @subclass("esri.widgets.AddressCompiler")
   class AddressCompiler extends declared(Widget) {
@@ -37,9 +16,6 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
     @property()
     addressLayer;
   
-    @property()
-    addressReady = function(address):any { console.log("addressReady", address, this); }
-    
     @property()
     inputControls = null;
 
