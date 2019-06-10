@@ -13,7 +13,7 @@
         "add_pt_key"
     ],
     "title": "full_add",
-    "addressPattern": "({add_num_pre!=None} )({add_num})( {add_num_suf!=None})( {dir_prefix!=None}{mod_prefix})( {strtypre})( {name_body})( {strtysuf!=None}{mod_suffix})( - {dir_suffix!=None})(, {municipality})( - {province})( / {postalcode})",
+    "addressPattern": "({add_num_pre!=None} )({add_num})( {add_num_suf!=None})( {dir_prefix!=None}{mod_prefix})( {strtypre})( {name_body})( {strtysuf!=None}{mod_suffix})( - {dir_suffix!=None})(, {municipality})( {province})( {postalcode})",
     "specialAttributes": {
         "full_add": {
             "clipboard": true,
