@@ -306,6 +306,7 @@ class UtilsViewModel extends declared(Accessor) {
                 const features = result.features;
                 if (features && features.length == 1) {
                     deferred.resolve(features);
+                    setTimeout(() => { this._removeGraphic(clickMarker, this.mapView.graphics); }, 250);
                 } else {
                     q.geometry = clickedPoint;
                     q.spatialRelationship = "intersects";
