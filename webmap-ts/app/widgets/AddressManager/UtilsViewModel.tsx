@@ -61,10 +61,10 @@ class UtilsViewModel extends declared(Accessor) {
         type:"simple-marker",
         style: "circle",
         color: [255, 30, 30, 0],
-        size: 10,
+        size: 12,
         outline: {
             color: [255, 30, 39, 1],
-            width: 1,
+            width: 2,
             type: "simple-line",
             style: "solid"
         }

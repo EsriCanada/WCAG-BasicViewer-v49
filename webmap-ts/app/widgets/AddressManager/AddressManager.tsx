@@ -332,6 +332,8 @@ import query = require("dojo/query");
 
     private _onPickAddressClicked = (event) => {
         html.addClass(event.target, "active");
+
+        // this._onCancelClicked(null);
         this.mapView.graphics.removeAll();
         // this._clearLabels();
 
@@ -346,8 +348,6 @@ import query = require("dojo/query");
                 // this.map.setInfoWindowOnClick(true);
             }, err => {
                 console.log("PICK_ADDRESS_OR_PARCEL", err);
-                // this._onCancelClicked(null);
-
                 // this._showLoading(false);
                 // this.map.setInfoWindowOnClick(true);
                 html.removeClass(event.target, "active");

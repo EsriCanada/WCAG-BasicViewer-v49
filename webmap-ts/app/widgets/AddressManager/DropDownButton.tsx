@@ -35,7 +35,7 @@ import html = require("dojo/_base/html");
         return ( 
             <div class="DropDownButton">
                 <div class="dropdown_moreTools">
-                    <input type="image" class="dropDownButton-main" src="../images/icons_transp/pickAddressRange.bggray.24.png" afterCreate={this._addDropDownButton} />
+                    <input type="image" class="dropDownButton-main" src="../images/icons_transp/pickAddress.bggray.24.png" afterCreate={this._addDropDownButton} />
                     <input type="image" class="dropDownButton-arrow" src="../images/icons_transp/downArrow.bggray.26x11.png" afterCreate={this._addDropDownArrowBtn} data-dojo-attach-event="click:_onDropDownClick" />
                     <div class="dropdown-content hide" afterCreate={this._addDropDownButtonContent} style="min-width:150px; min-height:25px;">
                     </div>
