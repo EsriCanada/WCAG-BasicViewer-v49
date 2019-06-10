@@ -308,15 +308,16 @@ import query = require("dojo/query");
         require(["./DropDownButton"], DropDownButton =>{
             this.selectDropDownBtn = new DropDownButton({
                 parent: this,
-                items: [{
-                        src: "../images/icons_transp/pickAddressRange.bggray.24.png",
-                        label: "Select Parcels",
-                        callback: this._onPickAddressRangeClicked
-                    },
+                items: [
                     {
                         src: "../images/icons_transp/pickAddress.bggray.24.png",
                         label: "Pick Single Address or Parcel",
-                        // callback: event => lang.hitch(this, this._onPickAddressClicked(event))
+                        callback: this._onPickAddressClicked
+                    },
+                    {
+                        src: "../images/icons_transp/pickAddressRange.bggray.24.png",
+                        label: "Select Parcels",
+                        callback: this._onPickAddressRangeClicked
                     },
                     {
                         src: "../images/icons_transp/pickMultipleAddresses.bggray.24.png",
@@ -327,6 +328,30 @@ import query = require("dojo/query");
             container: element as HTMLElement
             })
         })
+    }
+
+    private _onPickAddressClicked = (event) => {
+        html.addClass(event.target, "active");
+        this.mapView.graphics.removeAll();
+        // this._clearLabels();
+
+        this.addressPointFeatures.removeAll();
+        this.UtilsVM.PICK_ADDRESS_OR_PARCEL(this.siteAddressPointLayer, this.parcelsLayer).then(
+            features => {
+                html.removeClass(event.target, "active");
+                this.addressPointFeatures.unshift(...(features as []));
+                this._populateAddressTable(0)
+
+                // this._showLoading(false);
+                // this.map.setInfoWindowOnClick(true);
+            }, err => {
+                console.log("PICK_ADDRESS_OR_PARCEL", err);
+                // this._onCancelClicked(null);
+
+                // this._showLoading(false);
+                // this.map.setInfoWindowOnClick(true);
+                html.removeClass(event.target, "active");
+            });
     }
 
     private _onPickAddressRangeClicked = (event) => {

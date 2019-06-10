@@ -16,6 +16,8 @@ import lang = require("dojo/_base/lang");
 import html = require("dojo/_base/html");
 import Query = require("esri/tasks/support/Query");
 import { ENGINE_METHOD_ALL } from "constants";
+import { Geometry, Point } from "esri/geometry";
+import Graphic = require("esri/Graphic");
 
 @subclass("esri.guide.UtilsViewModel")
 class UtilsViewModel extends declared(Accessor) {
@@ -260,7 +262,80 @@ class UtilsViewModel extends declared(Accessor) {
         return deferred.promise;
     }
 
-    private PICK_ADDRESS_FROM_PARCEL_RANGE_draw: Draw = null;
+    PICK_ADDRESS_OR_PARCEL_draw = null; 
+
+    PICK_ADDRESS_OR_PARCEL = (addressLayer, parcelLayer)  => {
+        const deferred = new Deferred();
+        // map.setInfoWindowOnClick(false);
+        this.mapView.popup.close();
+
+        if(!this.PICK_ADDRESS_OR_PARCEL_draw) {
+            this.PICK_ADDRESS_OR_PARCEL_draw = new Draw({
+            view: this.mapView
+            })
+        }
+        if (this.PICK_ADDRESS_OR_PARCEL_draw.activeAction) {
+            this.PICK_ADDRESS_OR_PARCEL_draw.reset();
+            deferred.cancel("User Cancel");
+            return deferred.promise;
+        }
+
+        const drawAction = this.PICK_ADDRESS_OR_PARCEL_draw.create("point");
+        drawAction.on("draw-complete", event => {
+            this.PICK_ADDRESS_OR_PARCEL_draw = null; 
+
+            const clickedPoint = new Point({ x: event.coordinates[0], y:event.coordinates[1], spatialReference: this.mapView.spatialReference} );
+
+            const buffer = geometryEngine.buffer(clickedPoint, 5, "meters");
+
+            const q = new Query();
+            q.outFields = ["*"];
+            q.where = "1=1";
+            q.geometry = buffer as Geometry;
+            q.spatialRelationship = "contains";
+            q.returnGeometry = true;
+
+            addressLayer.queryFeatures(q).then(
+            result => {
+                const features = result.features;
+                if (features && features.length == 1) {
+                    deferred.resolve(features);
+                } else {
+                    q.geometry = clickedPoint;
+                    q.spatialRelationship = "intersects";
+                    parcelLayer.queryFeatures(q).then(
+                    result => {
+                        const features = result.features;
+                        if (features && features.length == 1) {
+                            q.geometry = features[0].geometry;
+                            q.spatialRelationship = "contains";
+                            addressLayer.queryFeatures(q).then(
+                                result => {
+                                    const features = result.features;
+                                    // console.log("features", results);
+                                    if (features && features.length > 0) {
+                                        if (features.length > 1) {
+                                            const g = { geometry: q.geometry, symbol: this.SELECTED_PARCEL_SYMBOL} as any;
+                                            this.mapView.graphics.add(g);
+                                        }
+                                        deferred.resolve(features);
+                                    } else {
+                                        deferred.cancel("No Addresses Found");
+                                    }
+                                }
+                            )
+                        } else {
+                            deferred.cancel("No Parcel Found");
+                        }
+                    })
+                    
+                }
+            })
+        })
+        return deferred.promise;
+    }
+
+    PICK_ADDRESS_FROM_PARCEL_RANGE_draw: Draw = null;
     
     PICK_ADDRESS_FROM_PARCEL_RANGE = (addressLayer, parcelLayer) => {
         const deferred = new Deferred();
@@ -356,7 +431,7 @@ class UtilsViewModel extends declared(Accessor) {
         return deferred.promise;
     }
     
-    private _getFeaturesWithin = function(graphicsLayer, geometry) {
+    _getFeaturesWithin = function(graphicsLayer, geometry) {
         let within = null
         if(graphicsLayer) {
             within = graphicsLayer.graphics.items.filter(g => geometryEngine.within(g.geometry, geometry) )
