@@ -339,7 +339,7 @@ export function CustomColors(config: ApplicationConfig) : void {
   color: ${WhiteOrBlack(bgColor)};
 }
 
-.AddressManager .dropdown-content .menuItem:hover {
+.AddressManager .dropdown-content li:hover {
   background: ${bgColor};
   color: ${WhiteOrBlack(bgColor)};
 }
