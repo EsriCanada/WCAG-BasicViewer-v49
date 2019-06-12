@@ -839,7 +839,7 @@ import geometryEngine = require("esri/geometry/geometryEngine");
             if ("clipboard" in attributes) {
                 const capsLockBtn = html.create("input", {
                     type: "image",
-                    src: "../images/icons_transp/capsLock_1.bgwhite.24.png", 
+                    src: "../images/icons_transp/capsLock.bgwhite.24.png", 
                     class: "rowImg",
                     title: "Caps Lock",
                     "aria-label": "To Upercase",
