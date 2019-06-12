@@ -20,6 +20,7 @@ import Graphic = require("esri/Graphic");
 import Feature = require("esri/widgets/Feature");
 import Collection = require("esri/core/Collection");
 import query = require("dojo/query");
+import geometryEngine = require("esri/geometry/geometryEngine");
 // import AddressCompiler = require("./AddressCompiler");
 
 @subclass("esri.widgets.AddressManager")
@@ -871,35 +872,33 @@ import query = require("dojo/query");
                     labelBtns);
                 this.own(on(pickRoadBtn, "click",
                     event => {
-                        html.addClass(event.target, "activeBtn");
+                        html.addClass(event.target, "active");
 
-                        // (myUtils as any).PICK_ROAD(this.map, this.toolbar, this.roadSegmentLayer.layerObject)
-                        //     .then(
-                        //         street => {
-                        //             if (this.setDirty(this.selectedAddressPointFeature, field.name, street.attributes.fullname)) {
-                        //                 input.value = street.attributes.fullname;
-                        //                 html.addClass(input, "dirty");
+                        this.UtilsVM.PICK_ROAD().then(
+                            street => {
+                                const fullname = (street as any).attributes.fullname
+                                input.value = fullname;
+                                this._setDirty(input, this.selectedAddressPointFeature, field.name, fullname)
 
-                        //                 const streetMarker = geometryEngine.buffer(street.geometry, 5, GeometryService.UNIT_METER);
-                        //                 const streetGraphic = new Graphic(streetMarker, myUtils.BUFFER_SYMBOL);
+                                const streetMarker = geometryEngine.buffer((street as any).geometry, 5, "meters");
+                                const streetGraphic = { geometry:streetMarker, symbol:this.UtilsVM.BUFFER_SYMBOL};
 
-                        //                 this.map.graphics.add(streetGraphic)
+                                this.mapView.graphics.add(streetGraphic as any)
 
-                        //                 setTimeout(() => this._removeMarker(myUtils.BUFFER_SYMBOL.name), 5000);
+                                // setTimeout(() => this._removeMarker(this.UtilsVM.BUFFER_SYMBOL.name), 5000);
 
-                        //             } else {
-                        //                 html.removeClass(input, "remove");
-                        //             };
-                        //             // this.mapView.popup.autoOpenEnabled = true; // ?
-                        //             html.removeClass(event.target, "activeBtn");
-                        //         },
-                        //         err => {
-                        //             console.log("PICK_ROAD", err);
+                                // this.mapView.popup.autoOpenEnabled = true; // ?
 
-                        //             // this.mapView.popup.autoOpenEnabled = true; // ?
-                        //             html.removeClass(event.target, "activeBtn");
-                        //         }
-                        //     );
+                                this._inputChanged(field.name);
+                                html.removeClass(event.target, "active");
+                            },
+                            err => {
+                                console.log("PICK_ROAD", err);
+
+                                // this.mapView.popup.autoOpenEnabled = true; // ?
+                                html.removeClass(event.target, "active");
+                            }
+                        );
                     }
                 ));
 
