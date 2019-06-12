@@ -286,7 +286,7 @@ class UtilsViewModel extends declared(Accessor) {
 
             const clickedPoint = new Point({ x: event.coordinates[0], y:event.coordinates[1], spatialReference: this.mapView.spatialReference} );
 
-            const buffer = geometryEngine.buffer(clickedPoint, 5, "meters");
+            const buffer = geometryEngine.buffer(clickedPoint, 2, "meters");
             const clickMarker = { 
                 geometry: buffer, 
                 symbol: this.BUFFER_SYMBOL

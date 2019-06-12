@@ -281,18 +281,18 @@ import query = require("dojo/query");
             // console.log("addressFilterAttributes", addressFilterAttributes);
 
             this.addressCopyAttributeNames = [...addressFilterAttributes.filter(f => {
-                if (this.specialAttributes.hasOwnProperty(f.name)) {
+                if (f.name in this.specialAttributes) {
                     const attributes = this.specialAttributes[f.name];
-                    return attributes.hasOwnProperty("menu") && (!attributes["menu"].hasOwnProperty("copy") || attributes["menu"]["copy"])
+                    return "menu" in attributes && (!("copy" in attributes.menu) || attributes.menu.copy)
                 }
             }).map(f => f.name)];
             addressFilterAttributes = addressFilterAttributes.filter(f => {
                 let hidden = false;
-                if (this.specialAttributes.hasOwnProperty(f.name)) {
+                if (f.name in this.specialAttributes) {
                     const attributes = this.specialAttributes[f.name];
-                    hidden = attributes.hasOwnProperty("hidden");
+                    hidden = "hidden" in attributes;
                     if (!hidden) {
-                        hidden = attributes.hasOwnProperty("menu") && (attributes["menu"].hasOwnProperty("filter") && attributes["menu"]["filter"])
+                        hidden = ("menu" in attributes) && (("filter" in attributes.menu) && attributes.menu.filter)
                     }
                 }
                 return !hidden && !this.ignoreAttributes.includes(f.name) && !this.ignoreAttributes.includes(f.alias);
@@ -312,41 +312,11 @@ import query = require("dojo/query");
                 this.addressCompiler.watch("address", (newValue) => {
                     const fullAddrInput = this.inputControls["full_add"];
                     fullAddrInput.value = newValue;
-                    if (this.setDirty(this.selectedAddressPointFeature, "full_add", newValue)) {
-                        html.addClass(fullAddrInput, "dirty");
-                    } else {
-                        html.removeClass(fullAddrInput, "dirty");
-                    };
-                    this._inputChanged("full_add");
+                    this._setDirty(fullAddrInput, this.selectedAddressPointFeature, "full_add", newValue);
                 })
             })
         });
     }
-
-    setDirty = (feature, fieldName, value) => {
-        if (!feature) return false;
-        if (fieldName == "geometry" || feature.attributes[fieldName] != value) {
-            if (!feature.hasOwnProperty("originalValues")) {
-                feature["originalValues"] = {};
-            }
-            if (!feature.originalValues.hasOwnProperty(fieldName)) {
-                feature.originalValues[fieldName] = fieldName == "geometry" ? JSON.parse(JSON.stringify(feature.geometry)) : feature.attributes[fieldName];
-            }
-
-            if (fieldName != "geometry") {
-                feature.attributes[fieldName] = value;
-            }
-            feature.Dirty = true;
-
-            this._setDirtyBtns();
-
-            if (feature === this.selectedAddressPointFeature) {
-                this._checkRules(feature);
-            }
-        }
-        return "originalValues" in feature && feature.originalValues.hasOwnProperty(fieldName);
-    }
-
 
     private _addSelectDropDownBtn = (element: Element) => {
         // this.selectDropDownDiv = element as HTMLElement;
@@ -666,10 +636,10 @@ import query = require("dojo/query");
 
             if ("attributes" in feature) {
                 const attributes = feature.attributes
-                if (attributes.hasOwnProperty(this.config.title)) {
+                if (this.config.title in attributes) {
                     // this.addressCompiler.set("address", feature.attributes[this.config.title]);
                 }
-                const canDelete = !attributes.hasOwnProperty("OBJECTID") || !attributes["OBJECTID"];
+                const canDelete = !("OBJECTID" in attributes) || !attributes["OBJECTID"];
                 if (!canDelete) {
                     html.removeClass(this.submitDelete, "orangeBtn");
                 } else {
@@ -677,10 +647,10 @@ import query = require("dojo/query");
                 }
 
                 for (let fieldName in this.inputControls) {
-                    if (this.inputControls.hasOwnProperty(fieldName)) {
+                    if (fieldName in this.inputControls) {
                         const input = this.inputControls[fieldName];
 
-                        if (attributes.hasOwnProperty(fieldName)) {
+                        if (fieldName in attributes) {
                             // if (input.type === "date") {
                             //     input.value = new Date(attributes[fieldName]).toInputDate()
                             // } else {
@@ -691,7 +661,7 @@ import query = require("dojo/query");
                         }
                         input.title = input.value;
 
-                        if ("originalValues" in feature && feature.originalValues.hasOwnProperty(fieldName) && feature.originalValues[fieldName] != input.value) {
+                        if ("originalValues" in feature && fieldName in feature.originalValues && feature.originalValues[fieldName] != input.value) {
                             html.addClass(input, "dirty");
                         } else {
                             html.removeClass(input, "dirty");
@@ -717,7 +687,7 @@ import query = require("dojo/query");
         // this.mapView.popup.autoOpenEnabled = true; // ?
 
         for (let fieldName in this.inputControls) {
-            if (this.inputControls.hasOwnProperty(fieldName)) {
+            if (fieldName in this.inputControls) {
                 const input = this.inputControls[fieldName];
                 input.value = null;
                 html.removeAttr(input, "title");
@@ -738,7 +708,7 @@ import query = require("dojo/query");
                 const input = this.inputControls[fieldName];
                 const alias = html.getAttr(input, "data-alias");
 
-                if (this.specialAttributes.hasOwnProperty(fieldName)) {
+                if (fieldName in this.specialAttributes) {
                     const fieldConfig = this.specialAttributes[fieldName];
                     domAttr.set(input, "title", input.value);
                     if ("required" in fieldConfig && fieldConfig["required"] && input.value.isNullOrWhiteSpace()) {
@@ -750,11 +720,11 @@ import query = require("dojo/query");
                         html.removeClass(input, "brokenRule");
                         html.setAttr(input, "title", input.value);
                     }
-                    if (fieldConfig.hasOwnProperty("format")) {
-                        if (!input.value.match(new RegExp(fieldConfig["format"]))) {
+                    if ("format"in fieldConfig) {
+                        if (!input.value.match(new RegExp(fieldConfig.format))) {
                             let brokenRule = "'" + alias + "' has incorrect format.";
-                            if (fieldConfig.hasOwnProperty("placeholder")) {
-                                brokenRule += " (Try '" + fieldConfig["placeholder"] + "')";
+                            if ("placeholder" in fieldConfig) {
+                                brokenRule += " (Try '" + fieldConfig.placeholder + "')";
                             }
                             brokenRules.push(brokenRule);
                             domAttr.set(input, "title", domAttr.get(input, "title") + "\n" + brokenRule);
@@ -791,7 +761,7 @@ import query = require("dojo/query");
     // }
 
     private isDirty(feature) {
-        return "Dirty" in feature && feature["Dirty"];
+        return "Dirty" in feature && feature.Dirty;
     }
 
     private _setDirtyBtns() {
@@ -863,9 +833,9 @@ import query = require("dojo/query");
         }, labelContainer);
         const labelBtns = html.create("div", {}, labelContainer);
 
-        if (this.specialAttributes.hasOwnProperty(field.name)) {
+        if (field.name in this.specialAttributes) {
             const attributes = this.specialAttributes[field.name];
-            if (attributes.hasOwnProperty("clipboard")) {
+            if ("clipboard" in attributes) {
                 const clipboardBtn = html.create("input", {
                         type: "image",
                         src: "../images/icons_transp/clipboard.bgwhite.24.png", 
@@ -890,7 +860,7 @@ import query = require("dojo/query");
                     }
                 ));
             }
-            if (attributes.hasOwnProperty("pickRoad")) {
+            if ("pickRoad" in attributes) {
                 const pickRoadBtn = html.create("input", {
                         type: "image",
                         src: "../images/icons_transp/pickRoad2.bgwhite.24.png",
@@ -954,7 +924,7 @@ import query = require("dojo/query");
                 //     }
                 // }))
             }
-            // if (attributes.hasOwnProperty("default")) {
+            // if ("default" in attributes) {
             //     html.create("img", {
             //             src: "./widgets/AddressManager/images/Default.24.png",
             //             class: "rowImg",
@@ -992,7 +962,7 @@ import query = require("dojo/query");
             "data-field": field.name
         }, dropdown);
 
-        // if (this.specialAttributes.hasOwnProperty(field.name) && this.specialAttributes[field.name].hasOwnProperty("pickRoad")) {
+        // if (field.name in this.specialAttributes && "pickRoad" in this.specialAttributes[field.name]) {
         //     this.pickupRoads = new PickupRoads({
         //         map: this.map,
         //         roadsLayer: this.roadSegmentLayer,
@@ -1020,10 +990,10 @@ import query = require("dojo/query");
 
     getInputControl(field) {
         let attributes = {};
-        if (this.specialAttributes.hasOwnProperty(field.name)) {
+        if (field.name in this.specialAttributes) {
             attributes = this.specialAttributes[field.name];
             // console.log("specialAttributes", field.name, attributes);
-            if (attributes.hasOwnProperty("hidden")) {
+            if ("hidden" in attributes) {
                 return html.create("input", {
                     type: "hidden",
                     id: field.name + "_input"
@@ -1035,17 +1005,17 @@ import query = require("dojo/query");
 
         const setSpecialAttributes = (input) => {
             if (input) {
-                if (attributes.hasOwnProperty("readOnly")) {
+                if ("readOnly" in attributes) {
                     if (input.type == "select") {
                         domAttr.set(input, "disabled", "true");
                     } else {
                         domAttr.set(input, "readonly", "true");
                     }
                 }
-                if (attributes.hasOwnProperty("required")) {
+                if ("required" in attributes) {
                     domAttr.set(input, "required", "true");
                 }
-                if (attributes.hasOwnProperty("format")) {
+                if ("format" in attributes) {
                     domAttr.set(input, "pattern", attributes["format"]);
                     this.own(on(input, "input", event => {
                         // console.log("input event", event);
@@ -1064,7 +1034,7 @@ import query = require("dojo/query");
                         }
                     }));
                 }
-                if (attributes.hasOwnProperty("placeholder")) {
+                if ("placeholder" in attributes) {
                     domAttr.set(input, "placeholder", attributes["placeholder"]);
                 }
             }
@@ -1089,7 +1059,7 @@ import query = require("dojo/query");
         } else {
             switch (field.type) {
                 case "string":
-                    if (!attributes.hasOwnProperty("multiline")) {
+                    if (!("multiline" in attributes)) {
                         input = html.create("input", {
                             type: "text",
                             autocomplete: "off"
@@ -1128,7 +1098,6 @@ import query = require("dojo/query");
         input["data-fieldName"] = field.name;
         setSpecialAttributes(input);
         on(input, "change", event => {
-            // console.log("change", event, this.selectedAddressPointFeature);
             this._inputChanged(event.target["data-fieldName"]);
         });
         return input;
@@ -1137,37 +1106,54 @@ import query = require("dojo/query");
     _inputChanged = (fieldName: string) => {
         const input = this.inputControls[fieldName];
         let value = input.value;
-        if (this.specialAttributes.hasOwnProperty(fieldName)) {
+        if (fieldName in this.specialAttributes) {
             const fieldConfig = this.specialAttributes[fieldName];
-            if (fieldConfig.hasOwnProperty("uppercase") && fieldConfig["uppercase"]) {
-                this.inputControls[fieldName].value = value = value.toUpperCase();
+            const isUpperCase = "uppercase" in fieldConfig && fieldConfig.uppercase;
+            if (isUpperCase) {
+                input.value = value = value.toUpperCase();
             }
         }
-        if (this._setDirty(this.selectedAddressPointFeature, fieldName, value)) {
-            html.addClass(input, "dirty");
-        } else {
-            html.removeClass(input, "dirty");
-        };
-
+        this._setDirty(input, this.selectedAddressPointFeature, fieldName, value);
+            
         if (this.addressCompiler.fields.includes(fieldName)) {
             this.addressCompiler.evaluate(this.selectedAddressPointFeature);
         }
     }
 
-    _setDirty = (feature, fieldName, value) => {
-        if (!feature) return false;
+    _setDirty = (input, feature, fieldName, value) => {
+        if (!input || !feature) return false;
         if (fieldName == "geometry" || feature.attributes[fieldName] != value) {
-            if (!feature.hasOwnProperty("originalValues")) {
-                feature["originalValues"] = {};
+            if (!("originalValues" in feature)) {
+                feature.originalValues = {};
             }
-            if (!feature.originalValues.hasOwnProperty(fieldName)) {
+            if (!(fieldName in feature.originalValues)) {
                 feature.originalValues[fieldName] = fieldName == "geometry" ? JSON.parse(JSON.stringify(feature.geometry)) : feature.attributes[fieldName];
             }
 
             if (fieldName != "geometry") {
+                if(!(fieldName in feature.originalValues)) {
+                    feature.originalValues[fieldName] = feature.attributes[fieldName];
+                }
                 feature.attributes[fieldName] = value;
             }
-            feature.Dirty = true;
+            const nullToBlankOrValue = (value:string) => {return value == null ? "" : value; };
+            // feature.Dirty 
+            const dirtyField = nullToBlankOrValue(feature.originalValues[fieldName]) != nullToBlankOrValue(value);
+
+            if(dirtyField) {
+                html.addClass(input, "dirty");
+                feature.Dirty = true;
+            } else {
+                html.removeClass(input, "dirty");
+                feature.Dirty = false;
+                for(let i=0; i < this.inputControls.length; i++) {
+                    const inp = this.inputControls[i];
+                    if(html.containsClass(inp, "dirty")) {
+                        feature.Dirty = true;
+                        break;
+                    }
+                }
+            };
 
             this._setDirtyBtns();
 
@@ -1175,7 +1161,7 @@ import query = require("dojo/query");
                 this._checkRules(feature);
             }
         }
-        return "originalValues" in feature && fieldName in feature.originalValues;
+        // return this.isDirty(feature);
     }
 
 }

@@ -1474,7 +1474,10 @@ blockquote[lang] {
     vertical-align: top;
 }
 
-.AddressManager table th {
+.AddressManager table,
+.AddressManager table input,
+.AddressManager table select,
+.AddressManager table textarea {
     font-family: 'Roboto Condensed', sans-serif;
 }
 
