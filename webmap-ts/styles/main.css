@@ -1669,7 +1669,7 @@ AddressManager .dropdown-content li {
 }
 
 .AddressManager .hide {
-    display: none;
+    display: none !important;
 }
 
 .AddressManager .dropdown-button {
