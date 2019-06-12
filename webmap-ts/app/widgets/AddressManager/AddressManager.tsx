@@ -318,7 +318,7 @@ import geometryEngine = require("esri/geometry/geometryEngine");
             })
 
             this.on("openMenu", lang.hitch(this, function(event) {
-                console.log("openMenu", event);
+                // console.log("openMenu", event);
                 const menus = query(".dropdown-content");
                 menus.forEach(menu => {
                     if (menu != event.menu) {
@@ -685,6 +685,13 @@ import geometryEngine = require("esri/geometry/geometryEngine");
             }
 
             this.addressCompiler.evaluate(feature);
+
+            const menuBtns = query(".dropdown");
+            menuBtns.forEach(menu => {
+                html.removeClass(menu, "hide");
+
+            })
+
         } else {
             this._clearForm();
         }
@@ -713,6 +720,12 @@ import geometryEngine = require("esri/geometry/geometryEngine");
         if (this.addressTitle) {
             html.empty(this.addressTitle);
         }
+
+        const menuBtns = query(".dropdown");
+        menuBtns.forEach(menu => {
+            html.addClass(menu, "hide");
+        })
+
     }
 
     private _checkRules(feature) {
