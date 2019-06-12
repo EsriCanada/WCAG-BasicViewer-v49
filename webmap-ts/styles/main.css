@@ -1656,16 +1656,12 @@ blockquote[lang] {
 }
 
 .AddressManager .dropdown-content a {
-    color: black;
-    padding: 8px 16px;
+    /* color: black; */
+    padding: 4px 12px;
     text-decoration: none;
     display: block;
     cursor: pointer;
-    font-weight: bold;
-}
-
-.AddressManager .dropdown a:hover {
-    background-color: #ddd;
+    /* font-weight: bold; */
 }
 
 .AddressManager .hide {
@@ -1679,6 +1675,11 @@ blockquote[lang] {
     flex: 0;
     margin-left: 4px;
     opacity: 0.33;
+}
+
+.AddressManager .dropdown-button:hover,
+.AddressManager .dropdown-button:focus {
+    opacity: 1;
 }
 
 .AddressManager .dataCell-container {
@@ -1810,4 +1811,38 @@ blockquote[lang] {
 
 .AddressManager .dirty {
     font-weight: bold;
+}
+
+.AddressManager .sortItem label input {
+    display: none;
+}
+
+.AddressManager .sortItem label input~img {
+    margin-left: 8px;
+    background: white;
+    margin-top: 4px;
+}
+
+.AddressManager .sortItem,
+.AddressManager .copyToAllItem {
+    display: inline-grid;
+    grid-template-columns: auto auto;
+    width: 100%;
+}
+
+.AddressManager .copyToAllItem input[type="button"] {
+    background: transparent;
+    border: none;
+    margin: 0 12px;
+    /* font-style: italic; */
+    font-weight: bold;
+    align-self: center;
+    justify-self: end;
+    color: inherit;
+}
+
+.AddressManager .copyToAllItem input[type="button"]:hover,
+.AddressManager .sortItem label input~img:hover {
+    background-color: white;
+    color: black;
 }

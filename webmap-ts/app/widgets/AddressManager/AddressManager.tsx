@@ -21,6 +21,7 @@ import Feature = require("esri/widgets/Feature");
 import Collection = require("esri/core/Collection");
 import query = require("dojo/query");
 import geometryEngine = require("esri/geometry/geometryEngine");
+import DropDownItemMenu = require("./DropDownItemMenu");
 // import AddressCompiler = require("./AddressCompiler");
 
 @subclass("esri.widgets.AddressManager")
@@ -994,13 +995,13 @@ import geometryEngine = require("esri/geometry/geometryEngine");
         const dropdown = html.create("div", {
             class: "dropdown hide",
         }, cellContainer);
-        const dropdownBtn = html.create("input", {
-            type: "image",
-            src: "../images/Burger.24.png",
-            class: "dropdown-button",
-            "aria-label": "More Options",
-            "data-field": field.name
-        }, dropdown);
+        require(["./DropDownItemMenu"], DropDownItemMenu =>{
+            const dropdownBtn = new DropDownItemMenu({
+                parent: this,
+                fieldName: field.name,
+                container: dropdown
+            });
+        });
 
         // if (field.name in this.specialAttributes && "pickRoad" in this.specialAttributes[field.name]) {
         //     this.pickupRoads = new PickupRoads({

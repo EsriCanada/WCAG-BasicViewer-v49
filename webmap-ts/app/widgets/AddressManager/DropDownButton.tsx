@@ -15,6 +15,9 @@ import html = require("dojo/_base/html");
     private dropDownArrowBtn;
     private dropDownButtonContent: HTMLElement;
     private defaultItemIndex = 0;
+    private dropDownButton: HTMLInputElement;
+    private btnClickHandler: any;
+  
 
     @property()
     parent;
@@ -22,9 +25,6 @@ import html = require("dojo/_base/html");
     @property()
     items;
 
-    dropDownButton: HTMLInputElement;
-    btnClickHandler: any;
-  
     constructor() {
         super();
     }
