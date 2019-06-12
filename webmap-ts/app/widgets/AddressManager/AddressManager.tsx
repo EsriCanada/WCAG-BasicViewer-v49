@@ -316,6 +316,18 @@ import geometryEngine = require("esri/geometry/geometryEngine");
                     this._setDirty(fullAddrInput, this.selectedAddressPointFeature, "full_add", newValue);
                 })
             })
+
+            this.on("openMenu", lang.hitch(this, function(event) {
+                console.log("openMenu", event);
+                const menus = query(".dropdown-content");
+                menus.forEach(menu => {
+                    if (menu != event.menu) {
+                        html.addClass(menu, "hide");
+                    } else {
+                        html.removeClass(menu, "hide");
+                    }
+                })
+            }));
         });
     }
 
@@ -409,12 +421,13 @@ import geometryEngine = require("esri/geometry/geometryEngine");
         // console.log("element", element);
         require(["./ClonePanel"], ClonePanel =>{
             this.clonePanel = new ClonePanel({
+                parent: this,
                 mapView: this.mapView,
                 siteAddressPointLayer: this.siteAddressPointLayer,
                 roadsLayer: this.roadsLayer,
                 parcelsLayer : this.parcelsLayer,
                 roadFieldName: this.roadFieldName,
-                onClose: () => this.moreToolsButton.click(),
+                onClose: () => { html.removeClass(this.moreToolsButton, "active") },
                 container: element as HTMLElement
             });
         });

@@ -27,9 +27,13 @@ import i18n = require("dojo/i18n!../nls/resources");
 import Polyline = require("esri/geometry/Polyline");
 import Point = require("esri/geometry/Point");
 import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
+import { watch } from "fs";
 
 @subclass("esri.widgets.ClonePanel")
   class ClonePanel extends declared(Widget) {
+  
+    @property()
+    parent;
   
     @property()
     mapView: __esri.MapView;
@@ -172,11 +176,25 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
             html.addClass(this.clonePanelDiv, "hide");
         } else {
             html.removeClass(this.clonePanelDiv, "hide");
+            this.parent.emit("openMenu", { menu: this.container });
         }
     }
 
     private _addClonePanel = (element: Element) => {
         this.clonePanelDiv = element as HTMLElement;
+        
+        const mutationObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                console.log("mutation", mutation);
+                if(mutation.attributeName == "class" && domClass.contains(this.clonePanelDiv, "hide")) {
+                    this.onClose();
+                }
+            });
+        });
+
+        mutationObserver.observe(this.clonePanelDiv, {
+            attributes: true
+        });
     }
 
     private _addSubmitCloneCancel = (element: Element) => {
@@ -187,6 +205,8 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
             html.addClass(this.roadCell, "hide");
             this.roadGraphicsLayer.removeAll();
             this.roadSegments.length = 0;
+
+            html.addClass(this.clonePanelDiv, "hide");
 
             // console.log("onClose", this.onClose);
 
