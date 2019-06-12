@@ -18,7 +18,7 @@ class DropDownItemMenu extends declared(Widget) {
     fieldName: string;
 
     @property()
-    attributes;
+    specialAttributes;
 
     @property()
     features: any;
@@ -94,7 +94,7 @@ class DropDownItemMenu extends declared(Widget) {
             html.toggleClass(this.menuContent, "hide");
             if(!(html as any).hasClass(this.menuContent, "hide")) {
                 this.parent.emit("openMenu", { menu: this.menuContent });
-                this.getItemsForFeaturesCount();
+                this.getMenuItems();
             }
         }))
     }
@@ -124,11 +124,25 @@ class DropDownItemMenu extends declared(Widget) {
     }
 
 
-    private getItemsForFeaturesCount() {
+    private getMenuItems() {
+        const checkMenu = (value:string): boolean => ("menu" in this.specialAttributes && !(value in this.specialAttributes.menu) || this.specialAttributes.menu[value]);
+        
+        if(checkMenu("filter"))
+            html.removeClass(this.filterItem, "hide");
+        else 
+            html.addClass(this.filterItem, "hide");
+
         if (this.features.length > 1) {
             html.removeClass(this.sortItem, "hide");
-            html.removeClass(this.copyItem, "hide");
-            html.removeClass(this.fillItem, "hide");
+            if(checkMenu("copy"))
+                html.removeClass(this.copyItem, "hide");
+            else 
+                html.addClass(this.copyItem, "hide");
+
+            if(checkMenu("series"))
+                html.removeClass(this.fillItem, "hide");
+            else 
+                html.addClass(this.fillItem, "hide");
         }
         else {
             html.addClass(this.sortItem, "hide");

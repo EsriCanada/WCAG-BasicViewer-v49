@@ -999,7 +999,7 @@ import DropDownItemMenu = require("./DropDownItemMenu");
             const dropdownBtn = new DropDownItemMenu({
                 parent: this,
                 fieldName: field.name,
-                attributes: this.specialAttributes[field.name],
+                specialAttributes: this.specialAttributes[field.name],
                 features: this.addressPointFeatures,
                 container: dropdown
             });
