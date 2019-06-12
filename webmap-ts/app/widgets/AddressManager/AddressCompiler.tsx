@@ -19,14 +19,30 @@ import i18n = require("dojo/i18n!../nls/resources");
     @property()
     inputControls = null;
 
+    @property()
+    // capsLock = false;
+    get capsLock(): string { return this._get("capsLock"); };
+    set capsLock(value: string) {
+        this._set("capsLock", value);
+        this.evaluate(this.feature);
+    }
+
     private fields: any[] = [];
     private expressions: any[] = [];
+    private feature: any;
     // private _pattern: string;
   
     @property()
     get pattern(): string { return this._get("pattern"); };
     set pattern(value: string) {
         this._setPattern(value);
+    }
+
+    constructor() {
+        super(); 
+    }
+
+    postInitialize() {
     }
 
     _setPattern(str) {
@@ -83,7 +99,7 @@ import i18n = require("dojo/i18n!../nls/resources");
                 }
             });
             // console.log("expressions", this.expressions, this.fields);
-          }
+        }
     }
   
     render() {
@@ -93,6 +109,8 @@ import i18n = require("dojo/i18n!../nls/resources");
     }
 
     evaluate = feature => {
+        if(!feature) return "";
+        this.feature = feature;
         let address = "";
         this.expressions.forEach(e => {
             // let hasValue = false;
@@ -127,6 +145,9 @@ import i18n = require("dojo/i18n!../nls/resources");
                 address += exp;
             }
         })
+        if(this.capsLock) {
+            address = address.toLocaleUpperCase();
+        }
         // console.log("evaluate expressions", this.expressions);
         // console.log("address", address);
         this.set("address", address);

@@ -3,6 +3,7 @@
 
 import {subclass, declared, property, aliasOf} from "esri/core/accessorSupport/decorators";
 import Widget = require("esri/widgets/Widget");
+import html = require("dojo/_base/html");
 import lang = require("dojo/_base/lang");
 import on = require("dojo/on");
 import domClass = require("dojo/dom-class");
@@ -12,7 +13,6 @@ import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
 import FeatureLayer = require("esri/layers/FeatureLayer");
-import html = require("dojo/_base/html");
 import Field = require("esri/layers/support/Field");
 import UtilsViewModel = require("./UtilsViewModel");
 import AddressManagerViewModel = require("./AddressManagerViewModel");
@@ -837,15 +837,30 @@ import geometryEngine = require("esri/geometry/geometryEngine");
         if (field.name in this.specialAttributes) {
             const attributes = this.specialAttributes[field.name];
             if ("clipboard" in attributes) {
+                const capsLockBtn = html.create("input", {
+                    type: "image",
+                    src: "../images/icons_transp/capsLock_1.bgwhite.24.png", 
+                    class: "rowImg",
+                    title: "Caps Lock",
+                    "aria-label": "To Upercase",
+                    "data-fieldname": field.name
+                },
+                labelBtns);
+                this.own(on(capsLockBtn, "click",
+                    event => {
+                        html.toggleClass(capsLockBtn, "active");
+                        this.addressCompiler.capsLock = domClass.contains(capsLockBtn, "active");
+                    }
+                ));
                 const clipboardBtn = html.create("input", {
-                        type: "image",
-                        src: "../images/icons_transp/clipboard.bgwhite.24.png", 
-                        class: "rowImg",
-                        title: "Copy to Clipboard",
-                        "aria-label": "Copy to Clipboard",
-                        "data-fieldname": field.name
-                    },
-                    labelBtns);
+                    type: "image",
+                    src: "../images/icons_transp/clipboard.bgwhite.24.png", 
+                    class: "rowImg",
+                    title: "Copy to Clipboard",
+                    "aria-label": "Copy to Clipboard",
+                    "data-fieldname": field.name
+                },
+                labelBtns);
                 this.own(on(clipboardBtn, "click",
                     event => {
                         // html.addClass(event.target, "activeBtn");
@@ -1147,7 +1162,7 @@ import geometryEngine = require("esri/geometry/geometryEngine");
                 feature.Dirty = false;
                 for(let i=0; i < this.inputControls.length; i++) {
                     const inp = this.inputControls[i];
-                    if(html.containsClass(inp, "dirty")) {
+                    if(domClass.contains(inp, "dirty")) {
                         feature.Dirty = true;
                         break;
                     }
