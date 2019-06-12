@@ -80,7 +80,7 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
 
     render() {
         return ( 
-        <div class="ClonePanel" style="display:none;" afterCreate={this._addClonePanel}>
+        <div class="ClonePanel dropdown-content hide" style="width:300px;" afterCreate={this._addClonePanel}>
             <div class="toolbar">
                 <input type="image" src="../images/icons_transp/pickRoad2.bgwhite.24.png" class="button" afterCreate={this._addPickRoadBtn} title="Pick Road" aria-label="Pick Road"/>
                 <input type="image" src="../images/icons_transp/Cut.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onCutClicked" title="Cut Line" aria-label="Cut Line"/>
@@ -167,7 +167,12 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
     private useCurrentSeed:HTMLElement;
 
     public show(showing:boolean):void {
-        domStyle.set(this.clonePanelDiv, "display", showing ? "": "none");
+        // domStyle.set(this.clonePanelDiv, "display", showing ? "": "none");
+        if(!showing) {
+            html.addClass(this.clonePanelDiv, "hide");
+        } else {
+            html.removeClass(this.clonePanelDiv, "hide");
+        }
     }
 
     private _addClonePanel = (element: Element) => {
