@@ -71,6 +71,8 @@ import { watch } from "fs";
     private roadCell: HTMLElement;
     private roadMarker: any = null;
     private submitCloneCancel: HTMLElement;
+    cutBtn: HTMLElement;
+    cutFlip: number;
 
     constructor() {
         super();
@@ -87,7 +89,7 @@ import { watch } from "fs";
         <div class="ClonePanel dropdown-content hide" style="width:300px;" afterCreate={this._addClonePanel}>
             <div class="toolbar">
                 <input type="image" src="../images/icons_transp/pickRoad2.bgwhite.24.png" class="button" afterCreate={this._addPickRoadBtn} title="Pick Road" aria-label="Pick Road"/>
-                <input type="image" src="../images/icons_transp/Cut.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onCutClicked" title="Cut Line" aria-label="Cut Line"/>
+                <input type="image" src="../images/icons_transp/Cut.bgwhite.24.png" class="button" afterCreate={this._addCutBtn} title="Cut Line" aria-label="Cut Line"/>
                 <input type="image" src="../images/icons_transp/Flip1.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onFlipSideClicked" title="Flip Side" aria-label="Flip Side"/>
                 <input type="image" src="../images/icons_transp/Flip2.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onReverseClicked" title="Reverse Direction" aria-label="Reverse Direction"/>
                 <input type="image" src="../images/icons_transp/restart.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onRestartCutsClicked" title="Restart Cuts" aria-label="Restart Cuts"/>
@@ -168,7 +170,7 @@ import { watch } from "fs";
     private streetName:HTMLElement;
     private streetNameErrorRow:HTMLElement;
     private streetNameError:HTMLElement;
-    private useCurrentSeed:HTMLElement;
+    private useCurrentSeed:HTMLInputElement;
 
     public show(showing:boolean):void {
         // domStyle.set(this.clonePanelDiv, "display", showing ? "": "none");
@@ -205,6 +207,7 @@ import { watch } from "fs";
             html.addClass(this.roadCell, "hide");
             this.roadGraphicsLayer.removeAll();
             this.roadSegments.length = 0;
+            this.cutters = [];
 
             html.addClass(this.clonePanelDiv, "hide");
 
@@ -263,7 +266,12 @@ import { watch } from "fs";
     }
 
     private _addUseCurrentSeed = (element:Element) => {
-        this.useCurrentSeed = element as HTMLElement;
+        this.useCurrentSeed = element as HTMLInputElement;
+    }
+
+    private _addCutBtn = (element:Element) => {
+        this.cutBtn = element as HTMLElement;
+        this.own(on(this.cutBtn, "click", event => this._onCutClicked(event)))
     }
 
     private _onPickRoadClicked = (event) => {
@@ -289,7 +297,7 @@ import { watch } from "fs";
                 
                 const geometries = this.roadGeometries = this.roadSegments.map(segment => segment.geometry);
                 const [roadMarker] = geometryEngine.geodesicBuffer(geometries, [2.5], "meters", true) as any;
-                this.roadMarker = roadMarker[0];
+                this.roadMarker = roadMarker;
                 // console.log("roadMarker", roadMarker);
                 this.roadGraphic = {geometry: roadMarker, symbol: this.UtilsVM.BUFFER_SYMBOL};
                 // console.log("roadGraphic", this.roadGraphic);
@@ -309,6 +317,123 @@ import { watch } from "fs";
                 html.removeClass(event.target, "active");
             }
         );
+    }
+
+    private _onCutClicked = event => {
+        if (!this.addressRoadGeometry) return;
+        const btn = event.target;
+        html.addClass(btn, "active");
+        // this.map.setInfoWindowOnClick(false);
+        this.mapView.popup.close();
+
+        // this.cutters = [];
+        if (this.cutters.length == 0) {
+            this.GET_CUTTER_BY_POINT(this.useCurrentSeed.checked && this.parent.selectedAddressPointFeature ? this.parent.selectedAddressPointFeature.geometry : null, [63, 127, 255, 255]).then(cutter => {
+                this.cutters.push(cutter);
+                this.GET_CUTTER_BY_POINT(null, [63, 127, 255, 255]).then(cutter => {
+                    html.removeClass(event.target, "active");
+
+                    this.cutters.push(cutter);
+
+                    this._splitPolyline();
+                    // this.map.setInfoWindowOnClick(true);
+                })
+            })
+        } else {
+            // this.cutFlip = (this.cutFlip + 1) % 2;
+
+            // const cutter = this.cutters[this.cutFlip];
+            // cutter.symbol.style = "solid";
+            // cutter.symbol.width = 6;
+            // this.roadGraphicsLayer.refresh();
+
+            // if (!this.editToolbar) {
+            //     this.editToolbar = new Edit(this.map);
+            // }
+            // this.editToolbar.activate(Edit.MOVE, cutter);
+
+            // const moveStopHandler = this.editToolbar.on("graphic-move-stop", (evn) => {
+            //     this.editToolbar.deactivate();
+            //     moveStopHandler.remove();
+
+            //     html.removeClass(event.target, "active");
+            //     evn.graphic.symbol.style = "dash";
+            //     evn.graphic.symbol.width = 2;
+            //     this.roadGraphicLayer.refresh();
+
+            //     this.splitPolyline();
+
+            //     const refPoint = this.equalPoints[this.cutFlip * (this.equalPoints.length - 1)];
+            //     // const graphic = new Graphic(refPoint, myUtils.SELECTED_ADDRESS_SYMBOL);
+            //     // this.roadGraphicLayer.add(graphic);
+
+            //     // const pl = new Polyline(this.map.spatialReference);
+            //     // pl.paths = this.addressRoadGeometry.rings;
+
+            //     // const p = geometryEngine.intersect(pl, cutter.geometry);
+
+            //     this.getCutterByPoint(refPoint, [63, 127, 255, 255]).then(cutter => {
+            //         this.roadGraphicsLayer.remove(this.cutters[this.cutFlip]);
+            //         this.cutters[this.cutFlip] = cutter;
+            //     });
+            // })
+        }
+    }
+
+    GET_CUTTER_BY_POINT_draw = null; 
+    private GET_CUTTER_BY_POINT = (point, color) => {
+        const deferred = new Deferred();
+        if (point) {
+            deferred.resolve(this.makeCutter(point /*.geometry*/ , color))
+        } else {
+            if(!this.GET_CUTTER_BY_POINT_draw) {
+                this.GET_CUTTER_BY_POINT_draw = new Draw({
+                view: this.mapView
+                })
+            }
+    
+            if (this.GET_CUTTER_BY_POINT_draw.activeAction) {
+                this.GET_CUTTER_BY_POINT_draw.reset();
+                deferred.cancel("User Cancel");
+                // !
+                return deferred.promise;
+            }
+    
+            const drawAction = this.GET_CUTTER_BY_POINT_draw.create("point");
+            drawAction.on("draw-complete", event => {
+                this.GET_CUTTER_BY_POINT_draw = null; 
+                const point = new Point({x:event.coordinates[0], y:event.coordinates[1], spatialReference: this.mapView.spatialReference});
+                deferred.resolve(this.makeCutter(point, color))
+            });
+        }
+        return deferred.promise;
+    }
+
+    private makeCutter = (p2, color) => {
+        if (!this.addressRoadGeometry) return null;
+        const nearestCoordinate = geometryEngine.nearestCoordinate(this.roadMarker, p2);
+        const p1 = new Point(nearestCoordinate.coordinate);
+        const d = nearestCoordinate.distance;
+
+        const x1 = p1.x;
+        const x2 = p2.x;
+        const y1 = p1.y;
+        const y2 = p2.y;
+
+        const f = 100 / d;
+        const x = x1 + (x2 - x1) * f;
+        const y = y1 + (y2 - y1) * f;
+
+        const p = new Point({x: x, y: y, spatialReference: this.mapView.spatialReference});
+
+        const cutter = new Polyline({spatialReference:this.mapView.spatialReference});
+        cutter.addPath([p1, p]);
+
+        const cutterGraph = new Graphic({geometry: cutter, symbol:new SimpleLineSymbol({style: "dash", color: color, width:2})});
+        (cutterGraph as any).name = "cutter";
+        this.roadGraphicsLayer.add(cutterGraph);
+
+        return cutterGraph;
     }
 
     private _doStreetNameRule = () => {
@@ -342,12 +467,10 @@ import { watch } from "fs";
         return 0;
     }
 
-
-
     private _splitPolyline() {
         if (this.cutters.length != 2) return;
         
-        this.roadGraphicsLayer.clear();
+        this.roadGraphicsLayer.removeAll();
         this.roadGraphicsLayer.add(this.roadGraphic);
 
         this.cutters.forEach(cutter => this.roadGraphicsLayer.add(cutter));
