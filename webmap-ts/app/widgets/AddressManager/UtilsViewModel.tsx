@@ -18,6 +18,9 @@ import Query = require("esri/tasks/support/Query");
 import { ENGINE_METHOD_ALL } from "constants";
 import { Geometry, Point } from "esri/geometry";
 import Graphic = require("esri/Graphic");
+import TextSymbol = require("esri/symbols/TextSymbol");
+import Color = require("esri/Color");
+import Font = require("esri/symbols/Font");
 
 @subclass("esri.guide.UtilsViewModel")
 class UtilsViewModel extends declared(Accessor) {
@@ -440,6 +443,36 @@ class UtilsViewModel extends declared(Accessor) {
             err => { deferred.cancel(err)})
         }))
         return deferred.promise;
+    }
+
+    GET_LABEL_SYMBOL = function(labelText: string) {
+        const symb = {
+            type: "text",  // autocasts as new TextSymbol()
+            color: "black",
+            haloColor: "white",
+            haloSize: "1px",
+            text: labelText,
+            // xoffset: 0,
+            yoffset: -20,
+            font: {  // autocast as new Font()
+                size: 14,
+                family: "'Avenir Light', Verdana, Geneva, sans-serif",
+                weight: "bold"
+            },
+
+            name: "Label"
+        }
+        
+        
+        // new TextSymbol(labelText)
+        //     .setColor(new Color([0, 0, 0, 255]))
+        //     .setHaloColor(new Color([255, 200, 200, 255]))
+        //     .setHaloSize(1)
+        //     .setAlign(Font.ALIGN_MIDDLE)
+        //     .setFont(new Font("12pt").setWeight(Font.WEIGHT_BOLD).setFamily("'Avenir Light', Verdana, Geneva, sans-serif"))
+        //     .setOffset(0, -22);
+        // symb.name = "Label";
+        return symb;
     }
     
     _getFeaturesWithin = function(graphicsLayer, geometry) {

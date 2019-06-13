@@ -8,6 +8,7 @@ import Widget = require("esri/widgets/Widget");
 import lang = require("dojo/_base/lang");
 import on = require("dojo/on");
 import html = require("dojo/_base/html");
+import UtilsViewModel = require("./UtilsViewModel");
 
 @subclass("esri.widgets.DropDownItemMenu")
 class DropDownItemMenu extends declared(Widget) {
@@ -21,7 +22,13 @@ class DropDownItemMenu extends declared(Widget) {
     specialAttributes;
 
     @property()
-    features: any;
+    addressPointFeatures: any;
+
+    // @property()
+    // labelsGraphicsLayer;
+
+    @property()
+    utilsVM : UtilsViewModel;
 
     private dropDownButton: any;
     private menuContent: HTMLElement;
@@ -30,6 +37,10 @@ class DropDownItemMenu extends declared(Widget) {
     private filterItem: HTMLElement;
     private copyItem: HTMLElement;
     private fillItem: HTMLElement;
+    
+    static lastFieldName: string;
+
+    static LabelsGraphicsLayer;
 
     constructor() {
         super();
@@ -105,6 +116,19 @@ class DropDownItemMenu extends declared(Widget) {
 
     private _addLabelsItem = (element: Element) => {
         this.labelItem = element as HTMLElement;
+        this.own(on(this.labelItem, "click", event => {
+            if (this.addressPointFeatures.length <= 1) return;
+
+            const show = DropDownItemMenu.LabelItemText == "Show Labels";
+            // console.log("this.addressPointFeatures", this.addressPointFeatures);
+            if (show) {
+                this._showLabels();
+            } else {
+                this._clearLabels();
+            }
+            html.addClass(this.menuContent, "hide");
+
+        }))
     }
 
     private _addSortItem = (element: Element) => {
@@ -125,14 +149,16 @@ class DropDownItemMenu extends declared(Widget) {
 
 
     private getMenuItems() {
-        const checkMenu = (value:string): boolean => ("menu" in this.specialAttributes && !(value in this.specialAttributes.menu) || this.specialAttributes.menu[value]);
+        this.labelItem.firstChild.textContent = DropDownItemMenu.LabelItemText;
         
+        const checkMenu = (value:string): boolean => ("menu" in this.specialAttributes && !(value in this.specialAttributes.menu) || this.specialAttributes.menu[value]);
+
         if(checkMenu("filter"))
             html.removeClass(this.filterItem, "hide");
         else 
             html.addClass(this.filterItem, "hide");
 
-        if (this.features.length > 1) {
+        if (this.addressPointFeatures.length > 1) {
             html.removeClass(this.sortItem, "hide");
             if(checkMenu("copy"))
                 html.removeClass(this.copyItem, "hide");
@@ -150,5 +176,32 @@ class DropDownItemMenu extends declared(Widget) {
             html.addClass(this.fillItem, "hide");
         }
     }
+
+    private _showLabels = () => {
+        if(DropDownItemMenu.lastFieldName != this.fieldName) {
+            this._clearLabels();
+            DropDownItemMenu.LabelItemText = this.labelItem.firstChild.textContent = "Hide Labels";
+        }
+        DropDownItemMenu.lastFieldName = this.fieldName;
+        for (let i = 0; i < this.addressPointFeatures.length; i++) {
+            const feature = this.addressPointFeatures.items[i];
+            // console.log("feature", feature);
+            const graphic = {geometry: feature.geometry, symbol: this.utilsVM.GET_LABEL_SYMBOL(feature.attributes[this.fieldName])};
+            // this.map.graphics.add(graphic);
+            DropDownItemMenu.LabelsGraphicsLayer.add(graphic);
+        }
+    }
+
+    private _clearLabels = () => {
+        DropDownItemMenu.ClearLabels();
+        DropDownItemMenu.LabelItemText = this.labelItem.firstChild.textContent = "Show Labels";
+    }
+
+    static ClearLabels = () => {
+        DropDownItemMenu.LabelsGraphicsLayer.removeAll();
+    }
+
+    static LabelItemText = "Show Labels";
+
 }
 export = DropDownItemMenu;

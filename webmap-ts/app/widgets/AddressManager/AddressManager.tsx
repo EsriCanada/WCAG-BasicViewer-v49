@@ -22,6 +22,7 @@ import Collection = require("esri/core/Collection");
 import query = require("dojo/query");
 import geometryEngine = require("esri/geometry/geometryEngine");
 import DropDownItemMenu = require("./DropDownItemMenu");
+import GraphicsLayer = require("esri/layers/GraphicsLayer");
 // import AddressCompiler = require("./AddressCompiler");
 
 @subclass("esri.widgets.AddressManager")
@@ -93,6 +94,7 @@ import DropDownItemMenu = require("./DropDownItemMenu");
     private selectDropDownBtn: HTMLElement;
     private selectDropDownDiv: HTMLElement;
     private addressCompiler: any;
+    private labelsGraphicsLayer: any;
 
     constructor() {
         super(); 
@@ -115,6 +117,11 @@ import DropDownItemMenu = require("./DropDownItemMenu");
             this.siteAddressPointLayer = getLayer("siteaddresspoint");
             this.roadsLayer = getLayer("roadsegment");
             this.parcelsLayer = getLayer("parcel");
+            
+            this.labelsGraphicsLayer = new GraphicsLayer();
+            this.mapView.map.layers.add(this.labelsGraphicsLayer);
+            DropDownItemMenu.LabelsGraphicsLayer = this.labelsGraphicsLayer;
+
             this.viewModel = new AddressManagerViewModel();
             this.UtilsVM = new UtilsViewModel({mapView:this.mapView, roadsLayer: this.roadsLayer});
 
@@ -995,12 +1002,15 @@ import DropDownItemMenu = require("./DropDownItemMenu");
         const dropdown = html.create("div", {
             class: "dropdown hide",
         }, cellContainer);
+
         require(["./DropDownItemMenu"], DropDownItemMenu =>{
             const dropdownBtn = new DropDownItemMenu({
                 parent: this,
                 fieldName: field.name,
                 specialAttributes: this.specialAttributes[field.name],
-                features: this.addressPointFeatures,
+                addressPointFeatures: this.addressPointFeatures,
+                // labelsGraphicsLayer: this.labelsGraphicsLayer,
+                utilsVM: this.UtilsVM,
                 container: dropdown
             });
         });
