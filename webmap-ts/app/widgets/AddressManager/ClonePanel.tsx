@@ -28,6 +28,7 @@ import Polyline = require("esri/geometry/Polyline");
 import Point = require("esri/geometry/Point");
 import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
 import { watch } from "fs";
+import CursorToolTip = require("./CursorToolTip");
 
 @subclass("esri.widgets.ClonePanel")
   class ClonePanel extends declared(Widget) {
@@ -328,9 +329,9 @@ import { watch } from "fs";
 
         // this.cutters = [];
         if (this.cutters.length == 0) {
-            this.GET_CUTTER_BY_POINT(this.useCurrentSeed.checked && this.parent.selectedAddressPointFeature ? this.parent.selectedAddressPointFeature.geometry : null, [63, 127, 255, 255]).then(cutter => {
+            this.GET_CUTTER_BY_POINT(this.useCurrentSeed.checked && this.parent.selectedAddressPointFeature ? this.parent.selectedAddressPointFeature.geometry : null, [63, 127, 255, 255], "Please make first cut").then(cutter => {
                 this.cutters.push(cutter);
-                this.GET_CUTTER_BY_POINT(null, [63, 127, 255, 255]).then(cutter => {
+                this.GET_CUTTER_BY_POINT(null, [63, 127, 255, 255], "Please make second cut").then(cutter => {
                     html.removeClass(event.target, "active");
 
                     this.cutters.push(cutter);
@@ -381,7 +382,7 @@ import { watch } from "fs";
     }
 
     GET_CUTTER_BY_POINT_draw = null; 
-    private GET_CUTTER_BY_POINT = (point, color) => {
+    private GET_CUTTER_BY_POINT = (point, color, tip) => {
         const deferred = new Deferred();
         if (point) {
             deferred.resolve(this.makeCutter(point /*.geometry*/ , color))
@@ -399,11 +400,24 @@ import { watch } from "fs";
                 return deferred.promise;
             }
     
-            const drawAction = this.GET_CUTTER_BY_POINT_draw.create("point");
-            drawAction.on("draw-complete", event => {
-                this.GET_CUTTER_BY_POINT_draw = null; 
-                const point = new Point({x:event.coordinates[0], y:event.coordinates[1], spatialReference: this.mapView.spatialReference});
-                deferred.resolve(this.makeCutter(point, color))
+            require(["./CursorToolTip"], CursorToolTip =>{
+
+                let cursorTooltip = new CursorToolTip({
+                    mapView: this.mapView,
+                    content: tip,
+                    container: html.create("div", {
+                        style:"position:fixed;",
+                        class: "AddressManager"
+                    }, this.mapView.container)
+                });
+                const drawAction = this.GET_CUTTER_BY_POINT_draw.create("point");
+                drawAction.on("draw-complete", event => {
+                    cursorTooltip.destroy();
+                    cursorTooltip = null;
+                    this.GET_CUTTER_BY_POINT_draw = null; 
+                    const point = new Point({x:event.coordinates[0], y:event.coordinates[1], spatialReference: this.mapView.spatialReference});
+                    deferred.resolve(this.makeCutter(point, color))
+                });
             });
         }
         return deferred.promise;
