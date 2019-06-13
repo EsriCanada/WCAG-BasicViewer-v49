@@ -1835,18 +1835,12 @@ AddressManager .dropdown-content li {
 }
 
 .AddressManager .copyToAllItem input[type="button"] {
-    background: transparent;
+    background: white;
     border: none;
     margin: 0 12px;
-    /* font-style: italic; */
+    font-size: 16px;
     font-weight: bold;
     align-self: center;
     justify-self: end;
-    color: inherit;
-}
-
-.AddressManager .copyToAllItem input[type="button"]:hover,
-.AddressManager .sortItem label input~img:hover {
-    background-color: white;
     color: black;
 }

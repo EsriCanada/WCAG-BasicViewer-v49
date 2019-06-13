@@ -808,14 +808,13 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
             if (this.isDirty(this.selectedAddressPointFeature)) {
                 html.addClass(this.submitAddressForm, "blueBtn");
                 html.addClass(this.submitCancel, "blankBtn");
-                
-                const attributes = (this.selectedAddressPointFeature as any).attributes;
-                const canDelete = !attributes || !("OBJECTID" in attributes) || !attributes["OBJECTID"];
-                if (canDelete) {
-                    html.addClass(this.submitDelete, "orangeBtn");
-                }
             }
-            this.addressPointFeatures.forEach(feature => {
+        const attributes = (this.selectedAddressPointFeature as any).attributes;
+        const canDelete = !attributes || !("OBJECTID" in attributes) || !attributes["OBJECTID"];
+        if (canDelete) {
+            html.addClass(this.submitDelete, "orangeBtn");
+        }
+        this.addressPointFeatures.forEach(feature => {
                 if (this.selectedAddressPointFeature != feature && this.isDirty(feature)) {
                     html.addClass(this.submitAddressAll, "greenBtn");
                     html.addClass(this.submitCancel, "blankBtn");

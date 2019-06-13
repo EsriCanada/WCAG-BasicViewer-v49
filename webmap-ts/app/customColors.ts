@@ -343,6 +343,11 @@ export function CustomColors(config: ApplicationConfig) : void {
   background: ${bgColor};
   color: ${WhiteOrBlack(bgColor)};
 }
+
+.AddressManager .copyToAllItem input[type="button"]:hover, 
+.AddressManager .sortItem label input~img:hover {
+  background-color: ${LightenDarkenColor(hoverColor, 75)};
+}
 `;
   }
 
