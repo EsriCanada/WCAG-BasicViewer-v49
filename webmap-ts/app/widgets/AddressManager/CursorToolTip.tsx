@@ -18,7 +18,18 @@ import html = require("dojo/_base/html");
 
     @property()
     @renderable()
-    content;
+    // content;
+    get content(): string { return this._get("content"); };
+    set content(value: string) {
+        this._set("content", value);
+        if(this.pausableHandler) {
+            if(value) {
+                this.pausableHandler.resume();
+            } else {
+                this.pausableHandler.pause();
+            }
+        }
+    }
 
     private toolTip: HTMLElement;
 
@@ -51,18 +62,10 @@ import html = require("dojo/_base/html");
         )
     }
 
-    // static init(mapView) {
-    //     if(!CursorToolTip.cursorContainer) {
-    //         CursorToolTip.cursorContainer = html.create("div", {
-    //             style:"position:fixed;",
-    //             class: "AddressManager"
-    //         }, mapView.container)
-    //     }
-    // }
-
+    private pausableHandler = null;
     private _addToolTip = (element: Element) => {
         this.toolTip = element as HTMLElement;
-        this.own(on(this.mapView, "pointer-move", event => {
+        this.own(this.pausableHandler = on.pausable(this.mapView, "pointer-move", event => {
             if(!this.content) return;
             const x = event.native.offsetX;
             const y = event.native.offsetY;
