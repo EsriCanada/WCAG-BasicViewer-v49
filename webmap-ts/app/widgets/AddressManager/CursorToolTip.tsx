@@ -17,35 +17,62 @@ import html = require("dojo/_base/html");
     mapView;
 
     @property()
+    @renderable()
     content;
 
     private toolTip: HTMLElement;
+
+    static cursorContainer;
+    private static instance;
     
+    private constructor() {
+        super();
+    }
+
+    static getInstance(mapView, content) {
+        if (!CursorToolTip.instance) {
+            CursorToolTip.instance = new CursorToolTip();
+            CursorToolTip.instance.mapView = mapView;
+            CursorToolTip.instance.container = html.create("div", {
+                style:"position:fixed;",
+                class: "AddressManager"
+            }, mapView.container);
+        }
+
+        CursorToolTip.instance.content = content;
+        return CursorToolTip.instance;
+    }
+
     render() {
         return ( 
-            <div class="mapCursorTooltip" afterCreate={this._addToolTip}>
+            <div class="mapCursorTooltip" afterCreate={this._addToolTip} style="display:none;">
                 {this.content}
             </div>
         )
     }
 
+    // static init(mapView) {
+    //     if(!CursorToolTip.cursorContainer) {
+    //         CursorToolTip.cursorContainer = html.create("div", {
+    //             style:"position:fixed;",
+    //             class: "AddressManager"
+    //         }, mapView.container)
+    //     }
+    // }
+
     private _addToolTip = (element: Element) => {
         this.toolTip = element as HTMLElement;
         this.own(on(this.mapView, "pointer-move", event => {
-            let px, py;        
-            // if (event.clientX || event.pageY) {
-              px = event.native.clientX;
-              py = event.native.clientY;
-            // } else {
-            //   px = event.clientX + html.body.scrollLeft - dojo.body().clientLeft;
-            //   py = event.clientY + dojo.body().scrollTop - dojo.body().clientTop;
-            // }
-                           
-            // dojo.style(tooltip, "display", "none");
-            // this.toolTip.style.display = "none";
-            html.setStyle(this.toolTip, { left: (px + 15) + "px", top: (py + 15) + "px" });
-            this.toolTip.style.display = "";
+            if(!this.content) return;
+            const x = event.native.offsetX;
+            const y = event.native.offsetY;
+            html.setStyle(this.toolTip, { left: (x + 24) + "px", top: (y + 24) + "px", display: "" });
         }))
+    }
+
+    public close() {
+        html.setStyle(this.toolTip, { display: "none"});
+        this.content = null;
     }
 }
 export = CursorToolTip;

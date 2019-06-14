@@ -393,27 +393,19 @@ import CursorToolTip = require("./CursorToolTip");
                 })
             }
     
-            if (this.GET_CUTTER_BY_POINT_draw.activeAction) {
-                this.GET_CUTTER_BY_POINT_draw.reset();
-                deferred.cancel("User Cancel");
-                // !
-                return deferred.promise;
-            }
-    
             require(["./CursorToolTip"], CursorToolTip =>{
+                const cursorToolTip = CursorToolTip.getInstance(this.mapView, tip);
 
-                let cursorTooltip = new CursorToolTip({
-                    mapView: this.mapView,
-                    content: tip,
-                    container: html.create("div", {
-                        style:"position:fixed;",
-                        class: "AddressManager"
-                    }, this.mapView.container)
-                });
+                if (this.GET_CUTTER_BY_POINT_draw.activeAction) {
+                    this.GET_CUTTER_BY_POINT_draw.reset();
+                    cursorToolTip.close();
+                    deferred.cancel("User Cancel");
+                    return deferred.promise;
+                }
+        
                 const drawAction = this.GET_CUTTER_BY_POINT_draw.create("point");
                 drawAction.on("draw-complete", event => {
-                    cursorTooltip.destroy();
-                    cursorTooltip = null;
+                    cursorToolTip.close();
                     this.GET_CUTTER_BY_POINT_draw = null; 
                     const point = new Point({x:event.coordinates[0], y:event.coordinates[1], spatialReference: this.mapView.spatialReference});
                     deferred.resolve(this.makeCutter(point, color))

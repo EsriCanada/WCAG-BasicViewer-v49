@@ -181,7 +181,6 @@ class UtilsViewModel extends declared(Accessor) {
                 if (event.state === "complete") {
                     const graphic = event.graphic;
                     cursorTooltip.destroy();
-                    cursorTooltip = null;
                         // console.log("event.graphic", event.graphic);
 
                     // sketchVM.layer.remove(graphic);
@@ -290,25 +289,21 @@ class UtilsViewModel extends declared(Accessor) {
             view: this.mapView
             })
         }
-        if (this.PICK_ADDRESS_OR_PARCEL_draw.activeAction) {
-            this.PICK_ADDRESS_OR_PARCEL_draw.reset();
-            deferred.cancel("User Cancel");
-            return deferred.promise;
-        }
-
         require(["./CursorToolTip"], CursorToolTip =>{
-            let cursorTooltip = new CursorToolTip({
-                mapView: this.mapView,
-                content: "Click Address or parcel",
-                container: html.create("div", {
-                    style:"position:fixed;",
-                    class: "AddressManager"
-                }, this.mapView.container)
-            });
+            const cursorToolTip = CursorToolTip.getInstance(this.mapView, "Click Address or parcel");
+
+            if (this.PICK_ADDRESS_OR_PARCEL_draw.activeAction) {
+                this.PICK_ADDRESS_OR_PARCEL_draw.reset();
+                cursorToolTip.close();
+
+                deferred.cancel("User Cancel");
+                return deferred.promise;
+            }
+
             const drawAction = this.PICK_ADDRESS_OR_PARCEL_draw.create("point");
             drawAction.on("draw-complete", event => {
-                cursorTooltip.destroy();
-                cursorTooltip = null;
+                cursorToolTip.close();
+
                 this.PICK_ADDRESS_OR_PARCEL_draw = null; 
 
                 const clickedPoint = new Point({ x: event.coordinates[0], y:event.coordinates[1], spatialReference: this.mapView.spatialReference} );
@@ -381,24 +376,17 @@ class UtilsViewModel extends declared(Accessor) {
         // this.mapView.popup.autoOpenEnabled = false; // ?
         this.mapView.popup.close();
 
-        if(!this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw) {
-            this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw = new Draw({
-            view: this.mapView
-            })
-        }
         require(["./CursorToolTip"], CursorToolTip =>{
-            let cursorTooltip = new CursorToolTip({
-                mapView: this.mapView,
-                content: "Draw a line over parcels to select",
-                container: html.create("div", {
-                    style:"position:fixed;",
-                    class: "AddressManager"
-                }, this.mapView.container)
-            });
+            if(!this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw) {
+                this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw = new Draw({
+                view: this.mapView
+                })
+            }
+            const cursorToolTip = CursorToolTip.getInstance(this.mapView, "Draw a line over parcels to select");
+
             if (this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw.activeAction) {
                 this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw.reset();
-                cursorTooltip.destroy();
-                cursorTooltip = null;
+                cursorToolTip.close();
                 deferred.cancel("User Cancel");
                 return deferred.promise;
             }
@@ -434,8 +422,7 @@ class UtilsViewModel extends declared(Accessor) {
             drawAction.on("draw-complete", lang.hitch(this, function(event) {
                 this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw.activeAction = null;
                 this.mapView.graphics.removeAll();
-                cursorTooltip.destroy();
-                cursorTooltip = null;
+                cursorToolTip.close();
 
                 const q = parcelLayer.createQuery();
                 q.outFields = ["OBJECTID"];

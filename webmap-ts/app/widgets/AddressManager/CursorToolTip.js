@@ -24,36 +24,56 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
     var CursorToolTip = /** @class */ (function (_super) {
         __extends(CursorToolTip, _super);
         function CursorToolTip() {
-            var _this = _super !== null && _super.apply(this, arguments) || this;
+            var _this = _super.call(this) || this;
+            // static init(mapView) {
+            //     if(!CursorToolTip.cursorContainer) {
+            //         CursorToolTip.cursorContainer = html.create("div", {
+            //             style:"position:fixed;",
+            //             class: "AddressManager"
+            //         }, mapView.container)
+            //     }
+            // }
             _this._addToolTip = function (element) {
                 _this.toolTip = element;
                 _this.own(on(_this.mapView, "pointer-move", function (event) {
-                    var px, py;
-                    // if (event.clientX || event.pageY) {
-                    px = event.native.clientX;
-                    py = event.native.clientY;
-                    // } else {
-                    //   px = event.clientX + html.body.scrollLeft - dojo.body().clientLeft;
-                    //   py = event.clientY + dojo.body().scrollTop - dojo.body().clientTop;
-                    // }
-                    // dojo.style(tooltip, "display", "none");
-                    // this.toolTip.style.display = "none";
-                    html.setStyle(_this.toolTip, { left: (px + 15) + "px", top: (py + 15) + "px" });
-                    _this.toolTip.style.display = "";
+                    if (!_this.content)
+                        return;
+                    var x = event.native.offsetX;
+                    var y = event.native.offsetY;
+                    html.setStyle(_this.toolTip, { left: (x + 24) + "px", top: (y + 24) + "px", display: "" });
                 }));
             };
             return _this;
         }
-        CursorToolTip.prototype.render = function () {
-            return (widget_1.tsx("div", { class: "mapCursorTooltip", afterCreate: this._addToolTip }, this.content));
+        CursorToolTip_1 = CursorToolTip;
+        CursorToolTip.getInstance = function (mapView, content) {
+            if (!CursorToolTip_1.instance) {
+                CursorToolTip_1.instance = new CursorToolTip_1();
+                CursorToolTip_1.instance.mapView = mapView;
+                CursorToolTip_1.instance.container = html.create("div", {
+                    style: "position:fixed;",
+                    class: "AddressManager"
+                }, mapView.container);
+            }
+            CursorToolTip_1.instance.content = content;
+            return CursorToolTip_1.instance;
         };
+        CursorToolTip.prototype.render = function () {
+            return (widget_1.tsx("div", { class: "mapCursorTooltip", afterCreate: this._addToolTip, style: "display:none;" }, this.content));
+        };
+        CursorToolTip.prototype.close = function () {
+            html.setStyle(this.toolTip, { display: "none" });
+            this.content = null;
+        };
+        var CursorToolTip_1;
         __decorate([
             decorators_1.property()
         ], CursorToolTip.prototype, "mapView", void 0);
         __decorate([
-            decorators_1.property()
+            decorators_1.property(),
+            widget_1.renderable()
         ], CursorToolTip.prototype, "content", void 0);
-        CursorToolTip = __decorate([
+        CursorToolTip = CursorToolTip_1 = __decorate([
             decorators_1.subclass("esri.widgets.CursorToolTip")
         ], CursorToolTip);
         return CursorToolTip;
