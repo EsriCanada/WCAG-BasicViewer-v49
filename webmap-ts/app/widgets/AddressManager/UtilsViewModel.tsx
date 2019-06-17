@@ -161,7 +161,7 @@ class UtilsViewModel extends declared(Accessor) {
         if (this.PICK_ROAD_sketchVM.state == "active") {
             this.PICK_ROAD_sketchVM.cancel();
             deferred.cancel("User Cancel");
-            setTimeout(() => { this.mapView.graphics.removeAll(); }, 250);
+            setTimeout(() => { tempGraphicsLayer.removeAll(); }, 250);
             return deferred.promise;
         }
 
@@ -176,28 +176,27 @@ class UtilsViewModel extends declared(Accessor) {
             });
 
             this.PICK_ROAD_sketchVM.create("point");
-            this.PICK_ROAD_sketchVM.on("create", lang.hitch(this, function(event) {
+            this.PICK_ROAD_sketchVM.on("create", event => {
                 
                 if (event.state === "complete") {
                     const graphic = event.graphic;
-                    cursorTooltip.destroy();
-                        // console.log("event.graphic", event.graphic);
+                    cursorTooltip.close();
+                    // console.log("event.graphic", event.graphic);
 
                     // sketchVM.layer.remove(graphic);
                     // mapView.graphics.add(graphic);
 
-                    // tempGraphicsLayer.destroy();
                     tempGraphicsLayer.removeAll();
 
                     const buffer = geometryEngine.buffer(graphic.geometry, 5, "meters");
         
-                    const gr = { 
+                    const clickMarker = { 
                         geometry: buffer, 
                         symbol: this.BUFFER_SYMBOL
                     };
                     // console.log("gr", gr);
 
-                    this.mapView.graphics.add(gr);
+                    tempGraphicsLayer.add(clickMarker as any);
             
                     const q = this.roadsLayer.createQuery();
                     q.outFields = ["*"];
@@ -207,29 +206,28 @@ class UtilsViewModel extends declared(Accessor) {
                     q.returnGeometry = true;
             
                     this.roadsLayer.queryFeatures(q).then(
-                        lang.hitch(this, function(results) {
+                        results => {
                             const roads = results.features;
                             if (roads.length == 1) {
-                                const roadMarker = geometryEngine.buffer(roads[0].geometry, 2.5, "meters");
-                                const roadGraphic = { geometry: roadMarker, symbol: this.BUFFER_SYMBOL, attributes: roads[0].attributes};
-                                // 
-                                setTimeout(() => { this.mapView.graphics.removeAll(); }, 250);
+                                const streetMarker = geometryEngine.buffer((roads[0] as any).geometry, 5, "meters");
+                                const streetGraphic = { geometry:streetMarker, symbol:this.BUFFER_SYMBOL};
+                                tempGraphicsLayer.add(streetGraphic as any)
+
+                                setTimeout(() =>  { tempGraphicsLayer.removeAll(); }, 250);
                                 deferred.resolve(roads[0]);
                             } else {
-                                setTimeout(() =>  { this.mapView.graphics.removeAll(); }, 250);
+                                setTimeout(() =>  { tempGraphicsLayer.removeAll(); }, 250);
                                 deferred.cancel("Too many or no matches")
                             }
-                        }),
+                        },
                         error => {
                             // console.error("PICK_ROAD", error);
                             deferred.cancel(error);
                             setTimeout(() => { this.mapView.graphics.removeAll(); }, 250);
                         }
                     );
-
                 }
-
-            }));
+            });
         });
 
         return deferred.promise;

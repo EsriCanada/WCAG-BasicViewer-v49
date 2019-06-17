@@ -928,15 +928,6 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
                                 input.value = fullname;
                                 this._setDirty(input, this.selectedAddressPointFeature, field.name, fullname)
 
-                                const streetMarker = geometryEngine.buffer((street as any).geometry, 5, "meters");
-                                const streetGraphic = { geometry:streetMarker, symbol:this.UtilsVM.BUFFER_SYMBOL};
-
-                                this.mapView.graphics.add(streetGraphic as any)
-
-                                // setTimeout(() => this._removeMarker(this.UtilsVM.BUFFER_SYMBOL.name), 5000);
-
-                                // this.mapView.popup.autoOpenEnabled = true; // ?
-
                                 this._inputChanged(field.name);
                                 html.removeClass(event.target, "active");
                             },
