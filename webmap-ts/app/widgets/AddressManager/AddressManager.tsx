@@ -1024,7 +1024,7 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
                 });
                 // this.pickupRoads.open = false;
                 this.own(on(this.distanceBtn, "click", event => {
-                    // if (!this.pickupRoads) return;
+                    if(this.addressPointFeatures.length <=0) return;
                     this.pickupRoads.open = !this.pickupRoads.open;
                     this.pickupRoads.feature = this.selectedAddressPointFeature;
                     if (this.pickupRoads.open) {
