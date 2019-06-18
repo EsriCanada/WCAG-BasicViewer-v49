@@ -70,6 +70,11 @@ class PickupRoads extends declared(Widget) {
     private footer1: HTMLElement;
     private footer2: HTMLElement;
     private extentOnly: HTMLInputElement;
+    
+    @property()
+    get namedGeometries(): any[] {
+        return this._get("namedGeometries")
+    };
 
     @property()
     get open() {
@@ -157,8 +162,14 @@ class PickupRoads extends declared(Widget) {
                         // const roads1 = results.features;
 
                         this.uniqueRoads = this._getUniqueRoads(results);
-
                         // console.log("uniqueRoads", this.uniqueRoads);
+
+                        this._set("namedGeometries", this.uniqueRoads.map(r => {
+                            const g = r.geometry;
+                            g.roadName = r.name;
+                            return g;
+                        }));
+                        // console.log("namedGeometries", this.namedGeometries);
     
                         resolve(this.uniqueRoads);
                     },
@@ -215,22 +226,25 @@ class PickupRoads extends declared(Widget) {
 
     private showListAll = (extentOnly) => {
         if(extentOnly) {
-            const q = this.roadsLayer.createQuery();
-            q.outFields = [this.roadFieldName];
-            q.returnGeometry = true;
-            q.where = "1=1";
-            q.geometry = this.mapView.extent;
-            q.spatialRelationship = "intersects";
-            q.returnDistinctValues = false;
-            this.roadsLayer.queryFeatures(q).then(
-            results => {
-                // const roads = results.features;
-                const uniqueRoads = this._getUniqueRoads(results);
+            // const q = this.roadsLayer.createQuery();
+            // q.outFields = [this.roadFieldName];
+            // q.returnGeometry = true;
+            // q.where = "1=1";
+            // q.geometry = this.mapView.extent;
+            // q.spatialRelationship = "intersects";
+            // q.returnDistinctValues = false;
+            // this.roadsLayer.queryFeatures(q).then(
+            // results => {
+            //     // const roads = results.features;
+            //     const uniqueRoads = this._getUniqueRoads(results);
                 
-                // roads.map(r => ({name: r.attributes[this.roadFieldName], geometry: r.geometry}));
-                // uniqueRoads.sort((a, b) => { return ("" +a.name).localeCompare(b.name)})
-                this._showListAll(uniqueRoads);
-            })
+            //     // roads.map(r => ({name: r.attributes[this.roadFieldName], geometry: r.geometry}));
+            //     // uniqueRoads.sort((a, b) => { return ("" +a.name).localeCompare(b.name)})
+            //     this._showListAll(uniqueRoads);
+            // })
+            const uniqueRoads = this.namedGeometries.filter(g => geometryEngine.intersects(g, this.mapView.extent)).map(g => ({name: g.roadName, geometry:g}));
+            console.log("inExtent", uniqueRoads);
+            this._showListAll(uniqueRoads);
         }
         else {
             this._showListAll(this.uniqueRoads);
