@@ -1025,8 +1025,8 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
                 // this.pickupRoads.open = false;
                 this.own(on(this.distanceBtn, "click", event => {
                     if(this.addressPointFeatures.length <=0) return;
-                    this.pickupRoads.open = !this.pickupRoads.open;
                     this.pickupRoads.feature = this.selectedAddressPointFeature;
+                    this.pickupRoads.open = !this.pickupRoads.open;
                     if (this.pickupRoads.open) {
                         html.addClass(event.target, "active");
                     } else {

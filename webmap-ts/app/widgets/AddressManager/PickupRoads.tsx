@@ -93,9 +93,12 @@ class PickupRoads extends declared(Widget) {
         if (value) {
             html.removeClass(this.domNode, "hide");
             html.setStyle(this.domNode, "width", html.getStyle(this.input, "width") + "px");
-            // if (this.showMode == PickupRoads.MODE_ALL) {
-            //     this._showList();
-            // }
+
+            if(this.mode == PickupRoads.MODE_ALL) {
+                this.showListAll(this.extentOnly.checked);
+            } else {
+                this.showListByDistance();
+            }
         } else {
             html.addClass(this.domNode, "hide");
         }
@@ -213,12 +216,12 @@ class PickupRoads extends declared(Widget) {
                     html.removeClass(this.footer2, "hide");
                     break;
                 case PickupRoads.MODE_ADDRESS_POINT:
-                    this.showBufferList();
+                    this.showListByDistance();
                     html.removeClass(this.footer1, "hide");
                     html.addClass(this.footer2, "hide");
                     break;
                 case PickupRoads.MODE_PARCEL:
-                    this.showBufferList();
+                    this.showListByDistance();
                     html.removeClass(this.footer1, "hide");
                     html.addClass(this.footer2, "hide");
                     break;
@@ -226,8 +229,8 @@ class PickupRoads extends declared(Widget) {
         }))
 
         watchUtils.whenTrue(this.mapView, "stationary", () => {
-            if(!(this.open && this.mode == PickupRoads.MODE_ALL && this.extentOnly.checked)) return;
-            this.showListAll(true);
+            if(!this.open) return;
+            this.showListAll(this.mode == PickupRoads.MODE_ALL && this.extentOnly.checked);
         })
     }
 
@@ -282,7 +285,7 @@ class PickupRoads extends declared(Widget) {
         this.own(on(this.maxDistance, "change", event => {
             this.distance.innerHTML = event.target.value;
             if (this.mode != PickupRoads.MODE_ALL) {
-                this.showBufferList();
+                this.showListByDistance();
             }
         }))
     }
@@ -293,7 +296,7 @@ class PickupRoads extends declared(Widget) {
 
     private showListAll = (extentOnly) => {
         if(extentOnly) {
-            this._showBufferList(this.mapView.extent)
+            this._showListByDistance(this.mapView.extent, this.feature.geometry)
         }
         else {
             this._showListAll(this.uniqueRoads);
@@ -374,7 +377,7 @@ class PickupRoads extends declared(Widget) {
         });
     }
 
-    private showBufferList = () => {
+    private showListByDistance = () => {
         let bufferGeometry = null;
         if (this.mode === PickupRoads.MODE_PARCEL) {
             const q = this.parcelsLayer.createQuery();
@@ -387,7 +390,7 @@ class PickupRoads extends declared(Widget) {
             this.parcelsLayer.queryFeatures(q).then(results => {
                 if (results.features.length === 1) {
                     bufferGeometry = geometryEngine.buffer(results.features[0].geometry, Number(this.maxDistance.value), "meters");
-                    this._showBufferList(bufferGeometry);
+                    this._showListByDistance(bufferGeometry, results.features[0].geometry);
                 } else {
                     console.error("unexpected nuber of parcels", results);
                     return;
@@ -396,11 +399,11 @@ class PickupRoads extends declared(Widget) {
 
         } else {
             bufferGeometry = geometryEngine.buffer(this.feature.geometry, Number(this.maxDistance.value), "meters");
-            this._showBufferList(bufferGeometry);
+            this._showListByDistance(bufferGeometry, this.feature.geometry);
         }        
     }
 
-    private _showBufferList = (geometry) => {
+    private _showListByDistance = (geometry, refference) => {
         if (this.buffer) {
             this.utils._removeGraphic(this.buffer, this.mapView.graphics);
         }
@@ -421,7 +424,7 @@ class PickupRoads extends declared(Widget) {
 
         const roadDistances = [];
         uniqueRoads.forEach(road => {
-            const roadDist = ({name: road.roadName, geometry:road, distance:geometryEngine.distance(this.feature.geometry, road, "meters")});
+            const roadDist = ({name: road.roadName, geometry:road, distance:geometryEngine.distance(refference, road, "meters")});
             roadDistances.push(roadDist);
         });
         roadDistances.sort((a, b) => a.distance - b.distance);
