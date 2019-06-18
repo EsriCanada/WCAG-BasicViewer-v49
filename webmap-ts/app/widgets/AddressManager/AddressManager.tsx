@@ -1011,6 +1011,7 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
             require(["./PickupRoads"], PickupRoads =>{
                 this.pickupRoads = new PickupRoads({
                     mapView: this.mapView,
+                    utils: this.UtilsVM,
                     roadsLayer: this.roadsLayer,
                     parcelsLayer: this.parcelsLayer,
                     input: input,

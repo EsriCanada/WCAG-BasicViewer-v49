@@ -100,7 +100,10 @@ class UtilsViewModel extends declared(Accessor) {
         
     @property({ readOnly: true })
     SELECTED_ROAD_SYMBOL = {
-        color: [255, 30, 30, 255],
+        type:"simple-line",
+        style: "solid",
+        width:7,
+        color: [255, 0, 0, 255],
     }
         
     LABEL_SYMBOL = function(labelText?: string) {

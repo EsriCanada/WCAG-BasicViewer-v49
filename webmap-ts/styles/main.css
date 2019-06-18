@@ -1866,6 +1866,7 @@ AddressManager .dropdown-content li {
     margin-top: -1px;
     display: flex;
     flex-direction: column;
+    width: 100% !important;
 }
 
 .AddressManager .pickupRoads .header {
@@ -1888,6 +1889,10 @@ AddressManager .dropdown-content li {
 .AddressManager .pickupRoads .roadsList ul {
     margin: 0;
     padding: 4px;
+}
+
+.AddressManager .pickupRoads .roadsList ul li:hover {
+    background-color: lightskyblue;
 }
 
 .AddressManager .pickupRoads .roadsList ul li.firstLetter {

@@ -42,6 +42,9 @@ class PickupRoads extends declared(Widget) {
     mapView;
 
     @property()
+    utils;
+
+    @property()
     roadsLayer;
 
     @property()
@@ -61,6 +64,9 @@ class PickupRoads extends declared(Widget) {
     private uniqueRoads: any[];
     private roadCount: HTMLElement;
     private pickupRoadsList: HTMLUListElement;
+    roadGraphic: Graphic;
+    road: any;
+    bufferRoadsDict: {};
 
     @property()
     get open() {
@@ -144,17 +150,22 @@ class PickupRoads extends declared(Widget) {
                         const segments = results.features.map(segment => ({name: segment.attributes["fullname"], geometry: segment.geometry}))
 
                         this.uniqueRoads = [];
+                        // this.bufferRoadsDict = {};
                         segments.forEach(currentSegment => {
-                            const exists = this.uniqueRoads.find(segment => currentSegment.name == segment.name);
+                            let exists = this.uniqueRoads.find(segment => currentSegment.name == segment.name);
                             if(!exists) {
                                 this.uniqueRoads.push(currentSegment);
+                                // this.bufferRoadsDict[currentSegment.name] = currentSegment.geometry;
+
                             } else {
                                 exists.geometry = geometryEngine.union([exists.geometry, currentSegment.geometry]);
+                                // this.bufferRoadsDict[currentSegment.name] = exists.geometry;
                             }
                         });
 
                         this.uniqueRoads.sort((a, b) => { return ("" +a.name).localeCompare(b.name)})
                         // console.log("uniqueRoads", this.uniqueRoads);
+
     
                         resolve(this.uniqueRoads);
                     },
@@ -206,12 +217,22 @@ class PickupRoads extends declared(Widget) {
                 innerHTML: road.name,
                 class: "roadName"
             }, li);
-            // this.own(on(name, "mouseover", event => {
-            //     console.log("mouseover", event);
-            // }));
-            // this.own(on(name, "mouseout", event => {
-            //     console.log("mouseout", event);
-            // }));
+            this.own(on(name, "mouseover", event => {
+                // console.log("mouseover", event);
+                const roadName = event.target.innerHTML;
+                this.road = this.uniqueRoads.find(r => r.name == roadName);
+                if(road) {
+                    this.roadGraphic = new Graphic({geometry: road.geometry, symbol: this.utils.SELECTED_ROAD_SYMBOL});
+                    this.mapView.graphics.add(this.roadGraphic);
+                }
+            }));
+            this.own(on(name, "mouseout", event => {
+                if(this.roadGraphic) {
+                    this.mapView.graphics.remove(this.roadGraphic);
+                    this.roadGraphic = null;
+                }
+                // console.log("mouseout", event);
+            }));
             this.own(on(li, "click", event => {
                 const streetName = event.target.innerHTML;
                 if (this.input.value != streetName) {

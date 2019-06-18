@@ -54,7 +54,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/core/tsSupport/decorateHelper", "esri/core/accessorSupport/decorators", "esri/widgets/Widget", "dojo/query", "dojo/on", "dojo/_base/html", "esri/geometry/geometryEngine", "esri/widgets/support/widget"], function (require, exports, __extends, __decorate, decorators_1, Widget, query, on, html, geometryEngine, widget_1) {
+define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/core/tsSupport/decorateHelper", "esri/core/accessorSupport/decorators", "esri/widgets/Widget", "dojo/query", "dojo/on", "dojo/_base/html", "esri/geometry/geometryEngine", "esri/Graphic", "esri/widgets/support/widget"], function (require, exports, __extends, __decorate, decorators_1, Widget, query, on, html, geometryEngine, Graphic, widget_1) {
     "use strict";
     var PickupRoads = /** @class */ (function (_super) {
         __extends(PickupRoads, _super);
@@ -77,13 +77,16 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                                     // const roads1 = results.features;
                                     var segments = results.features.map(function (segment) { return ({ name: segment.attributes["fullname"], geometry: segment.geometry }); });
                                     _this.uniqueRoads = [];
+                                    // this.bufferRoadsDict = {};
                                     segments.forEach(function (currentSegment) {
                                         var exists = _this.uniqueRoads.find(function (segment) { return currentSegment.name == segment.name; });
                                         if (!exists) {
                                             _this.uniqueRoads.push(currentSegment);
+                                            // this.bufferRoadsDict[currentSegment.name] = currentSegment.geometry;
                                         }
                                         else {
                                             exists.geometry = geometryEngine.union([exists.geometry, currentSegment.geometry]);
+                                            // this.bufferRoadsDict[currentSegment.name] = exists.geometry;
                                         }
                                     });
                                     _this.uniqueRoads.sort(function (a, b) { return ("" + a.name).localeCompare(b.name); });
@@ -134,12 +137,22 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                         innerHTML: road.name,
                         class: "roadName"
                     }, li);
-                    // this.own(on(name, "mouseover", event => {
-                    //     console.log("mouseover", event);
-                    // }));
-                    // this.own(on(name, "mouseout", event => {
-                    //     console.log("mouseout", event);
-                    // }));
+                    _this.own(on(name, "mouseover", function (event) {
+                        // console.log("mouseover", event);
+                        var roadName = event.target.innerHTML;
+                        _this.road = _this.uniqueRoads.find(function (r) { return r.name == roadName; });
+                        if (road) {
+                            _this.roadGraphic = new Graphic({ geometry: road.geometry, symbol: _this.utils.SELECTED_ROAD_SYMBOL });
+                            _this.mapView.graphics.add(_this.roadGraphic);
+                        }
+                    }));
+                    _this.own(on(name, "mouseout", function (event) {
+                        if (_this.roadGraphic) {
+                            _this.mapView.graphics.remove(_this.roadGraphic);
+                            _this.roadGraphic = null;
+                        }
+                        // console.log("mouseout", event);
+                    }));
                     _this.own(on(li, "click", function (event) {
                         var streetName = event.target.innerHTML;
                         if (_this.input.value != streetName) {
@@ -237,6 +250,9 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
         __decorate([
             decorators_1.property()
         ], PickupRoads.prototype, "mapView", void 0);
+        __decorate([
+            decorators_1.property()
+        ], PickupRoads.prototype, "utils", void 0);
         __decorate([
             decorators_1.property()
         ], PickupRoads.prototype, "roadsLayer", void 0);
