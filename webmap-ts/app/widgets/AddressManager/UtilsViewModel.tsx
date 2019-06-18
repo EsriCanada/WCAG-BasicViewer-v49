@@ -91,7 +91,7 @@ class UtilsViewModel extends declared(Accessor) {
         type:"simple-fill",
         color: [0, 0, 0, 0],
         outline: {
-            color: [255, 30, 30, 255],
+            color: [255, 30, 30, 1],
             width: 2,
             type: "simple-line",
             style: "short-dot"
@@ -102,8 +102,8 @@ class UtilsViewModel extends declared(Accessor) {
     SELECTED_ROAD_SYMBOL = {
         type:"simple-line",
         style: "solid",
-        width:7,
-        color: [255, 0, 0, 255],
+        width: 11,
+        color: [0, 0xb9, 0xf6, 0.5],
     }
         
     LABEL_SYMBOL = function(labelText?: string) {
@@ -111,7 +111,7 @@ class UtilsViewModel extends declared(Accessor) {
             type: "text",
             text: labelText,
             color:[0, 0, 0, 255],
-            haloColor:[255, 200, 200, 255],
+            haloColor:[255, 200, 200, 1],
             haloSize:1,
             horizontalAlignment: "center",
             xoffset:0,
@@ -128,7 +128,7 @@ class UtilsViewModel extends declared(Accessor) {
 
     SHOW_POINT = function(point, color, graphicsLayer: GraphicsLayer) {
         const symbol = {
-            color: [255, 255, 255, 255],
+            color: [255, 255, 255, 1],
             size: 5,
             type: "simple-marker",
             style: "circle",
