@@ -64,9 +64,12 @@ class PickupRoads extends declared(Widget) {
     private uniqueRoads: any[];
     private roadCount: HTMLElement;
     private pickupRoadsList: HTMLUListElement;
-    roadGraphic: Graphic;
-    road: any;
-    bufferRoadsDict: {};
+    private roadGraphic: Graphic;
+    private road: any;
+    private bufferRoadsDict: {};
+    private footer1: HTMLElement;
+    private footer2: HTMLElement;
+    private extentOnly: HTMLInputElement;
 
     @property()
     get open() {
@@ -120,12 +123,18 @@ class PickupRoads extends declared(Widget) {
                     </ul>
                 </div>
                 <div class="footer" data-dojo-attach-point="pickupRoadsFooter">
-                    <label>
-                        <span style="margin-right:4px;">Max Distance:</span>
-                        <input type="range" style="width:110px; height:16px;" min="20" max="200" step="10" name="maxDistance" data-dojo-attach-event="change:onMaxDistance" value="50" />
-                    </label>
-                    <span style="margin-left: 4px;" data-dojo-attach-point="distance">50</span>
-                    <span style="float:right;">Meters</span>
+                    <div afterCreate={this._addFooter1} class="hide">
+                        <label>
+                            <span style="margin-right:4px;">Max Distance:</span>
+                            <input type="range" style="width:110px; height:16px;" min="20" max="200" step="10" name="maxDistance" data-dojo-attach-event="change:onMaxDistance" value="50" />
+                        </label>
+                        <span style="margin-left: 4px;" data-dojo-attach-point="distance">50</span>
+                        <span style="float:right;">Meters</span>
+                    </div>
+                    <div afterCreate={this._addFooter2}>
+                        <input type="checkbox" afterCreate={this._addExtentOnly} aria-label="Extent Only" />
+                        <span>Extent Only</span>
+                    </div>
                 </div>
             </div>
         )
@@ -147,25 +156,9 @@ class PickupRoads extends declared(Widget) {
                     results => {
                         // const roads1 = results.features;
 
-                        const segments = results.features.map(segment => ({name: segment.attributes["fullname"], geometry: segment.geometry}))
+                        this.uniqueRoads = this._getUniqueRoads(results);
 
-                        this.uniqueRoads = [];
-                        // this.bufferRoadsDict = {};
-                        segments.forEach(currentSegment => {
-                            let exists = this.uniqueRoads.find(segment => currentSegment.name == segment.name);
-                            if(!exists) {
-                                this.uniqueRoads.push(currentSegment);
-                                // this.bufferRoadsDict[currentSegment.name] = currentSegment.geometry;
-
-                            } else {
-                                exists.geometry = geometryEngine.union([exists.geometry, currentSegment.geometry]);
-                                // this.bufferRoadsDict[currentSegment.name] = exists.geometry;
-                            }
-                        });
-
-                        this.uniqueRoads.sort((a, b) => { return ("" +a.name).localeCompare(b.name)})
                         // console.log("uniqueRoads", this.uniqueRoads);
-
     
                         resolve(this.uniqueRoads);
                     },
@@ -190,7 +183,7 @@ class PickupRoads extends declared(Widget) {
 
             switch (value) {
                 case PickupRoads.MODE_ALL:
-                        this.showListAll();
+                        this.showListAll(this.extentOnly.checked);
                         break;
                 case PickupRoads.MODE_ADDRESS_POINT:
                     break;
@@ -204,10 +197,73 @@ class PickupRoads extends declared(Widget) {
         this.pickupRoadsList = element as HTMLUListElement;
     }
 
-    private showListAll = () => {
-        this.roadCount.innerHTML = "(" +this.uniqueRoads.length +"}";
+    private _addFooter1 = (element: Element) => {
+        this.footer1 = element as HTMLElement;
+    }
+
+    private _addFooter2 = (element: Element) => {
+        this.footer2 = element as HTMLElement;
+    }
+
+    private _addExtentOnly = (element: Element) => {
+        this.extentOnly = element as HTMLInputElement;
+        this.own(on(this.extentOnly, "change", event => {
+            const extentOnly = event.target;
+            const checked = extentOnly.checked;
+        }))
+    }
+
+    private showListAll = (extentOnly) => {
+        if(extentOnly) {
+            const q = this.roadsLayer.createQuery();
+            q.outFields = [this.roadFieldName];
+            q.returnGeometry = true;
+            q.where = "1=1";
+            q.geometry = this.mapView.extent;
+            q.spatialRelationship = "intersects";
+            q.returnDistinctValues = false;
+            this.roadsLayer.queryFeatures(q).then(
+            results => {
+                // const roads = results.features;
+                const uniqueRoads = this._getUniqueRoads(results);
+                
+                // roads.map(r => ({name: r.attributes[this.roadFieldName], geometry: r.geometry}));
+                // uniqueRoads.sort((a, b) => { return ("" +a.name).localeCompare(b.name)})
+                this._showListAll(uniqueRoads);
+            })
+        }
+        else {
+            this._showListAll(this.uniqueRoads);
+        }
+    }
+
+    private _getUniqueRoads(results: any) {
+        const segments = results.features.map(segment => ({ name: segment.attributes["fullname"], geometry: segment.geometry }));
+        const uniqueRoads = [];
+        // this.bufferRoadsDict = {};
+        segments.forEach(currentSegment => {
+            let exists = uniqueRoads.find(segment => currentSegment.name == segment.name);
+            if (!exists) {
+                uniqueRoads.push(currentSegment);
+                // this.bufferRoadsDict[currentSegment.name] = currentSegment.geometry;
+            }
+            else {
+                exists.geometry = geometryEngine.union([exists.geometry, currentSegment.geometry]);
+                // this.bufferRoadsDict[currentSegment.name] = exists.geometry;
+            }
+        });
+
+        uniqueRoads.sort((a, b) => { return ("" +a.name).localeCompare(b.name)});
+
+        return uniqueRoads;
+
+    }
+
+    private _showListAll(uniqueRoads: any[]) {
+        this.pickupRoadsList.innerHTML = null;
+        this.roadCount.innerHTML = "(" + uniqueRoads.length + "}";
         let prev = "";
-        this.uniqueRoads.forEach(road => {
+        uniqueRoads.forEach(road => {
             if (road.name[0] != prev) {
                 prev = road.name[0];
                 html.create("li", { innerHTML: prev, class: "firstLetter", "data-letter": prev }, this.pickupRoadsList);
@@ -220,14 +276,14 @@ class PickupRoads extends declared(Widget) {
             this.own(on(name, "mouseover", event => {
                 // console.log("mouseover", event);
                 const roadName = event.target.innerHTML;
-                this.road = this.uniqueRoads.find(r => r.name == roadName);
-                if(road) {
-                    this.roadGraphic = new Graphic({geometry: road.geometry, symbol: this.utils.SELECTED_ROAD_SYMBOL});
+                this.road = uniqueRoads.find(r => r.name == roadName);
+                if (road) {
+                    this.roadGraphic = new Graphic({ geometry: road.geometry, symbol: this.utils.SELECTED_ROAD_SYMBOL });
                     this.mapView.graphics.add(this.roadGraphic);
                 }
             }));
             this.own(on(name, "mouseout", event => {
-                if(this.roadGraphic) {
+                if (this.roadGraphic) {
                     this.mapView.graphics.remove(this.roadGraphic);
                     this.roadGraphic = null;
                 }
@@ -242,7 +298,7 @@ class PickupRoads extends declared(Widget) {
                     }
                 }
             }));
-        })
+        });
         on(this.pickupRoadsList, "keyup", event => {
             const key = event.key.toUpperCase();
             // console.log("keyEvent", key);
@@ -252,8 +308,7 @@ class PickupRoads extends declared(Widget) {
                     // tags[0].scrollIntoView({ behavior: "smooth", block: "nearest" });
                 }
             }
-        })
-
+        });
     }
 }
 

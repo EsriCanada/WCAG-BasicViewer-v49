@@ -1859,7 +1859,7 @@ AddressManager .dropdown-content li {
 }
 
 .AddressManager .pickupRoads {
-    min-height: 75px;
+    /* min-height: 75px; */
     max-height: 200px;
     background: white;
     border: 1px solid black;
@@ -1904,4 +1904,5 @@ AddressManager .dropdown-content li {
     pointer-events: none;
     float: right;
     font-weight: bold;
+    width: 10px;
 }
