@@ -71,7 +71,7 @@ class PickupRoads extends declared(Widget) {
     private footer1: HTMLElement;
     private footer2: HTMLElement;
     private extentOnly: HTMLInputElement;
-    private sortOrderDiv: HTMLInputElement;
+    private showUnits: HTMLInputElement;
     private mode: any;
     private minMaxBtn: HTMLInputElement;
     private maxDistance: HTMLInputElement;
@@ -151,16 +151,8 @@ class PickupRoads extends declared(Widget) {
                             <input type="checkbox" afterCreate={this._addExtentOnly} title="Extent Only" />
                             <span>In Extent</span>
                         </label>
-                        <div style="float:right;" afterCreate={this._addSortOrder}>
-                            <span>Sort: </span>
-                            <label>
-                                <input type="radio" name="sortRoads" value="Alpha" checked/>
-                                <span>Alpha</span>
-                            </label>
-                            <label>
-                                <input type="radio" name="sortRoads" value="Distance"/>
-                                <span>Meters</span>
-                            </label>
+                        <div style="float:right;" class="hide" afterCreate={this._addUnits}>
+                            <span>Meters</span>
                         </div>
                     </div>
                 </div>
@@ -256,11 +248,16 @@ class PickupRoads extends declared(Widget) {
         this.own(on(this.extentOnly, "change", event => {
             const extentOnly = event.target;
             this.showListAll(extentOnly.checked)
+            if(extentOnly.checked) {
+                html.removeClass(this.showUnits, "hide");
+            } else {
+                html.addClass(this.showUnits, "hide");
+            }
         }))
     }
 
-    private _addSortOrder = (element: Element) => {
-        this.sortOrderDiv = element as HTMLInputElement;
+    private _addUnits = (element: Element) => {
+        this.showUnits = element as HTMLInputElement;
     }
     
     private _addMinMaxBtn = (element: Element) => {
@@ -296,9 +293,7 @@ class PickupRoads extends declared(Widget) {
 
     private showListAll = (extentOnly) => {
         if(extentOnly) {
-            const uniqueRoads = this.namedGeometries.filter(g => geometryEngine.intersects(g, this.mapView.extent)).map(g => ({name: g.roadName, geometry:g}));
-            // console.log("inExtent", uniqueRoads);
-            this._showListAll(uniqueRoads);
+            this._showBufferList(this.mapView.extent)
         }
         else {
             this._showListAll(this.uniqueRoads);
@@ -429,8 +424,41 @@ class PickupRoads extends declared(Widget) {
             const roadDist = ({name: road.roadName, geometry:road, distance:geometryEngine.distance(this.feature.geometry, road, "meters")});
             roadDistances.push(roadDist);
         });
-        console.log("roadDistances", roadDistances);
-        this._showListAll(roadDistances);
+        roadDistances.sort((a, b) => a.distance - b.distance);
+        // console.log("roadDistances", roadDistances);
+        this.roadCount.innerHTML = "(" + roadDistances.length + ")";
+        this.pickupRoadsList.innerHTML = null;
+        roadDistances.forEach(road => {
+            const li = html.create("li", { tabindex: "0", style: "display: flex; flex-direction: row;" }, this.pickupRoadsList);
+            const name = html.create("div", {
+                innerHTML: road.name,
+                style: "flex-grow:1;",
+                class: "roadName",
+            }, li);
+            this.own(on(name, "mouseover", event => {
+                this.roadGraphic = new Graphic({geometry:road.geometry, symbol:this.utils.SELECTED_ROAD_SYMBOL});
+                this.mapView.graphics.add(this.roadGraphic);
+            }));
+            this.own(on(name, "mouseout", event => {
+                if (this.roadGraphic) {
+                    this.mapView.graphics.remove(this.roadGraphic);
+                    this.roadGraphic = null;
+                }
+            }));
+            html.create("span", {
+                innerHTML: Math.round(road.distance),
+                style: "flex-grow:0; margin-right:4px;"
+            }, li);
+            this.own(on(name, "click", event => {
+                const streetName = event.target.innerHTML;
+                this.input.value = streetName;
+                this.utils._removeGraphic(this.buffer, this.mapView.graphics);
+                if (this.selectionMade) {
+                    this.selectionMade(streetName);
+                }
+            }));
+        })
+
     }
 }
 
