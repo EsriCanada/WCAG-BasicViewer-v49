@@ -30,6 +30,7 @@ import Point = require("esri/geometry/Point");
 import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
 import { watch } from "fs";
 import CursorToolTip = require("./CursorToolTip");
+import watchUtils = require("esri/core/watchUtils");
 
 @subclass("esri.widgets.PickupRoads")
 class PickupRoads extends declared(Widget) {
@@ -70,6 +71,9 @@ class PickupRoads extends declared(Widget) {
     private footer1: HTMLElement;
     private footer2: HTMLElement;
     private extentOnly: HTMLInputElement;
+    private sortOrderDiv: HTMLInputElement;
+    mode: any;
+    minMaxBtn: HTMLInputElement;
     
     @property()
     get namedGeometries(): any[] {
@@ -115,12 +119,15 @@ class PickupRoads extends declared(Widget) {
 
     render() {
         return ( 
-            <div class="pickupRoads hide" afterCreate={this._addDomNode}>
+            <div id="domNode" class="pickupRoads hide normal" afterCreate={this._addDomNode}>
                 <div class="header" data-dojo-attach-point="pickupRoadsHeader">
                     <label><input type="radio" name="showRoads" afterCreate={this._addShowRoads} value="Address Point" checked />From Address Point</label>
                     <label><input type="radio" name="showRoads" afterCreate={this._addShowRoads} value="Parcel" />From Parcel</label>
                     <label><input type="radio" name="showRoads" afterCreate={this._addShowRoads} value="All" />All</label>
-                    <span afterCreate={this._addRoadCount} style="float:right;"></span>
+                    <div style="float:right;">
+                        <span afterCreate={this._addRoadCount} ></span>
+                        <input type="image" afterCreate={this._addMinMaxBtn} src="./images/icons_white/max_height.17.png" title="To Max Height" style="vertical-align: middle; margin-right: -8px;" />
+                    </div>
                 </div>
                 <div class="roadsList">
                     <ul afterCreate={this._addPickupRoadsList} tabindex="0">
@@ -128,7 +135,7 @@ class PickupRoads extends declared(Widget) {
                     </ul>
                 </div>
                 <div class="footer" data-dojo-attach-point="pickupRoadsFooter">
-                    <div afterCreate={this._addFooter1} class="hide">
+                    <div afterCreate={this._addFooter1}>
                         <label>
                             <span style="margin-right:4px;">Max Distance:</span>
                             <input type="range" style="width:110px; height:16px;" min="20" max="200" step="10" name="maxDistance" data-dojo-attach-event="change:onMaxDistance" value="50" />
@@ -136,9 +143,22 @@ class PickupRoads extends declared(Widget) {
                         <span style="margin-left: 4px;" data-dojo-attach-point="distance">50</span>
                         <span style="float:right;">Meters</span>
                     </div>
-                    <div afterCreate={this._addFooter2}>
-                        <input type="checkbox" afterCreate={this._addExtentOnly} aria-label="Extent Only" />
-                        <span>Extent Only</span>
+                    <div afterCreate={this._addFooter2} class="hide">
+                        <label>
+                            <input type="checkbox" afterCreate={this._addExtentOnly} title="Extent Only" />
+                            <span>In Extent</span>
+                        </label>
+                        <div style="float:right;" afterCreate={this._addSortOrder}>
+                            <span>Sort: </span>
+                            <label>
+                                <input type="radio" name="sortRoads" value="Alpha" checked/>
+                                <span>Alpha</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="sortRoads" value="Distance"/>
+                                <span>Meters</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -190,18 +210,29 @@ class PickupRoads extends declared(Widget) {
             const input = event.target;
             if(!input.checked) return;
             const value = input.value;
-            console.log("input.value", value);
+            this.mode = value;
 
             switch (value) {
                 case PickupRoads.MODE_ALL:
-                        this.showListAll(this.extentOnly.checked);
-                        break;
+                    this.showListAll(this.extentOnly.checked);
+                    html.addClass(this.footer1, "hide");
+                    html.removeClass(this.footer2, "hide");
+                    break;
                 case PickupRoads.MODE_ADDRESS_POINT:
+                    html.removeClass(this.footer1, "hide");
+                    html.addClass(this.footer2, "hide");
                     break;
                 case PickupRoads.MODE_PARCEL:
+                    html.removeClass(this.footer1, "hide");
+                    html.addClass(this.footer2, "hide");
                     break;
             }
         }))
+
+        watchUtils.whenTrue(this.mapView, "stationary", () => {
+            if(!(this.open && this.mode == PickupRoads.MODE_ALL && this.extentOnly.checked)) return;
+            this.showListAll(true);
+        })
     }
 
     private _addPickupRoadsList = (element: Element) => {
@@ -220,30 +251,35 @@ class PickupRoads extends declared(Widget) {
         this.extentOnly = element as HTMLInputElement;
         this.own(on(this.extentOnly, "change", event => {
             const extentOnly = event.target;
-            const checked = extentOnly.checked;
+            this.showListAll(extentOnly.checked)
+        }))
+    }
+
+    private _addSortOrder = (element: Element) => {
+        this.sortOrderDiv = element as HTMLInputElement;
+    }
+    
+    private _addMinMaxBtn = (element: Element) => {
+        this.minMaxBtn = element as HTMLInputElement;
+        this.own(on(this.minMaxBtn, "click", event => {
+            const minMaxBtn = event.target;
+            const domNode = html.byId("domNode");
+            if((html as any).hasClass(domNode, "normal")) {
+                minMaxBtn.src="./images/icons_white/min_height.17.png";
+                minMaxBtn["aria-label"] = minMaxBtn.title = "To Normal Height";
+                html.removeClass(domNode, "normal");
+            } else {
+                minMaxBtn.src="./images/icons_white/max_height.17.png";
+                minMaxBtn["aria-label"] = minMaxBtn.title = "To Max Height";
+                html.addClass(domNode, "normal");
+            }
         }))
     }
 
     private showListAll = (extentOnly) => {
         if(extentOnly) {
-            // const q = this.roadsLayer.createQuery();
-            // q.outFields = [this.roadFieldName];
-            // q.returnGeometry = true;
-            // q.where = "1=1";
-            // q.geometry = this.mapView.extent;
-            // q.spatialRelationship = "intersects";
-            // q.returnDistinctValues = false;
-            // this.roadsLayer.queryFeatures(q).then(
-            // results => {
-            //     // const roads = results.features;
-            //     const uniqueRoads = this._getUniqueRoads(results);
-                
-            //     // roads.map(r => ({name: r.attributes[this.roadFieldName], geometry: r.geometry}));
-            //     // uniqueRoads.sort((a, b) => { return ("" +a.name).localeCompare(b.name)})
-            //     this._showListAll(uniqueRoads);
-            // })
             const uniqueRoads = this.namedGeometries.filter(g => geometryEngine.intersects(g, this.mapView.extent)).map(g => ({name: g.roadName, geometry:g}));
-            console.log("inExtent", uniqueRoads);
+            // console.log("inExtent", uniqueRoads);
             this._showListAll(uniqueRoads);
         }
         else {
@@ -319,7 +355,7 @@ class PickupRoads extends declared(Widget) {
             if ((key >= "A" && key <= "Z") || (key >= "1" && key <= "9")) {
                 const tags = query(".firstLetter[data-letter='" + key + "']");
                 if (tags && tags.length === 1) {
-                    // tags[0].scrollIntoView({ behavior: "smooth", block: "nearest" });
+                    (tags[0] as HTMLElement).scrollIntoView({ behavior: "smooth", block: "nearest" });
                 }
             }
         });

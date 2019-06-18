@@ -348,6 +348,13 @@ export function CustomColors(config: ApplicationConfig) : void {
 .AddressManager .sortItem label input~img:hover {
   background-color: ${LightenDarkenColor(hoverColor, 75)};
 }
+
+.AddressManager .pickupRoads .roadsList ul li.firstLetter,
+.AddressManager .pickupRoads .header,
+.AddressManager .pickupRoads .footer {
+    background: ${bgColor};
+    color: ${WhiteOrBlack(bgColor)};
+}
 `;
   }
 

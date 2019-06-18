@@ -1860,13 +1860,16 @@ AddressManager .dropdown-content li {
 
 .AddressManager .pickupRoads {
     /* min-height: 75px; */
-    max-height: 200px;
     background: white;
     border: 1px solid black;
     margin-top: -1px;
     display: flex;
     flex-direction: column;
     width: 100% !important;
+}
+
+.AddressManager .pickupRoads.normal {
+    max-height: 200px;
 }
 
 .AddressManager .pickupRoads .header {
