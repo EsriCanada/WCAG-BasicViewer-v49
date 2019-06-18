@@ -56,6 +56,9 @@ class PickupRoads extends declared(Widget) {
     selectionMade;
 
     private domNode: HTMLElement;
+    private uniqueRoadNames: any[];
+    private uniqueRoads: any[];
+    private roadCount: HTMLElement;
 
     @property()
     get open() {
@@ -63,12 +66,15 @@ class PickupRoads extends declared(Widget) {
     }
     set open(value: boolean) {
         this._set("open", value);
-        html.setStyle(this.domNode, "display", value ? "" : "none");
+        // html.setStyle(this.domNode, "display", value ? "" : "none");
         if (value) {
+            html.removeClass(this.domNode, "hide");
             html.setStyle(this.domNode, "width", html.getStyle(this.input, "width") + "px");
             // if (this.showMode == PickupRoads.MODE_ALL) {
             //     this._showList();
             // }
+        } else {
+            html.addClass(this.domNode, "hide");
         }
     }
 
@@ -93,22 +99,19 @@ class PickupRoads extends declared(Widget) {
 
     render() {
         return ( 
-            <div class="pickupRoads" style="display:false;" afterCreate={this._addDomNode}>
-                <div class="pickupRoads-header" data-dojo-attach-point="pickupRoadsHeader">
-                    <label><input type="radio" name="showRoads" data-dojo-attach-event="change:onShowRoads" value="Address Point" checked />>From Address Point</label>
-                    <label><input type="radio" name="showRoads" data-dojo-attach-event="change:onShowRoads" value="Parcel" />>From Parcel</label>
-                    <label><input type="radio" name="showRoads" data-dojo-attach-event="change:onShowRoads" value="All" />>All</label>
-                    <span data-dojo-attach-point="roadCount" style="float:right;"></span>
+            <div class="pickupRoads hide" afterCreate={this._addDomNode}>
+                <div class="header" data-dojo-attach-point="pickupRoadsHeader">
+                    <label><input type="radio" name="showRoads" afterCreate={this._showRoads} value="Address Point" checked />From Address Point</label>
+                    <label><input type="radio" name="showRoads" afterCreate={this._showRoads} value="Parcel" />From Parcel</label>
+                    <label><input type="radio" name="showRoads" afterCreate={this._showRoads} value="All" />All</label>
+                    <span afterCreate={this._addRoadCount} style="float:right;"></span>
                 </div>
                 <div class="pickupRoads-list">
-                    <div data-dojo-attach-point="pickupRoadsLoading" class="pickupRoads-list-loading">
-                        <img src="./widgets/AddressManager/images/reload.gif" />>
-                    </div>
                     <ul data-dojo-attach-point="pickupRoadsList" tabindex="0">
             
                     </ul>
                 </div>
-                <div class="pickupRoads-footer" data-dojo-attach-point="pickupRoadsFooter">
+                <div class="footer" data-dojo-attach-point="pickupRoadsFooter">
                     <label>
                         <span style="margin-right:4px;">Max Distance:</span>
                         <input type="range" style="width:110px; height:16px;" min="20" max="200" step="10" name="maxDistance" data-dojo-attach-event="change:onMaxDistance" value="50" />
@@ -118,12 +121,71 @@ class PickupRoads extends declared(Widget) {
                 </div>
             </div>
         )
-    }   
+    }
 
     private _addDomNode = (element: Element) => {
         this.domNode = element as HTMLElement;
+
+        this.roadsLayer.when(async layer => {
+
+            return new Promise<any>(resolve => {
+                const q = layer.createQuery();
+                q.outFields = [this.roadFieldName];
+                q.returnGeometry = true;
+                q.where = "1=1";
+                // q.spatialRelationship = "esriSpatialRelIntersects";
+                // q.returnDistinctValues = true;
+                this.roadsLayer.queryFeatures(q).then(
+                    results => {
+                        // const roads1 = results.features;
+
+                        const segments = results.features.map(segment => ({name: segment.attributes["fullname"], geometry: segment.geometry}))
+
+                        this.uniqueRoads = [];
+                        segments.forEach(currentSegment => {
+                            const exists = this.uniqueRoads.find(segment => currentSegment.name == segment.name);
+                            if(!exists) {
+                                this.uniqueRoads.push(currentSegment);
+                            } else {
+                                exists.geometry = geometryEngine.union([exists.geometry, currentSegment.geometry]);
+                            }
+                        });
+
+                        this.uniqueRoads.sort((a, b) => { return ("" +a.name).localeCompare(b.name)})
+                        // console.log("uniqueRoads", this.uniqueRoads);
+    
+                        resolve(this.uniqueRoads);
+                    },
+                    err => { console.log("init roads", err)
+                });
+            })
+        })
     }
 
+    private _addRoadCount = (element: Element) => {
+        this.roadCount = element as HTMLElement;
+    }
+
+    
+    private _showRoads = (element: Element) => {
+        const input = element as HTMLInputElement;
+        this.own(on(input, "change", event => {
+            const input = event.target;
+            if(!input.checked) return;
+            const value = input.value;
+            console.log("input.value", value);
+
+            switch (value) {
+                case PickupRoads.MODE_ALL:
+                        this.roadCount.innerHTML = "(" +this.uniqueRoads.length +"}";
+                        break;
+                case PickupRoads.MODE_ADDRESS_POINT:
+                    break;
+                case PickupRoads.MODE_PARCEL:
+                    break;
+            }
+        }))
+    }
 }
 
 export = PickupRoads;

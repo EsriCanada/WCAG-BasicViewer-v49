@@ -1857,3 +1857,25 @@ AddressManager .dropdown-content li {
     max-width: 100px;
     z-index: 9999;
 }
+
+.AddressManager .pickupRoads {
+    min-height: 75px;
+    max-height: 200px;
+    background: white;
+    border: 1px solid black;
+    margin-top: -1px;
+    display: flex;
+    flex-direction: column;
+}
+
+.AddressManager .pickupRoads .header {
+    background: silver;
+    flex-grow: 0;
+    padding: 4px 8px;
+}
+
+.AddressManager .pickupRoads .footer {
+    background: silver;
+    flex-grow: 0;
+    padding: 4px 8px;
+}

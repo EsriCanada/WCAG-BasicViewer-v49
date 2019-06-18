@@ -95,6 +95,7 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
     private selectDropDownDiv: HTMLElement;
     private addressCompiler: any;
     private labelsGraphicsLayer: any;
+    private pickupRoads: any;
 
     constructor() {
         super(); 
@@ -962,6 +963,7 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
                 //     }
                 // }))
             }
+
             // if ("default" in attributes) {
             //     html.create("img", {
             //             src: "./widgets/AddressManager/images/Default.24.png",
@@ -1005,25 +1007,33 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
             });
         });
 
-        // if (field.name in this.specialAttributes && "pickRoad" in this.specialAttributes[field.name]) {
-        //     this.pickupRoads = new PickupRoads({
-        //         map: this.map,
-        //         roadsLayer: this.roadSegmentLayer,
-        //         parcelsLayer: this.parcelLayer,
-        //         input: input,
-        //         selectionMade: (street) => {
-        //             this.distanceBtn.click();
-        //             if (this.setDirty(this.selectedAddressPointFeature, field.name, street)) {
-        //                 html.addClass(input, "dirty");
-        //             } else {
-        //                 html.removeClass(input, "dirty");
-        //             };
-        //             this._inputChanged(field.name);
-        //         }
-        //     }, html.create("div", {}, cell));
-        //     this.pickupRoads.startup();
-        //     this.pickupRoads.set("open", false);
-        // }
+        if (field.name in this.specialAttributes && "pickRoad" in this.specialAttributes[field.name]) {
+            require(["./PickupRoads"], PickupRoads =>{
+                this.pickupRoads = new PickupRoads({
+                    mapView: this.mapView,
+                    roadsLayer: this.roadsLayer,
+                    parcelsLayer: this.parcelsLayer,
+                    input: input,
+                    selectionMade: (street) => {
+                        this.distanceBtn.click();
+                        this._setDirty(this.selectedAddressPointFeature, field.name, street, input);
+                        this._inputChanged(field.name);
+                    },
+                    container:html.create("div", {}, cell)
+                });
+                // this.pickupRoads.open = false;
+                this.own(on(this.distanceBtn, "click", event => {
+                    // if (!this.pickupRoads) return;
+                    this.pickupRoads.open = !this.pickupRoads.open;
+                    this.pickupRoads.feature = this.selectedAddressPointFeature;
+                    if (this.pickupRoads.open) {
+                        html.addClass(event.target, "active");
+                    } else {
+                        html.removeClass(event.target, "active");
+                    }
+                }))
+            })
+        }
 
         // const rowStat = html.create("tr", { id: "statRow_" + field.name, style: "display:none;", "aria-live": true, "aria-atomic": true }, table);
         // const statRowCell = html.create("th", { id: "statRowCell_" + field.name, colSpan: 2 }, rowStat);
