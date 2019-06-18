@@ -434,7 +434,7 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
                 mapView: this.mapView,
                 siteAddressPointLayer: this.siteAddressPointLayer,
                 roadsLayer: this.roadsLayer,
-                parcelsLayer : this.parcelsLayer,
+                parcelsLayer: this.parcelsLayer,
                 roadFieldName: this.roadFieldName,
                 onClose: () => { html.removeClass(this.moreToolsButton, "active") },
                 container: element as HTMLElement

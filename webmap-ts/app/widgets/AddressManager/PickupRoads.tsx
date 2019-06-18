@@ -49,7 +49,7 @@ class PickupRoads extends declared(Widget) {
     roadsLayer;
 
     @property()
-    parcelLayer;
+    parcelsLayer;
 
     @property()
     input;
@@ -72,8 +72,11 @@ class PickupRoads extends declared(Widget) {
     private footer2: HTMLElement;
     private extentOnly: HTMLInputElement;
     private sortOrderDiv: HTMLInputElement;
-    mode: any;
-    minMaxBtn: HTMLInputElement;
+    private mode: any;
+    private minMaxBtn: HTMLInputElement;
+    private maxDistance: HTMLInputElement;
+    private distance: HTMLElement;
+    private buffer: any;
     
     @property()
     get namedGeometries(): any[] {
@@ -138,9 +141,9 @@ class PickupRoads extends declared(Widget) {
                     <div afterCreate={this._addFooter1}>
                         <label>
                             <span style="margin-right:4px;">Max Distance:</span>
-                            <input type="range" style="width:110px; height:16px;" min="20" max="200" step="10" name="maxDistance" data-dojo-attach-event="change:onMaxDistance" value="50" />
+                            <input type="range" style="width:110px; height:16px;" min="20" max="200" step="10" name="maxDistance" afterCreate={this._addMaxDistance} value="50" />
                         </label>
-                        <span style="margin-left: 4px;" data-dojo-attach-point="distance">50</span>
+                        <span style="margin-left: 4px;" afterCreate={this._addDistance} >50</span>
                         <span style="float:right;">Meters</span>
                     </div>
                     <div afterCreate={this._addFooter2} class="hide">
@@ -209,20 +212,21 @@ class PickupRoads extends declared(Widget) {
         this.own(on(input, "change", event => {
             const input = event.target;
             if(!input.checked) return;
-            const value = input.value;
-            this.mode = value;
+            this.mode = input.value;
 
-            switch (value) {
+            switch (this.mode) {
                 case PickupRoads.MODE_ALL:
                     this.showListAll(this.extentOnly.checked);
                     html.addClass(this.footer1, "hide");
                     html.removeClass(this.footer2, "hide");
                     break;
                 case PickupRoads.MODE_ADDRESS_POINT:
+                    this.showBufferList();
                     html.removeClass(this.footer1, "hide");
                     html.addClass(this.footer2, "hide");
                     break;
                 case PickupRoads.MODE_PARCEL:
+                    this.showBufferList();
                     html.removeClass(this.footer1, "hide");
                     html.addClass(this.footer2, "hide");
                     break;
@@ -274,6 +278,20 @@ class PickupRoads extends declared(Widget) {
                 html.addClass(domNode, "normal");
             }
         }))
+    }
+
+    private _addMaxDistance = (element: Element) => {
+        this.maxDistance = element as HTMLInputElement;
+        this.own(on(this.maxDistance, "change", event => {
+            this.distance.innerHTML = event.target.value;
+            if (this.mode != PickupRoads.MODE_ALL) {
+                this.showBufferList();
+            }
+        }))
+    }
+
+    private _addDistance = (element: Element) => {
+        this.distance = element as HTMLElement;
     }
 
     private showListAll = (extentOnly) => {
@@ -359,6 +377,60 @@ class PickupRoads extends declared(Widget) {
                 }
             }
         });
+    }
+
+    private showBufferList = () => {
+        let bufferGeometry = null;
+        if (this.mode === PickupRoads.MODE_PARCEL) {
+            const q = this.parcelsLayer.createQuery();
+            q.outFields = ["OBJECTID"];
+            q.where = "1=1";
+            q.geometry = this.feature.geometry;
+            q.spatialRelationship = "esriSpatialRelWithin";
+            q.returnGeometry = true;
+
+            this.parcelsLayer.queryFeatures(q).then(results => {
+                if (results.features.length === 1) {
+                    bufferGeometry = geometryEngine.buffer(results.features[0].geometry, Number(this.maxDistance.value), "meters");
+                    this._showBufferList(bufferGeometry);
+                } else {
+                    console.error("unexpected nuber of parcels", results);
+                    return;
+                }
+            })
+
+        } else {
+            bufferGeometry = geometryEngine.buffer(this.feature.geometry, Number(this.maxDistance.value), "meters");
+            this._showBufferList(bufferGeometry);
+        }        
+    }
+
+    private _showBufferList = (geometry) => {
+        if (this.buffer) {
+            this.utils._removeGraphic(this.buffer, this.mapView.graphics);
+        }
+        if (!this.feature || !this.open) return;
+
+        let buffer = null;
+        if (this.mode != PickupRoads.MODE_ALL) {
+            const g = geometryEngine.intersect(geometry, this.mapView.extent);
+            buffer = this.buffer = {geometry: g, symbol:this.utils.BUFFER_SYMBOL};
+            this.mapView.graphics.add(this.buffer);
+        }
+        else {
+            buffer = {geometry:this.mapView.extent};
+        }
+
+        const uniqueRoads = this.namedGeometries.filter(n => geometryEngine.intersects(n, buffer.geometry));
+        //.map(g => ({name: g.roadName, geometry:g}));
+
+        const roadDistances = [];
+        uniqueRoads.forEach(road => {
+            const roadDist = ({name: road.roadName, geometry:road, distance:geometryEngine.distance(this.feature.geometry, road, "meters")});
+            roadDistances.push(roadDist);
+        });
+        console.log("roadDistances", roadDistances);
+        this._showListAll(roadDistances);
     }
 }
 
