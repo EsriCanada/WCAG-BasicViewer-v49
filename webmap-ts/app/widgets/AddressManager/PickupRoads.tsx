@@ -3,6 +3,7 @@
 
 import {subclass, declared, property} from "esri/core/accessorSupport/decorators";
 import Widget = require("esri/widgets/Widget");
+import query =require("dojo/query");
 import lang = require("dojo/_base/lang");
 import domConstruct = require("dojo/dom-construct");
 import dom = require("dojo/dom");
@@ -59,6 +60,7 @@ class PickupRoads extends declared(Widget) {
     private uniqueRoadNames: any[];
     private uniqueRoads: any[];
     private roadCount: HTMLElement;
+    private pickupRoadsList: HTMLUListElement;
 
     @property()
     get open() {
@@ -101,13 +103,13 @@ class PickupRoads extends declared(Widget) {
         return ( 
             <div class="pickupRoads hide" afterCreate={this._addDomNode}>
                 <div class="header" data-dojo-attach-point="pickupRoadsHeader">
-                    <label><input type="radio" name="showRoads" afterCreate={this._showRoads} value="Address Point" checked />From Address Point</label>
-                    <label><input type="radio" name="showRoads" afterCreate={this._showRoads} value="Parcel" />From Parcel</label>
-                    <label><input type="radio" name="showRoads" afterCreate={this._showRoads} value="All" />All</label>
+                    <label><input type="radio" name="showRoads" afterCreate={this._addShowRoads} value="Address Point" checked />From Address Point</label>
+                    <label><input type="radio" name="showRoads" afterCreate={this._addShowRoads} value="Parcel" />From Parcel</label>
+                    <label><input type="radio" name="showRoads" afterCreate={this._addShowRoads} value="All" />All</label>
                     <span afterCreate={this._addRoadCount} style="float:right;"></span>
                 </div>
-                <div class="pickupRoads-list">
-                    <ul data-dojo-attach-point="pickupRoadsList" tabindex="0">
+                <div class="roadsList">
+                    <ul afterCreate={this._addPickupRoadsList} tabindex="0">
             
                     </ul>
                 </div>
@@ -167,7 +169,7 @@ class PickupRoads extends declared(Widget) {
     }
 
     
-    private _showRoads = (element: Element) => {
+    private _addShowRoads = (element: Element) => {
         const input = element as HTMLInputElement;
         this.own(on(input, "change", event => {
             const input = event.target;
@@ -177,7 +179,7 @@ class PickupRoads extends declared(Widget) {
 
             switch (value) {
                 case PickupRoads.MODE_ALL:
-                        this.roadCount.innerHTML = "(" +this.uniqueRoads.length +"}";
+                        this.showListAll();
                         break;
                 case PickupRoads.MODE_ADDRESS_POINT:
                     break;
@@ -185,6 +187,52 @@ class PickupRoads extends declared(Widget) {
                     break;
             }
         }))
+    }
+
+    private _addPickupRoadsList = (element: Element) => {
+        this.pickupRoadsList = element as HTMLUListElement;
+    }
+
+    private showListAll = () => {
+        this.roadCount.innerHTML = "(" +this.uniqueRoads.length +"}";
+        let prev = "";
+        this.uniqueRoads.forEach(road => {
+            if (road.name[0] != prev) {
+                prev = road.name[0];
+                html.create("li", { innerHTML: prev, class: "firstLetter", "data-letter": prev }, this.pickupRoadsList);
+            }
+            const li = html.create("li", { tabindex: "0" }, this.pickupRoadsList);
+            const name = html.create("div", {
+                innerHTML: road.name,
+                class: "roadName"
+            }, li);
+            // this.own(on(name, "mouseover", event => {
+            //     console.log("mouseover", event);
+            // }));
+            // this.own(on(name, "mouseout", event => {
+            //     console.log("mouseout", event);
+            // }));
+            this.own(on(li, "click", event => {
+                const streetName = event.target.innerHTML;
+                if (this.input.value != streetName) {
+                    this.input.value = streetName;
+                    if (this.selectionMade) {
+                        this.selectionMade(streetName);
+                    }
+                }
+            }));
+        })
+        on(this.pickupRoadsList, "keyup", event => {
+            const key = event.key.toUpperCase();
+            // console.log("keyEvent", key);
+            if ((key >= "A" && key <= "Z") || (key >= "1" && key <= "9")) {
+                const tags = query(".firstLetter[data-letter='" + key + "']");
+                if (tags && tags.length === 1) {
+                    // tags[0].scrollIntoView({ behavior: "smooth", block: "nearest" });
+                }
+            }
+        })
+
     }
 }
 

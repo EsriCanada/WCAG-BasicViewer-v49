@@ -1879,3 +1879,24 @@ AddressManager .dropdown-content li {
     flex-grow: 0;
     padding: 4px 8px;
 }
+
+.AddressManager .pickupRoads .roadsList {
+    overflow-y: auto;
+    height: 100%;
+}
+
+.AddressManager .pickupRoads .roadsList ul {
+    margin: 0;
+    padding: 4px;
+}
+
+.AddressManager .pickupRoads .roadsList ul li.firstLetter {
+    display: inline-block;
+    padding: 0px 8px;
+    background: gray;
+    color: white;
+    border-radius: 3px;
+    pointer-events: none;
+    float: right;
+    font-weight: bold;
+}

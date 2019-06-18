@@ -54,7 +54,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/core/tsSupport/decorateHelper", "esri/core/accessorSupport/decorators", "esri/widgets/Widget", "dojo/on", "dojo/_base/html", "esri/geometry/geometryEngine", "esri/widgets/support/widget"], function (require, exports, __extends, __decorate, decorators_1, Widget, on, html, geometryEngine, widget_1) {
+define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/core/tsSupport/decorateHelper", "esri/core/accessorSupport/decorators", "esri/widgets/Widget", "dojo/query", "dojo/on", "dojo/_base/html", "esri/geometry/geometryEngine", "esri/widgets/support/widget"], function (require, exports, __extends, __decorate, decorators_1, Widget, query, on, html, geometryEngine, widget_1) {
     "use strict";
     var PickupRoads = /** @class */ (function (_super) {
         __extends(PickupRoads, _super);
@@ -99,7 +99,7 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
             _this._addRoadCount = function (element) {
                 _this.roadCount = element;
             };
-            _this._showRoads = function (element) {
+            _this._addShowRoads = function (element) {
                 var input = element;
                 _this.own(on(input, "change", function (event) {
                     var input = event.target;
@@ -109,7 +109,7 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                     console.log("input.value", value);
                     switch (value) {
                         case PickupRoads_1.MODE_ALL:
-                            _this.roadCount.innerHTML = "(" + _this.uniqueRoads.length + "}";
+                            _this.showListAll();
                             break;
                         case PickupRoads_1.MODE_ADDRESS_POINT:
                             break;
@@ -117,6 +117,49 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                             break;
                     }
                 }));
+            };
+            _this._addPickupRoadsList = function (element) {
+                _this.pickupRoadsList = element;
+            };
+            _this.showListAll = function () {
+                _this.roadCount.innerHTML = "(" + _this.uniqueRoads.length + "}";
+                var prev = "";
+                _this.uniqueRoads.forEach(function (road) {
+                    if (road.name[0] != prev) {
+                        prev = road.name[0];
+                        html.create("li", { innerHTML: prev, class: "firstLetter", "data-letter": prev }, _this.pickupRoadsList);
+                    }
+                    var li = html.create("li", { tabindex: "0" }, _this.pickupRoadsList);
+                    var name = html.create("div", {
+                        innerHTML: road.name,
+                        class: "roadName"
+                    }, li);
+                    // this.own(on(name, "mouseover", event => {
+                    //     console.log("mouseover", event);
+                    // }));
+                    // this.own(on(name, "mouseout", event => {
+                    //     console.log("mouseout", event);
+                    // }));
+                    _this.own(on(li, "click", function (event) {
+                        var streetName = event.target.innerHTML;
+                        if (_this.input.value != streetName) {
+                            _this.input.value = streetName;
+                            if (_this.selectionMade) {
+                                _this.selectionMade(streetName);
+                            }
+                        }
+                    }));
+                });
+                on(_this.pickupRoadsList, "keyup", function (event) {
+                    var key = event.key.toUpperCase();
+                    // console.log("keyEvent", key);
+                    if ((key >= "A" && key <= "Z") || (key >= "1" && key <= "9")) {
+                        var tags = query(".firstLetter[data-letter='" + key + "']");
+                        if (tags && tags.length === 1) {
+                            // tags[0].scrollIntoView({ behavior: "smooth", block: "nearest" });
+                        }
+                    }
+                });
             };
             return _this;
         }
@@ -169,17 +212,17 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
             return (widget_1.tsx("div", { class: "pickupRoads hide", afterCreate: this._addDomNode },
                 widget_1.tsx("div", { class: "header", "data-dojo-attach-point": "pickupRoadsHeader" },
                     widget_1.tsx("label", null,
-                        widget_1.tsx("input", { type: "radio", name: "showRoads", afterCreate: this._showRoads, value: "Address Point", checked: true }),
+                        widget_1.tsx("input", { type: "radio", name: "showRoads", afterCreate: this._addShowRoads, value: "Address Point", checked: true }),
                         "From Address Point"),
                     widget_1.tsx("label", null,
-                        widget_1.tsx("input", { type: "radio", name: "showRoads", afterCreate: this._showRoads, value: "Parcel" }),
+                        widget_1.tsx("input", { type: "radio", name: "showRoads", afterCreate: this._addShowRoads, value: "Parcel" }),
                         "From Parcel"),
                     widget_1.tsx("label", null,
-                        widget_1.tsx("input", { type: "radio", name: "showRoads", afterCreate: this._showRoads, value: "All" }),
+                        widget_1.tsx("input", { type: "radio", name: "showRoads", afterCreate: this._addShowRoads, value: "All" }),
                         "All"),
                     widget_1.tsx("span", { afterCreate: this._addRoadCount, style: "float:right;" })),
-                widget_1.tsx("div", { class: "pickupRoads-list" },
-                    widget_1.tsx("ul", { "data-dojo-attach-point": "pickupRoadsList", tabindex: "0" })),
+                widget_1.tsx("div", { class: "roadsList" },
+                    widget_1.tsx("ul", { afterCreate: this._addPickupRoadsList, tabindex: "0" })),
                 widget_1.tsx("div", { class: "footer", "data-dojo-attach-point": "pickupRoadsFooter" },
                     widget_1.tsx("label", null,
                         widget_1.tsx("span", { style: "margin-right:4px;" }, "Max Distance:"),
