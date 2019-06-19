@@ -53,6 +53,7 @@ import Tool = require("../toolbar/Tool");
     public AddFilterItem(layer, fieldName, value) {
         const filterTab = this.filterTabs[layer.id];
         filterTab._filterAdd(fieldName, value);
+        setTimeout(() => { filterTab.filterApply(); }, 200);
     }
 
     private _addFilters = (element: Element) => {

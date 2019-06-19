@@ -290,6 +290,7 @@ class DropDownItemMenu extends declared(Widget) {
                 const value = this.input.value;
                 
                 this.filters.AddFilterItem(this.siteAddressPointLayer, this.fieldName, value);
+                html.addClass(this.menuContent, "hide");
             })))
         }
     }

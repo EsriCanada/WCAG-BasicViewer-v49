@@ -231,7 +231,7 @@ import i18n = require("dojo/i18n!../nls/resources");
         // domStyle.set(this.label1, "box-shadow", "dimgray 0px -2px 0px 2px inset");
     }
 
-    private filterApply = (event) => {
+    public filterApply = (event) => {
         const exps = [];
         console.log("FilterItems", this.FilterItems);
         this.FilterItems.filter((f) => { return f.active && !f.hasErrors; }).forEach((f : any) => {// 

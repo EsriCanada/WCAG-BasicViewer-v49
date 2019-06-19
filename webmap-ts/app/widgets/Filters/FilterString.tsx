@@ -20,29 +20,29 @@ class FilterString extends declared(FilterItemBase) {
 
     render() {
         return(
-<div class="filter__grid-container">
-  <select autofocus tabindex="0" 
-    afterCreate={this._criteriaCreated}
-        class="filter__grid-item filter__grid-criteria"
-        aria-label={i18n.FilterItem.selectCriteria}
-		>
-		<option value=" = ">{i18n.FilterItem.equal}</option>
-		<option value=" != ">{i18n.FilterItem.notEqual}</option>
-		<option value=" LIKE ">{i18n.FilterItem.like}</option>
-		<option value=" NOT LIKE ">{i18n.FilterItem.notLike}</option>
-		<option value=" IN ">{i18n.FilterItem.in}</option>
-		<option value=" NOT IN ">{i18n.FilterItem.notIn}</option>			
-	</select>
-	<input type="textbox"
-        class="filter-filterItem__textBox--text filter__grid-item filter__grid-minValue"
-        aria-label={i18n.FilterItem.enterValueToMatch}
-        title={i18n.FilterItem.enterValueToMatch}
-        afterCreate={this._addedTextBox}
-    />
-	<div class="filter__grid-item filter__grid-item--Examples">
-		<ul class="" style="display:none;" afterCreate={this._addedListInput}></ul>
-    </div>
-</div>
+            <div class="filter__grid-container">
+            <select autofocus tabindex="0" 
+                afterCreate={this._criteriaCreated}
+                    class="filter__grid-item filter__grid-criteria"
+                    aria-label={i18n.FilterItem.selectCriteria}
+                    >
+                    <option value=" = ">{i18n.FilterItem.equal}</option>
+                    <option value=" != ">{i18n.FilterItem.notEqual}</option>
+                    <option value=" LIKE ">{i18n.FilterItem.like}</option>
+                    <option value=" NOT LIKE ">{i18n.FilterItem.notLike}</option>
+                    <option value=" IN ">{i18n.FilterItem.in}</option>
+                    <option value=" NOT IN ">{i18n.FilterItem.notIn}</option>			
+                </select>
+                <input type="textbox"
+                    class="filter-filterItem__textBox--text filter__grid-item filter__grid-minValue"
+                    aria-label={i18n.FilterItem.enterValueToMatch}
+                    title={i18n.FilterItem.enterValueToMatch}
+                    afterCreate={this._addedTextBox}
+                />
+                <div class="filter__grid-item filter__grid-item--Examples">
+                    <ul class="" style="display:none;" afterCreate={this._addedListInput}></ul>
+                </div>
+            </div>
       )
     }
 
@@ -51,6 +51,9 @@ class FilterString extends declared(FilterItemBase) {
 
     private _addedTextBox = (element : Element) => {
         this.valueTextBox = element as HTMLInputElement;
+        if(!this.value.isNullOrWhiteSpace()) {
+            this.valueTextBox.value = this.value;
+        }
     }
 
     private _addedListInput = (element : Element) => {
