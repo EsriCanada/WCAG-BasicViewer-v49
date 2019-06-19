@@ -16,6 +16,7 @@ import { IndexType } from "typescript";
 import watchUtils = require("esri/core/watchUtils");
 import Feature = require("esri/widgets/Feature");
 import Collection = require("esri/core/Collection");
+import domClass = require("dojo/dom-class");
 
 @subclass("esri.guide.AddressManagerViewModel")
 class AddressManagerViewModel extends declared(Accessor) {
@@ -37,12 +38,11 @@ class AddressManagerViewModel extends declared(Accessor) {
         return this.addressPointFeatures.toArray()[this.addressPointFeaturesIndex]; 
     }
 
-    constructor() {
-        super();
-        // this.addressPointFeatures.watch("length", (newValue) => {
-        //     // this.addressPointFeaturesIndex = this.addressPointFeatures.length > 0 ? 0 : -1; 
-        // })
-    }
+    @property() 
+    inputControls: any = {};
+
+    @property()
+    addressCopyAttributeNames: any[];
 
 }
 

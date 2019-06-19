@@ -1,7 +1,7 @@
 /// <amd-dependency path="esri/core/tsSupport/declareExtendsHelper" name="__extends" />
 /// <amd-dependency path="esri/core/tsSupport/decorateHelper" name="__decorate" />
 
-import {subclass, declared, property} from "esri/core/accessorSupport/decorators";
+import {subclass, declared, property, aliasOf} from "esri/core/accessorSupport/decorators";
 import { renderable, tsx } from "esri/widgets/support/widget";
 import Widget = require("esri/widgets/Widget");
 
@@ -9,29 +9,63 @@ import lang = require("dojo/_base/lang");
 import on = require("dojo/on");
 import html = require("dojo/_base/html");
 import UtilsViewModel = require("./UtilsViewModel");
+import AddressManagerViewModel = require("./AddressManagerViewModel");
+import Collection = require("esri/core/Collection");
+import Feature = require("esri/widgets/Feature");
 
 @subclass("esri.widgets.DropDownItemMenu")
 class DropDownItemMenu extends declared(Widget) {
     @property()
+    viewModel: AddressManagerViewModel;
+
+    @property("readonly")
     parent;
 
-    @property()
+    @property("readonly")
+    input;
+
+    @property("readonly")
     fieldName: string;
 
-    @property()
+    @property("readonly")
     specialAttributes;
 
     @property()
-    addressPointFeatures: any;
+    @aliasOf("viewModel.addressPointFeatures")
+    addressPointFeatures: Collection<Feature>;
+
+    @property()
+    @aliasOf("viewModel.addressPointFeaturesIndex")
+    addressPointFeaturesIndex;
+
+    @property()
+    @aliasOf("viewModel.selectedAddressPointFeature")
+    selectedAddressPointFeature: Feature;
+
+    @property()
+    @aliasOf("viewModel.inputControls")
+    inputControls;
+
+    @property()
+    @aliasOf("viewModel.addressCopyAttributeNames")
+    addressCopyAttributeNames: any[];
 
     @property("readonly")
-    onSortReady;
+    onMenuActionReady;
+
+    @property("readonly")
+    setDirty;
 
     // @property()
     // labelsGraphicsLayer;
 
     @property()
     utilsVM : UtilsViewModel;
+
+    static lastFieldName: string;
+    static LabelsGraphicsLayer;
+
+    // private viewModel : AddressManagerViewModel;
 
     private dropDownButton: any;
     private menuContent: HTMLElement;
@@ -41,11 +75,10 @@ class DropDownItemMenu extends declared(Widget) {
     private copyItem: HTMLElement;
     private fillItem: HTMLElement;
     
-    static lastFieldName: string;
-
-    static LabelsGraphicsLayer;
-    directionSort: HTMLInputElement;
-    menuItemSort: HTMLAnchorElement;
+    private directionSort: HTMLInputElement;
+    private menuItemSort: HTMLAnchorElement;
+    private menuItemCopyToAll: HTMLAnchorElement;
+    private copyDomain: HTMLInputElement;
 
     constructor() {
         super();
@@ -72,13 +105,13 @@ class DropDownItemMenu extends declared(Widget) {
                         </label>
                     </li>
 
-                    <li tabindex="0" afterCreate={this._addFilterItem}>
-                        <a ahref="#" data-dojo-attach-point="filter" data-dojo-attach-event="click:_onMenuItemFilter">Filter This Value</a>
+                    <li tabindex="0" class="copyToAllItem" afterCreate={this._addCopyItem}>
+                        <a ahref="#" afterCreate={this._addMenuItemCopyToAll}>Copy To All</a>
+                        <input type="button" afterCreate={this._addCopyDomain} value="this" title="Copy This Attribute"/>
                     </li>
 
-                    <li tabindex="0" class="copyToAllItem" afterCreate={this._addCopyItem}>
-                        <a ahref="#" data-dojo-attach-event="click:_onMenuItemCopyToAll">Copy To All</a>
-                        <input type="button" data-dojo-attach-point="copyDomain" data-dojo-attach-event="click:_onCopyDomainClicked" value="this" title="Copy This Attribute"/>
+                    <li tabindex="0" afterCreate={this._addFilterItem}>
+                        <a ahref="#" data-dojo-attach-point="filter" data-dojo-attach-event="click:_onMenuItemFilter">Filter This Value</a>
                     </li>
 
                     <li tabindex="0"class="fillItem"  afterCreate={this._addFillItem}>
@@ -150,25 +183,70 @@ class DropDownItemMenu extends declared(Widget) {
             if (this.addressPointFeatures.length <= 1) return;
             const directionSort = this.directionSort.checked;
 
-            function sortDescending(a, b) {
+            const sortDescending = (a, b) => {
                 const a1 = b.attributes[this.fieldName];
                 const b1 = a.attributes[this.fieldName];
                 return (a1 == Number(a1) && b1 == Number(b1)) ? (a1 - b1) : (a1 < b1);
             }
 
-            function sortAscending(a, b) {
+            const sortAscending = (a, b) =>  {
                 const a1 = a.attributes[this.fieldName];
                 const b1 = b.attributes[this.fieldName];
                 return (a1 == Number(a1) && b1 == Number(b1)) ? (a1 - b1) : (a1 < b1);
             }
-            this.addressPointFeatures.sort(lang.hitch(this, directionSort ? sortDescending : sortAscending));
+            this.addressPointFeatures.sort((directionSort ? sortDescending : sortAscending) as any);
 
-            if(this.onSortReady) {
-                this.onSortReady();
+            if(this.onMenuActionReady) {
+                this.onMenuActionReady();
             }
 
             html.addClass(this.menuContent, "hide");
 
+        }))
+    }
+
+    private _addMenuItemCopyToAll = (element: Element) => {
+        this.menuItemCopyToAll = element as HTMLAnchorElement;
+        this.own(on(this.menuItemCopyToAll, "click", event => {
+            if (this.addressPointFeatures.length <= 1) return;
+
+            if (this.copyDomain.value == "this") {
+                const value = this.input.value;
+
+                this.addressPointFeatures.forEach(feature => {
+                    // if(feature != this.feature)
+                    this.setDirty(this.input, feature, this.fieldName, value);
+                })
+            } else { // this.copyDomain == "all"
+                const featureOrig = this.selectedAddressPointFeature;
+
+                this.addressCopyAttributeNames.forEach(fieldName => {
+                    if (this.inputControls.hasOwnProperty(fieldName)) {
+                        const value = (featureOrig as any).attributes[fieldName];
+
+                        this.addressPointFeatures.forEach(feature => {
+                            // if (feature !== featureOrig) {
+                                this.setDirty(this.input, feature, fieldName, value);
+                            // }
+                        })
+                    }
+                });
+            }
+            html.addClass(this.menuContent, "hide");
+        }))
+    }
+
+    private _addCopyDomain = (element: Element) => {
+        this.copyDomain = element as HTMLInputElement;
+        this.own(on(this.copyDomain, "click", event => {
+            const copyDomain = event.target;
+            if (copyDomain.value == "this") {
+                copyDomain.value = "all";
+                copyDomain.title = "Copy All Attributes";
+            } else {
+                copyDomain.value = "this";
+                copyDomain.title = "Copy This Attribute";
+            }
         }))
     }
 
@@ -221,7 +299,7 @@ class DropDownItemMenu extends declared(Widget) {
         }
         DropDownItemMenu.lastFieldName = this.fieldName;
         for (let i = 0; i < this.addressPointFeatures.length; i++) {
-            const feature = this.addressPointFeatures.items[i];
+            const feature = (this.addressPointFeatures as any).items[i];
             // console.log("feature", feature);
             const graphic = {geometry: feature.geometry, symbol: this.utilsVM.GET_LABEL_SYMBOL(feature.attributes[this.fieldName])};
             // this.map.graphics.add(graphic);

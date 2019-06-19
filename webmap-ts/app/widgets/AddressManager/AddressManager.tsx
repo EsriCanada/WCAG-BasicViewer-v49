@@ -57,6 +57,14 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
     @aliasOf("viewModel.selectedAddressPointFeature")
     selectedAddressPointFeature: Feature;
 
+    @property()
+    @aliasOf("viewModel.inputControls")
+    inputControls;
+
+    @property()
+    @aliasOf("viewModel.addressCopyAttributeNames")
+    addressCopyAttributeNames: any[];
+
     private clonePanel = null;
 
     private UtilsVM : UtilsViewModel;
@@ -68,7 +76,7 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
     private addressAttributes: any;
     private addressTable: any;
     private specialAttributes: any;
-    private inputControls: any = {};
+    // private inputControls: any = {};
     private statusTable: any;
     private hiddenFields: any;
     private distanceBtn: HTMLElement;
@@ -78,7 +86,7 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
     private addressPointCountEl: HTMLElement;
     private previousBtn: HTMLElement;
     private nextBtn: HTMLElement;
-    private addressCopyAttributeNames: any[];
+    // private addressCopyAttributeNames: any[];
     private submitDelete: HTMLElement;
     private x: HTMLInputElement;
     private y: HTMLInputElement;
@@ -998,12 +1006,15 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
         require(["./DropDownItemMenu"], DropDownItemMenu =>{
             const dropdownBtn = new DropDownItemMenu({
                 parent: this,
+                input: input,
+                viewModel: this.viewModel,
                 fieldName: field.name,
                 specialAttributes: this.specialAttributes[field.name],
-                addressPointFeatures: this.addressPointFeatures,
+                // addressPointFeatures: this.addressPointFeatures,
                 // labelsGraphicsLayer: this.labelsGraphicsLayer,
                 utilsVM: this.UtilsVM,
-                onSortReady: () => this._populateAddressTable(0),
+                onMenuActionReady: () => this._populateAddressTable(0),
+                setDirty: this._setDirty,
                 container: dropdown
             });
         });
