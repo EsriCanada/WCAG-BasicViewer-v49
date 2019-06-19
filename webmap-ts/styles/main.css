@@ -1817,10 +1817,6 @@ AddressManager .dropdown-content li {
     font-weight: bold;
 }
 
-.AddressManager .sortItem label input {
-    display: none;
-}
-
 .AddressManager .sortItem label input~img {
     margin-left: 8px;
     background: white;
@@ -1832,6 +1828,15 @@ AddressManager .dropdown-content li {
     display: inline-grid;
     grid-template-columns: auto auto;
     width: 100%;
+}
+
+.AddressManager .sortItem input:checked~img {
+    -moz-transform: scaleY(-1);
+    -o-transform: scaleY(-1);
+    -webkit-transform: scaleY(-1);
+    transform: scaleY(-1);
+    filter: FlipV;
+    -ms-filter: "FlipV";
 }
 
 .AddressManager .copyToAllItem input[type="button"] {

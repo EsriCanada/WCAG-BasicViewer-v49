@@ -24,6 +24,9 @@ class DropDownItemMenu extends declared(Widget) {
     @property()
     addressPointFeatures: any;
 
+    @property("readonly")
+    onSortReady;
+
     // @property()
     // labelsGraphicsLayer;
 
@@ -41,6 +44,8 @@ class DropDownItemMenu extends declared(Widget) {
     static lastFieldName: string;
 
     static LabelsGraphicsLayer;
+    directionSort: HTMLInputElement;
+    menuItemSort: HTMLAnchorElement;
 
     constructor() {
         super();
@@ -60,10 +65,10 @@ class DropDownItemMenu extends declared(Widget) {
                     </li>
 
                     <li tabindex="0" class="sortItem" afterCreate={this._addSortItem}>
-                        <a ahref="#" data-dojo-attach-event="click:_onMenuItemSort">Sort On This</a>
+                        <a ahref="#" afterCreate={this._addMenuItemSort}>Sort On This</a>
                         <label title="Sort Order">
-                            <input type="checkbox" data-dojo-attach-point="directionSort"/>
-                            <img src="../images\icons_transp/ascending.black.18.png"/>
+                            <input type="checkbox" style="display:none" afterCreate={this._addDirectionSort}/>
+                            <img src="../images/icons_transp/ascending.black.18.png"/>
                         </label>
                     </li>
 
@@ -133,6 +138,38 @@ class DropDownItemMenu extends declared(Widget) {
 
     private _addSortItem = (element: Element) => {
         this.sortItem = element as HTMLElement;
+    }
+
+    private _addDirectionSort = (element: Element) => {
+        this.directionSort = element as HTMLInputElement;
+    }
+
+    private _addMenuItemSort = (element: Element) => {
+        this.menuItemSort = element as HTMLAnchorElement;
+        this.own(on(this.menuItemSort, "click", event => {
+            if (this.addressPointFeatures.length <= 1) return;
+            const directionSort = this.directionSort.checked;
+
+            function sortDescending(a, b) {
+                const a1 = b.attributes[this.fieldName];
+                const b1 = a.attributes[this.fieldName];
+                return (a1 == Number(a1) && b1 == Number(b1)) ? (a1 - b1) : (a1 < b1);
+            }
+
+            function sortAscending(a, b) {
+                const a1 = a.attributes[this.fieldName];
+                const b1 = b.attributes[this.fieldName];
+                return (a1 == Number(a1) && b1 == Number(b1)) ? (a1 - b1) : (a1 < b1);
+            }
+            this.addressPointFeatures.sort(lang.hitch(this, directionSort ? sortDescending : sortAscending));
+
+            if(this.onSortReady) {
+                this.onSortReady();
+            }
+
+            html.addClass(this.menuContent, "hide");
+
+        }))
     }
 
     private _addFilterItem = (element: Element) => {

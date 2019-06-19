@@ -1003,6 +1003,7 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
                 addressPointFeatures: this.addressPointFeatures,
                 // labelsGraphicsLayer: this.labelsGraphicsLayer,
                 utilsVM: this.UtilsVM,
+                onSortReady: () => this._populateAddressTable(0),
                 container: dropdown
             });
         });
