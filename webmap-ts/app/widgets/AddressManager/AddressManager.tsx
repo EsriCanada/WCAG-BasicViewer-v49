@@ -23,10 +23,17 @@ import query = require("dojo/query");
 import geometryEngine = require("esri/geometry/geometryEngine");
 import DropDownItemMenu = require("./DropDownItemMenu");
 import GraphicsLayer = require("esri/layers/GraphicsLayer");
+import { ApplicationConfig } from "ApplicationBase/interfaces";
 // import AddressCompiler = require("./AddressCompiler");
 
 @subclass("esri.widgets.AddressManager")
   class AddressManager extends declared(Widget) {
+    @property()
+    baseConfig: ApplicationConfig;
+
+    @property()
+    filters: any;
+
     @property()
     mapView: __esri.MapView;
 
@@ -34,13 +41,16 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
     config: any = {};
 
     @property()
+    @aliasOf("viewModel.siteAddressPointLayer")
     siteAddressPointLayer: FeatureLayer;
 
     @property()
-    roadsLayer;
+    @aliasOf("viewModel.roadsLayer")
+    roadsLayer: FeatureLayer;
 
     @property()
-    parcelsLayer;
+    @aliasOf("viewModel.parcelsLayer")
+    parcelsLayer: FeatureLayer;
 
     @property()
     roadFieldName: string;
@@ -56,6 +66,10 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
     @property()
     @aliasOf("viewModel.selectedAddressPointFeature")
     selectedAddressPointFeature: Feature;
+
+    @property()
+    @aliasOf("viewModel.labelsGraphicsLayer")
+    labelsGraphicsLayer: GraphicsLayer;
 
     @property()
     @aliasOf("viewModel.inputControls")
@@ -102,7 +116,6 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
     private selectDropDownBtn: HTMLElement;
     private selectDropDownDiv: HTMLElement;
     private addressCompiler: any;
-    private labelsGraphicsLayer: any;
     private pickupRoads: any;
 
     constructor() {
@@ -114,6 +127,7 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
             "dojo/text!./AddressManager.json"
         ], (config) => {
             this.config = JSON.parse(config);
+            this.viewModel = new AddressManagerViewModel();
 
             const getLayer = lang.hitch(this, function(alias:string):FeatureLayer {
                 const layers = this.mapView.map.allLayers.items;
@@ -123,6 +137,7 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
                 });
                 return result;
             });
+
             this.siteAddressPointLayer = getLayer("siteaddresspoint");
             this.roadsLayer = getLayer("roadsegment");
             this.parcelsLayer = getLayer("parcel");
@@ -131,7 +146,6 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
             this.mapView.map.layers.add(this.labelsGraphicsLayer);
             DropDownItemMenu.LabelsGraphicsLayer = this.labelsGraphicsLayer;
 
-            this.viewModel = new AddressManagerViewModel();
             this.UtilsVM = new UtilsViewModel({mapView:this.mapView, roadsLayer: this.roadsLayer});
 
             this.addressPointFeatures.watch("length", (newValue) => {
@@ -1008,6 +1022,8 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
 
         require(["./DropDownItemMenu"], DropDownItemMenu =>{
             const dropdownBtn = new DropDownItemMenu({
+                baseConfig: this.baseConfig,
+                filters: this.filters,
                 parent: this,
                 input: input,
                 viewModel: this.viewModel,

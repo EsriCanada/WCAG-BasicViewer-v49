@@ -39,6 +39,8 @@ class Toolbar extends declared(Widget) {
 
     @property()
     search: any;
+    
+    private filters: any;
 
     constructor() {
         super();
@@ -181,6 +183,8 @@ class Toolbar extends declared(Widget) {
         this._addTool(element, "AddressManager").then((tool) => {
             require(["../AddressManager/AddressManager"], (AddressManager) => {
                 tool.myWidget = new AddressManager({
+                    baseConfig: this.config,
+                    filters: this.filters,
                     mapView: this.mapView,
                     container: tool.myToolPage.pageContent
                 })
@@ -292,7 +296,7 @@ class Toolbar extends declared(Widget) {
             const deferred = new Deferred<Tool>();
             this._addTool(element, "filter").then((tool) => {
                 require(["../Filters/Filters"], (Filters) => {
-                    const filters = tool.myWidget = new Filters({
+                    this.filters = tool.myWidget = new Filters({
                         mainView:mainView,
                         tool: tool,
                         container: domConstruct.create("div", {class:"FilterTabs"}, "pageBody_filter")

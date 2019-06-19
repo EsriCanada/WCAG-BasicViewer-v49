@@ -44,6 +44,19 @@ class AddressManagerViewModel extends declared(Accessor) {
     @property()
     addressCopyAttributeNames: any[];
 
+    @property()
+    siteAddressPointLayer: FeatureLayer;
+
+    @property()
+    roadsLayer: FeatureLayer;
+    
+    @property()
+    parcelsLayer: FeatureLayer;
+  
+    @property()
+    labelsGraphicsLayer: GraphicsLayer;
+
+
 }
 
 export = AddressManagerViewModel;

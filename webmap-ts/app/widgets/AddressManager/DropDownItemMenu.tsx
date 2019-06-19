@@ -12,9 +12,20 @@ import UtilsViewModel = require("./UtilsViewModel");
 import AddressManagerViewModel = require("./AddressManagerViewModel");
 import Collection = require("esri/core/Collection");
 import Feature = require("esri/widgets/Feature");
+import { Has } from "../../utils";
+import { ApplicationConfig } from "ApplicationBase/interfaces";
+import GraphicsLayer = require("esri/layers/GraphicsLayer");
+import FeatureLayer = require("esri/layers/FeatureLayer");
+
 
 @subclass("esri.widgets.DropDownItemMenu")
 class DropDownItemMenu extends declared(Widget) {
+    @property()
+    baseConfig: ApplicationConfig;
+
+    @property()
+    filters: any;
+
     @property()
     viewModel: AddressManagerViewModel;
 
@@ -50,6 +61,22 @@ class DropDownItemMenu extends declared(Widget) {
     @aliasOf("viewModel.addressCopyAttributeNames")
     addressCopyAttributeNames: any[];
 
+    @property()
+    @aliasOf("viewModel.siteAddressPointLayer")
+    siteAddressPointLayer: FeatureLayer;
+
+    @property()
+    @aliasOf("viewModel.roadsLayer")
+    roadsLayer: FeatureLayer;
+
+    @property()
+    @aliasOf("viewModel.parcelsLayer")
+    parcelsLayer: FeatureLayer;
+
+    @property()
+    @aliasOf("viewModel.labelsGraphicsLayer")
+    labelsGraphicsLayer: GraphicsLayer;
+
     @property("readonly")
     onMenuActionReady;
 
@@ -79,6 +106,7 @@ class DropDownItemMenu extends declared(Widget) {
     private menuItemSort: HTMLAnchorElement;
     private menuItemCopyToAll: HTMLAnchorElement;
     private copyDomain: HTMLInputElement;
+    private menuItemFilter: HTMLAnchorElement;
 
     constructor() {
         super();
@@ -111,7 +139,7 @@ class DropDownItemMenu extends declared(Widget) {
                     </li>
 
                     <li tabindex="0" afterCreate={this._addFilterItem}>
-                        <a ahref="#" data-dojo-attach-point="filter" data-dojo-attach-event="click:_onMenuItemFilter">Filter This Value</a>
+                        <a ahref="#" afterCreate={this._addMenuItemFilter} >Filter This Value</a>
                     </li>
 
                     <li tabindex="0"class="fillItem"  afterCreate={this._addFillItem}>
@@ -254,6 +282,18 @@ class DropDownItemMenu extends declared(Widget) {
         this.filterItem = element as HTMLElement;
     }
 
+    private _addMenuItemFilter = (element: Element) => {
+        this.menuItemFilter = element as HTMLAnchorElement;
+        if(Has(this.baseConfig, "filter")) {
+            this.own(on(this.menuItemFilter, "click", lang.hitch(this, function(event) {
+                const menuItemFilter = event.target;
+                const value = this.input.value;
+                
+                // this.filters.addFilterItem(this.siteAddressPointLayer, value);
+            })))
+        }
+    }
+
     private _addCopyItem = (element: Element) => {
         this.copyItem = element as HTMLElement;
     }
@@ -268,7 +308,7 @@ class DropDownItemMenu extends declared(Widget) {
         
         const checkMenu = (value:string): boolean => ("menu" in this.specialAttributes && !(value in this.specialAttributes.menu) || this.specialAttributes.menu[value]);
 
-        if(checkMenu("filter"))
+        if(Has(this.baseConfig, "filter") && checkMenu("filter"))
             html.removeClass(this.filterItem, "hide");
         else 
             html.addClass(this.filterItem, "hide");
