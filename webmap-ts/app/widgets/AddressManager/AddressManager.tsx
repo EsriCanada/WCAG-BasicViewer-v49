@@ -488,6 +488,9 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
 
     private _addDisplayBrokenRules = (element: Element) => {
         this.displayBrokenRules = element as HTMLElement;
+        this.own(on(this.displayBrokenRules, "dblclick", event => {
+            html.addClass(this.displayBrokenRules, "hide");
+        }))
     }
 
     private _addVerifyRules = (element: Element) => {
