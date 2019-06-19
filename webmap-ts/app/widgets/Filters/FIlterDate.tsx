@@ -16,7 +16,10 @@ import i18n = require("dojo/i18n!../nls/resources");
 import FilterItemBase = require("./FilterItemBase");
 
 @subclass("esri.widgets.FilterDate")
-  class FilterDate extends declared(FilterItemBase) {
+class FilterDate extends declared(FilterItemBase) {
+    @property()
+    value: any;
+
     private minDate: Date;
     private maxDate: Date;
 

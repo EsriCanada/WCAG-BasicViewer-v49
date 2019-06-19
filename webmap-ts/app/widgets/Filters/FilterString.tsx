@@ -15,6 +15,9 @@ import FilterItemBase = require("./FilterItemBase");
 
 @subclass("esri.widgets.FilterString")
 class FilterString extends declared(FilterItemBase) {
+    @property()
+    value: any;
+
     render() {
         return(
 <div class="filter__grid-container">
@@ -56,28 +59,28 @@ class FilterString extends declared(FilterItemBase) {
 
     private criteriaElement: HTMLSelectElement;
     private _criteriaCreated = (element:Element) => {
-      this.criteriaElement = element as HTMLSelectElement;
-      this.own(on(element, "change", (event) => { 
-        switch(this._getListMode()) {
-          case true: 
-            domStyle.set(this.valueTextBox, 'display', 'none');
-            if(this.listInput.innerHTML === '') {
-                this.fillAvailableValues();
+        this.criteriaElement = element as HTMLSelectElement;
+        this.own(on(element, "change", (event) => { 
+            switch(this._getListMode()) {
+            case true: 
+                domStyle.set(this.valueTextBox, 'display', 'none');
+                if(this.listInput.innerHTML === '') {
+                    this.fillAvailableValues();
+                }
+                this.fillValDeferred.then(() => domStyle.set(this.listInput, 'display', ''));
+                break;
+            case false: 
+                domStyle.set(this.valueTextBox, 'display', '');
+                domStyle.set(this.listInput, 'display', 'none');
+                break;
             }
-            this.fillValDeferred.then(() => domStyle.set(this.listInput, 'display', ''));
-            break;
-          case false: 
-            domStyle.set(this.valueTextBox, 'display', '');
-            domStyle.set(this.listInput, 'display', 'none');
-            break;
-        }
 
-      }))
+        }))
     }
 
     private _getListMode = () => {
-      const criteria = this.criteriaElement as any;
-      return criteria.value === ' IN ' || criteria.value === ' NOT IN ';
+        const criteria = this.criteriaElement as any;
+        return criteria.value === ' IN ' || criteria.value === ' NOT IN ';
     }
 
     private fillValDeferred = new Deferred();

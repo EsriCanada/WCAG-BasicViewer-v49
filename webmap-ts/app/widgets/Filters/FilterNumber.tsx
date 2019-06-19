@@ -21,6 +21,8 @@ class FilterNumber extends declared(FilterItemBase) {
       return (this as any).getFilterExpresion();
   };
 
+  @property()
+  value: any;
 
   render() {
     const id1 = "id1";

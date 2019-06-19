@@ -24,6 +24,9 @@ import Tool = require("../toolbar/Tool");
     @property()
     active: boolean = true;
 
+    @property()
+    value: any;
+
     // public getFilterExpresion = (): string => {
     //     return "?";
     // }

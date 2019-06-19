@@ -15,6 +15,8 @@ import Tool = require("../toolbar/Tool");
 
     @property()
     tool: Tool;
+    
+    private filterTabs = {};
 
     constructor() {
         super();
@@ -47,16 +49,20 @@ import Tool = require("../toolbar/Tool");
         }
     }
 
-    private layers: __esri.Collection<__esri.Layer> = null
+
+    public AddFilterItem(layer, fieldName, value) {
+        const filterTab = this.filterTabs[layer.id];
+        filterTab._filterAdd(fieldName, value);
+    }
 
     private _addFilters = (element: Element) => {
         this.mainView.when((mapView) => {
-            this.layers = mapView.map.layers;
+            const layers = mapView.map.layers;
 
             require(["./filterTab"], (FilterTab) => { 
-                this.layers.forEach((layer, i) => {
+                layers.forEach((layer, i) => {
                     if((layer as __esri.FeatureLayer).popupTemplate)
-                    new FilterTab({ 
+                    this.filterTabs[layer.id] = new FilterTab({ 
                         filters: this,
                         mapView: this.mainView,
                         layer: layer, 

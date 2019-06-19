@@ -15,12 +15,15 @@ import FilterItemBase = require("./FilterItemBase");
 
 
 @subclass("esri.widgets.FilterItem")
-    class FilterItem extends declared(FilterBase) {
+class FilterItem extends declared(FilterBase) {
 
-        @property()
-        FilterPart: FilterItemBase;
+    @property()
+    FilterPart: FilterItemBase;
 
-        render() {
+    @property()
+    value: any;
+
+    render() {
         return (
             <div>
             <li tabindex="0" afterCreate={this._filterAdded}>
@@ -92,52 +95,55 @@ import FilterItemBase = require("./FilterItemBase");
     private _filterItemAddContent = (element: Element) => {
         console.log("_filterItemAddContent", this.field.name, ": ", this.field.type);
         
-        switch(this.field.type) {
-            case "integer" :
-            case "double" :
-                this.layer.when(() => {
+        this.layer.when(() => {
+            // if("domain" in (this.field as any)) {
+                ////...
+            // }
+            // else 
+            switch(this.field.type) {
+                case "integer" :
+                case "double" :
                     require(["./FilterNumber"], (filterNumber) => { 
                         this.FilterPart = new filterNumber({
                             layer: this.layer, 
                             field: this.field, 
                             tool: this.tool,
                             showErrors: this.showError,
+                            value: this.value,
                             container: element
                         });
                     });
-                })
                 break;
-            case "string" :
-                this.layer.when(() => {
+                case "string" :
                     require(["./FilterString"], (filterString) => { 
                         this.FilterPart = new filterString({
                             layer: this.layer, 
                             field: this.field, 
                             tool: this.tool,
+                            value: this.value,
                             showErrors: this.showError,
                             container: element
                         });
                     });
-                })
                 break;
-            case "date" :
-                this.layer.when(() => {
+                case "date" :
                     require(["./FilterDate"], (filterDate) => { 
                         this.FilterPart = new filterDate({
                             layer: this.layer, 
                             field: this.field, 
                             tool: this.tool,
+                            value: this.value,
                             showErrors: this.showError,
                             container: element
                         });
                     });
-                })
                 break;
-            default : 
-                this.FilterPart = null;
-                setTimeout(() => this.showError(`Unknown Field Type: '${this.field.type}'`), 50);
-                break;
-        }
+                default : 
+                    this.FilterPart = null;
+                    setTimeout(() => this.showError(`Unknown Field Type: '${this.field.type}'`), 50);
+                    break;
+            }
+        })
     }
 
 }

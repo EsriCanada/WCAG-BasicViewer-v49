@@ -289,7 +289,7 @@ class DropDownItemMenu extends declared(Widget) {
                 const menuItemFilter = event.target;
                 const value = this.input.value;
                 
-                // this.filters.addFilterItem(this.siteAddressPointLayer, value);
+                this.filters.AddFilterItem(this.siteAddressPointLayer, this.fieldName, value);
             })))
         }
     }

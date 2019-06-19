@@ -159,7 +159,7 @@ import i18n = require("dojo/i18n!../nls/resources");
 
     private FilterItems = new Array<any>();
 
-    private _filterAdd = (fieldId: string) => {
+    public _filterAdd = (fieldId: string, fieldValue?: any) => {
         this.layer.when((layer: __esri.FeatureLayer) => {
             // console.log("layer", layer);
             const field: __esri.Field = layer.fields.filter((field) => {return field.name == fieldId;})[0];
@@ -169,6 +169,7 @@ import i18n = require("dojo/i18n!../nls/resources");
                     layer: layer, 
                     field: field, 
                     tool: this.tool,
+                    value: fieldValue,
                     container: this.ulFilterList
                 });
                 // this.filterList.appendChild(filterItem.domNode);

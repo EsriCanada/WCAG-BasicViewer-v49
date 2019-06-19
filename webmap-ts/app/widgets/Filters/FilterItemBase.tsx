@@ -10,6 +10,9 @@ import FilterBase = require("./FilterBase");
     class FilterItemBase extends declared(FilterBase) {
     @property()
     showErrors: (err: string) => {};
+
+    @property()
+    value: any;
 }
 
 export = FilterItemBase;
