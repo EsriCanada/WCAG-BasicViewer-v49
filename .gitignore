@@ -123,3 +123,5 @@ webmap-ts/app/widgets/AddressManager/DropDownItemMenu\.js
 webmap-ts/app/widgets/AddressManager/CursorToolTip\.js
 
 webmap-ts/app/widgets/AddressManager/PickupRoads\.js
+
+webmap-ts/app/widgets/Filters/FilterCodedDomain\.js
