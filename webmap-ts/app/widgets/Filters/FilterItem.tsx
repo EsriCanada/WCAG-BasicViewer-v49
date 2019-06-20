@@ -28,18 +28,8 @@ class FilterItem extends declared(FilterBase) {
             <div>
             <li tabindex="0" afterCreate={this._filterAdded}>
                 <div class="filter-filterItem--header">
-                    <input 
-                        id={this.id+"_header"}
-                        type="checkbox" 
-                        class="checkbox" 
-                        checked 
-                        aria-label="Active" 
-                        title="Active" 
-                        afterCreate={this._addedActive}/> 
-                    <label 
-                        class="checkbox"
-                        for={this.id+"_header"}
-                        >
+                    <input type="checkbox" checked id={this.id+"_header"} class="checkbox" aria-label="Active" title="Active" afterCreate={this._addedActive}/> 
+                    <label class="checkbox" for={this.id+"_header"}>
                         <div>{this.field.alias.NormalizeTitle()}</div>
                     </label>
                     <button role="button" 
@@ -96,10 +86,18 @@ class FilterItem extends declared(FilterBase) {
         console.log("_filterItemAddContent", this.field.name, ": ", this.field.type);
         
         this.layer.when(() => {
-            // if("domain" in (this.field as any)) {
-                ////...
-            // }
-            // else 
+            if("domain" in (this.field as any)) {
+                require(["./FilterCodedDomain"], (FilterCodedDomain) => { 
+                    this.FilterPart = new FilterCodedDomain({
+                        layer: this.layer, 
+                        field: this.field, 
+                        tool: this.tool,
+                        showErrors: this.showError,
+                        value: this.value,
+                        container: element
+                    });
+            })
+            } else 
             switch(this.field.type) {
                 case "integer" :
                 case "double" :
