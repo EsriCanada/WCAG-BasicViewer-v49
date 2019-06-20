@@ -24,6 +24,7 @@ import geometryEngine = require("esri/geometry/geometryEngine");
 import DropDownItemMenu = require("./DropDownItemMenu");
 import GraphicsLayer = require("esri/layers/GraphicsLayer");
 import { ApplicationConfig } from "ApplicationBase/interfaces";
+import Point = require("esri/geometry/Point");
 // import AddressCompiler = require("./AddressCompiler");
 
 @subclass("esri.widgets.AddressManager")
@@ -117,6 +118,7 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
     private selectDropDownDiv: HTMLElement;
     private addressCompiler: any;
     private pickupRoads: any;
+    centroidBtn: HTMLInputElement;
 
     constructor() {
         super(); 
@@ -202,7 +204,7 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
                             <th>
                                 <div><label for="x_input">x:</label>
                                     <div style="float:right;">
-                                        <input type="image" src="../images/icons_transp/centroid.bgwhite.24.png" title="Centroid" aria-label="Place Address Point to Centroid" data-dojo-attach-event="onclick:_onCentroidClicked" class="rowImg"/>
+                                        <input type="image" src="../images/icons_transp/centroid.bgwhite.24.png" title="Centroid" aria-label="Place Address Point to Centroid" afterCreate={this._addCentroidBtn} class="rowImg"/>
                                         <input type="image" src="../images/icons_transp/movePoint.bgwhite.24.png" title="Move" aria-label="Move Address Point" data-dojo-attach-event="onclick:_onMoveAddressPointClicked" data-dojo-attach-point="moveAddressPoint" class="rowImg"/>
                                     </div>
                                 </div>
@@ -605,6 +607,12 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
 
     private _addZoomBtn = (element: Element) => {
         this.zoomBtn = element as HTMLElement;
+
+        this.own(on(this.zoomBtn, "click", (event) => {
+            if(this.selectedAddressPointFeature) {
+                this.mapView.goTo(this.selectedAddressPointFeature);
+            }
+        }))
     };
 
     private _addAddressPointNavigator = (element: Element) => {
@@ -618,6 +626,57 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
     private _addAddressPointCount = (element: Element) => {
         this.addressPointCountEl = element as HTMLElement;
     };
+
+    private _addCentroidBtn = (element: Element) => {
+        this.centroidBtn = element as HTMLInputElement;
+        this.own(on(this.centroidBtn, "click", event => {
+            if (!this.addressPointFeatures || this.addressPointFeatures.length == 0) return;
+                const btn = event.target;
+                html.addClass(btn, "active");
+
+                const feature = this.selectedAddressPointFeature;
+
+                const q = this.parcelsLayer.createQuery();
+                q.outFields = ["OBJECTID"];
+                q.where = "1=1";
+                q.geometry = (feature as any).geometry;
+                q.spatialRelationship = "intersects";
+                q.returnGeometry = true;
+
+                this.parcelsLayer.queryFeatures(q).then(
+                results => {
+                    html.removeClass(btn, "active");
+                    // console.log("range parcels", results);
+                    const [geo] = results.features.map(f => f.geometry);
+                    if (geo) {
+                        // console.log("geo", geo);
+                        const p = this.UtilsVM.GetCentroidCoordinates(geo) as Point;
+                        const centroid = p;
+
+                        //geo.getExtent().getCenter(); //getCentroid(); 
+
+                        this.x.value = centroid.x.toString();
+                        this.y.value = centroid.y.toString();
+                        // console.log("feature", feature);
+
+                        // const selectedAddress = this._getMarker("selectedAddress");
+                        (feature as any).geometry = centroid;
+                        // this.mapView.graphics.refresh();
+
+                        this._setDirty(this.x, feature, "geometry", centroid);
+
+                        // feature.layer.suspend();
+                        (feature as any).geometry.update(centroid.x, centroid.y);
+                        // feature._layer.resume();
+                    }
+                },
+                err => {
+                        html.removeClass(btn, "active");
+                        console.log("Centroid Error", err);
+                })
+        }))
+    };
+
 
     private _makeAddressTableLayout() {
         this._showNavigator(false);

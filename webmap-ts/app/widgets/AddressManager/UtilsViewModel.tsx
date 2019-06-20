@@ -21,6 +21,7 @@ import Graphic = require("esri/Graphic");
 import TextSymbol = require("esri/symbols/TextSymbol");
 import Color = require("esri/Color");
 import Font = require("esri/symbols/Font");
+import { createSemicolonClassElement } from "typescript";
 
 @subclass("esri.guide.UtilsViewModel")
 class UtilsViewModel extends declared(Accessor) {
@@ -531,7 +532,40 @@ class UtilsViewModel extends declared(Accessor) {
         }
     }
 
-    
+    public GetCentroidCoordinates = geometry => {
+        let sX = 0;
+        let sY = 0;
+        let sA = 0;
+        geometry.rings.forEach(r => {
+            for (let i = 1; i < r.length; i++) {
+                const [x, y] = r[i];
+                const [x_1, y_1] = r[i - 1];
+
+                const h = x - x_1;
+                const a = y;
+                const b = y_1;
+
+                const ai = h * (a + b) / 2.0;
+                const xi = x_1 + ((b + 2 * a) / (3 * (a + b))) * h;
+                const yi = (((b + 2 * a) / (3 * (a + b))) * (a - b) + b) / 2.0;
+
+                sX += xi * ai;
+                sY += yi * ai;
+                sA += ai;
+            }
+        })
+        const coordinates = [sX / sA, sY / sA];
+        const p = new Point({x:coordinates[0], y:coordinates[1], spatialReference: geometry.spatialReference});
+
+        if (geometryEngine.within(p, geometry)) {
+            return p;
+        } else {
+            const closestPoint = geometryEngine.nearestCoordinate(geometry, p);
+            return closestPoint;
+        }
+
+    }
+
 
 }
 
