@@ -43,15 +43,15 @@ class FilterCodedDomain extends declared(FilterItemBase) {
             if (v) {
                 const id = `${this.id}_${v.code}`;
                 const check = v.code == this.value ? ' checked' : '';
-                this.listInput.innerHTML += `</label><input type="checkbox" class="checkbox" value="${v.code}"${check} id="${id}"/><label for="${id}" class="checkbox">${v.name}</label><br />`;
+                this.listInput.innerHTML += `<label style="font-weight: bold;"><input type="checkbox" class="checkbox" value="${v.code}"${check}/>${v.name}</label><br />`;
             }
         });
     }
 
     public getFilterExpresion = () => {
-        const list = Array.prototype.slice.call(this.listInput.children).filter(function(c) {
-            return c.nodeName == "INPUT" && c.checked;
-        }).map(c => c.value);
+        const list = Array.prototype.slice.call(this.listInput.children).filter(c => {
+            return c.firstChild && c.firstChild.nodeName == "INPUT" && c.firstChild.checked;
+        }).map(c => c.firstChild.value);
         if (!list || list.length === 0) {
             return null;
         } else if (list.length == 1) {
