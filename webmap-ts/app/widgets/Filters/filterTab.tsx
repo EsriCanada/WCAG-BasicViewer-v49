@@ -123,9 +123,10 @@ import i18n = require("dojo/i18n!../nls/resources");
         this.fieldsCombo = element;
         this.layer.when(() => {
             // if(this.layer.popupTemplate) {
-                element.innerHTML = this.layer.popupTemplate.fieldInfos
-                .filter((field) => field.visible)
-                .map((field) => `<option value="${field.fieldName}">${field.label.NormalizeTitle()}</option>`)
+                const visibleFields = this.layer.popupTemplate.fieldInfos
+                .filter(field => field && field.visible && field.fieldName && field.label);
+
+                element.innerHTML = visibleFields.map(field => `<option value="${field.fieldName}">${field.label.NormalizeTitle()}</option>`)
                 .join("");
             // } else {
             //     this.layer.fields.forEach((field) => {
