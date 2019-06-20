@@ -657,17 +657,16 @@ import Point = require("esri/geometry/Point");
 
                         this.x.value = centroid.x.toString();
                         this.y.value = centroid.y.toString();
-                        // console.log("feature", feature);
 
-                        // const selectedAddress = this._getMarker("selectedAddress");
-                        (feature as any).geometry = centroid;
-                        // this.mapView.graphics.refresh();
+                        const layer = (feature as any).layer;
 
-                        this._setDirty(this.x, feature, "geometry", centroid);
+                        this._setDirty([this.x, this.y], feature, "geometry", centroid);
 
-                        // feature.layer.suspend();
-                        (feature as any).geometry.update(centroid.x, centroid.y);
-                        // feature._layer.resume();
+                        this.UtilsVM._removeMarker(this.UtilsVM.SELECTED_ADDRESS_SYMBOL.name);
+                        const graphic = new Graphic({geometry: (feature as any).geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
+                        this.mapView.graphics.add(graphic);
+
+                        layer.refresh();
                     }
                 },
                 err => {
@@ -1279,25 +1278,34 @@ import Point = require("esri/geometry/Point");
                     feature.originalValues[fieldName] = feature.attributes[fieldName];
                 }
                 feature.attributes[fieldName] = value;
+            } else {
+                feature.originalValues.geometry = feature.geometry;
+                feature.geometry = value;
             }
             const nullToBlankOrValue = (value:string) => {return value == null ? "" : value; };
             // feature.Dirty 
             const dirtyField = nullToBlankOrValue(feature.originalValues[fieldName]) != nullToBlankOrValue(value);
 
-            if(dirtyField) {
-                html.addClass(input, "dirty");
-                feature.Dirty = true;
-            } else {
-                html.removeClass(input, "dirty");
-                feature.Dirty = false;
-                for(let i=0; i < this.inputControls.length; i++) {
-                    const inp = this.inputControls[i];
-                    if(domClass.contains(inp, "dirty")) {
-                        feature.Dirty = true;
-                        break;
+            let inputs = input;
+            if(!Array.isArray(input)) {
+                inputs = [input];
+            }
+            inputs.forEach(input => {
+                if(dirtyField) {
+                    html.addClass(input, "dirty");
+                    feature.Dirty = true;
+                } else {
+                    html.removeClass(input, "dirty");
+                    feature.Dirty = false;
+                    for(let i=0; i < this.inputControls.length; i++) {
+                        const inp = this.inputControls[i];
+                        if(domClass.contains(inp, "dirty")) {
+                            feature.Dirty = true;
+                            break;
+                        }
                     }
-                }
-            };
+                };
+            });
 
             this._setDirtyBtns();
 
