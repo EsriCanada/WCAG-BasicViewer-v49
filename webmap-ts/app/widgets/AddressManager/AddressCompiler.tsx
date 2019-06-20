@@ -150,7 +150,7 @@ import i18n = require("dojo/i18n!../nls/resources");
         }
         // console.log("evaluate expressions", this.expressions);
         // console.log("address", address);
-        this.set("address", address);
+        this.address = address;
         (this.container as HTMLElement).innerHTML = address;
     }
 
