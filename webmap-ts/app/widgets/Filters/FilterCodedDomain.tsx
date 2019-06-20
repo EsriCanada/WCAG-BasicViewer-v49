@@ -27,15 +27,7 @@ class FilterCodedDomain extends declared(FilterItemBase) {
       )
     }
 
-    // private valueTextBox: HTMLInputElement;
     private listInput: HTMLElement;
-
-    // private _addedTextBox = (element : Element) => {
-    //     this.valueTextBox = element as HTMLInputElement;
-    //     if(this.value && !this.value.isNullOrWhiteSpace()) {
-    //         this.valueTextBox.value = this.value;
-    //     }
-    // }
 
     private _addListInput = (element : Element) => {
         this.listInput = element as HTMLElement;
