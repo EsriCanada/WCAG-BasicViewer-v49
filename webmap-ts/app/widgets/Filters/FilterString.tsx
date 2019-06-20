@@ -51,7 +51,7 @@ class FilterString extends declared(FilterItemBase) {
 
     private _addedTextBox = (element : Element) => {
         this.valueTextBox = element as HTMLInputElement;
-        if(!this.value.isNullOrWhiteSpace()) {
+        if(this.value && !this.value.isNullOrWhiteSpace()) {
             this.valueTextBox.value = this.value;
         }
     }
