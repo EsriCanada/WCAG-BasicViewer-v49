@@ -1048,7 +1048,7 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
                     input: input,
                     selectionMade: (street) => {
                         this.distanceBtn.click();
-                        this._setDirty(this.selectedAddressPointFeature, field.name, street, input);
+                        this._setDirty(input, this.selectedAddressPointFeature, field.name, street);
                         this._inputChanged(field.name);
                     },
                     container:html.create("div", {}, cell)
