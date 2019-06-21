@@ -65,12 +65,14 @@ import html = require("dojo/_base/html");
     private pausableHandler = null;
     private _addToolTip = (element: Element) => {
         this.toolTip = element as HTMLElement;
-        this.own(this.pausableHandler = on.pausable(this.mapView, "pointer-move", event => {
-            if(!this.content) return;
-            const x = event.native.offsetX;
-            const y = event.native.offsetY;
-            html.setStyle(this.toolTip, { left: (x + 24) + "px", top: (y + 24) + "px", display: "" });
-        }))
+        this.own(this.pausableHandler = on.pausable(this.mapView, "pointer-move", this.moveHandler))
+    }
+
+    private moveHandler = (event) => {
+        if(!this.content) return;
+        const x = event.native.offsetX;
+        const y = event.native.offsetY;
+        html.setStyle(this.toolTip, { left: (x + 24) + "px", top: (y + 24) + "px", display: "" });
     }
 
     public close() {

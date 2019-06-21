@@ -646,14 +646,9 @@ import Point = require("esri/geometry/Point");
                 this.parcelsLayer.queryFeatures(q).then(
                 results => {
                     html.removeClass(btn, "active");
-                    // console.log("range parcels", results);
                     const [geo] = results.features.map(f => f.geometry);
                     if (geo) {
-                        // console.log("geo", geo);
-                        const p = this.UtilsVM.GetCentroidCoordinates(geo) as Point;
-                        const centroid = p;
-
-                        //geo.getExtent().getCenter(); //getCentroid(); 
+                        const centroid = this.UtilsVM.GetCentroidCoordinates(geo) as Point;
 
                         this.x.value = centroid.x.toString();
                         this.y.value = centroid.y.toString();
@@ -666,7 +661,6 @@ import Point = require("esri/geometry/Point");
                         const graphic = new Graphic({geometry: (feature as any).geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
                         this.mapView.graphics.add(graphic);
 
-                        layer.refresh();
                     }
                 },
                 err => {
