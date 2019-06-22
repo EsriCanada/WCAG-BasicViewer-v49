@@ -70,6 +70,7 @@ import html = require("dojo/_base/html");
 
     private moveHandler = (event) => {
         if(!this.content) return;
+        event.stopPropagation();
         const x = event.native.offsetX;
         const y = event.native.offsetY;
         html.setStyle(this.toolTip, { left: (x + 24) + "px", top: (y + 24) + "px", display: "" });
