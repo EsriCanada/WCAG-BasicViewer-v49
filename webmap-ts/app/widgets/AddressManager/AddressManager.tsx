@@ -25,6 +25,7 @@ import DropDownItemMenu = require("./DropDownItemMenu");
 import GraphicsLayer = require("esri/layers/GraphicsLayer");
 import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Point = require("esri/geometry/Point");
+import FeatureLayerView = require("esri/views/layers/FeatureLayerView");
 // import AddressCompiler = require("./AddressCompiler");
 
 @subclass("esri.widgets.AddressManager")
@@ -538,6 +539,59 @@ import Point = require("esri/geometry/Point");
 
     private _addSubmitCancel = (element: Element) => {
         this.submitCancel = element as HTMLElement;
+        this.own(on(this.submitCancel, "click", event => {
+            if(!domClass.contains(event.target, "blankBtn")) return;
+            
+            this.addressPointFeatures.forEach((feature: any) => {
+                const {attributes} = feature;
+                    const canDelete = !attributes || !("OBJECTID" in attributes) || !attributes["OBJECTID"];
+                    if (!canDelete) {
+                        if ("originalValues" in feature) {
+                            for (const fieldName in feature.originalValues) {
+                                if (fieldName != "geometry") {
+                                    feature.attributes[fieldName] = feature.originalValues[fieldName];
+                                    html.removeClass(this.inputControls[fieldName], "dirty");
+                                } else {
+                                    // feature._layer.suspend();
+                                    feature.geometry = feature.originalValues.geometry;
+                                    // feature._layer.resume();
+                                }
+                            }
+                            feature.Dirty = false;
+                            delete feature.originalValues;
+                        }
+                    }
+                    else {
+                        this._RemoveGraphic(feature);
+                    }
+            })
+            this._setDirtyBtns();
+            this.mapView.graphics.removeAll();
+            // this._clearLabels();
+
+            // this._showFieldMenus(false);
+            this.x.value = null;
+            this.y.value = null;
+            html.removeClass(this.inputControls["x"], "dirty");
+            html.removeClass(this.inputControls["y"], "dirty");
+            // this.map.setInfoWindowOnClick(true);
+
+            for (let fieldName in this.inputControls) {
+                if (fieldName in this.inputControls) {
+                    this.inputControls[fieldName].value = null;
+                    html.removeClass(this.inputControls[fieldName], "dirty");
+                }
+            }
+
+            const [addressTitle] = query(".addressTitle") as any;
+            if (addressTitle) {
+                html.empty(addressTitle);
+            }
+
+            this.addressPointFeatures.removeAll();
+            html.removeClass(this.submitDelete, "orangeBtn");
+
+        }))
     }
 
     private _addAddressTable = (element: Element) => {
@@ -644,9 +698,9 @@ import Point = require("esri/geometry/Point");
                 q.returnGeometry = true;
 
                 this.parcelsLayer.queryFeatures(q).then(
-                results => {
+                ({features}) => {
                     html.removeClass(btn, "active");
-                    const [geo] = results.features.map(f => f.geometry);
+                    const [geo] = features.map(f => f.geometry);
                     if (geo) {
                         const centroid = this.UtilsVM.GetCentroidCoordinates(geo) as Point;
 
@@ -660,6 +714,11 @@ import Point = require("esri/geometry/Point");
                         this.UtilsVM._removeMarker(this.UtilsVM.SELECTED_ADDRESS_SYMBOL.name);
                         const graphic = new Graphic({geometry: (feature as any).geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
                         this.mapView.graphics.add(graphic);
+
+                        // this.mapView.popup.autoOpenEnabled = false;
+                        // this.mapView.whenLayerView(layer).then((layerView: FeatureLayerView) => {
+                        //     layerView.highlight(feature as any)
+                        // })
 
                     }
                 },
