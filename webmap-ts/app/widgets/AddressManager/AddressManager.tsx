@@ -109,7 +109,7 @@ import { runInThisContext } from "vm";
     private y: HTMLInputElement;
     private saveBtn: HTMLElement;
     private submitAddressAll: HTMLElement;
-    private submitCancel: HTMLElement;
+    private cancelBtn: HTMLElement;
     private verifyRules: HTMLElement;
     private brokenRulesAlert: HTMLElement;
     private displayBrokenRules: HTMLElement;
@@ -270,7 +270,7 @@ import { runInThisContext } from "vm";
                     <input type="button" id="sumbitAddressAll" afterCreate={this._addSubmitAddressAll} style="justify-self: left;" data-dojo-attach-event="onclick:_onSubmitSaveAllClicked" value="Save All"/>
                     <input type="image" src="../images/icons_transp/verify.bgwhite.24.png" alt="Broken Rules" afterCreate={this._addVerifyRules} style="justify-self: center;" class="verifyBtn" title="Display Broken Rules" />
                     <input type="button" id="Delete" afterCreate={this._addSubmitDelete} style="justify-self: right;" data-dojo-attach-event="onclick:_onDeleteClicked" value="Delete"/>
-                    <input type="button" id="Cancel" afterCreate={this._addSubmitCancel} style="justify-self: right; grid-column-start: 5" data-dojo-attach-event="onclick:_onCancelClicked" value="Cancel"/>
+                    <input type="button" id="Cancel" afterCreate={this._addCancelBtn} style="justify-self: right; grid-column-start: 5" data-dojo-attach-event="onclick:_onCancelClicked" value="Cancel"/>
                 </div>
 
             </div>        
@@ -595,9 +595,9 @@ import { runInThisContext } from "vm";
         this.submitAddressAll= element as HTMLElement;
     }
 
-    private _addSubmitCancel = (element: Element) => {
-        this.submitCancel = element as HTMLElement;
-        this.own(on(this.submitCancel, "click", event => {
+    private _addCancelBtn = (element: Element) => {
+        this.cancelBtn = element as HTMLElement;
+        this.own(on(this.cancelBtn, "click", event => {
             if(!domClass.contains(event.target, "blankBtn")) return;
             
             this.addressPointFeatures.forEach((feature: any) => {
@@ -620,16 +620,15 @@ import { runInThisContext } from "vm";
                     this._RemoveGraphic(feature);
                 }
             })
-            this._setDirtyBtns();
             this.mapView.graphics.removeAll();
             // this._clearLabels();
 
             // this._showFieldMenus(false);
             this.x.value = null;
             this.y.value = null;
-            html.removeClass(this.inputControls["x"], "dirty");
-            html.removeClass(this.inputControls["y"], "dirty");
-            // this.map.setInfoWindowOnClick(true);
+            html.removeClass(html.byId("x_input"), "dirty");
+            html.removeClass(html.byId("y_input"), "dirty");
+                // this.map.setInfoWindowOnClick(true);
 
             for (let fieldName in this.inputControls) {
                 if (fieldName in this.inputControls) {
@@ -646,6 +645,7 @@ import { runInThisContext } from "vm";
             this.addressPointFeatures.removeAll();
             html.removeClass(this.submitDelete, "orangeBtn");
 
+            this._setDirtyBtns();
         }))
     }
 
@@ -994,11 +994,12 @@ import { runInThisContext } from "vm";
         html.removeClass(this.saveBtn, "blueBtn");
         html.removeClass(this.submitAddressAll, "greenBtn");
         html.removeClass(this.submitDelete, "orangeBtn");
-        html.removeClass(this.submitCancel, "blankBtn");
+        html.removeClass(this.cancelBtn, "blankBtn");
         if (this.addressPointFeatures.length > 0) {
+            html.addClass(this.cancelBtn, "blankBtn");
             if (this.isDirty(this.selectedAddressPointFeature)) {
                 html.addClass(this.saveBtn, "blueBtn");
-                html.addClass(this.submitCancel, "blankBtn");
+                // html.addClass(this.submitCancel, "blankBtn");
             }
         if (this.canDelete(this.selectedAddressPointFeature)) {
             html.addClass(this.submitDelete, "orangeBtn");
@@ -1006,7 +1007,7 @@ import { runInThisContext } from "vm";
         this.addressPointFeatures.forEach(feature => {
                 if (this.selectedAddressPointFeature != feature && this.isDirty(feature)) {
                     html.addClass(this.submitAddressAll, "greenBtn");
-                    html.addClass(this.submitCancel, "blankBtn");
+                    // html.addClass(this.submitCancel, "blankBtn");
                 }
             })
         }
