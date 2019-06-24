@@ -26,6 +26,7 @@ import GraphicsLayer = require("esri/layers/GraphicsLayer");
 import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Point = require("esri/geometry/Point");
 import FeatureLayerView = require("esri/views/layers/FeatureLayerView");
+import { runInThisContext } from "vm";
 // import AddressCompiler = require("./AddressCompiler");
 
 @subclass("esri.widgets.AddressManager")
@@ -106,7 +107,7 @@ import FeatureLayerView = require("esri/views/layers/FeatureLayerView");
     private submitDelete: HTMLElement;
     private x: HTMLInputElement;
     private y: HTMLInputElement;
-    private submitAddressForm: HTMLElement;
+    private saveBtn: HTMLElement;
     private submitAddressAll: HTMLElement;
     private submitCancel: HTMLElement;
     private verifyRules: HTMLElement;
@@ -265,7 +266,7 @@ import FeatureLayerView = require("esri/views/layers/FeatureLayerView");
                     <ul afterCreate={this._addBrokenRulesAlert}></ul>
                     </div>
                 <div class="footer footer5cells">
-                    <input type="button" id="sumbitAddressForm" afterCreate={this._addSubmitAddressForm} style="justify-self: left;" data-dojo-attach-event="onclick:_onSubmitAddressClicked" value="Save"/>
+                    <input type="button" id="sumbitAddressForm" afterCreate={this._addSaveBtn} style="justify-self: left;" value="Save"/>
                     <input type="button" id="sumbitAddressAll" afterCreate={this._addSubmitAddressAll} style="justify-self: left;" data-dojo-attach-event="onclick:_onSubmitSaveAllClicked" value="Save All"/>
                     <input type="image" src="../images/icons_transp/verify.bgwhite.24.png" alt="Broken Rules" afterCreate={this._addVerifyRules} style="justify-self: center;" class="verifyBtn" title="Display Broken Rules" />
                     <input type="button" id="Delete" afterCreate={this._addSubmitDelete} style="justify-self: right;" data-dojo-attach-event="onclick:_onDeleteClicked" value="Delete"/>
@@ -529,8 +530,65 @@ import FeatureLayerView = require("esri/views/layers/FeatureLayerView");
         this.y = element as HTMLInputElement;
     }
     
-    private _addSubmitAddressForm = (element: Element) => {
-        this.submitAddressForm = element as HTMLElement;
+    private _addSaveBtn = (element: Element) => {
+        this.saveBtn = element as HTMLElement;
+        this.own(on(this.saveBtn, "click", event => {
+            if(!(html as any).hasClass(event.target, "blueBtn")) return;
+
+            const feature = this.selectedAddressPointFeature as any;
+            let applyWhat = {};
+            if(this.canDelete(feature)) {
+                applyWhat["addFeatures"] = [feature];
+            } else {
+                applyWhat["updateFeatures"] = [feature];
+            }
+            this.siteAddressPointLayer.applyEdits(applyWhat).then(results => {
+                const {addFeatureResults, updateFeatureResults} = results;
+                const [addedFeature] = addFeatureResults;
+                if(addedFeature) {
+                    if(addedFeature.error) {
+                        throw(addedFeature.error);
+                    }
+                    this._RemoveGraphic(feature);
+                    feature.attributes['OBJECTID'] = addedFeature['objectId'];
+
+                    if (this.addressPointFeatures.length > 0 && this.selectedAddressPointFeature == feature) {
+                        (html.byId('OBJECTID_input') as HTMLInputElement).value = addedFeature['objectId'];
+                    }
+
+                    const q = this.siteAddressPointLayer.createQuery();
+
+                    q.outFields = ["*"];
+                    q.objectIds = [addedFeature['objectId']];
+                    q.returnGeometry = true;
+
+                    this.siteAddressPointLayer.queryFeatures(q).then(({features}) => {
+                        if (features && features.length === 1) {
+                            this.mapView.graphics.remove(feature);
+
+                            feature.attributes = features[0].attributes;
+
+                            this.clearDirty(feature);
+                        }
+                    })
+                }
+                const [updatedFeature] = updateFeatureResults;
+                if(updatedFeature) {
+                    if(updatedFeature.error) {
+                        throw(updatedFeature.error);
+                    }
+                    this.clearDirty(feature);
+                    delete feature.originalValues;
+                }
+                this._setDirtyBtns();
+            })
+            .catch(error => {
+                console.error(
+                    `============================================
+                    [ applyEdits ] FAILURE: ${error}'`
+                );
+            })
+        }))
     }
 
     private _addSubmitAddressAll = (element: Element) => {
@@ -543,27 +601,24 @@ import FeatureLayerView = require("esri/views/layers/FeatureLayerView");
             if(!domClass.contains(event.target, "blankBtn")) return;
             
             this.addressPointFeatures.forEach((feature: any) => {
-                const {attributes} = feature;
-                    const canDelete = !attributes || !("OBJECTID" in attributes) || !attributes["OBJECTID"];
-                    if (!canDelete) {
-                        if ("originalValues" in feature) {
-                            for (const fieldName in feature.originalValues) {
-                                if (fieldName != "geometry") {
-                                    feature.attributes[fieldName] = feature.originalValues[fieldName];
-                                    html.removeClass(this.inputControls[fieldName], "dirty");
-                                } else {
-                                    // feature._layer.suspend();
-                                    feature.geometry = feature.originalValues.geometry;
-                                    // feature._layer.resume();
-                                }
+                if (!this.canDelete(feature)) {
+                    if ("originalValues" in feature) {
+                        for (const fieldName in feature.originalValues) {
+                            if (fieldName != "geometry") {
+                                feature.attributes[fieldName] = feature.originalValues[fieldName];
+                                html.removeClass(this.inputControls[fieldName], "dirty");
+                            } else {
+                                // feature._layer.suspend();
+                                feature.geometry = feature.originalValues.geometry;
+                                // feature._layer.resume();
                             }
-                            feature.Dirty = false;
-                            delete feature.originalValues;
                         }
+                        this.clearDirty(feature);
                     }
-                    else {
-                        this._RemoveGraphic(feature);
-                    }
+                }
+                else {
+                    this._RemoveGraphic(feature);
+                }
             })
             this._setDirtyBtns();
             this.mapView.graphics.removeAll();
@@ -798,8 +853,7 @@ import FeatureLayerView = require("esri/views/layers/FeatureLayerView");
                 if (this.config.title in attributes) {
                     // this.addressCompiler.set("address", feature.attributes[this.config.title]);
                 }
-                const canDelete = !("OBJECTID" in attributes) || !attributes["OBJECTID"];
-                if (!canDelete) {
+                if (!this.canDelete(feature)) {
                     html.removeClass(this.submitDelete, "orangeBtn");
                 } else {
                     html.addClass(this.submitDelete, "orangeBtn");
@@ -937,18 +991,16 @@ import FeatureLayerView = require("esri/views/layers/FeatureLayerView");
     }
 
     private _setDirtyBtns() {
-        html.removeClass(this.submitAddressForm, "blueBtn");
+        html.removeClass(this.saveBtn, "blueBtn");
         html.removeClass(this.submitAddressAll, "greenBtn");
         html.removeClass(this.submitDelete, "orangeBtn");
         html.removeClass(this.submitCancel, "blankBtn");
         if (this.addressPointFeatures.length > 0) {
             if (this.isDirty(this.selectedAddressPointFeature)) {
-                html.addClass(this.submitAddressForm, "blueBtn");
+                html.addClass(this.saveBtn, "blueBtn");
                 html.addClass(this.submitCancel, "blankBtn");
             }
-        const attributes = (this.selectedAddressPointFeature as any).attributes;
-        const canDelete = !attributes || !("OBJECTID" in attributes) || !attributes["OBJECTID"];
-        if (canDelete) {
+        if (this.canDelete(this.selectedAddressPointFeature)) {
             html.addClass(this.submitDelete, "orangeBtn");
         }
         this.addressPointFeatures.forEach(feature => {
@@ -958,6 +1010,21 @@ import FeatureLayerView = require("esri/views/layers/FeatureLayerView");
                 }
             })
         }
+    }
+
+    private canDelete = feature => {
+        const attributes = feature.attributes;
+        return !attributes || !("OBJECTID" in attributes) || !attributes["OBJECTID"];
+    }
+
+    private clearDirty = feature => {
+        feature.Dirty = false;
+        delete feature.originalValues;
+        for(let key in this.inputControls) {
+            html.removeClass(this.inputControls[key], "dirty");
+        };
+        html.removeClass(html.byId("x_input"), "dirty");
+        html.removeClass(html.byId("y_input"), "dirty");
     }
 
     private getAddressFields() {
