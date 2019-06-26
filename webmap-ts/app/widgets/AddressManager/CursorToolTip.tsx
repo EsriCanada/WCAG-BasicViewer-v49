@@ -71,9 +71,24 @@ import html = require("dojo/_base/html");
     private moveHandler = (event) => {
         if(!this.content) return;
         event.stopPropagation();
+        event.native.preventDefault();
         const x = event.native.offsetX;
         const y = event.native.offsetY;
-        html.setStyle(this.toolTip, { left: (x + 24) + "px", top: (y + 24) + "px", display: "" });
+        const h = event.native.currentTarget.clientHeight;
+        const w = event.native.currentTarget.clientWidth;
+        const th = this.toolTip.clientHeight;
+        const tw = this.toolTip.clientWidth;
+        if(x  < w/2) {
+            html.setStyle(this.toolTip, { left: (x + 24) + "px", display: "" });
+        } else {
+            html.setStyle(this.toolTip, { left: (x - tw - 24) + "px", display: "" });
+        }
+        if(y < h/2) {
+            html.setStyle(this.toolTip, { top: (y + 24) + "px"});
+        } else {
+            html.setStyle(this.toolTip, { top: (y - th - 24) + "px"});
+        }
+        // html.setStyle(this.toolTip, { left: (x + 24) + "px", top: (y + 24) + "px", display: "" });
     }
 
     public close() {
