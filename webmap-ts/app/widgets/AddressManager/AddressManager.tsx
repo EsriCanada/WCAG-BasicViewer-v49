@@ -448,8 +448,33 @@ import { runInThisContext } from "vm";
 
     private _addAddressPointButton = (element: Element) => {
         this.addressPointButton = element as HTMLElement;
-        this.own(on(element, "click", this._activateButton));
-        this.own(on(element, "click", lang.hitch(this, this._addSingleAddressClicked)));
+        this.own(on(element, "click", event => {
+            // https://developers.arcgis.com/javascript/3/sandbox/sandbox.html?sample=fl_featureCollection
+
+            domClass.add(event.target, "active");
+            require(["./CursorToolTip"], CursorToolTip => {
+                const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click to add a new address");
+        
+                this.UtilsVM.ADD_NEW_ADDRESS().then(feature => {
+                    // // this._clearLabels();
+                    this.addressPointFeatures.push(feature as Feature);
+                    // console.log("feature", feature);
+        
+                    this._populateAddressTable(this.addressPointFeatures.length - 1);
+        
+                    // this.mapView.popup.autoOpenEnabled = true; // ?
+                    html.removeClass(event.target, "active");
+                    cursorTooltip.close();
+                },
+                error => {
+                    console.error("ADD_NEW_ADDRESS", error);
+        
+                    // this.mapView.popup.autoOpenEnabled = true; // ?
+                    html.removeClass(event.target, "active");
+                    cursorTooltip.close();
+                })
+            });
+        }))
     }
 
     private _addClonePanel = (element: Element) => {
@@ -673,28 +698,6 @@ import { runInThisContext } from "vm";
         }
     }
 
-    private _addSingleAddressClicked(event) {
-        // https://developers.arcgis.com/javascript/3/sandbox/sandbox.html?sample=fl_featureCollection
-
-        this.UtilsVM.ADD_NEW_ADDRESS().then(feature => {
-            // // this._clearLabels();
-            this.addressPointFeatures.push(feature as Feature);
-            // console.log("feature", feature);
-
-            this._populateAddressTable(this.addressPointFeatures.length - 1);
-
-            // this.mapView.popup.autoOpenEnabled = true; // ?
-            html.removeClass(event.target, "active");
-        },
-        error => {
-            console.error("ADD_NEW_ADDRESS", error);
-
-            // this.mapView.popup.autoOpenEnabled = true; // ?
-            html.removeClass(event.target, "active");
-        });
-
-    };
-
     private _addPreviousBtn = (element: Element) => {
         this.previousBtn = element as HTMLElement;
 
@@ -764,7 +767,10 @@ import { runInThisContext } from "vm";
 
                         const layer = (feature as any).layer;
 
+                        (feature as any).visible = false;
                         this._setDirty([this.x, this.y], feature, "geometry", centroid);
+                        this.mapView.graphics.add(feature as any);
+                        (feature as any).visible = true;
 
                         this.UtilsVM._removeMarker(this.UtilsVM.SELECTED_ADDRESS_SYMBOL.name);
                         const graphic = new Graphic({geometry: (feature as any).geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});

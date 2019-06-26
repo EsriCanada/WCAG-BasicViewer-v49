@@ -170,14 +170,7 @@ class UtilsViewModel extends declared(Accessor) {
         }
 
         require(["./CursorToolTip"], CursorToolTip =>{
-            let cursorTooltip = new CursorToolTip({
-                mapView: this.mapView,
-                content: "Click near a road",
-                container: html.create("div", {
-                    style:"position:fixed;",
-                    class: "AddressManager"
-                }, this.mapView.container)
-            });
+            const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click a road to select");
 
             this.PICK_ROAD_sketchVM.create("point");
             this.PICK_ROAD_sketchVM.on("create", event => {
