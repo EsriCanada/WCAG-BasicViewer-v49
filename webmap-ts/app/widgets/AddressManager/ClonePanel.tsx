@@ -14,6 +14,7 @@ import html = require("dojo/_base/html");
 import Deferred = require("dojo/Deferred");
 
 import UtilsViewModel = require("./UtilsViewModel");
+import AddressManagerViewModel = require("./AddressManagerViewModel");
 
 import GeometryService = require("esri/tasks/GeometryService");
 import geometryEngine = require("esri/geometry/geometryEngine");
@@ -39,6 +40,9 @@ import { isReturnStatement } from "typescript";
   
     @property()
     mapView: __esri.MapView;
+
+    @property()
+    addressManagerVM: AddressManagerViewModel;
 
     @property()
     siteAddressPointLayer;
@@ -270,27 +274,36 @@ import { isReturnStatement } from "typescript";
         this.cloneApplyBtn = element as HTMLInputElement;
         this.own(on(this.cloneApplyBtn, "click", event => {
             const cloneApplyBtn = event.target;
-            if(!(html as any).hasClass("blueBtn")) return;
+            if(!(html as any).hasClass(cloneApplyBtn, "blueBtn")) return;
+            
+            this.addressManagerVM.addressPointFeatures.removeAll();
+            this.equalPoints.forEach(point => {
+                const feature = new Graphic({geometry: point, symbol: this.UtilsVM.NEW_ADDRESS_SYMBOL, attributes: point.attributes});
+                this.mapView.graphics.add(feature);
+                this.addressManagerVM.addressPointFeatures.add(feature as any);
+            })
+            this._cancel();
         }))
     }
     
     private _addCloneCancelBtn = (element: Element) => {
         this.cloneCancelBtn = element as HTMLElement;
-        this.own(on(this.cloneCancelBtn, "click", lang.hitch(this, function(event) {
-            this.Length = 0;
-            this.streetNameError.innerHTML = "";
-            html.addClass(this.streetNameErrorRow, "hide");
-            html.addClass(this.roadCell, "hide");
-            this.roadGraphicsLayer.removeAll();
-            this.roadSegments.length = 0;
-            this.cutters = [];
-            this.addressRoadGeometry = null;
+        this.own(on(this.cloneCancelBtn, "click", this._cancel));
+    }
 
-            html.removeClass(this.cloneApplyBtn, "blueBtn");
-            html.addClass(this.clonePanelDiv, "hide");
+    private _cancel = () => {
+        this.streetNameError.innerHTML = "";
+        html.addClass(this.streetNameErrorRow, "hide");
+        html.addClass(this.roadCell, "hide");
+        this.roadGraphicsLayer.removeAll();
+        this.roadSegments.length = 0;
+        this.cutters = [];
+        this.addressRoadGeometry = null;
 
-            if(this.onClose) this.onClose();
-        })));
+        html.removeClass(this.cloneApplyBtn, "blueBtn");
+        html.addClass(this.clonePanelDiv, "hide");
+
+        if(this.onClose) this.onClose();
     }
 
     private _addDistRoadRange = (element: Element) => {
@@ -682,11 +695,12 @@ import { isReturnStatement } from "typescript";
                 }
 
                 if(!this.equalPoints.some(() => true)) return;
-                
+
                 this.equalPoints.forEach((point, i) => {
                     point["attributes"] = {};
                     point["attributes"]["add_num"] = Number(this.streeNumStart.value) + i * Number(this.streeNumStep.value);
                     point["attributes"]["name_body"] = this.roadCell.innerText;
+                    point["attributes"]["status"] = 0;
 
                     this.UtilsVM.SHOW_POINT(point, [0, 0, 0, 255], this.roadGraphicsLayer);
         

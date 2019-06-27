@@ -483,6 +483,7 @@ import { runInThisContext } from "vm";
             this.clonePanel = new ClonePanel({
                 parent: this,
                 mapView: this.mapView,
+                addressManagerVM: this.viewModel,
                 siteAddressPointLayer: this.siteAddressPointLayer,
                 roadsLayer: this.roadsLayer,
                 parcelsLayer: this.parcelsLayer,

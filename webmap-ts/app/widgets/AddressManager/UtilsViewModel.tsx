@@ -83,7 +83,7 @@ class UtilsViewModel extends declared(Accessor) {
         size: 7,
         outline: {
             color: [0, 0, 0, 1],
-            width: 1,
+            width: 2,
         }
     }
 
@@ -111,9 +111,9 @@ class UtilsViewModel extends declared(Accessor) {
         const symb = {
             type: "text",
             text: labelText,
-            color:[0, 0, 0, 255],
-            haloColor:[255, 200, 200, 1],
-            haloSize:1,
+            color:[0, 0, 0],
+            haloColor:[255, 255, 255],
+            haloSize:3,
             horizontalAlignment: "center",
             xoffset:0,
             yoffset: -22,
@@ -472,7 +472,7 @@ class UtilsViewModel extends declared(Accessor) {
             type: "text",  // autocasts as new TextSymbol()
             color: "black",
             haloColor: "white",
-            haloSize: "1px",
+            haloSize: "3px",
             text: labelText,
             // xoffset: 0,
             yoffset: -20,
