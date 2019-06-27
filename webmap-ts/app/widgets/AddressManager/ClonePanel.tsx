@@ -120,7 +120,7 @@ import { isReturnStatement } from "typescript";
         let count = 0;
         if (dist > 0) {
             count = Math.round(this.PolylineLength / dist);
-            this.unitCount.value = count.toLocaleString();
+            this.unitCount.value = (count+1).toLocaleString();
         }
         else {
             this.unitCount.value = "";
@@ -129,7 +129,7 @@ import { isReturnStatement } from "typescript";
     }
 
     private _getCount() {
-        const count = Number(this.unitCount.value);
+        const count = Number(this.unitCount.value) - 1;
         let dist = 0;
         if (count > 0) {
             dist = this.PolylineLength / count;
@@ -195,7 +195,7 @@ import { isReturnStatement } from "typescript";
                     <tr>
                         <th style="border-top: 1px solid gray; border-left: 1px solid gray;"><label for="unitCount">Unit Count:</label></th>
                         <td style="border-top: 1px solid gray; border-right: 1px solid gray;">
-                            <input type="number" class="numInput" id="unitCount" min="3" max="500" step="1" value="10" afterCreate={this._addUnitCount}/>
+                            <input type="number" class="numInput" id="unitCount" min="2" max="500" step="1" value="10" afterCreate={this._addUnitCount}/>
                             <input type="radio" checked name="units" value="unitCount" style="float: right;" id="unitCountRadio" afterCreate={this._addUnitCountRadio} />
                         </td>
                     </tr> 
