@@ -54,6 +54,19 @@ import CursorToolTip = require("./CursorToolTip");
     @property()
     onClose:any = null;
 
+    @property()
+    // private Length: Number = 0;
+    get Length() : number {
+        return this._get("Length");
+    }
+    set Length(value: number) {
+        this._set("Length", value);
+        const polylineLength = html.byId("polylineLength");
+        if(polylineLength) {
+            polylineLength.innerHTML = value != 0 ? (Math.round(value*5)/5).toLocaleString() : "";
+        }
+    }
+
     private UtilsVM : UtilsViewModel;
 
     private roadSegments = [] as any;
@@ -67,7 +80,6 @@ import CursorToolTip = require("./CursorToolTip");
     private polylineGraph: Graphic;
     private cutters: any[] = [];
     private flip: boolean = false;
-    private length: Number = 0;
     private pickRoadBtn: HTMLElement;
     private roadCell: HTMLElement;
     private roadMarker: any = null;
@@ -77,6 +89,7 @@ import CursorToolTip = require("./CursorToolTip");
 
     constructor() {
         super();
+        this.Length = 0;
     }
 
     postInitialize() {
@@ -126,7 +139,7 @@ import CursorToolTip = require("./CursorToolTip");
                     </tr>
                     <tr>
                         <th><label for="polylineLength">Length:</label></th>
-                        <td><span id="polylineLength" data-dojo-attach-point="polylineLength"></span>
+                        <td><span id="polylineLength"></span>
                         <span style="float:right; font-weight: normal; float: right;">meters</span></td> 
                     </tr>
                     <tr>
@@ -210,6 +223,7 @@ import CursorToolTip = require("./CursorToolTip");
             this.roadSegments.length = 0;
             this.cutters = [];
             this.addressRoadGeometry = null;
+            this.Length = 0;
 
             html.addClass(this.clonePanelDiv, "hide");
 
@@ -467,9 +481,10 @@ import CursorToolTip = require("./CursorToolTip");
         // throw new Error("Method not implemented.");
     }
 
-    private _getLength(): Number {
-        // throw new Error("Method not implemented.");
-        return 0;
+    private _getLength(): number {
+        if (!this.polyline) return 0;
+        const length = geometryEngine.geodesicLength(this.polyline as any, "meters");
+        return length;
     }
 
     private _splitPolyline() {
@@ -488,7 +503,7 @@ import CursorToolTip = require("./CursorToolTip");
             this.roadGraphicsLayer.remove(this.addressRoadGraphic);
 
             this.polyline = new Polyline({spatialReference: this.mapView.spatialReference});
-            let point0 = new Point({ x: (pieces[1]as any).paths[0][0][0], y: (pieces[1]as any).paths[0][0][1] });
+            let point0 = new Point({ x: (pieces[1] as any).paths[0][0][0], y: (pieces[1] as any).paths[0][0][1] });
 
             if (geometryEngine.contains(this.cutters[0].geometry, point0)) {
                 this.polyline.addPath(
@@ -513,11 +528,10 @@ import CursorToolTip = require("./CursorToolTip");
                         this.polyline.addPath((pieces1[1] as any).paths[0]);
                         break;
                 }
-                const symb = new SimpleLineSymbol({ style: "solid", color: [255, 0, 0, 63], width:2 });
-                this.polylineGraph = new Graphic({geometry: this.polyline,  symbol: symb});
+                this.polylineGraph = new Graphic({geometry: this.polyline,  symbol: new SimpleLineSymbol({ style: "solid", color: [255, 0, 0, 63], width:2 })});
                 this.roadGraphicsLayer.add(this.polylineGraph);
 
-                this.length = this._getLength();
+                this.Length = this._getLength();
 
                 this._mesurePolyline();
             }
