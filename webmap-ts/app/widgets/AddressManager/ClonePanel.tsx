@@ -195,14 +195,14 @@ import { isReturnStatement } from "typescript";
                     <tr>
                         <th style="border-top: 1px solid gray; border-left: 1px solid gray;"><label for="unitCount">Unit Count:</label></th>
                         <td style="border-top: 1px solid gray; border-right: 1px solid gray;">
-                            <input type="number" class="numInput" id="unitCount" min="3" max="500" step="1" name="unitCountDist" value="10" afterCreate={this._addUnitCount}/>
+                            <input type="number" class="numInput" id="unitCount" min="3" max="500" step="1" value="10" afterCreate={this._addUnitCount}/>
                             <input type="radio" checked name="units" value="unitCount" style="float: right;" id="unitCountRadio" afterCreate={this._addUnitCountRadio} />
                         </td>
                     </tr> 
                     <tr>
                         <th style="border-bottom: 1px solid gray; border-left: 1px solid gray;"><label for="unitDist">Unit Distance:</label></th>
                         <td style="border-bottom: 1px solid gray; border-right: 1px solid gray;">
-                            <input type="number" class="numInput" id="unitDist" min="20" max="100" step="1" name="unitCountDist" value="25" afterCreate={this._addUnitDist}/>
+                            <input type="number" class="numInput" id="unitDist" min="20" max="100" step="0.2" value="25" afterCreate={this._addUnitDist}/>
                             <input type="radio" name="units" value="unitDist" style="float: right;" id="unitDistRadio" afterCreate={this._addUnitDistRadio} ></input>
                         </td>
                     </tr>
@@ -292,10 +292,12 @@ import { isReturnStatement } from "typescript";
 
     private _addStreeNumStart = (element: Element) => {
         this.streeNumStart = element as HTMLInputElement;
+        this.own(on(this.streeNumStart, "input", this._splitPolyline));
     }
 
     private _addStreeNumStep = (element: Element) => {
         this.streeNumStep = element as HTMLInputElement;
+        this.own(on(this.streeNumStep, "input", this._splitPolyline));
     }
 
     private _distRoadRangeChange = (event) => {
@@ -343,6 +345,7 @@ import { isReturnStatement } from "typescript";
 
     private _addUnitCount = (element:Element) => {
         this.unitCount = element as HTMLInputElement;
+        this.own(on(this.unitCount, "input", this._splitPolyline));
     }
 
     private _addUnitCountRadio = (element:Element) => {
@@ -350,13 +353,14 @@ import { isReturnStatement } from "typescript";
         this.own(on(this.unitCountRadio, "change", event => {
             if(event.target.checked) {
                 [this.addressCount, this.addressDistance] = this._getCount();
-                this.SplitPolyline();
+                this._splitPolyline();
             }
         }))
     }
 
     private _addUnitDist = (element:Element) => {
         this.unitDist = element as HTMLInputElement;
+        this.own(on(this.unitDist, "input", this._splitPolyline));
     }
 
     private _addUnitDistRadio = (element:Element) => {
@@ -364,7 +368,7 @@ import { isReturnStatement } from "typescript";
         this.own(on(this.unitDistRadio, "change", event => {
             if(event.target.checked) {
                 [this.addressCount, this.addressDistance] = this._getDistCount();
-                this.SplitPolyline();
+                this._splitPolyline();
             }
         }))
     }
@@ -570,6 +574,7 @@ import { isReturnStatement } from "typescript";
     private getEqualPoints = (dist, path, addEndPoint) => {
         // const path = path.split();
         const results = [];
+        if(dist == 0) return results;
         let i = 0;
         let sum = 0;
         let distance = dist;
@@ -608,7 +613,7 @@ import { isReturnStatement } from "typescript";
         return results;
     }
 
-    private _splitPolyline() {
+    private _splitPolyline = () => {
         if (this.cutters.length != 2) return;
         
         this.roadGraphicsLayer.removeAll();
@@ -652,36 +657,25 @@ import { isReturnStatement } from "typescript";
                 this.polylineGraph = new Graphic({geometry: this.polyline,  symbol: new SimpleLineSymbol({ style: "solid", color: [255, 0, 0, 63], width:2 })});
                 this.roadGraphicsLayer.add(this.polylineGraph);
 
-                this.SplitPolyline();
+                this.PolylineLength = this._getPolylineLength();
+
+                this.equalPoints = this.getEqualPoints(this.addressDistance, this.polyline.paths[0], this.unitCountRadio.checked);
+                if (this.reverse) {
+                    this.equalPoints = this.equalPoints.reverse();
+                }
+                this.equalPoints.forEach((point, i) => {
+                    point["attributes"] = {};
+                    point["attributes"]["add_num"] = Number(this.streeNumStart.value) + i * Number(this.streeNumStep.value);
+                    point["attributes"]["name_body"] = this.roadCell.innerText;
+
+                    this.UtilsVM.SHOW_POINT(point, [0, 0, 0, 255], this.roadGraphicsLayer);
+        
+                    const label = this.UtilsVM.GET_LABEL_SYMBOL(point["attributes"]["add_num"]);
+                    const graphic = new Graphic({geometry: point, symbol: label});
+                    this.roadGraphicsLayer.add(graphic);
+                });
             }
         }
-    }
-
-    private SplitPolyline = () => {
-        if(!this.cutters || this.cutters.length == 0) return;
-
-        this.PolylineLength = this._getPolylineLength();
-        // if (this.unitCountRadio.checked) {
-        //     this.unitDist.value = Math.round((this.dist = this.length / (this.unitCount.value - 1)) * 100) / 100;
-        // } else {
-        //     this.unitCount.value = this.count = Math.round(this.length / this.unitDist.value);
-        // }
-
-        this.equalPoints = this.getEqualPoints(this.addressDistance, this.polyline.paths[0], this.unitCountRadio.checked);
-        if (this.reverse) {
-            this.equalPoints = this.equalPoints.reverse();
-        }
-        this.equalPoints.forEach((point, i) => {
-            point["attributes"] = {};
-            point["attributes"]["add_num"] = Number(this.streeNumStart.value) + i * Number(this.streeNumStep.value);
-            // this.showPoint(point, [0, 0, 0, 255]);
-            this.UtilsVM.SHOW_POINT(point, [0, 0, 0, 255], this.roadGraphicsLayer);
-
-            const label = this.UtilsVM.GET_LABEL_SYMBOL(point["attributes"]["add_num"]);
-            const graphic = new Graphic({geometry: point, symbol: label});
-            this.roadGraphicsLayer.add(graphic);
-        });
-        // console.log("equalPoints", this.equalPoints);
     }
 
 }
