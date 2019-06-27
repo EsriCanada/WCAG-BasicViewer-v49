@@ -53,6 +53,7 @@ import CursorToolTip = require("./CursorToolTip");
 
     @property()
     onClose:any = null;
+    addressCount: number;
 
     @property()
     // private Length: Number = 0;
@@ -67,22 +68,7 @@ import CursorToolTip = require("./CursorToolTip");
                 polylineLength.innerHTML = (Math.round(value*5)/5).toLocaleString();
 
                 if(this.unitCount && this.unitCountRadio && this.unitDist && this.unitDistRadio) {
-                    if(this.unitCountRadio.checked) {
-                        const count = Number(this.unitCount.value);
-                        if(count > 0) {
-                            this.unitDist.value = (Math.round(this.PolylineLength * 5 / count)/5).toString();
-                        } else {
-                            this.unitDist.value = "";
-                        }
-                    } else {
-                        const dist = Number(this.unitDist.value);
-                        if(dist > 0) {
-                            this.unitCount.value = Math.round(this.PolylineLength / dist).toString();
-                        } else {
-                            this.unitCount.value = "";
-                        }
-                    }
-
+                    this.addressCount = this.unitCountRadio.checked ? this._getCount() : this._getDistCount();
                 }
 
             } else {
@@ -119,6 +105,30 @@ import CursorToolTip = require("./CursorToolTip");
     constructor() {
         super();
         this.PolylineLength = 0;
+    }
+
+    private _getDistCount() {
+        const dist = Number(this.unitDist.value);
+        let count = 0;
+        if (dist > 0) {
+         count = Math.round(this.PolylineLength / dist);
+            this.unitCount.value = count.toString();
+        }
+        else {
+            this.unitCount.value = "";
+        }
+        return count;
+    }
+
+    private _getCount() {
+        const count = Number(this.unitCount.value);
+        if (count > 0) {
+            this.unitDist.value = (Math.round(this.PolylineLength * 5 / count) / 5).toString();
+        }
+        else {
+            this.unitDist.value = "";
+        }
+        return count;
     }
 
     postInitialize() {
@@ -318,6 +328,11 @@ import CursorToolTip = require("./CursorToolTip");
 
     private _addUnitCountRadio = (element:Element) => {
         this.unitCountRadio = element as HTMLInputElement;
+        this.own(on(this.unitCountRadio, "change", event => {
+            if(event.target.checked) {
+                this.addressCount = this._getCount();
+            }
+        }))
     }
 
     private _addUnitDist = (element:Element) => {
@@ -326,6 +341,11 @@ import CursorToolTip = require("./CursorToolTip");
 
     private _addUnitDistRadio = (element:Element) => {
         this.unitDistRadio = element as HTMLInputElement;
+        this.own(on(this.unitDistRadio, "change", event => {
+            if(event.target.checked) {
+                this.addressCount = this._getDistCount();
+            }
+        }))
     }
 
     private _addCutBtn = (element:Element) => {
