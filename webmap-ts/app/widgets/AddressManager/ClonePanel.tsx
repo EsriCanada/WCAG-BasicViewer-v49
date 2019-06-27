@@ -53,8 +53,6 @@ import CursorToolTip = require("./CursorToolTip");
 
     @property()
     onClose:any = null;
-    addressCount: number;
-
     @property()
     // private Length: Number = 0;
     get PolylineLength() : number {
@@ -62,13 +60,14 @@ import CursorToolTip = require("./CursorToolTip");
     }
     set PolylineLength(value: number) {
         this._set("PolylineLength", value);
-        const polylineLength = html.byId("polylineLength");
+        const polylineLength = html.byId("polylineLength") as HTMLSpanElement;
         if(polylineLength) {
             if(value != 0) {
                 polylineLength.innerHTML = (Math.round(value*5)/5).toLocaleString();
+                polylineLength.title = value.toLocaleString();
 
                 if(this.unitCount && this.unitCountRadio && this.unitDist && this.unitDistRadio) {
-                    this.addressCount = this.unitCountRadio.checked ? this._getCount() : this._getDistCount();
+                    [this.addressCount, this.addressDistance] = this.unitCountRadio.checked ? this._getCount() : this._getDistCount();
                 }
 
             } else {
@@ -101,6 +100,10 @@ import CursorToolTip = require("./CursorToolTip");
     private unitCountRadio: HTMLInputElement;
     private unitDist: HTMLInputElement;
     private unitDistRadio: HTMLInputElement;
+    private addressCount: number;
+    private addressDistance: number;
+
+
 
     constructor() {
         super();
@@ -111,24 +114,27 @@ import CursorToolTip = require("./CursorToolTip");
         const dist = Number(this.unitDist.value);
         let count = 0;
         if (dist > 0) {
-         count = Math.round(this.PolylineLength / dist);
-            this.unitCount.value = count.toString();
+            count = Math.round(this.PolylineLength / dist);
+            this.unitCount.value = count.toLocaleString();
         }
         else {
             this.unitCount.value = "";
         }
-        return count;
+        return [count, dist];
     }
 
     private _getCount() {
         const count = Number(this.unitCount.value);
+        let dist = 0;
         if (count > 0) {
-            this.unitDist.value = (Math.round(this.PolylineLength * 5 / count) / 5).toString();
+            dist = this.PolylineLength / count;
+            this.unitDist.value = (Math.round(dist * 5) / 5).toLocaleString();
+            this.unitDist.title = dist.toLocaleString();
         }
         else {
             this.unitDist.value = "";
         }
-        return count;
+        return [count, dist];
     }
 
     postInitialize() {
@@ -184,27 +190,27 @@ import CursorToolTip = require("./CursorToolTip");
                     <tr>
                         <th style="border-top: 1px solid gray; border-left: 1px solid gray;"><label for="unitCount">Unit Count:</label></th>
                         <td style="border-top: 1px solid gray; border-right: 1px solid gray;">
-                            <input type="number" class="numInput" id="unitCount" min="3" max="500" step="1" name="unitCountDist" value="10" afterCreate={this._addUnitCount} data-dojo-attach-event="change:_onUnitCountChange,input:_onUnitCountInput"/>
+                            <input type="number" class="numInput" id="unitCount" min="3" max="500" step="1" name="unitCountDist" value="10" afterCreate={this._addUnitCount}/>
                             <input type="radio" checked name="units" value="unitCount" style="float: right;" id="unitCountRadio" afterCreate={this._addUnitCountRadio} />
                         </td>
                     </tr> 
                     <tr>
                         <th style="border-bottom: 1px solid gray; border-left: 1px solid gray;"><label for="unitDist">Unit Distance:</label></th>
                         <td style="border-bottom: 1px solid gray; border-right: 1px solid gray;">
-                            <input type="number" class="numInput" id="unitDist" min="20" max="100" step="1" name="unitCountDist" value="25" afterCreate={this._addUnitDist} data-dojo-attach-event="change:_onUnitDistChange,input:_onUnitDistInput"/>
+                            <input type="number" class="numInput" id="unitDist" min="20" max="100" step="1" name="unitCountDist" value="25" afterCreate={this._addUnitDist}/>
                             <input type="radio" name="units" value="unitDist" style="float: right;" id="unitDistRadio" afterCreate={this._addUnitDistRadio} ></input>
                         </td>
                     </tr>
                     <tr>
                         <th><label for="StreeNumStart">Street # Start:</label></th>
                         <td>
-                            <input type="number" class="numInput" id="StreeNumStart" min="1" step="1" name="StreeNumStart" value="1" data-dojo-attach-point="StreeNumStart" data-dojo-attach-event="change:_onUnitCountChange,input:_onUnitCountInput"/>
+                            <input type="number" class="numInput" id="StreeNumStart" min="1" step="1" name="StreeNumStart" value="1" data-dojo-attach-point="StreeNumStart"/>
                         </td> 
                     </tr>
                     <tr>
                         <th><label for="StreeNumStep">Street # Step:</label></th>
                         <td>
-                            <input type="number" class="numInput" id="StreeNumStep" min="1" max="8" step="1" name="StreeNumStep" value="2" data-dojo-attach-point="StreeNumStep" data-dojo-attach-event="change:_onUnitCountChange,input:_onUnitCountInput"/>
+                            <input type="number" class="numInput" id="StreeNumStep" min="1" max="8" step="1" name="StreeNumStep" value="2" data-dojo-attach-point="StreeNumStep"/>
                         </td> 
                     </tr>
                 </table>
@@ -330,7 +336,7 @@ import CursorToolTip = require("./CursorToolTip");
         this.unitCountRadio = element as HTMLInputElement;
         this.own(on(this.unitCountRadio, "change", event => {
             if(event.target.checked) {
-                this.addressCount = this._getCount();
+                [this.addressCount, this.addressDistance] = this._getCount();
             }
         }))
     }
@@ -343,7 +349,7 @@ import CursorToolTip = require("./CursorToolTip");
         this.unitDistRadio = element as HTMLInputElement;
         this.own(on(this.unitDistRadio, "change", event => {
             if(event.target.checked) {
-                this.addressCount = this._getDistCount();
+                [this.addressCount, this.addressDistance] = this._getDistCount();
             }
         }))
     }
