@@ -56,14 +56,31 @@ import CursorToolTip = require("./CursorToolTip");
 
     @property()
     // private Length: Number = 0;
-    get Length() : number {
-        return this._get("Length");
+    get PolylineLength() : number {
+        return this._get("PolylineLength");
     }
-    set Length(value: number) {
-        this._set("Length", value);
+    set PolylineLength(value: number) {
+        this._set("PolylineLength", value);
         const polylineLength = html.byId("polylineLength");
         if(polylineLength) {
-            polylineLength.innerHTML = value != 0 ? (Math.round(value*5)/5).toLocaleString() : "";
+            if(value != 0) {
+                polylineLength.innerHTML = (Math.round(value*5)/5).toLocaleString();
+
+                if(this.unitCount && this.unitCountRadio && this.unitDist && this.unitDistRadio) {
+                    if(this.unitCountRadio.checked) {
+                        const count = Number(this.unitCount.value);
+                        if(count > 0) {
+                            this.unitDist.value = (Math.round(this.PolylineLength * 5 / count)/5).toString();
+                        } else {
+                            this.unitDist.value = "";
+                        }
+                    }
+                }
+
+            } else {
+                polylineLength.innerHTML = "";
+
+            }
         }
     }
 
@@ -84,12 +101,16 @@ import CursorToolTip = require("./CursorToolTip");
     private roadCell: HTMLElement;
     private roadMarker: any = null;
     private cloneCancelBtn: HTMLElement;
-    cutBtn: HTMLElement;
-    cutFlip: number;
+    private cutBtn: HTMLElement;
+    private cutFlip: number;
+    private unitCount: HTMLInputElement;
+    private unitCountRadio: HTMLInputElement;
+    private unitDist: HTMLInputElement;
+    private unitDistRadio: HTMLInputElement;
 
     constructor() {
         super();
-        this.Length = 0;
+        this.PolylineLength = 0;
     }
 
     postInitialize() {
@@ -145,15 +166,15 @@ import CursorToolTip = require("./CursorToolTip");
                     <tr>
                         <th style="border-top: 1px solid gray; border-left: 1px solid gray;"><label for="unitCount">Unit Count:</label></th>
                         <td style="border-top: 1px solid gray; border-right: 1px solid gray;">
-                            <input type="number" class="numInput" id="unitCount" min="3" max="500" step="1" name="unitCountDist" value="10" data-dojo-attach-point="unitCount" data-dojo-attach-event="change:_onUnitCountChange,input:_onUnitCountInput"/>
-                            <input type="radio" checked name="units" value="unitCount" style="float: right;" data-dojo-attach-point="unitCountRadio"/>
+                            <input type="number" class="numInput" id="unitCount" min="3" max="500" step="1" name="unitCountDist" value="10" afterCreate={this._addUnitCount} data-dojo-attach-event="change:_onUnitCountChange,input:_onUnitCountInput"/>
+                            <input type="radio" checked name="units" value="unitCount" style="float: right;" id="unitCountRadio" afterCreate={this._addUnitCountRadio} />
                         </td>
                     </tr> 
                     <tr>
                         <th style="border-bottom: 1px solid gray; border-left: 1px solid gray;"><label for="unitDist">Unit Distance:</label></th>
                         <td style="border-bottom: 1px solid gray; border-right: 1px solid gray;">
-                            <input type="number" class="numInput" id="unitDist" min="20" max="100" step="1" name="unitCountDist" value="25" data-dojo-attach-point="unitDist" data-dojo-attach-event="change:_onUnitDistChange,input:_onUnitDistInput"/>
-                            <input type="radio" name="units" value="unitDist" style="float: right;" data-dojo-attach-point="unitDistRadio"></input>
+                            <input type="number" class="numInput" id="unitDist" min="20" max="100" step="1" name="unitCountDist" value="25" afterCreate={this._addUnitDist} data-dojo-attach-event="change:_onUnitDistChange,input:_onUnitDistInput"/>
+                            <input type="radio" name="units" value="unitDist" style="float: right;" id="unitDistRadio" afterCreate={this._addUnitDistRadio} ></input>
                         </td>
                     </tr>
                     <tr>
@@ -216,6 +237,7 @@ import CursorToolTip = require("./CursorToolTip");
     private _addCloneCancelBtn = (element: Element) => {
         this.cloneCancelBtn = element as HTMLElement;
         this.own(on(this.cloneCancelBtn, "click", lang.hitch(this, function(event) {
+            this.Length = 0;
             this.streetNameError.innerHTML = "";
             html.addClass(this.streetNameErrorRow, "hide");
             html.addClass(this.roadCell, "hide");
@@ -223,11 +245,8 @@ import CursorToolTip = require("./CursorToolTip");
             this.roadSegments.length = 0;
             this.cutters = [];
             this.addressRoadGeometry = null;
-            this.Length = 0;
 
             html.addClass(this.clonePanelDiv, "hide");
-
-            // console.log("onClose", this.onClose);
 
             if(this.onClose) this.onClose();
         })));
@@ -283,6 +302,22 @@ import CursorToolTip = require("./CursorToolTip");
 
     private _addUseCurrentSeed = (element:Element) => {
         this.useCurrentSeed = element as HTMLInputElement;
+    }
+
+    private _addUnitCount = (element:Element) => {
+        this.unitCount = element as HTMLInputElement;
+    }
+
+    private _addUnitCountRadio = (element:Element) => {
+        this.unitCountRadio = element as HTMLInputElement;
+    }
+
+    private _addUnitDist = (element:Element) => {
+        this.unitDist = element as HTMLInputElement;
+    }
+
+    private _addUnitDistRadio = (element:Element) => {
+        this.unitDistRadio = element as HTMLInputElement;
     }
 
     private _addCutBtn = (element:Element) => {
@@ -481,7 +516,7 @@ import CursorToolTip = require("./CursorToolTip");
         // throw new Error("Method not implemented.");
     }
 
-    private _getLength(): number {
+    private _getPolylineLength(): number {
         if (!this.polyline) return 0;
         const length = geometryEngine.geodesicLength(this.polyline as any, "meters");
         return length;
@@ -531,7 +566,7 @@ import CursorToolTip = require("./CursorToolTip");
                 this.polylineGraph = new Graphic({geometry: this.polyline,  symbol: new SimpleLineSymbol({ style: "solid", color: [255, 0, 0, 63], width:2 })});
                 this.roadGraphicsLayer.add(this.polylineGraph);
 
-                this.Length = this._getLength();
+                this.PolylineLength = this._getPolylineLength();
 
                 this._mesurePolyline();
             }
