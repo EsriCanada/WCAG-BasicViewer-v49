@@ -74,7 +74,15 @@ import CursorToolTip = require("./CursorToolTip");
                         } else {
                             this.unitDist.value = "";
                         }
+                    } else {
+                        const dist = Number(this.unitDist.value);
+                        if(dist > 0) {
+                            this.unitCount.value = Math.round(this.PolylineLength / dist).toString();
+                        } else {
+                            this.unitCount.value = "";
+                        }
                     }
+
                 }
 
             } else {
