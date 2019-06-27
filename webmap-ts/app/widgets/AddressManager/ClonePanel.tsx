@@ -29,6 +29,7 @@ import Point = require("esri/geometry/Point");
 import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
 import { watch } from "fs";
 import CursorToolTip = require("./CursorToolTip");
+import { isReturnStatement } from "typescript";
 
 @subclass("esri.widgets.ClonePanel")
   class ClonePanel extends declared(Widget) {
@@ -53,6 +54,10 @@ import CursorToolTip = require("./CursorToolTip");
 
     @property()
     onClose:any = null;
+    equalPoints: any[];
+    reverse: any;
+    streeNumStart: HTMLInputElement;
+    streeNumStep: HTMLInputElement;
     @property()
     // private Length: Number = 0;
     get PolylineLength() : number {
@@ -204,13 +209,13 @@ import CursorToolTip = require("./CursorToolTip");
                     <tr>
                         <th><label for="StreeNumStart">Street # Start:</label></th>
                         <td>
-                            <input type="number" class="numInput" id="StreeNumStart" min="1" step="1" name="StreeNumStart" value="1" data-dojo-attach-point="StreeNumStart"/>
+                            <input type="number" class="numInput" id="StreeNumStart" min="1" step="1" name="StreeNumStart" value="1" afterCreate={this._addStreeNumStart}/>
                         </td> 
                     </tr>
                     <tr>
                         <th><label for="StreeNumStep">Street # Step:</label></th>
                         <td>
-                            <input type="number" class="numInput" id="StreeNumStep" min="1" max="8" step="1" name="StreeNumStep" value="2" data-dojo-attach-point="StreeNumStep"/>
+                            <input type="number" class="numInput" id="StreeNumStep" min="1" max="8" step="1" name="StreeNumStep" value="2" afterCreate={this._addStreeNumStep}/>
                         </td> 
                     </tr>
                 </table>
@@ -285,6 +290,14 @@ import CursorToolTip = require("./CursorToolTip");
         this.distRoadValue = element as HTMLElement;
     }
 
+    private _addStreeNumStart = (element: Element) => {
+        this.streeNumStart = element as HTMLInputElement;
+    }
+
+    private _addStreeNumStep = (element: Element) => {
+        this.streeNumStep = element as HTMLInputElement;
+    }
+
     private _distRoadRangeChange = (event) => {
         const value = event.target.value;
         this.distRoadValue.innerHTML = value;
@@ -337,6 +350,7 @@ import CursorToolTip = require("./CursorToolTip");
         this.own(on(this.unitCountRadio, "change", event => {
             if(event.target.checked) {
                 [this.addressCount, this.addressDistance] = this._getCount();
+                this.SplitPolyline();
             }
         }))
     }
@@ -350,6 +364,7 @@ import CursorToolTip = require("./CursorToolTip");
         this.own(on(this.unitDistRadio, "change", event => {
             if(event.target.checked) {
                 [this.addressCount, this.addressDistance] = this._getDistCount();
+                this.SplitPolyline();
             }
         }))
     }
@@ -546,14 +561,51 @@ import CursorToolTip = require("./CursorToolTip");
         }
     }
 
-    private _mesurePolyline() {
-        // throw new Error("Method not implemented.");
-    }
-
     private _getPolylineLength(): number {
         if (!this.polyline) return 0;
-        const length = geometryEngine.geodesicLength(this.polyline as any, "meters");
+        const length = geometryEngine.planarLength(this.polyline as any, "meters");
         return length;
+    }
+
+    private getEqualPoints = (dist, path, addEndPoint) => {
+        // const path = path.split();
+        const results = [];
+        let i = 0;
+        let sum = 0;
+        let distance = dist;
+        let p1 = new Point({x:path[0][0], y:path[0][1], spatialReference: this.mapView.spatialReference});
+        results.push(p1);
+        while (i < path.length - 1) {
+            const p2 = new Point({x:path[i+1][0], y:path[i+1][1], spatialReference: this.mapView.spatialReference});
+            const d = geometryEngine.distance(p1, p2, "meters");
+            if (sum + d >= distance) {
+                const dif = distance - sum;
+                const x1 = p1.x;
+                const x2 = p2.x;
+                const y1 = p1.y;
+                const y2 = p2.y;
+
+                const f = dif / d;
+                const x = x1 + (x2 - x1) * f;
+                const y = y1 + (y2 - y1) * f;
+
+                const p = new Point({x:x, y:y, spatialReference: this.mapView.spatialReference});
+                results.push(p)
+                distance += dist;
+            } else {
+                p1 = p2;
+                sum += d;
+                i++;
+            }
+        }
+        if (addEndPoint) {
+            const p = path[path.length - 1];
+            const endPoint = new Point({x: p[0], y: p[1], spatialReference: this.mapView.spatialReference});
+            if (geometryEngine.distance(endPoint, results[results.length - 1], "meters") > dist * 9 / 10) {
+                results.push(endPoint);
+            }
+        }
+        return results;
     }
 
     private _splitPolyline() {
@@ -600,11 +652,36 @@ import CursorToolTip = require("./CursorToolTip");
                 this.polylineGraph = new Graphic({geometry: this.polyline,  symbol: new SimpleLineSymbol({ style: "solid", color: [255, 0, 0, 63], width:2 })});
                 this.roadGraphicsLayer.add(this.polylineGraph);
 
-                this.PolylineLength = this._getPolylineLength();
-
-                this._mesurePolyline();
+                this.SplitPolyline();
             }
         }
+    }
+
+    private SplitPolyline = () => {
+        if(!this.cutters || this.cutters.length == 0) return;
+
+        this.PolylineLength = this._getPolylineLength();
+        // if (this.unitCountRadio.checked) {
+        //     this.unitDist.value = Math.round((this.dist = this.length / (this.unitCount.value - 1)) * 100) / 100;
+        // } else {
+        //     this.unitCount.value = this.count = Math.round(this.length / this.unitDist.value);
+        // }
+
+        this.equalPoints = this.getEqualPoints(this.addressDistance, this.polyline.paths[0], this.unitCountRadio.checked);
+        if (this.reverse) {
+            this.equalPoints = this.equalPoints.reverse();
+        }
+        this.equalPoints.forEach((point, i) => {
+            point["attributes"] = {};
+            point["attributes"]["add_num"] = Number(this.streeNumStart.value) + i * Number(this.streeNumStep.value);
+            // this.showPoint(point, [0, 0, 0, 255]);
+            this.UtilsVM.SHOW_POINT(point, [0, 0, 0, 255], this.roadGraphicsLayer);
+
+            const label = this.UtilsVM.GET_LABEL_SYMBOL(point["attributes"]["add_num"]);
+            const graphic = new Graphic({geometry: point, symbol: label});
+            this.roadGraphicsLayer.add(graphic);
+        });
+        // console.log("equalPoints", this.equalPoints);
     }
 
 }
