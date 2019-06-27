@@ -54,10 +54,7 @@ import { isReturnStatement } from "typescript";
 
     @property()
     onClose:any = null;
-    equalPoints: any[];
-    reverse: any;
-    streeNumStart: HTMLInputElement;
-    streeNumStep: HTMLInputElement;
+
     @property()
     // private Length: Number = 0;
     get PolylineLength() : number {
@@ -65,6 +62,7 @@ import { isReturnStatement } from "typescript";
     }
     set PolylineLength(value: number) {
         this._set("PolylineLength", value);
+        
         const polylineLength = html.byId("polylineLength") as HTMLSpanElement;
         if(polylineLength) {
             if(value != 0) {
@@ -107,6 +105,11 @@ import { isReturnStatement } from "typescript";
     private unitDistRadio: HTMLInputElement;
     private addressCount: number;
     private addressDistance: number;
+    private equalPoints: any[];
+    private reverse: any;
+    private streeNumStart: HTMLInputElement;
+    private streeNumStep: HTMLInputElement;
+    private cloneApplyBtn: HTMLInputElement;
 
 
 
@@ -156,7 +159,7 @@ import { isReturnStatement } from "typescript";
                 <input type="image" src="../images/icons_transp/Cut.bgwhite.24.png" class="button" afterCreate={this._addCutBtn} title="Cut Line" aria-label="Cut Line"/>
                 <input type="image" src="../images/icons_transp/Flip1.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onFlipSideClicked" title="Flip Side" aria-label="Flip Side"/>
                 <input type="image" src="../images/icons_transp/Flip2.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onReverseClicked" title="Reverse Direction" aria-label="Reverse Direction"/>
-                <input type="image" src="../images/icons_transp/restart.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onRestartCutsClicked" title="Restart Cuts" aria-label="Restart Cuts"/>
+                <input type="image" src="../images/icons_transp/restart.bgwhite.24.png" class="button hide" title="Restart Cuts" aria-label="Restart Cuts"/>
             </div>
             <div class="content">
                 <table style="border-collapse: collapse; border: none;">
@@ -221,7 +224,7 @@ import { isReturnStatement } from "typescript";
                 </table>
             </div>
             <div class="footer footer2cells">
-            <input type="button" class="pageBtn" style="justify-self: left;" data-dojo-attach-point="submitCloneApply" value="Apply"/>
+            <input type="button" class="pageBtn" style="justify-self: left;" afterCreate={this._addApplyBtn} value="Apply"/>
             <input type="button" class="pageBtn blankBtn" style="justify-self: right;" afterCreate={this._addCloneCancelBtn} value="Cancel"/>
             </div> 
         </div>
@@ -263,6 +266,14 @@ import { isReturnStatement } from "typescript";
         });
     }
 
+    private _addApplyBtn = (element: Element) => {
+        this.cloneApplyBtn = element as HTMLInputElement;
+        this.own(on(this.cloneApplyBtn, "click", event => {
+            const cloneApplyBtn = event.target;
+            if(!(html as any).hasClass("blueBtn")) return;
+        }))
+    }
+    
     private _addCloneCancelBtn = (element: Element) => {
         this.cloneCancelBtn = element as HTMLElement;
         this.own(on(this.cloneCancelBtn, "click", lang.hitch(this, function(event) {
@@ -275,6 +286,7 @@ import { isReturnStatement } from "typescript";
             this.cutters = [];
             this.addressRoadGeometry = null;
 
+            html.removeClass(this.cloneApplyBtn, "blueBtn");
             html.addClass(this.clonePanelDiv, "hide");
 
             if(this.onClose) this.onClose();
@@ -304,6 +316,7 @@ import { isReturnStatement } from "typescript";
         const value = event.target.value;
         this.distRoadValue.innerHTML = value;
 
+        html.removeClass(this.cloneApplyBtn, "blueBtn");
         if (this.roadGeometries && this.roadGeometries.length > 0) {
             if (this.addressRoadGraphic) {
                 this.roadGraphicsLayer.remove(this.addressRoadGraphic);
@@ -438,11 +451,13 @@ import { isReturnStatement } from "typescript";
     }
 
     private _onPickRoadClicked = (event) => {
+        html.removeClass(this.cloneApplyBtn, "blueBtn");        
         html.addClass(event.target, "active");
-        
+
         this.UtilsVM.PICK_ROAD().then(
             roadSegment => {
                 html.removeClass(event.target, "active"); 
+                this.cutters = [];
                 // this.mapView.map.setInfoWindowOnClick(true);
 
                 const found = this.roadSegments.find(road => (roadSegment as any).attributes.OBJECTID == road.attributes.OBJECTID);
@@ -614,6 +629,8 @@ import { isReturnStatement } from "typescript";
     }
 
     private _splitPolyline = () => {
+        html.removeClass(this.cloneApplyBtn, "blueBtn");
+
         if (this.cutters.length != 2) return;
         
         this.roadGraphicsLayer.removeAll();
@@ -663,6 +680,9 @@ import { isReturnStatement } from "typescript";
                 if (this.reverse) {
                     this.equalPoints = this.equalPoints.reverse();
                 }
+
+                if(!this.equalPoints.some(() => true)) return;
+                
                 this.equalPoints.forEach((point, i) => {
                     point["attributes"] = {};
                     point["attributes"]["add_num"] = Number(this.streeNumStart.value) + i * Number(this.streeNumStep.value);
@@ -674,6 +694,8 @@ import { isReturnStatement } from "typescript";
                     const graphic = new Graphic({geometry: point, symbol: label});
                     this.roadGraphicsLayer.add(graphic);
                 });
+
+                html.addClass(this.cloneApplyBtn, "blueBtn");
             }
         }
     }
