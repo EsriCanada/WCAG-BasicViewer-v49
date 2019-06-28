@@ -258,7 +258,7 @@ import { isReturnStatement } from "typescript";
         
         const mutationObserver = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
-                console.log("mutation", mutation);
+                // console.log("mutation", mutation);
                 if(mutation.attributeName == "class" && domClass.contains(this.clonePanelDiv, "hide")) {
                     this.onClose();
                 }
