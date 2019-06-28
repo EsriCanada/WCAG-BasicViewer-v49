@@ -114,8 +114,8 @@ import { isReturnStatement } from "typescript";
     private streeNumStart: HTMLInputElement;
     private streeNumStep: HTMLInputElement;
     private cloneApplyBtn: HTMLInputElement;
-
-
+    private flipSideBtn: HTMLInputElement;
+    private reverseBtn: HTMLInputElement;
 
     constructor() {
         super();
@@ -161,8 +161,8 @@ import { isReturnStatement } from "typescript";
             <div class="toolbar">
                 <input type="image" src="../images/icons_transp/pickRoad2.bgwhite.24.png" class="button" afterCreate={this._addPickRoadBtn} title="Pick Road" aria-label="Pick Road"/>
                 <input type="image" src="../images/icons_transp/Cut.bgwhite.24.png" class="button" afterCreate={this._addCutBtn} title="Cut Line" aria-label="Cut Line"/>
-                <input type="image" src="../images/icons_transp/Flip1.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onFlipSideClicked" title="Flip Side" aria-label="Flip Side"/>
-                <input type="image" src="../images/icons_transp/Flip2.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onReverseClicked" title="Reverse Direction" aria-label="Reverse Direction"/>
+                <input type="image" src="../images/icons_transp/Flip1.bgwhite.24.png" class="button" afterCreate={this._addFlipSide} title="Flip Side" aria-label="Flip Side"/>
+                <input type="image" src="../images/icons_transp/Flip2.bgwhite.24.png" class="button" afterCreate={this._addReverse} title="Reverse Direction" aria-label="Reverse Direction"/>
                 <input type="image" src="../images/icons_transp/restart.bgwhite.24.png" class="button hide" title="Restart Cuts" aria-label="Restart Cuts"/>
             </div>
             <div class="content">
@@ -508,6 +508,23 @@ import { isReturnStatement } from "typescript";
                 html.removeClass(event.target, "active");
             }
         );
+    }
+
+    private _addFlipSide = (element:Element) => {
+        this.flipSideBtn = element as HTMLInputElement;
+        this.own(on(this.flipSideBtn, "click", event => {
+            this.flip = !this.flip;
+            this._splitPolyline();
+        }))
+    }
+
+    private _addReverse = (element:Element) => {
+        this.reverseBtn = element as HTMLInputElement;
+        this.own(on(this.reverseBtn, "click", event => {
+            if (!this.addressRoadGeometry || !this.polyline || !(this.cutters && this.cutters.length == 2)) return;
+            this.reverse = !this.reverse;
+            this._splitPolyline();
+        }))
     }
 
     GET_CUTTER_BY_POINT_draw = null; 
