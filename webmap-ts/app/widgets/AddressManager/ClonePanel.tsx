@@ -14,6 +14,7 @@ import html = require("dojo/_base/html");
 import Deferred = require("dojo/Deferred");
 
 import UtilsViewModel = require("./UtilsViewModel");
+import AddressManagerViewModel = require("./AddressManagerViewModel");
 
 import GeometryService = require("esri/tasks/GeometryService");
 import geometryEngine = require("esri/geometry/geometryEngine");
@@ -41,6 +42,9 @@ import { isReturnStatement } from "typescript";
     mapView: __esri.MapView;
 
     @property()
+    addressManagerVM: AddressManagerViewModel;
+
+    @property()
     siteAddressPointLayer;
 
     @property()
@@ -54,10 +58,7 @@ import { isReturnStatement } from "typescript";
 
     @property()
     onClose:any = null;
-    equalPoints: any[];
-    reverse: any;
-    streeNumStart: HTMLInputElement;
-    streeNumStep: HTMLInputElement;
+
     @property()
     // private Length: Number = 0;
     get PolylineLength() : number {
@@ -65,6 +66,7 @@ import { isReturnStatement } from "typescript";
     }
     set PolylineLength(value: number) {
         this._set("PolylineLength", value);
+        
         const polylineLength = html.byId("polylineLength") as HTMLSpanElement;
         if(polylineLength) {
             if(value != 0) {
@@ -107,6 +109,11 @@ import { isReturnStatement } from "typescript";
     private unitDistRadio: HTMLInputElement;
     private addressCount: number;
     private addressDistance: number;
+    private equalPoints: any[];
+    private reverse: any;
+    private streeNumStart: HTMLInputElement;
+    private streeNumStep: HTMLInputElement;
+    private cloneApplyBtn: HTMLInputElement;
 
 
 
@@ -120,7 +127,7 @@ import { isReturnStatement } from "typescript";
         let count = 0;
         if (dist > 0) {
             count = Math.round(this.PolylineLength / dist);
-            this.unitCount.value = count.toLocaleString();
+            this.unitCount.value = (count+1).toLocaleString();
         }
         else {
             this.unitCount.value = "";
@@ -129,7 +136,7 @@ import { isReturnStatement } from "typescript";
     }
 
     private _getCount() {
-        const count = Number(this.unitCount.value);
+        const count = Number(this.unitCount.value) - 1;
         let dist = 0;
         if (count > 0) {
             dist = this.PolylineLength / count;
@@ -156,7 +163,7 @@ import { isReturnStatement } from "typescript";
                 <input type="image" src="../images/icons_transp/Cut.bgwhite.24.png" class="button" afterCreate={this._addCutBtn} title="Cut Line" aria-label="Cut Line"/>
                 <input type="image" src="../images/icons_transp/Flip1.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onFlipSideClicked" title="Flip Side" aria-label="Flip Side"/>
                 <input type="image" src="../images/icons_transp/Flip2.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onReverseClicked" title="Reverse Direction" aria-label="Reverse Direction"/>
-                <input type="image" src="../images/icons_transp/restart.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onRestartCutsClicked" title="Restart Cuts" aria-label="Restart Cuts"/>
+                <input type="image" src="../images/icons_transp/restart.bgwhite.24.png" class="button hide" title="Restart Cuts" aria-label="Restart Cuts"/>
             </div>
             <div class="content">
                 <table style="border-collapse: collapse; border: none;">
@@ -195,7 +202,7 @@ import { isReturnStatement } from "typescript";
                     <tr>
                         <th style="border-top: 1px solid gray; border-left: 1px solid gray;"><label for="unitCount">Unit Count:</label></th>
                         <td style="border-top: 1px solid gray; border-right: 1px solid gray;">
-                            <input type="number" class="numInput" id="unitCount" min="3" max="500" step="1" value="10" afterCreate={this._addUnitCount}/>
+                            <input type="number" class="numInput" id="unitCount" min="2" max="500" step="1" value="10" afterCreate={this._addUnitCount}/>
                             <input type="radio" checked name="units" value="unitCount" style="float: right;" id="unitCountRadio" afterCreate={this._addUnitCountRadio} />
                         </td>
                     </tr> 
@@ -221,7 +228,7 @@ import { isReturnStatement } from "typescript";
                 </table>
             </div>
             <div class="footer footer2cells">
-            <input type="button" class="pageBtn" style="justify-self: left;" data-dojo-attach-point="submitCloneApply" value="Apply"/>
+            <input type="button" class="pageBtn" style="justify-self: left;" afterCreate={this._addApplyBtn} value="Apply"/>
             <input type="button" class="pageBtn blankBtn" style="justify-self: right;" afterCreate={this._addCloneCancelBtn} value="Cancel"/>
             </div> 
         </div>
@@ -263,22 +270,40 @@ import { isReturnStatement } from "typescript";
         });
     }
 
+    private _addApplyBtn = (element: Element) => {
+        this.cloneApplyBtn = element as HTMLInputElement;
+        this.own(on(this.cloneApplyBtn, "click", event => {
+            const cloneApplyBtn = event.target;
+            if(!(html as any).hasClass(cloneApplyBtn, "blueBtn")) return;
+            
+            this.addressManagerVM.addressPointFeatures.removeAll();
+            this.equalPoints.forEach(point => {
+                const feature = new Graphic({geometry: point, symbol: this.UtilsVM.NEW_ADDRESS_SYMBOL, attributes: point.attributes});
+                this.mapView.graphics.add(feature);
+                this.addressManagerVM.addressPointFeatures.add(feature as any);
+            })
+            this._cancel();
+        }))
+    }
+    
     private _addCloneCancelBtn = (element: Element) => {
         this.cloneCancelBtn = element as HTMLElement;
-        this.own(on(this.cloneCancelBtn, "click", lang.hitch(this, function(event) {
-            this.Length = 0;
-            this.streetNameError.innerHTML = "";
-            html.addClass(this.streetNameErrorRow, "hide");
-            html.addClass(this.roadCell, "hide");
-            this.roadGraphicsLayer.removeAll();
-            this.roadSegments.length = 0;
-            this.cutters = [];
-            this.addressRoadGeometry = null;
+        this.own(on(this.cloneCancelBtn, "click", this._cancel));
+    }
 
-            html.addClass(this.clonePanelDiv, "hide");
+    private _cancel = () => {
+        this.streetNameError.innerHTML = "";
+        html.addClass(this.streetNameErrorRow, "hide");
+        html.addClass(this.roadCell, "hide");
+        this.roadGraphicsLayer.removeAll();
+        this.roadSegments.length = 0;
+        this.cutters = [];
+        this.addressRoadGeometry = null;
 
-            if(this.onClose) this.onClose();
-        })));
+        html.removeClass(this.cloneApplyBtn, "blueBtn");
+        html.addClass(this.clonePanelDiv, "hide");
+
+        if(this.onClose) this.onClose();
     }
 
     private _addDistRoadRange = (element: Element) => {
@@ -304,6 +329,7 @@ import { isReturnStatement } from "typescript";
         const value = event.target.value;
         this.distRoadValue.innerHTML = value;
 
+        html.removeClass(this.cloneApplyBtn, "blueBtn");
         if (this.roadGeometries && this.roadGeometries.length > 0) {
             if (this.addressRoadGraphic) {
                 this.roadGraphicsLayer.remove(this.addressRoadGraphic);
@@ -438,11 +464,13 @@ import { isReturnStatement } from "typescript";
     }
 
     private _onPickRoadClicked = (event) => {
+        html.removeClass(this.cloneApplyBtn, "blueBtn");        
         html.addClass(event.target, "active");
-        
+
         this.UtilsVM.PICK_ROAD().then(
             roadSegment => {
                 html.removeClass(event.target, "active"); 
+                this.cutters = [];
                 // this.mapView.map.setInfoWindowOnClick(true);
 
                 const found = this.roadSegments.find(road => (roadSegment as any).attributes.OBJECTID == road.attributes.OBJECTID);
@@ -614,6 +642,8 @@ import { isReturnStatement } from "typescript";
     }
 
     private _splitPolyline = () => {
+        html.removeClass(this.cloneApplyBtn, "blueBtn");
+
         if (this.cutters.length != 2) return;
         
         this.roadGraphicsLayer.removeAll();
@@ -663,10 +693,14 @@ import { isReturnStatement } from "typescript";
                 if (this.reverse) {
                     this.equalPoints = this.equalPoints.reverse();
                 }
+
+                if(!this.equalPoints.some(() => true)) return;
+
                 this.equalPoints.forEach((point, i) => {
                     point["attributes"] = {};
                     point["attributes"]["add_num"] = Number(this.streeNumStart.value) + i * Number(this.streeNumStep.value);
                     point["attributes"]["name_body"] = this.roadCell.innerText;
+                    point["attributes"]["status"] = 0;
 
                     this.UtilsVM.SHOW_POINT(point, [0, 0, 0, 255], this.roadGraphicsLayer);
         
@@ -674,6 +708,8 @@ import { isReturnStatement } from "typescript";
                     const graphic = new Graphic({geometry: point, symbol: label});
                     this.roadGraphicsLayer.add(graphic);
                 });
+
+                html.addClass(this.cloneApplyBtn, "blueBtn");
             }
         }
     }

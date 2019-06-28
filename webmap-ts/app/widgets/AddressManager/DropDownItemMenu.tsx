@@ -342,9 +342,11 @@ class DropDownItemMenu extends declared(Widget) {
         for (let i = 0; i < this.addressPointFeatures.length; i++) {
             const feature = (this.addressPointFeatures as any).items[i];
             // console.log("feature", feature);
-            const graphic = {geometry: feature.geometry, symbol: this.utilsVM.GET_LABEL_SYMBOL(feature.attributes[this.fieldName])};
-            // this.map.graphics.add(graphic);
-            DropDownItemMenu.LabelsGraphicsLayer.add(graphic);
+            if(feature.attributes && (this.fieldName in feature.attributes)) {
+                const graphic = {geometry: feature.geometry, symbol: this.utilsVM.GET_LABEL_SYMBOL(feature.attributes[this.fieldName])};
+                // this.map.graphics.add(graphic);
+                DropDownItemMenu.LabelsGraphicsLayer.add(graphic);
+            }
         }
     }
 
