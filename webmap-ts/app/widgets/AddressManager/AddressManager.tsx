@@ -28,6 +28,7 @@ import Point = require("esri/geometry/Point");
 import FeatureLayerView = require("esri/views/layers/FeatureLayerView");
 import { runInThisContext } from "vm";
 import watchUtils = require("esri/core/watchUtils");
+import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
 // import AddressCompiler = require("./AddressCompiler");
 
 @subclass("esri.widgets.AddressManager")
@@ -126,6 +127,7 @@ import watchUtils = require("esri/core/watchUtils");
     private addressCompiler: any;
     private pickupRoads: any;
     private centroidBtn: HTMLInputElement;
+    pickParcels_sketchVM: SketchViewModel;
 
     constructor() {
         super(); 
@@ -176,7 +178,18 @@ import watchUtils = require("esri/core/watchUtils");
                             g.id = f.attributes["OBJECTID"];
                             return g;
                         })
-                        console.log("geometries", geometries);
+                        // console.log("geometries", geometries);
+                        const graphics = geometries.map(g => new Graphic({geometry: g, symbol: {
+                            type:"simple-fill",
+                            color: [0, 0, 0, 0],
+                            outline: {
+                                color:[0, 0, 0, 0],
+                                width:0,
+                                style:"solid"
+                            }} as any})
+                        );
+                        // console.log("graphics", graphics);
+                        this.parcelsGraphicLayer.addMany(graphics)
                     })
                 })
             })
@@ -532,20 +545,35 @@ import watchUtils = require("esri/core/watchUtils");
     }
 
     private _addFillParcelsBtn = (element: Element) => {
-        // this.parcelsGraphicLayer = new GraphicsLayer();
-        // this.mapView.map.add(this.parcelsGraphicLayer);
-
-
         this.own(on(element, "click", event => {
             const fillParcelsBtn = event.target;
-            if((html as any).hasClass(fillParcelsBtn, "active")) {
-                html.removeClass(fillParcelsBtn, "active");
+            require(["./CursorToolTip"], CursorToolTip => {
+                if(this.pickParcels_sketchVM && this.pickParcels_sketchVM.state == "active") {
+                    html.removeClass(fillParcelsBtn, "active");
+                    this.pickParcels_sketchVM.cancel();
+                    CursorToolTip.Close();
+                } 
+                else {
+                    html.addClass(fillParcelsBtn, "active");
+                    if(!this.pickParcels_sketchVM) {
+                        this.pickParcels_sketchVM = new SketchViewModel({
+                            layer: this.parcelsGraphicLayer,
+                            view: this.mapView,
+                        })
+                    }
 
-            } 
-            else {
-                html.addClass(fillParcelsBtn, "active");
-                
-            }
+                    const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click and drag ove parcels to select");
+            
+                    this.pickParcels_sketchVM.create("polyline", {mode: "freehand"});
+                    this.pickParcels_sketchVM.on("create", event => {
+                        if (event.state === "complete") {
+                            const graphic = event.graphic;
+                            cursorTooltip.close();
+                            html.removeClass(fillParcelsBtn, "active");
+                        }
+                    })
+                }
+            })
         }));
     }
 
