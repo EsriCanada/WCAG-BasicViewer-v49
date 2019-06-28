@@ -27,6 +27,7 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Point = require("esri/geometry/Point");
 import FeatureLayerView = require("esri/views/layers/FeatureLayerView");
 import { runInThisContext } from "vm";
+import watchUtils = require("esri/core/watchUtils");
 // import AddressCompiler = require("./AddressCompiler");
 
 @subclass("esri.widgets.AddressManager")
@@ -75,6 +76,10 @@ import { runInThisContext } from "vm";
     labelsGraphicsLayer: GraphicsLayer;
 
     @property()
+    @aliasOf("viewModel.parcelsGraphicLayer")
+    parcelsGraphicLayer: GraphicsLayer;
+
+    @property()
     @aliasOf("viewModel.inputControls")
     inputControls;
 
@@ -120,7 +125,7 @@ import { runInThisContext } from "vm";
     private selectDropDownDiv: HTMLElement;
     private addressCompiler: any;
     private pickupRoads: any;
-    centroidBtn: HTMLInputElement;
+    private centroidBtn: HTMLInputElement;
 
     constructor() {
         super(); 
@@ -149,6 +154,33 @@ import { runInThisContext } from "vm";
             this.labelsGraphicsLayer = new GraphicsLayer();
             this.mapView.map.layers.add(this.labelsGraphicsLayer);
             DropDownItemMenu.LabelsGraphicsLayer = this.labelsGraphicsLayer;
+
+            this.parcelsGraphicLayer = new GraphicsLayer();
+            this.mapView.map.add(this.parcelsGraphicLayer);
+            
+            this.parcelsLayer.when(pLayer => {
+                watchUtils.whenTrue(this.mapView, "stationary", () => {
+                    this.parcelsGraphicLayer.removeAll();
+                    const q = pLayer.createQuery();
+                    q.outFields = ["OBJECTID"];
+                    q.where = "1=1";
+                    q.geometry = this.mapView.extent;
+                    q.spatialRelationship = "intersects";
+                    q.returnGeometry = true;
+            
+                    pLayer.queryFeatures(q).then(result => {
+                        // console.log("result", result)
+                        const {features} = result;
+                        const geometries = features.map(f => {
+                            const g = f.geometry;
+                            g.id = f.attributes["OBJECTID"];
+                            return g;
+                        })
+                        console.log("geometries", geometries);
+                    })
+                })
+            })
+        
 
             this.UtilsVM = new UtilsViewModel({mapView:this.mapView, roadsLayer: this.roadsLayer});
 
@@ -500,6 +532,10 @@ import { runInThisContext } from "vm";
     }
 
     private _addFillParcelsBtn = (element: Element) => {
+        // this.parcelsGraphicLayer = new GraphicsLayer();
+        // this.mapView.map.add(this.parcelsGraphicLayer);
+
+
         this.own(on(element, "click", event => {
             const fillParcelsBtn = event.target;
             if((html as any).hasClass(fillParcelsBtn, "active")) {
@@ -1225,8 +1261,6 @@ import { runInThisContext } from "vm";
                 viewModel: this.viewModel,
                 fieldName: field.name,
                 specialAttributes: this.specialAttributes[field.name],
-                // addressPointFeatures: this.addressPointFeatures,
-                // labelsGraphicsLayer: this.labelsGraphicsLayer,
                 utilsVM: this.UtilsVM,
                 onMenuActionReady: () => this._populateAddressTable(0),
                 setDirty: this._setDirty,
