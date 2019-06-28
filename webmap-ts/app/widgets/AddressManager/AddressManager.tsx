@@ -173,7 +173,7 @@ import { runInThisContext } from "vm";
                         <input type="image" src="../images/icons_transp/Generate.bggray.24.png" class="button" afterCreate={this._addMoreToolsButton} aria-label="Clone Addresses" title="Clone Addresses"></input>
                         <div afterCreate={this._addClonePanel} ></div>
                     </div>
-                    <input type="image" src="../images/icons_transp/parcels.bggray.24.png" class="button" afterCreate={this._addFillParcelsButton} data-dojo-attach-event="click:_onFillParcelClicked" aria-label="Fill Parcels" title="Fill Parcels"></input>
+                    <input type="image" src="../images/icons_transp/parcels.bggray.24.png" class="button" afterCreate={this._addFillParcelsBtn} aria-label="Fill Parcels" title="Fill Parcels"></input>
                     <div afterCreate={this._addSelectDropDownBtn} ></div>
 
                     <div class="rightTools">
@@ -499,8 +499,18 @@ import { runInThisContext } from "vm";
         this.own(on(element, "click", lang.hitch(this, this._toggleMoreToolsButton)));
     }
 
-    private _addFillParcelsButton = (element: Element) => {
-        this.own(on(element, "click", this._activateButton));
+    private _addFillParcelsBtn = (element: Element) => {
+        this.own(on(element, "click", event => {
+            const fillParcelsBtn = event.target;
+            if((html as any).hasClass(fillParcelsBtn, "active")) {
+                html.removeClass(fillParcelsBtn, "active");
+
+            } 
+            else {
+                html.addClass(fillParcelsBtn, "active");
+                
+            }
+        }));
     }
 
     private _addSubmitDelete = (element: Element) => {
