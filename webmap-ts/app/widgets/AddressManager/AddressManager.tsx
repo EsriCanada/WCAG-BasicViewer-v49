@@ -131,6 +131,7 @@ import Draw = require("esri/views/draw/Draw");
     private pickParcels_draw: Draw;
     private freeLine: any;
     selectedParcelsGr: Graphic;
+    selectedGeometries: Collection<__esri.Geometry>;
 
     constructor() {
         super(); 
@@ -572,6 +573,15 @@ import Draw = require("esri/views/draw/Draw");
                         cursorTooltip.close();
                         html.removeClass(event.target, "active");
                         this.mapView.graphics.removeAll();
+                        if(this.selectedParcelsGr) {
+                            this.mapView.graphics.add(this.selectedParcelsGr);
+
+                            this.selectedGeometries.forEach(geo => {
+                                const centroid = this.UtilsVM.GetCentroidCoordinates(geo) as Point;
+                                const feature = new Graphic({geometry: centroid, symbol: this.UtilsVM.NEW_ADDRESS_SYMBOL})l
+                                this.mapView.graphics.add(feature as any);
+                            });
+                        }
                     })
                     drawAction.on([
                         "vertex-add",
@@ -598,7 +608,7 @@ import Draw = require("esri/views/draw/Draw");
                                 } as any
                             });
                             this.mapView.graphics.add(freeLine);
-                            const selectedGeometries = this.parcelsGraphicLayer.graphics
+                            this.selectedGeometries = this.parcelsGraphicLayer.graphics
                             .map(g => g.geometry)
                             .filter(g => {
                                 return geometryEngine.intersects(g, freeLine.geometry);
@@ -609,8 +619,8 @@ import Draw = require("esri/views/draw/Draw");
                                 this.mapView.graphics.remove(this.selectedParcelsGr);
                                 this.selectedParcelsGr = null;
                             }
-                            if(selectedGeometries.length > 0) {
-                                const [buffer] = geometryEngine.buffer((selectedGeometries as any).items, [2], "meters", true) as any;
+                            if(this.selectedGeometries.length > 0) {
+                                const [buffer] = geometryEngine.buffer((this.selectedGeometries as any).items, [2], "meters", true) as any;
                                 this.selectedParcelsGr = new Graphic({
                                     geometry: buffer as any,
                                     symbol: this.UtilsVM.SELECTED_PARCEL_SYMBOL
