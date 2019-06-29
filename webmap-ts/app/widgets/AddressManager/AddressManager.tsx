@@ -130,6 +130,7 @@ import Draw = require("esri/views/draw/Draw");
     private centroidBtn: HTMLInputElement;
     private pickParcels_draw: Draw;
     private freeLine: any;
+    selectedParcelsGr: Graphic;
 
     constructor() {
         super(); 
@@ -597,12 +598,25 @@ import Draw = require("esri/views/draw/Draw");
                                 } as any
                             });
                             this.mapView.graphics.add(freeLine);
-                            const selectedGeometryes = this.parcelsGraphicLayer.graphics
-                            // .map(g => g.geometry)
+                            const selectedGeometries = this.parcelsGraphicLayer.graphics
+                            .map(g => g.geometry)
                             .filter(g => {
-                                return geometryEngine.intersects(g.geometry, freeLine.geometry);
+                                return geometryEngine.intersects(g, freeLine.geometry);
                             });
-                            console.log("selectedGeometryes", selectedGeometryes);
+                            // console.log("selectedGeometryes", selectedGeometryes);
+
+                            if(this.selectedParcelsGr) {
+                                this.mapView.graphics.remove(this.selectedParcelsGr);
+                                this.selectedParcelsGr = null;
+                            }
+                            if(selectedGeometries.length > 0) {
+                                const [buffer] = geometryEngine.buffer((selectedGeometries as any).items, [2], "meters", true) as any;
+                                this.selectedParcelsGr = new Graphic({
+                                    geometry: buffer as any,
+                                    symbol: this.UtilsVM.SELECTED_PARCEL_SYMBOL
+                                });
+                                this.mapView.graphics.add(this.selectedParcelsGr);
+                            }
                         }
                     });
                 }
