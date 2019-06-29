@@ -27,6 +27,9 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Point = require("esri/geometry/Point");
 import FeatureLayerView = require("esri/views/layers/FeatureLayerView");
 import { runInThisContext } from "vm";
+import watchUtils = require("esri/core/watchUtils");
+import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
+import Draw = require("esri/views/draw/Draw");
 // import AddressCompiler = require("./AddressCompiler");
 
 @subclass("esri.widgets.AddressManager")
@@ -75,6 +78,10 @@ import { runInThisContext } from "vm";
     labelsGraphicsLayer: GraphicsLayer;
 
     @property()
+    @aliasOf("viewModel.parcelsGraphicLayer")
+    parcelsGraphicLayer: GraphicsLayer;
+
+    @property()
     @aliasOf("viewModel.inputControls")
     inputControls;
 
@@ -120,7 +127,11 @@ import { runInThisContext } from "vm";
     private selectDropDownDiv: HTMLElement;
     private addressCompiler: any;
     private pickupRoads: any;
-    centroidBtn: HTMLInputElement;
+    private centroidBtn: HTMLInputElement;
+    private pickParcels_draw: Draw;
+    private freeLine: any;
+    selectedParcelsGr: Graphic;
+    selectedGeometries: Collection<__esri.Geometry>;
 
     constructor() {
         super(); 
@@ -150,6 +161,44 @@ import { runInThisContext } from "vm";
             this.mapView.map.layers.add(this.labelsGraphicsLayer);
             DropDownItemMenu.LabelsGraphicsLayer = this.labelsGraphicsLayer;
 
+            this.parcelsGraphicLayer = new GraphicsLayer();
+            this.mapView.map.add(this.parcelsGraphicLayer);
+            
+            this.parcelsLayer.when(pLayer => {
+                watchUtils.whenTrue(this.mapView, "stationary", () => {
+                    this.parcelsGraphicLayer.removeAll();
+                    const q = pLayer.createQuery();
+                    q.outFields = ["OBJECTID"];
+                    q.where = "1=1";
+                    q.geometry = this.mapView.extent;
+                    q.spatialRelationship = "intersects";
+                    q.returnGeometry = true;
+            
+                    pLayer.queryFeatures(q).then(result => {
+                        // console.log("result", result)
+                        const {features} = result;
+                        const geometries = features.map(f => {
+                            const g = f.geometry;
+                            g.id = f.attributes["OBJECTID"];
+                            return g;
+                        })
+                        // console.log("geometries", geometries);
+                        const graphics = geometries.map(g => new Graphic({geometry: g, symbol: {
+                            type:"simple-fill",
+                            color: [0, 0, 0, 0],
+                            outline: {
+                                color:[0, 0, 0, 0],
+                                width:0,
+                                style:"solid"
+                            }} as any})
+                        );
+                        // console.log("graphics", graphics);
+                        this.parcelsGraphicLayer.addMany(graphics)
+                    })
+                })
+            })
+        
+
             this.UtilsVM = new UtilsViewModel({mapView:this.mapView, roadsLayer: this.roadsLayer});
 
             this.addressPointFeatures.watch("length", (newValue) => {
@@ -173,7 +222,7 @@ import { runInThisContext } from "vm";
                         <input type="image" src="../images/icons_transp/Generate.bggray.24.png" class="button" afterCreate={this._addMoreToolsButton} aria-label="Clone Addresses" title="Clone Addresses"></input>
                         <div afterCreate={this._addClonePanel} ></div>
                     </div>
-                    <input type="image" src="../images/icons_transp/parcels.bggray.24.png" class="button" afterCreate={this._addFillParcelsButton} data-dojo-attach-event="click:_onFillParcelClicked" aria-label="Fill Parcels" title="Fill Parcels"></input>
+                    <input type="image" src="../images/icons_transp/parcels.bggray.24.png" class="button" afterCreate={this._addFillParcelsBtn} aria-label="Fill Parcels" title="Fill Parcels"></input>
                     <div afterCreate={this._addSelectDropDownBtn} ></div>
 
                     <div class="rightTools">
@@ -499,8 +548,90 @@ import { runInThisContext } from "vm";
         this.own(on(element, "click", lang.hitch(this, this._toggleMoreToolsButton)));
     }
 
-    private _addFillParcelsButton = (element: Element) => {
-        this.own(on(element, "click", this._activateButton));
+    private _addFillParcelsBtn = (element: Element) => {
+        this.own(on(element, "click", event => {
+            
+            require(["./CursorToolTip"], CursorToolTip => {
+                if(this.pickParcels_draw && this.pickParcels_draw.activeAction) {
+                    html.removeClass(event.target, "active");
+                    this.pickParcels_draw.reset();
+                    CursorToolTip.Close();
+                } 
+                else {
+                    html.addClass(event.target, "active");
+                    if(!this.pickParcels_draw) {
+                        this.pickParcels_draw = new Draw({
+                            view: this.mapView,
+                        })
+                    }
+
+                    const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click and drag ove parcels to select");
+            
+                    const parcels = [];
+                    const drawAction = this.pickParcels_draw.create("polyline", {mode: "freehand"});
+                    drawAction.on("draw-complete", event => {
+                        cursorTooltip.close();
+                        html.removeClass(event.target, "active");
+                        this.mapView.graphics.removeAll();
+                        if(this.selectedParcelsGr) {
+                            this.mapView.graphics.add(this.selectedParcelsGr);
+
+                            this.selectedGeometries.forEach(geo => {
+                                const centroid = this.UtilsVM.GetCentroidCoordinates(geo) as Point;
+                                const feature = new Graphic({geometry: centroid, symbol: this.UtilsVM.NEW_ADDRESS_SYMBOL})l
+                                this.mapView.graphics.add(feature as any);
+                            });
+                        }
+                    })
+                    drawAction.on([
+                        "vertex-add",
+                        "vertex-remove",
+                        "cursor-update",
+                        "redo",
+                        "undo",
+                    ], event => {
+                        if (event.vertices.length > 1) {
+                            this.mapView.graphics.removeAll();
+        
+                            const freeLine = new Graphic({
+                                geometry: {
+                                    type: "polyline",
+                                    paths: event.vertices,
+                                    spatialReference: this.mapView.spatialReference
+                                } as any,
+                                symbol: {
+                                    type: "simple-line", 
+                                    color: [255, 30, 30],
+                                    width: 2,
+                                    cap: "round",
+                                    join: "round"
+                                } as any
+                            });
+                            this.mapView.graphics.add(freeLine);
+                            this.selectedGeometries = this.parcelsGraphicLayer.graphics
+                            .map(g => g.geometry)
+                            .filter(g => {
+                                return geometryEngine.intersects(g, freeLine.geometry);
+                            });
+                            // console.log("selectedGeometryes", selectedGeometryes);
+
+                            if(this.selectedParcelsGr) {
+                                this.mapView.graphics.remove(this.selectedParcelsGr);
+                                this.selectedParcelsGr = null;
+                            }
+                            if(this.selectedGeometries.length > 0) {
+                                const [buffer] = geometryEngine.buffer((this.selectedGeometries as any).items, [2], "meters", true) as any;
+                                this.selectedParcelsGr = new Graphic({
+                                    geometry: buffer as any,
+                                    symbol: this.UtilsVM.SELECTED_PARCEL_SYMBOL
+                                });
+                                this.mapView.graphics.add(this.selectedParcelsGr);
+                            }
+                        }
+                    });
+                }
+            })
+        }));
     }
 
     private _addSubmitDelete = (element: Element) => {
@@ -1215,8 +1346,6 @@ import { runInThisContext } from "vm";
                 viewModel: this.viewModel,
                 fieldName: field.name,
                 specialAttributes: this.specialAttributes[field.name],
-                // addressPointFeatures: this.addressPointFeatures,
-                // labelsGraphicsLayer: this.labelsGraphicsLayer,
                 utilsVM: this.UtilsVM,
                 onMenuActionReady: () => this._populateAddressTable(0),
                 setDirty: this._setDirty,

@@ -56,7 +56,8 @@ class AddressManagerViewModel extends declared(Accessor) {
     @property()
     labelsGraphicsLayer: GraphicsLayer;
 
-
+    @property()
+    parcelsGraphicLayer: GraphicsLayer;
 }
 
 export = AddressManagerViewModel;

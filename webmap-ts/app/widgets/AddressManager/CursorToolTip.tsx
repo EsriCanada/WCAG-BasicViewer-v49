@@ -94,6 +94,12 @@ import html = require("dojo/_base/html");
         html.setStyle(this.toolTip, { display: "none"});
         this.content = null;
     }
+
+    static Close() {
+        if (CursorToolTip.instance) {
+            CursorToolTip.instance.close();
+        }
+    }
 }
 export = CursorToolTip;
   
