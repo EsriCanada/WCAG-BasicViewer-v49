@@ -29,6 +29,7 @@ import FeatureLayerView = require("esri/views/layers/FeatureLayerView");
 import { runInThisContext } from "vm";
 import watchUtils = require("esri/core/watchUtils");
 import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
+import Draw = require("esri/views/draw/Draw");
 // import AddressCompiler = require("./AddressCompiler");
 
 @subclass("esri.widgets.AddressManager")
@@ -127,7 +128,8 @@ import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
     private addressCompiler: any;
     private pickupRoads: any;
     private centroidBtn: HTMLInputElement;
-    pickParcels_sketchVM: SketchViewModel;
+    private pickParcels_draw: Draw;
+    private freeLine: any;
 
     constructor() {
         super(); 
@@ -546,32 +548,63 @@ import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
 
     private _addFillParcelsBtn = (element: Element) => {
         this.own(on(element, "click", event => {
-            const fillParcelsBtn = event.target;
+            
             require(["./CursorToolTip"], CursorToolTip => {
-                if(this.pickParcels_sketchVM && this.pickParcels_sketchVM.state == "active") {
-                    html.removeClass(fillParcelsBtn, "active");
-                    this.pickParcels_sketchVM.cancel();
+                if(this.pickParcels_draw && this.pickParcels_draw.activeAction) {
+                    html.removeClass(event.target, "active");
+                    this.pickParcels_draw.reset();
                     CursorToolTip.Close();
                 } 
                 else {
-                    html.addClass(fillParcelsBtn, "active");
-                    if(!this.pickParcels_sketchVM) {
-                        this.pickParcels_sketchVM = new SketchViewModel({
-                            layer: this.parcelsGraphicLayer,
+                    html.addClass(event.target, "active");
+                    if(!this.pickParcels_draw) {
+                        this.pickParcels_draw = new Draw({
                             view: this.mapView,
                         })
                     }
 
                     const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click and drag ove parcels to select");
             
-                    this.pickParcels_sketchVM.create("polyline", {mode: "freehand"});
-                    this.pickParcels_sketchVM.on("create", event => {
-                        if (event.state === "complete") {
-                            const graphic = event.graphic;
-                            cursorTooltip.close();
-                            html.removeClass(fillParcelsBtn, "active");
-                        }
+                    const parcels = [];
+                    const drawAction = this.pickParcels_draw.create("polyline", {mode: "freehand"});
+                    drawAction.on("draw-complete", event => {
+                        cursorTooltip.close();
+                        html.removeClass(event.target, "active");
+                        this.mapView.graphics.removeAll();
                     })
+                    drawAction.on([
+                        "vertex-add",
+                        "vertex-remove",
+                        "cursor-update",
+                        "redo",
+                        "undo",
+                    ], event => {
+                        if (event.vertices.length > 1) {
+                            this.mapView.graphics.removeAll();
+        
+                            const freeLine = new Graphic({
+                                geometry: {
+                                    type: "polyline",
+                                    paths: event.vertices,
+                                    spatialReference: this.mapView.spatialReference
+                                } as any,
+                                symbol: {
+                                    type: "simple-line", 
+                                    color: [255, 30, 30],
+                                    width: 2,
+                                    cap: "round",
+                                    join: "round"
+                                } as any
+                            });
+                            this.mapView.graphics.add(freeLine);
+                            const selectedGeometryes = this.parcelsGraphicLayer.graphics
+                            // .map(g => g.geometry)
+                            .filter(g => {
+                                return geometryEngine.intersects(g.geometry, freeLine.geometry);
+                            });
+                            console.log("selectedGeometryes", selectedGeometryes);
+                        }
+                    });
                 }
             })
         }));
