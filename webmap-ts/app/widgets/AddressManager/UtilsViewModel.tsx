@@ -16,12 +16,13 @@ import lang = require("dojo/_base/lang");
 import html = require("dojo/_base/html");
 import Query = require("esri/tasks/support/Query");
 import { ENGINE_METHOD_ALL } from "constants";
-import { Geometry, Point } from "esri/geometry";
+import { Geometry, Point, Polyline } from "esri/geometry";
 import Graphic = require("esri/Graphic");
 import TextSymbol = require("esri/symbols/TextSymbol");
 import Color = require("esri/Color");
 import Font = require("esri/symbols/Font");
 import { createSemicolonClassElement } from "typescript";
+import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
 
 @subclass("esri.guide.UtilsViewModel")
 class UtilsViewModel extends declared(Accessor) {
@@ -87,6 +88,9 @@ class UtilsViewModel extends declared(Accessor) {
         }
     }
 
+    @property({ readOnly: true })
+    LINE_SELECT_PARCELS_SYMBOL = new SimpleLineSymbol({ style: "solid", color: [255, 0, 0, 0.33], width:5 });
+    
     @property({ readOnly: true })
     SELECTED_PARCEL_SYMBOL = {
         type:"simple-fill",
@@ -556,9 +560,79 @@ class UtilsViewModel extends declared(Accessor) {
             const closestPoint = geometryEngine.nearestCoordinate(geometry, p);
             return closestPoint;
         }
-
     }
 
+    public isSelfIntersecting = (polyline) => {
+        if (polyline.geometry.paths[0].length < 3) {
+          return false;
+        }
+        const getLastSegment = (polyline) => {
+            const line = polyline.clone();
+            const lastXYPoint = line.geometry.removePoint(0, line.geometry.paths[0].length - 1);
+            const existingLineFinalPoint = line.geometry.getPoint(
+              0,
+              line.geometry.paths[0].length - 1
+            );
+  
+            return {
+              type: "polyline",
+              spatialReference: this.mapView.spatialReference,
+              hasZ: false,
+              paths: [
+                [
+                  [existingLineFinalPoint.x, existingLineFinalPoint.y],
+                  [lastXYPoint.x, lastXYPoint.y]
+                ]
+              ]
+            } as any;
+          }
+
+        const line = polyline.clone();
+
+        //get the last segment from the polyline that is being drawn
+        const lastSegment = getLastSegment(polyline);
+        line.geometry.removePoint(0, line.geometry.paths[0].length - 1);
+
+        // returns true if the line intersects itself, false otherwise
+        return geometryEngine.crosses(lastSegment, line.geometry);
+    }
+
+    public verticesWithoutLoops = (vertices : any[]) : any => {
+        const deferred = new Deferred()
+        const length = vertices.length;
+
+        if(length < 10) {
+            deferred.resolve(vertices);
+        }
+        
+        const lastSegmentGeometry = new Polyline({
+            spatialReference: this.mapView.spatialReference,
+            hasZ: false,
+            paths: [vertices.slice(length-2, length)]
+        });
+
+        const lineGeometry = new Polyline({
+            spatialReference: this.mapView.spatialReference,
+            hasZ: false,
+            paths: [vertices.slice(0, length-5)]
+        });
+
+        try {
+            const cuts = geometryEngine.cut(lineGeometry, lastSegmentGeometry);
+            if(cuts && cuts.length == 2) {
+                // console.log("cuts", cuts.map(c => c.paths[0]), length)
+                deferred.resolve(cuts[1].paths[0]);
+            }
+            else {
+                deferred.resolve(vertices);
+            }
+        } catch(error) {
+            // console.log(error, lineGeometry, lastSegmentGeometry);
+            deferred.cancel(error);
+        }
+
+        return deferred.promise;
+    }
 
 }
 
