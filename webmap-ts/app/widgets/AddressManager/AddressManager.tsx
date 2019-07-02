@@ -566,23 +566,31 @@ import Polyline = require("esri/geometry/Polyline");
                         })
                     }
 
-                    const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click and drag ove parcels to select");
+                    this.mapView.graphics.removeAll();
+
+                    const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click and drag over parcels to select");
             
                     const parcels = [];
                     const drawAction = this.pickParcels_draw.create("polyline", {mode: "freehand"});
-                    drawAction.on("draw-complete", event => {
+                    drawAction.on("draw-complete", () => {
+                        this.pickParcels_draw.reset();
                         cursorTooltip.close();
                         html.removeClass(event.target, "active");
-                        this.mapView.graphics.removeAll();
                         if(this.selectedParcelsGr) {
-                            this.mapView.graphics.add(this.selectedParcelsGr);
+                            this.mapView.graphics.remove(this.selectedParcelsGr);
+                            this.mapView.graphics.remove(this.freeLine);
 
+                            this.addressPointFeatures.removeAll();
                             this.selectedGeometries.forEach(geo => {
                                 const centroid = this.UtilsVM.GetCentroidCoordinates(geo) as Point;
-                                const feature = new Graphic({geometry: centroid, symbol: this.UtilsVM.NEW_ADDRESS_SYMBOL})
-                                this.mapView.graphics.add(feature as any);
-                                html.removeClass(event.target, "active");
+                                const feature = new Graphic({geometry: centroid, symbol: this.UtilsVM.NEW_ADDRESS_SYMBOL}) as any;
+                                feature.originalValues = {"status" : ""};
+                                feature.attributes = { "status": 0 };
+                                feature.Dirty = true;
+                                this.mapView.graphics.add(feature);
+                                this.addressPointFeatures.push(feature);
                             });
+                            this._populateAddressTable(0);
                         }
                     })
                     drawAction.on([
@@ -601,7 +609,7 @@ import Polyline = require("esri/geometry/Polyline");
                                     event.vertices.length = v.length;
                                 }
 
-                                let freeLine = new Graphic({
+                                this.freeLine = new Graphic({
                                     geometry: new Polyline({
                                         paths: event.vertices,
                                         spatialReference: this.mapView.spatialReference
@@ -609,12 +617,12 @@ import Polyline = require("esri/geometry/Polyline");
                                     symbol: this.UtilsVM.LINE_SELECT_PARCELS_SYMBOL
                                 });
 
-                                this.mapView.graphics.add(freeLine);
+                                this.mapView.graphics.add(this.freeLine);
 
                                 this.selectedGeometries = this.parcelsGraphicLayer.graphics
                                 .map(g => g.geometry)
                                 .filter(g => {
-                                    return geometryEngine.intersects(g, freeLine.geometry);
+                                    return geometryEngine.intersects(g, this.freeLine.geometry);
                                 });
 
                                 if(this.selectedParcelsGr) {
@@ -788,27 +796,9 @@ import Polyline = require("esri/geometry/Polyline");
             this.mapView.graphics.removeAll();
             // this._clearLabels();
 
-            // this._showFieldMenus(false);
-            this.x.value = null;
-            this.y.value = null;
-            html.removeClass(html.byId("x_input"), "dirty");
-            html.removeClass(html.byId("y_input"), "dirty");
-                // this.map.setInfoWindowOnClick(true);
-
-            for (let fieldName in this.inputControls) {
-                if (fieldName in this.inputControls) {
-                    this.inputControls[fieldName].value = null;
-                    html.removeClass(this.inputControls[fieldName], "dirty");
-                }
-            }
-
-            const [addressTitle] = query(".addressTitle") as any;
-            if (addressTitle) {
-                html.empty(addressTitle);
-            }
-
             this.addressPointFeatures.removeAll();
-            html.removeClass(this.submitDelete, "orangeBtn");
+
+            this._clearForm();
 
             this._setDirtyBtns();
         }))
@@ -994,11 +984,11 @@ import Polyline = require("esri/geometry/Polyline");
                 html.removeClass(this.y, "dirty");
             };
 
-            if ("attributes" in feature) {
+            if ("attributes" in feature && feature.attributes) {
                 const attributes = feature.attributes
-                if (this.config.title in attributes) {
-                    // this.addressCompiler.set("address", feature.attributes[this.config.title]);
-                }
+                // if (this.config.title in attributes) {
+                //     // this.addressCompiler.set("address", feature.attributes[this.config.title]);
+                // }
                 if (!this.canDelete(feature)) {
                     html.removeClass(this.submitDelete, "orangeBtn");
                 } else {
@@ -1027,9 +1017,9 @@ import Polyline = require("esri/geometry/Polyline");
                         };
                     }
                 }
-            }
 
-            this.addressCompiler.evaluate(feature);
+                this.addressCompiler.evaluate(feature);
+            }
 
             const menuBtns = query(".dropdown");
             menuBtns.forEach(menu => {
@@ -1050,6 +1040,9 @@ import Polyline = require("esri/geometry/Polyline");
         // this._showFieldMenus(false);
         this.x.value = "";
         this.y.value = "";
+        html.removeClass(html.byId("x_input"), "dirty");
+        html.removeClass(html.byId("y_input"), "dirty");
+
         // this.mapView.popup.autoOpenEnabled = true; // ?
 
         for (let fieldName in this.inputControls) {
@@ -1058,8 +1051,11 @@ import Polyline = require("esri/geometry/Polyline");
                 input.value = null;
                 html.removeAttr(input, "title");
                 html.removeClass(input, "brokenRule");
+                html.removeClass(this.inputControls[fieldName], "dirty");
             }
         }
+
+        html.removeClass(this.submitDelete, "orangeBtn");
 
         // const [addressTitle] = query(".addressTitle");
         if (this.addressTitle) {
@@ -1530,6 +1526,9 @@ import Polyline = require("esri/geometry/Polyline");
 
     _setDirty = (input, feature, fieldName, value) => {
         if (!input || !feature) return false;
+        if(!feature.attributes) {
+            feature["attributes"] = {};
+        }
         if (fieldName == "geometry" || feature.attributes[fieldName] != value) {
             if (!("originalValues" in feature)) {
                 feature.originalValues = {};
