@@ -131,7 +131,6 @@ import Polyline = require("esri/geometry/Polyline");
     private centroidBtn: HTMLInputElement;
     private pickParcels_draw: Draw;
     private freeLine: any;
-    private selectedParcelsGr: Graphic;
     private selectedGeometries: Collection<__esri.Geometry>;
     private menuFieldName: string;
 
@@ -593,8 +592,8 @@ import Polyline = require("esri/geometry/Polyline");
                         this.pickParcels_draw.reset();
                         cursorTooltip.close();
                         html.removeClass(event.target, "active");
-                        if(this.selectedParcelsGr) {
-                            this.mapView.graphics.remove(this.selectedParcelsGr);
+                        if(this.UtilsVM.selectedParcelsGraphic) {
+                            // this.mapView.graphics.remove(this.selectedParcelsGr);
                             this.mapView.graphics.remove(this.freeLine);
 
                             this.addressPointFeatures.removeAll();
@@ -642,18 +641,18 @@ import Polyline = require("esri/geometry/Polyline");
                                     return geometryEngine.intersects(g, this.freeLine.geometry);
                                 });
 
-                                if(this.selectedParcelsGr) {
-                                    this.mapView.graphics.remove(this.selectedParcelsGr);
-                                    this.selectedParcelsGr = null;
+                                if(this.UtilsVM.selectedParcelsGraphic) {
+                                    this.mapView.graphics.remove(this.UtilsVM.selectedParcelsGraphic);
+                                    this.UtilsVM.selectedParcelsGraphic = null;
                                 }
 
                                 if(this.selectedGeometries.length > 0) {
                                     const [buffer] = geometryEngine.buffer((this.selectedGeometries as any).items, [2], "meters", true) as any;
-                                    this.selectedParcelsGr = new Graphic({
+                                    this.UtilsVM.selectedParcelsGraphic = new Graphic({
                                         geometry: buffer as any,
                                         symbol: this.UtilsVM.SELECTED_PARCEL_SYMBOL
                                     });
-                                    this.mapView.graphics.add(this.selectedParcelsGr);
+                                    this.mapView.graphics.add(this.UtilsVM.selectedParcelsGraphic);
                                 }
                             }, 
                             error => {
@@ -869,7 +868,12 @@ import Polyline = require("esri/geometry/Polyline");
 
         this.own(on(this.zoomBtn, "click", (event) => {
             if(this.selectedAddressPointFeature) {
-                this.mapView.goTo(this.selectedAddressPointFeature);
+                if(this.UtilsVM.selectedParcelsGraphic) {
+                    this.mapView.goTo(this.UtilsVM.selectedParcelsGraphic);
+                }
+                else {
+                    this.mapView.goTo(this.selectedAddressPointFeature);
+                }
             }
         }))
     };
@@ -1088,6 +1092,7 @@ import Polyline = require("esri/geometry/Polyline");
             html.addClass(menu, "hide");
         })
 
+        this.UtilsVM.selectedParcelsGraphic = null;
     }
 
     private _checkRules(feature) {
@@ -1610,7 +1615,6 @@ import Polyline = require("esri/geometry/Polyline");
 
         this.menuFieldName = event.target.attributes["data-field"].value;
         const directionSort = (html.byId("directionSortOn_" + this.menuFieldName) as HTMLInputElement).checked;
-        // console.log("directionSortOn_" + this.menuFieldName, directionSort);
 
         function sortDescending(a, b) {
             const a1 = a.geometry[this.menuFieldName];
@@ -1629,7 +1633,6 @@ import Polyline = require("esri/geometry/Polyline");
 
         html.addClass(html.byId("menuLocationContent_" + this.menuFieldName), "hide");
     }
-
 
 }
 
