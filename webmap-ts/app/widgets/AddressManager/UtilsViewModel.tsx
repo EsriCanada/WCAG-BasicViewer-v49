@@ -556,10 +556,87 @@ class UtilsViewModel extends declared(Accessor) {
             const closestPoint = geometryEngine.nearestCoordinate(geometry, p);
             return closestPoint;
         }
-
     }
 
+    public isSelfIntersecting = (polyline) => {
+        if (polyline.geometry.paths[0].length < 3) {
+          return false;
+        }
+        const getLastSegment = (polyline) => {
+            const line = polyline.clone();
+            const lastXYPoint = line.geometry.removePoint(0, line.geometry.paths[0].length - 1);
+            const existingLineFinalPoint = line.geometry.getPoint(
+              0,
+              line.geometry.paths[0].length - 1
+            );
+  
+            return {
+              type: "polyline",
+              spatialReference: this.mapView.spatialReference,
+              hasZ: false,
+              paths: [
+                [
+                  [existingLineFinalPoint.x, existingLineFinalPoint.y],
+                  [lastXYPoint.x, lastXYPoint.y]
+                ]
+              ]
+            } as any;
+          }
 
+        const line = polyline.clone();
+
+        //get the last segment from the polyline that is being drawn
+        const lastSegment = getLastSegment(polyline);
+        line.geometry.removePoint(0, line.geometry.paths[0].length - 1);
+
+        // returns true if the line intersects itself, false otherwise
+        return geometryEngine.crosses(lastSegment, line.geometry);
+    }
+
+    public removeLoop = (polyline) => {
+        if(polyline.geometry.paths[0].length < 3) {
+            return polyline;
+        }
+        const getLastSegment = (polyline) => {
+            const line = polyline.clone();
+            const lastXYPoint = line.geometry.removePoint(0, line.geometry.paths[0].length - 1);
+            const existingLineFinalPoint = line.geometry.getPoint(
+                0,
+                line.geometry.paths[0].length - 1
+            );
+
+            return {
+                type: "polyline",
+                spatialReference: this.mapView.spatialReference,
+                hasZ: false,
+                paths: [
+                    [
+                        [existingLineFinalPoint.x, existingLineFinalPoint.y],
+                        [lastXYPoint.x, lastXYPoint.y]
+                    ]
+                ]
+            } as any;
+        }
+  
+        const line = polyline.clone().geometry;
+
+        //get the last segment from the polyline that is being drawn
+        const lastSegment = getLastSegment(polyline);
+        line.removePoint(0, line.paths[0].length - 1);
+
+        if(geometryEngine.crosses(lastSegment, line)) {
+            const cuts = geometryEngine.cut(line, lastSegment);
+            return new Graphic({geometry:{
+                type: "polyline",
+                spatialReference: this.mapView.spatialReference,
+                hasZ: false,
+                paths: cuts[1].paths
+            } as any, symbol:polyline.symbol});
+        } 
+        else {
+            return polyline;
+        }
+    }
 }
 
 export = UtilsViewModel;

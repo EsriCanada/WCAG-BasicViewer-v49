@@ -578,8 +578,9 @@ import Draw = require("esri/views/draw/Draw");
 
                             this.selectedGeometries.forEach(geo => {
                                 const centroid = this.UtilsVM.GetCentroidCoordinates(geo) as Point;
-                                const feature = new Graphic({geometry: centroid, symbol: this.UtilsVM.NEW_ADDRESS_SYMBOL})l
+                                const feature = new Graphic({geometry: centroid, symbol: this.UtilsVM.NEW_ADDRESS_SYMBOL})
                                 this.mapView.graphics.add(feature as any);
+                                html.removeClass(event.target, "active");
                             });
                         }
                     })
@@ -593,7 +594,7 @@ import Draw = require("esri/views/draw/Draw");
                         if (event.vertices.length > 1) {
                             this.mapView.graphics.removeAll();
         
-                            const freeLine = new Graphic({
+                            let freeLine = new Graphic({
                                 geometry: {
                                     type: "polyline",
                                     paths: event.vertices,
@@ -607,7 +608,16 @@ import Draw = require("esri/views/draw/Draw");
                                     join: "round"
                                 } as any
                             });
+
+                            // if(this.UtilsVM.isSelfIntersecting(freeLine)) {
+                            //     console.log("SelfIntersect!");
+
+                            // }
+                            freeLine.geometry = this.UtilsVM.removeLoop(freeLine).geometry;
+                            event.vertices.length = freeLine.geometry.paths[0].length;
+
                             this.mapView.graphics.add(freeLine);
+
                             this.selectedGeometries = this.parcelsGraphicLayer.graphics
                             .map(g => g.geometry)
                             .filter(g => {
@@ -619,6 +629,7 @@ import Draw = require("esri/views/draw/Draw");
                                 this.mapView.graphics.remove(this.selectedParcelsGr);
                                 this.selectedParcelsGr = null;
                             }
+
                             if(this.selectedGeometries.length > 0) {
                                 const [buffer] = geometryEngine.buffer((this.selectedGeometries as any).items, [2], "meters", true) as any;
                                 this.selectedParcelsGr = new Graphic({
