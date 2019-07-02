@@ -796,27 +796,9 @@ import Polyline = require("esri/geometry/Polyline");
             this.mapView.graphics.removeAll();
             // this._clearLabels();
 
-            // this._showFieldMenus(false);
-            this.x.value = null;
-            this.y.value = null;
-            html.removeClass(html.byId("x_input"), "dirty");
-            html.removeClass(html.byId("y_input"), "dirty");
-                // this.map.setInfoWindowOnClick(true);
-
-            for (let fieldName in this.inputControls) {
-                if (fieldName in this.inputControls) {
-                    this.inputControls[fieldName].value = null;
-                    html.removeClass(this.inputControls[fieldName], "dirty");
-                }
-            }
-
-            const [addressTitle] = query(".addressTitle") as any;
-            if (addressTitle) {
-                html.empty(addressTitle);
-            }
-
             this.addressPointFeatures.removeAll();
-            html.removeClass(this.submitDelete, "orangeBtn");
+
+            this._clearForm();
 
             this._setDirtyBtns();
         }))
@@ -1058,6 +1040,9 @@ import Polyline = require("esri/geometry/Polyline");
         // this._showFieldMenus(false);
         this.x.value = "";
         this.y.value = "";
+        html.removeClass(html.byId("x_input"), "dirty");
+        html.removeClass(html.byId("y_input"), "dirty");
+
         // this.mapView.popup.autoOpenEnabled = true; // ?
 
         for (let fieldName in this.inputControls) {
@@ -1066,8 +1051,11 @@ import Polyline = require("esri/geometry/Polyline");
                 input.value = null;
                 html.removeAttr(input, "title");
                 html.removeClass(input, "brokenRule");
+                html.removeClass(this.inputControls[fieldName], "dirty");
             }
         }
+
+        html.removeClass(this.submitDelete, "orangeBtn");
 
         // const [addressTitle] = query(".addressTitle");
         if (this.addressTitle) {
