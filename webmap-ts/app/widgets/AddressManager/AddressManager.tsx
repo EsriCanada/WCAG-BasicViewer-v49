@@ -566,16 +566,19 @@ import Polyline = require("esri/geometry/Polyline");
                         })
                     }
 
-                    const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click and drag ove parcels to select");
+                    this.mapView.graphics.removeAll();
+
+                    const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click and drag over parcels to select");
             
                     const parcels = [];
                     const drawAction = this.pickParcels_draw.create("polyline", {mode: "freehand"});
                     drawAction.on("draw-complete", () => {
+                        this.pickParcels_draw.reset();
                         cursorTooltip.close();
                         html.removeClass(event.target, "active");
-                        this.mapView.graphics.removeAll();
                         if(this.selectedParcelsGr) {
-                            this.mapView.graphics.add(this.selectedParcelsGr);
+                            this.mapView.graphics.remove(this.selectedParcelsGr);
+                            this.mapView.graphics.remove(this.freeLine);
 
                             this.addressPointFeatures.removeAll();
                             this.selectedGeometries.forEach(geo => {
@@ -588,7 +591,6 @@ import Polyline = require("esri/geometry/Polyline");
                                 this.addressPointFeatures.push(feature);
                             });
                             this._populateAddressTable(0);
-                            this.pickParcels_draw.reset();
                         }
                     })
                     drawAction.on([
@@ -607,7 +609,7 @@ import Polyline = require("esri/geometry/Polyline");
                                     event.vertices.length = v.length;
                                 }
 
-                                let freeLine = new Graphic({
+                                this.freeLine = new Graphic({
                                     geometry: new Polyline({
                                         paths: event.vertices,
                                         spatialReference: this.mapView.spatialReference
@@ -615,12 +617,12 @@ import Polyline = require("esri/geometry/Polyline");
                                     symbol: this.UtilsVM.LINE_SELECT_PARCELS_SYMBOL
                                 });
 
-                                this.mapView.graphics.add(freeLine);
+                                this.mapView.graphics.add(this.freeLine);
 
                                 this.selectedGeometries = this.parcelsGraphicLayer.graphics
                                 .map(g => g.geometry)
                                 .filter(g => {
-                                    return geometryEngine.intersects(g, freeLine.geometry);
+                                    return geometryEngine.intersects(g, this.freeLine.geometry);
                                 });
 
                                 if(this.selectedParcelsGr) {
