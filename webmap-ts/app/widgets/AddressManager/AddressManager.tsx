@@ -265,8 +265,8 @@ import Polyline = require("esri/geometry/Polyline");
                                 <div class="dataCell-container">
                                     <input type="text" id="x_input" class="dataCell-input" afterCreate={this._addX}/>
                                     <div class="dropdown hide">
-                                        <input type="image" src="../images/Burger.24.png" class="dropdown-button" aria-label="X coordinate" data-field="x" data-dojo-attach-event="click:_dropdownLocationToggle"/>
-                                        <div class="dropdown-content hide" data-dojo-attach-point="menuLocationContent_x">
+                                        <input type="image" src="../images/Burger.24.png" class="dropdown-button" aria-label="X coordinate" data-field="x" afterCreate={this._addMenuToggleX}/>
+                                        <div class="dropdown-content hide" id="menuLocationContent_x">
                                             <div class="sortItem">
                                                 <a ahref="#" data-dojo-attach-point="sort_x" data-dojo-attach-event="click:_onMenuItemLocationSort" data-field="x">Sort On This</a>
                                                 <label title="Sort Order">
@@ -287,8 +287,8 @@ import Polyline = require("esri/geometry/Polyline");
                                 <div class="dataCell-container">
                                     <input type="text" id="y_input" class="dataCell-input" afterCreate={this._addY}/>
                                     <div class="dropdown hide">
-                                        <input type="image" src="../images/Burger.24.png" class="dropdown-button" aria-label="Y coordinate" data-field="y" data-dojo-attach-event="click:_dropdownLocationToggle"/>
-                                        <div class="dropdown-content hide" data-dojo-attach-point="menuLocationContent_y">
+                                        <input type="image" src="../images/Burger.24.png" class="dropdown-button" aria-label="Y coordinate" data-field="y" afterCreate={this._addMenuToggleY}/>
+                                        <div class="dropdown-content hide" id="menuLocationContent_y">
                                             <div class="sortItem">
                                                 <a ahref="#" data-dojo-attach-point="sort_y" data-dojo-attach-event="click:_onMenuItemLocationSort" data-field="y">Sort On This</a>
                                                 <label title="Sort Order">
@@ -443,6 +443,22 @@ import Polyline = require("esri/geometry/Polyline");
         })
     }
 
+    private _addMenuToggleX = (element) => {
+        this.own(on(element, "click", this.onLocationMenuClick))
+    }
+    
+    private _addMenuToggleY = (element) => {
+        this.own(on(element, "click", this.onLocationMenuClick))
+    }
+
+    private onLocationMenuClick = event => {
+        const menuLocationContent = html.byId("menuLocationContent_"+event.target.dataset["field"]);
+        html.toggleClass(menuLocationContent, "hide");
+        if(!(html as any).hasClass(menuLocationContent, "hide")) {
+            this.emit("openMenu", { menu: menuLocationContent });
+        }
+    }
+    
     private _onPickAddressClicked = (event) => {
         html.addClass(event.target, "active");
 
