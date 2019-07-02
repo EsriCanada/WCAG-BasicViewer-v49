@@ -265,6 +265,7 @@ class UtilsViewModel extends declared(Accessor) {
         this.ADD_NEW_ADDRESS_sketchVM.on("create", lang.hitch(this, function(event) {
             if (event.state === "complete") {
                 const feature = event.graphic;
+                feature.originalValues = {"status" : ""};
                 feature.attributes = { "status": 0 };
                 feature.Dirty = true;
                 // console.log("feature", event, feature);

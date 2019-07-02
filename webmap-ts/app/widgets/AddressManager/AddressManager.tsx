@@ -570,19 +570,25 @@ import Polyline = require("esri/geometry/Polyline");
             
                     const parcels = [];
                     const drawAction = this.pickParcels_draw.create("polyline", {mode: "freehand"});
-                    drawAction.on("draw-complete", event => {
+                    drawAction.on("draw-complete", () => {
                         cursorTooltip.close();
                         html.removeClass(event.target, "active");
                         this.mapView.graphics.removeAll();
                         if(this.selectedParcelsGr) {
                             this.mapView.graphics.add(this.selectedParcelsGr);
 
+                            this.addressPointFeatures.removeAll();
                             this.selectedGeometries.forEach(geo => {
                                 const centroid = this.UtilsVM.GetCentroidCoordinates(geo) as Point;
-                                const feature = new Graphic({geometry: centroid, symbol: this.UtilsVM.NEW_ADDRESS_SYMBOL})
-                                this.mapView.graphics.add(feature as any);
-                                html.removeClass(event.target, "active");
+                                const feature = new Graphic({geometry: centroid, symbol: this.UtilsVM.NEW_ADDRESS_SYMBOL}) as any;
+                                feature.originalValues = {"status" : ""};
+                                feature.attributes = { "status": 0 };
+                                feature.Dirty = true;
+                                this.mapView.graphics.add(feature);
+                                this.addressPointFeatures.push(feature);
                             });
+                            this._populateAddressTable(0);
+                            this.pickParcels_draw.reset();
                         }
                     })
                     drawAction.on([
@@ -994,11 +1000,11 @@ import Polyline = require("esri/geometry/Polyline");
                 html.removeClass(this.y, "dirty");
             };
 
-            if ("attributes" in feature) {
+            if ("attributes" in feature && feature.attributes) {
                 const attributes = feature.attributes
-                if (this.config.title in attributes) {
-                    // this.addressCompiler.set("address", feature.attributes[this.config.title]);
-                }
+                // if (this.config.title in attributes) {
+                //     // this.addressCompiler.set("address", feature.attributes[this.config.title]);
+                // }
                 if (!this.canDelete(feature)) {
                     html.removeClass(this.submitDelete, "orangeBtn");
                 } else {
@@ -1027,9 +1033,9 @@ import Polyline = require("esri/geometry/Polyline");
                         };
                     }
                 }
-            }
 
-            this.addressCompiler.evaluate(feature);
+                this.addressCompiler.evaluate(feature);
+            }
 
             const menuBtns = query(".dropdown");
             menuBtns.forEach(menu => {
@@ -1530,6 +1536,9 @@ import Polyline = require("esri/geometry/Polyline");
 
     _setDirty = (input, feature, fieldName, value) => {
         if (!input || !feature) return false;
+        if(!feature.attributes) {
+            feature["attributes"] = {};
+        }
         if (fieldName == "geometry" || feature.attributes[fieldName] != value) {
             if (!("originalValues" in feature)) {
                 feature.originalValues = {};
