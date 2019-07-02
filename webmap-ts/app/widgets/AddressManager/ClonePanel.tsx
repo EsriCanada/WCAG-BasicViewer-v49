@@ -701,7 +701,7 @@ import { isReturnStatement } from "typescript";
                         this.polyline.addPath((pieces1[1] as any).paths[0]);
                         break;
                 }
-                this.polylineGraph = new Graphic({geometry: this.polyline,  symbol: new SimpleLineSymbol({ style: "solid", color: [255, 0, 0, 63], width:2 })});
+                this.polylineGraph = new Graphic({geometry: this.polyline,  symbol: this.UtilsVM.LINE_SELECT_PARCELS_SYMBOL});
                 this.roadGraphicsLayer.add(this.polylineGraph);
 
                 this.PolylineLength = this._getPolylineLength();

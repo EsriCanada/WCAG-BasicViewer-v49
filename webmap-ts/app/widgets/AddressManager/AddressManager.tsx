@@ -30,6 +30,7 @@ import { runInThisContext } from "vm";
 import watchUtils = require("esri/core/watchUtils");
 import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
 import Draw = require("esri/views/draw/Draw");
+import Polyline = require("esri/geometry/Polyline");
 // import AddressCompiler = require("./AddressCompiler");
 
 @subclass("esri.widgets.AddressManager")
@@ -594,50 +595,46 @@ import Draw = require("esri/views/draw/Draw");
                         if (event.vertices.length > 1) {
                             this.mapView.graphics.removeAll();
         
-                            let freeLine = new Graphic({
-                                geometry: {
-                                    type: "polyline",
-                                    paths: event.vertices,
-                                    spatialReference: this.mapView.spatialReference
-                                } as any,
-                                symbol: {
-                                    type: "simple-line", 
-                                    color: [255, 30, 30],
-                                    width: 2,
-                                    cap: "round",
-                                    join: "round"
-                                } as any
-                            });
+                            this.UtilsVM.verticesWithoutLoops(event.vertices).then(v => {
 
-                            // if(this.UtilsVM.isSelfIntersecting(freeLine)) {
-                            //     console.log("SelfIntersect!");
+                                if(v.length >= 10) {
+                                    event.vertices.length = v.length;
+                                }
 
-                            // }
-                            freeLine.geometry = this.UtilsVM.removeLoop(freeLine).geometry;
-                            event.vertices.length = freeLine.geometry.paths[0].length;
-
-                            this.mapView.graphics.add(freeLine);
-
-                            this.selectedGeometries = this.parcelsGraphicLayer.graphics
-                            .map(g => g.geometry)
-                            .filter(g => {
-                                return geometryEngine.intersects(g, freeLine.geometry);
-                            });
-                            // console.log("selectedGeometryes", selectedGeometryes);
-
-                            if(this.selectedParcelsGr) {
-                                this.mapView.graphics.remove(this.selectedParcelsGr);
-                                this.selectedParcelsGr = null;
-                            }
-
-                            if(this.selectedGeometries.length > 0) {
-                                const [buffer] = geometryEngine.buffer((this.selectedGeometries as any).items, [2], "meters", true) as any;
-                                this.selectedParcelsGr = new Graphic({
-                                    geometry: buffer as any,
-                                    symbol: this.UtilsVM.SELECTED_PARCEL_SYMBOL
+                                let freeLine = new Graphic({
+                                    geometry: new Polyline({
+                                        paths: event.vertices,
+                                        spatialReference: this.mapView.spatialReference
+                                    }),
+                                    symbol: this.UtilsVM.LINE_SELECT_PARCELS_SYMBOL
                                 });
-                                this.mapView.graphics.add(this.selectedParcelsGr);
-                            }
+
+                                this.mapView.graphics.add(freeLine);
+
+                                this.selectedGeometries = this.parcelsGraphicLayer.graphics
+                                .map(g => g.geometry)
+                                .filter(g => {
+                                    return geometryEngine.intersects(g, freeLine.geometry);
+                                });
+
+                                if(this.selectedParcelsGr) {
+                                    this.mapView.graphics.remove(this.selectedParcelsGr);
+                                    this.selectedParcelsGr = null;
+                                }
+
+                                if(this.selectedGeometries.length > 0) {
+                                    const [buffer] = geometryEngine.buffer((this.selectedGeometries as any).items, [2], "meters", true) as any;
+                                    this.selectedParcelsGr = new Graphic({
+                                        geometry: buffer as any,
+                                        symbol: this.UtilsVM.SELECTED_PARCEL_SYMBOL
+                                    });
+                                    this.mapView.graphics.add(this.selectedParcelsGr);
+                                }
+                            }, 
+                            error => {
+                                console.error(error);
+                            });
+
                         }
                     });
                 }
