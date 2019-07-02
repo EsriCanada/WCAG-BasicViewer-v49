@@ -131,8 +131,9 @@ import Polyline = require("esri/geometry/Polyline");
     private centroidBtn: HTMLInputElement;
     private pickParcels_draw: Draw;
     private freeLine: any;
-    selectedParcelsGr: Graphic;
-    selectedGeometries: Collection<__esri.Geometry>;
+    private selectedParcelsGr: Graphic;
+    private selectedGeometries: Collection<__esri.Geometry>;
+    private menuFieldName: string;
 
     constructor() {
         super(); 
@@ -268,9 +269,9 @@ import Polyline = require("esri/geometry/Polyline");
                                         <input type="image" src="../images/Burger.24.png" class="dropdown-button" aria-label="X coordinate" data-field="x" afterCreate={this._addMenuToggleX}/>
                                         <div class="dropdown-content hide" id="menuLocationContent_x">
                                             <div class="sortItem">
-                                                <a ahref="#" data-dojo-attach-point="sort_x" data-dojo-attach-event="click:_onMenuItemLocationSort" data-field="x">Sort On This</a>
+                                                <a ahref="#" data-dojo-attach-point="sort_x" afterCreate={this._addMenuItemLocationSort} data-field="x">Sort On This</a>
                                                 <label title="Sort Order">
-                                                    <input type="checkbox" style="display:none;" />
+                                                    <input type="checkbox" style="display:none;" id="directionSortOn_x" />
                                                     <img src="../images/icons_transp/ascending.black.18.png" />
                                                 </label>
                                             </div>
@@ -290,9 +291,9 @@ import Polyline = require("esri/geometry/Polyline");
                                         <input type="image" src="../images/Burger.24.png" class="dropdown-button" aria-label="Y coordinate" data-field="y" afterCreate={this._addMenuToggleY}/>
                                         <div class="dropdown-content hide" id="menuLocationContent_y">
                                             <div class="sortItem">
-                                                <a ahref="#" data-dojo-attach-point="sort_y" data-dojo-attach-event="click:_onMenuItemLocationSort" data-field="y">Sort On This</a>
+                                                <a ahref="#" data-dojo-attach-point="sort_y" afterCreate={this._addMenuItemLocationSort}  data-field="y">Sort On This</a>
                                                 <label title="Sort Order">
-                                                    <input type="checkbox" style="display:none;" />
+                                                    <input type="checkbox" style="display:none;" id="directionSortOn_y"/>
                                                     <img src="../images/icons_transp/ascending.black.18.png" />
                                                 </label>
                                             </div>
@@ -1599,6 +1600,36 @@ import Polyline = require("esri/geometry/Polyline");
         }
         // return this.isDirty(feature);
     }
+
+    private _addMenuItemLocationSort = element => {
+        this.own(on(element, "click", this._onMenuItemLocationSort));
+    }
+
+    private _onMenuItemLocationSort = event => {
+        if (this.addressPointFeatures.length <= 1) return;
+
+        this.menuFieldName = event.target.attributes["data-field"].value;
+        const directionSort = (html.byId("directionSortOn_" + this.menuFieldName) as HTMLInputElement).checked;
+        // console.log("directionSortOn_" + this.menuFieldName, directionSort);
+
+        function sortDescending(a, b) {
+            const a1 = a.geometry[this.menuFieldName];
+            const b1 = b.geometry[this.menuFieldName];
+            return (a1 - b1);
+        }
+
+        function sortAscending(a, b) {
+            const a1 = a.geometry[this.menuFieldName];
+            const b1 = b.geometry[this.menuFieldName];
+            return (b1 - a1);
+        }
+        this.addressPointFeatures.sort(lang.hitch(this, directionSort ? sortDescending : sortAscending));
+
+        this._populateAddressTable(0);
+
+        html.addClass(html.byId("menuLocationContent_" + this.menuFieldName), "hide");
+    }
+
 
 }
 
