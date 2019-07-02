@@ -270,7 +270,7 @@ import Polyline = require("esri/geometry/Polyline");
                                             <div class="sortItem">
                                                 <a ahref="#" data-dojo-attach-point="sort_x" data-dojo-attach-event="click:_onMenuItemLocationSort" data-field="x">Sort On This</a>
                                                 <label title="Sort Order">
-                                                    <input type="checkbox" data-dojo-attach-point="directionSortOn_y" />
+                                                    <input type="checkbox" style="display:none;" />
                                                     <img src="../images/icons_transp/ascending.black.18.png" />
                                                 </label>
                                             </div>
@@ -292,7 +292,7 @@ import Polyline = require("esri/geometry/Polyline");
                                             <div class="sortItem">
                                                 <a ahref="#" data-dojo-attach-point="sort_y" data-dojo-attach-event="click:_onMenuItemLocationSort" data-field="y">Sort On This</a>
                                                 <label title="Sort Order">
-                                                    <input type="checkbox" data-dojo-attach-point="directionSortOn_y" />
+                                                    <input type="checkbox" style="display:none;" />
                                                     <img src="../images/icons_transp/ascending.black.18.png" />
                                                 </label>
                                             </div>
@@ -1038,9 +1038,13 @@ import Polyline = require("esri/geometry/Polyline");
             }
 
             const menuBtns = query(".dropdown");
-            menuBtns.forEach(menu => {
-                html.removeClass(menu, "hide");
-
+            menuBtns.forEach(menu=> {
+                const field = ((menu as HTMLElement).children[0] as HTMLElement).dataset["field"];
+                if((field !="x" && field !="y") || this.addressPointFeatures.length > 1) {
+                    html.removeClass(menu, "hide");
+                } else {
+                    html.addClass(menu, "hide");
+                }
             })
 
         } else {
