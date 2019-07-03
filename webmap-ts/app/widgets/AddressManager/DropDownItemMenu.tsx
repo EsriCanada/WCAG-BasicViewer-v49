@@ -94,7 +94,7 @@ class DropDownItemMenu extends declared(Widget) {
 
     // private viewModel : AddressManagerViewModel;
 
-    private dropDownButton: any;
+    private dropDownButton: HTMLInputElement;
     private menuContent: HTMLElement;
     private labelItem: HTMLElement;
     private sortItem: HTMLElement;

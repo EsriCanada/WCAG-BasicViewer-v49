@@ -28,6 +28,9 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
 class UtilsViewModel extends declared(Accessor) {
 
     @property()
+    selectedParcelsGraphic: Graphic;
+
+    @property()
     mapView: MapView;
 
     @property()
@@ -450,8 +453,8 @@ class UtilsViewModel extends declared(Accessor) {
                             
                             if (features && features.length > 0) {
                                 if (features.length > 1) {
-                                    const graphic = { geometry:q.geometry, symbol: this.SELECTED_PARCEL_SYMBOL };
-                                    this.mapView.graphics.add(graphic);
+                                    this.selectedParcelsGraphic = { geometry:q.geometry, symbol: this.SELECTED_PARCEL_SYMBOL };
+                                    this.mapView.graphics.add(this.selectedParcelsGraphic);
                                 }
 
                                 deferred.resolve(features);
