@@ -635,6 +635,104 @@ class UtilsViewModel extends declared(Accessor) {
         return deferred.promise;
     }
 
+    private pickParcels_draw: Draw;
+    private selectedParcelsGr: Graphic;
+    private freeLine: Graphic;
+    private selectedGeometries;
+    
+    public pickParcels = (event, parcelsGraphicLayer): any => {
+        const deferred = new Deferred();
+        require(["./CursorToolTip"], CursorToolTip => {
+            if(this.pickParcels_draw && this.pickParcels_draw.activeAction) {
+                html.removeClass(event.target, "active");
+                this.pickParcels_draw.reset();
+                CursorToolTip.Close();
+                deferred.cancel("User canceled pickParcels action");
+            } 
+            else {
+                html.addClass(event.target, "active");
+                if(!this.pickParcels_draw) {
+                    this.pickParcels_draw = new Draw({
+                        view: this.mapView,
+                    })
+                }
+
+                this.mapView.graphics.removeAll();
+
+                const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click and drag over parcels to select");
+        
+                // const parcels = [];
+                const drawAction = this.pickParcels_draw.create("polyline", {mode: "freehand"});
+                drawAction.on("draw-complete", () => {
+                    this.pickParcels_draw.reset();
+                    cursorTooltip.close();
+                    html.removeClass(event.target, "active");
+                    if(this.selectedParcelsGr) {
+                        this.mapView.graphics.remove(this.selectedParcelsGr);
+                        this.mapView.graphics.remove(this.freeLine);
+
+                        deferred.resolve(this.selectedGeometries);
+                    }
+                })
+                drawAction.on([
+                    "vertex-add",
+                    "vertex-remove",
+                    "cursor-update",
+                    "redo",
+                    "undo",
+                ], event => {
+                    if (event.vertices.length > 1) {
+                        this.mapView.graphics.removeAll();
+    
+                        this.verticesWithoutLoops(event.vertices).then(v => {
+
+                            if(v.length >= 10) {
+                                event.vertices.length = v.length;
+                            }
+
+                            this.freeLine = new Graphic({
+                                geometry: new Polyline({
+                                    paths: event.vertices,
+                                    spatialReference: this.mapView.spatialReference
+                                }),
+                                symbol: this.LINE_SELECT_PARCELS_SYMBOL
+                            });
+
+                            this.mapView.graphics.add(this.freeLine);
+
+                            this.selectedGeometries = parcelsGraphicLayer.graphics
+                            .map(g => g.geometry)
+                            .filter(g => {
+                                return geometryEngine.intersects(g, this.freeLine.geometry);
+                            });
+
+                            if(this.selectedParcelsGr) {
+                                this.mapView.graphics.remove(this.selectedParcelsGr);
+                                this.selectedParcelsGr = null;
+                            }
+
+                            if(this.selectedGeometries.length > 0) {
+                                const [buffer] = geometryEngine.buffer((this.selectedGeometries as any).items, [2], "meters", true) as any;
+                                this.selectedParcelsGr = new Graphic({
+                                    geometry: buffer as any,
+                                    symbol: this.SELECTED_PARCEL_SYMBOL
+                                });
+                                this.mapView.graphics.add(this.selectedParcelsGr);
+                            }
+                        }, 
+                        error => {
+                            deferred.cancel(error);
+                            // console.error(error);
+                        });
+
+                    }
+                });
+            }
+        })
+        return deferred.promise;
+    };
+
+
 }
 
 export = UtilsViewModel;
