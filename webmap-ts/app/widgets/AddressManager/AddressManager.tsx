@@ -131,8 +131,8 @@ import Polyline = require("esri/geometry/Polyline");
     private centroidBtn: HTMLInputElement;
     private pickParcels_draw: Draw;
     private freeLine: any;
-    selectedParcelsGr: Graphic;
-    selectedGeometries: Collection<__esri.Geometry>;
+    private selectedGeometries: Collection<__esri.Geometry>;
+    private menuFieldName: string;
 
     constructor() {
         super(); 
@@ -265,12 +265,12 @@ import Polyline = require("esri/geometry/Polyline");
                                 <div class="dataCell-container">
                                     <input type="text" id="x_input" class="dataCell-input" afterCreate={this._addX}/>
                                     <div class="dropdown hide">
-                                        <input type="image" src="../images/Burger.24.png" class="dropdown-button" aria-label="X coordinate" data-field="x" data-dojo-attach-event="click:_dropdownLocationToggle"/>
-                                        <div class="dropdown-content hide" data-dojo-attach-point="menuLocationContent_x">
+                                        <input type="image" src="../images/Burger.24.png" class="dropdown-button" aria-label="X coordinate" data-field="x" afterCreate={this._addMenuToggleX}/>
+                                        <div class="dropdown-content hide" id="menuLocationContent_x">
                                             <div class="sortItem">
-                                                <a ahref="#" data-dojo-attach-point="sort_x" data-dojo-attach-event="click:_onMenuItemLocationSort" data-field="x">Sort On This</a>
+                                                <a ahref="#" data-dojo-attach-point="sort_x" afterCreate={this._addMenuItemLocationSort} data-field="x">Sort On This</a>
                                                 <label title="Sort Order">
-                                                    <input type="checkbox" data-dojo-attach-point="directionSortOn_y" />
+                                                    <input type="checkbox" style="display:none;" id="directionSortOn_x" />
                                                     <img src="../images/icons_transp/ascending.black.18.png" />
                                                 </label>
                                             </div>
@@ -287,12 +287,12 @@ import Polyline = require("esri/geometry/Polyline");
                                 <div class="dataCell-container">
                                     <input type="text" id="y_input" class="dataCell-input" afterCreate={this._addY}/>
                                     <div class="dropdown hide">
-                                        <input type="image" src="../images/Burger.24.png" class="dropdown-button" aria-label="Y coordinate" data-field="y" data-dojo-attach-event="click:_dropdownLocationToggle"/>
-                                        <div class="dropdown-content hide" data-dojo-attach-point="menuLocationContent_y">
+                                        <input type="image" src="../images/Burger.24.png" class="dropdown-button" aria-label="Y coordinate" data-field="y" afterCreate={this._addMenuToggleY}/>
+                                        <div class="dropdown-content hide" id="menuLocationContent_y">
                                             <div class="sortItem">
-                                                <a ahref="#" data-dojo-attach-point="sort_y" data-dojo-attach-event="click:_onMenuItemLocationSort" data-field="y">Sort On This</a>
+                                                <a ahref="#" data-dojo-attach-point="sort_y" afterCreate={this._addMenuItemLocationSort}  data-field="y">Sort On This</a>
                                                 <label title="Sort Order">
-                                                    <input type="checkbox" data-dojo-attach-point="directionSortOn_y" />
+                                                    <input type="checkbox" style="display:none;" id="directionSortOn_y"/>
                                                     <img src="../images/icons_transp/ascending.black.18.png" />
                                                 </label>
                                             </div>
@@ -443,6 +443,22 @@ import Polyline = require("esri/geometry/Polyline");
         })
     }
 
+    private _addMenuToggleX = (element) => {
+        this.own(on(element, "click", this.onLocationMenuClick))
+    }
+    
+    private _addMenuToggleY = (element) => {
+        this.own(on(element, "click", this.onLocationMenuClick))
+    }
+
+    private onLocationMenuClick = event => {
+        const menuLocationContent = html.byId("menuLocationContent_"+event.target.dataset["field"]);
+        html.toggleClass(menuLocationContent, "hide");
+        if(!(html as any).hasClass(menuLocationContent, "hide")) {
+            this.emit("openMenu", { menu: menuLocationContent });
+        }
+    }
+    
     private _onPickAddressClicked = (event) => {
         html.addClass(event.target, "active");
 
@@ -576,8 +592,8 @@ import Polyline = require("esri/geometry/Polyline");
                         this.pickParcels_draw.reset();
                         cursorTooltip.close();
                         html.removeClass(event.target, "active");
-                        if(this.selectedParcelsGr) {
-                            this.mapView.graphics.remove(this.selectedParcelsGr);
+                        if(this.UtilsVM.selectedParcelsGraphic) {
+                            // this.mapView.graphics.remove(this.selectedParcelsGr);
                             this.mapView.graphics.remove(this.freeLine);
 
                             this.addressPointFeatures.removeAll();
@@ -625,18 +641,18 @@ import Polyline = require("esri/geometry/Polyline");
                                     return geometryEngine.intersects(g, this.freeLine.geometry);
                                 });
 
-                                if(this.selectedParcelsGr) {
-                                    this.mapView.graphics.remove(this.selectedParcelsGr);
-                                    this.selectedParcelsGr = null;
+                                if(this.UtilsVM.selectedParcelsGraphic) {
+                                    this.mapView.graphics.remove(this.UtilsVM.selectedParcelsGraphic);
+                                    this.UtilsVM.selectedParcelsGraphic = null;
                                 }
 
                                 if(this.selectedGeometries.length > 0) {
                                     const [buffer] = geometryEngine.buffer((this.selectedGeometries as any).items, [2], "meters", true) as any;
-                                    this.selectedParcelsGr = new Graphic({
+                                    this.UtilsVM.selectedParcelsGraphic = new Graphic({
                                         geometry: buffer as any,
                                         symbol: this.UtilsVM.SELECTED_PARCEL_SYMBOL
                                     });
-                                    this.mapView.graphics.add(this.selectedParcelsGr);
+                                    this.mapView.graphics.add(this.UtilsVM.selectedParcelsGraphic);
                                 }
                             }, 
                             error => {
@@ -852,7 +868,12 @@ import Polyline = require("esri/geometry/Polyline");
 
         this.own(on(this.zoomBtn, "click", (event) => {
             if(this.selectedAddressPointFeature) {
-                this.mapView.goTo(this.selectedAddressPointFeature);
+                if(this.UtilsVM.selectedParcelsGraphic) {
+                    this.mapView.goTo(this.UtilsVM.selectedParcelsGraphic);
+                }
+                else {
+                    this.mapView.goTo(this.selectedAddressPointFeature);
+                }
             }
         }))
     };
@@ -1022,9 +1043,13 @@ import Polyline = require("esri/geometry/Polyline");
             }
 
             const menuBtns = query(".dropdown");
-            menuBtns.forEach(menu => {
-                html.removeClass(menu, "hide");
-
+            menuBtns.forEach(menu=> {
+                const field = ((menu as HTMLElement).children[0] as HTMLElement).dataset["field"];
+                if((field !="x" && field !="y") || this.addressPointFeatures.length > 1) {
+                    html.removeClass(menu, "hide");
+                } else {
+                    html.addClass(menu, "hide");
+                }
             })
 
         } else {
@@ -1067,6 +1092,7 @@ import Polyline = require("esri/geometry/Polyline");
             html.addClass(menu, "hide");
         })
 
+        this.UtilsVM.selectedParcelsGraphic = null;
     }
 
     private _checkRules(feature) {
@@ -1578,6 +1604,34 @@ import Polyline = require("esri/geometry/Polyline");
             }
         }
         // return this.isDirty(feature);
+    }
+
+    private _addMenuItemLocationSort = element => {
+        this.own(on(element, "click", this._onMenuItemLocationSort));
+    }
+
+    private _onMenuItemLocationSort = event => {
+        if (this.addressPointFeatures.length <= 1) return;
+
+        this.menuFieldName = event.target.attributes["data-field"].value;
+        const directionSort = (html.byId("directionSortOn_" + this.menuFieldName) as HTMLInputElement).checked;
+
+        function sortDescending(a, b) {
+            const a1 = a.geometry[this.menuFieldName];
+            const b1 = b.geometry[this.menuFieldName];
+            return (a1 - b1);
+        }
+
+        function sortAscending(a, b) {
+            const a1 = a.geometry[this.menuFieldName];
+            const b1 = b.geometry[this.menuFieldName];
+            return (b1 - a1);
+        }
+        this.addressPointFeatures.sort(lang.hitch(this, directionSort ? sortDescending : sortAscending));
+
+        this._populateAddressTable(0);
+
+        html.addClass(html.byId("menuLocationContent_" + this.menuFieldName), "hide");
     }
 
 }
