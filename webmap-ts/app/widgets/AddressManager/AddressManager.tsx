@@ -484,29 +484,28 @@ import Polyline = require("esri/geometry/Polyline");
     }
 
     private _onPickAddressRangeClicked = (event) => {
-        // console.log("_onPickAddressRangeClicked", event, this);
-        html.addClass(event.target, "active");
-        this.mapView.graphics.removeAll();
-        // this._clearLabels();
 
-        this.UtilsVM.PICK_ADDRESS_FROM_PARCEL_RANGE(this.siteAddressPointLayer, this.parcelsLayer)
-            .then(features => {
-                html.removeClass(event.target, "active");
-                this.addressPointFeatures.removeAll();
-                this.addressPointFeatures.unshift(...(features as []));
-                this._populateAddressTable(0);
-
-                // this._showLoading(false);
-                // this.mapView.popup.autoOpenEnabled = true; // ?
-            }, err => {
-                console.log("PICK_ADDRESS_FROM_PARCEL_RANGE", err);
-                // this._onCancelClicked(null);
-
-                // this._showLoading(false);
-                // this.mapView.popup.autoOpenEnabled = true; // ?
-                html.removeClass(event.target, "active");
-            });
-        }
+        this.UtilsVM.pickParcels(this.parcelsGraphicLayer).then(
+            selectedGeometries => {
+                if (selectedGeometries.length > 0) {
+                
+                    this.UtilsVM.GET_ADDRESS_IN_GEOMETRIES(selectedGeometries, this.siteAddressPointLayer).then(
+                        features => {
+                            this.addressPointFeatures.removeAll();
+                            this.addressPointFeatures.unshift(...(features as []));
+                            this._populateAddressTable(0);
+                            html.removeClass(event.target, "active");
+                        }, err => {
+                            console.log("PICK_ADDRESS_FROM_PARCEL_RANGE", err);
+                            html.removeClass(event.target, "active");
+                        }
+                    )
+                ,
+            error => {
+                console.error("Select parcels", error)
+            }
+        }})
+    }
 
     private _addAddressTitle = (element: Element) => {
         this.addressTitle = element as HTMLElement;
@@ -567,7 +566,7 @@ import Polyline = require("esri/geometry/Polyline");
 
     private _addFillParcelsBtn = (element: Element) => {
         this.own(on(element, "click", event => {
-            this.UtilsVM.pickParcels(event, this.parcelsGraphicLayer).then(selectedGeometries => {
+            this.UtilsVM.pickParcels(this.parcelsGraphicLayer).then(selectedGeometries => {
                 this.addressPointFeatures.removeAll();
                 selectedGeometries.forEach(geo => {
                     const centroid = this.UtilsVM.GetCentroidCoordinates(geo) as Point;

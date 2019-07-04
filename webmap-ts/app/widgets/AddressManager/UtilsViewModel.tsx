@@ -475,6 +475,40 @@ class UtilsViewModel extends declared(Accessor) {
         return deferred.promise;
     }
 
+    GET_ADDRESS_IN_GEOMETRIES = (parcels, addressLayer) => {
+        const deferred = new Deferred();
+        if (parcels.length > 0) {
+            const q = addressLayer.createQuery();
+            q.geometry = geometryEngine.buffer(parcels.items, 0, "meters", true)[0];
+            q.outFields = ["*"];
+            q.spatialRelationship = "contains";
+            const oldaddresses = addressLayer.queryFeatures(q);
+            const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);//this.addressGraphicsLayer.queryFeatures(q);
+            All([oldaddresses, newAddresses])
+            // addressLayer.queryFeatures(q)
+            .then(results => {
+                const features = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
+                
+                if (features && features.length > 0) {
+                    // if (features.length > 1) {
+                    //     this.selectedParcelsGraphic = { geometry:q.geometry, symbol: this.SELECTED_PARCEL_SYMBOL };
+                    //     this.mapView.graphics.add(this.selectedParcelsGraphic);
+                    // }
+
+                    deferred.resolve(features);
+                } else {
+                    deferred.resolve(null);
+                    // deferred.cancel("No Addresses Found");
+                }
+            },
+            err => { deferred.cancel(err)})
+        } else {
+            deferred.resolve(null);
+            // deferred.cancel("No Parcels Found");
+        }
+        return deferred.promise;
+    }
+
     GET_LABEL_SYMBOL = function(labelText: string) {
         const symb = {
             type: "text",  // autocasts as new TextSymbol()
@@ -643,17 +677,17 @@ class UtilsViewModel extends declared(Accessor) {
     private freeLine: Graphic;
     private selectedGeometries;
     
-    public pickParcels = (event, parcelsGraphicLayer): any => {
+    public pickParcels = (parcelsGraphicLayer): any => {
         const deferred = new Deferred();
         require(["./CursorToolTip"], CursorToolTip => {
             if(this.pickParcels_draw && this.pickParcels_draw.activeAction) {
-                html.removeClass(event.target, "active");
+                // html.removeClass(event.target, "active");
                 this.pickParcels_draw.reset();
                 CursorToolTip.Close();
                 deferred.cancel("User canceled pickParcels action");
             } 
             else {
-                html.addClass(event.target, "active");
+                // html.addClass(event.target, "active");
                 if(!this.pickParcels_draw) {
                     this.pickParcels_draw = new Draw({
                         view: this.mapView,
@@ -669,7 +703,7 @@ class UtilsViewModel extends declared(Accessor) {
                 drawAction.on("draw-complete", () => {
                     this.pickParcels_draw.reset();
                     cursorTooltip.close();
-                    html.removeClass(event.target, "active");
+                    // html.removeClass(event.target, "active");
                     if(this.selectedParcelsGr) {
                         this.mapView.graphics.remove(this.selectedParcelsGr);
                         this.mapView.graphics.remove(this.freeLine);
