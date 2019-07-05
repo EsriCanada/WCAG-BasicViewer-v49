@@ -797,14 +797,19 @@ import Polyline = require("esri/geometry/Polyline");
 
         this.own(on(this.zoomBtn, "click", (event) => {
             if(this.addressPointFeatures.length > 0) {
+                let buffer;
                 if(this.addressPointFeatures.length == 1) {
+                    buffer = geometryEngine.buffer((this.selectedAddressPointFeature as any).geometry, 15, "meters") as any;
                     this.mapView.goTo(this.selectedAddressPointFeature);
                 }
                 else {
-                    const buffer = geometryEngine.buffer(this.addressPointFeatures.map(a => (a as any).geometry).toArray(), 10, "meters", true);
+                    [buffer] = geometryEngine.buffer(this.addressPointFeatures.map(a => (a as any).geometry).toArray(), [15], "meters", true) as any;
                     this.mapView.goTo(buffer);
                 }
-            }
+                const bufferGr = new Graphic({ geometry: buffer, symbol: this.UtilsVM.BUFFER_SYMBOL})
+                this.mapView.graphics.add(bufferGr);
+                setTimeout(() => {this.mapView.graphics.remove(bufferGr);}, 500);
+        }
         }))
     };
 
