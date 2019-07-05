@@ -435,7 +435,7 @@ import Polyline = require("esri/geometry/Polyline");
                     {
                         src: "../images/icons_transp/pickMultipleAddresses.bggray.24.png",
                         label: "Select Multiple Addresses",
-                        // callback: event => lang.hitch(this, this._onPickMultipleAddressClicked(event))
+                        callback: this._onPickMultipleAddressClicked
                     }
                 ],
             container: element as HTMLElement
@@ -510,6 +510,32 @@ import Polyline = require("esri/geometry/Polyline");
                 console.error("Select parcels", error);
             }
         )
+    }
+
+    private _onPickMultipleAddressClicked = event => {
+        html.addClass(event.target, "active");
+        require(["./CursorToolTip"], CursorToolTip => {
+            const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click and drag around addresses to select");
+
+            this.UtilsVM.PICK_ADDRESSES(this.siteAddressPointLayer).then(
+                addresses => {
+                    CursorToolTip.Close();
+                    html.removeClass(event.target, "active");
+
+                    this.addressPointFeatures.removeAll();
+                    this.addressPointFeatures.unshift(...(addresses as []));
+                    this._populateAddressTable(0);
+                },
+                error => {
+                    CursorToolTip.Close();
+                    html.removeClass(event.target, "active");
+
+                    if(error) {
+                        console.error("PICK_ADDRESSES", error)
+                    }
+                }
+            )
+        })
     }
 
     private _addAddressTitle = (element: Element) => {

@@ -16,7 +16,7 @@ import lang = require("dojo/_base/lang");
 import html = require("dojo/_base/html");
 import Query = require("esri/tasks/support/Query");
 import { ENGINE_METHOD_ALL } from "constants";
-import { Geometry, Point, Polyline } from "esri/geometry";
+import { Geometry, Point, Polyline, Polygon } from "esri/geometry";
 import Graphic = require("esri/Graphic");
 import TextSymbol = require("esri/symbols/TextSymbol");
 import Color = require("esri/Color");
@@ -576,13 +576,11 @@ class UtilsViewModel extends declared(Accessor) {
         const deferred = new Deferred();
         require(["./CursorToolTip"], CursorToolTip => {
             if(this.pickParcels_draw && this.pickParcels_draw.activeAction) {
-                // html.removeClass(event.target, "active");
                 this.pickParcels_draw.reset();
                 CursorToolTip.Close();
                 deferred.cancel("User canceled pickParcels action");
             } 
             else {
-                // html.addClass(event.target, "active");
                 if(!this.pickParcels_draw) {
                     this.pickParcels_draw = new Draw({
                         view: this.mapView,
@@ -662,6 +660,86 @@ class UtilsViewModel extends declared(Accessor) {
         return deferred.promise;
     };
 
+    private pickAddresses_draw: Draw;
+    
+    public PICK_ADDRESSES = (addressLayer) => {
+        const deferred = new Deferred();
+        if(this.pickAddresses_draw && this.pickAddresses_draw.activeAction) {
+            this.pickAddresses_draw.reset();
+            deferred.cancel("User canceled pickParcels action");
+        } 
+        else {
+            if(!this.pickAddresses_draw) {
+                this.pickAddresses_draw = new Draw({
+                    view: this.mapView,
+                })
+            }
+
+            this.mapView.graphics.removeAll();
+
+            const drawAction = this.pickAddresses_draw.create("polygon", {mode: "freehand"});
+            drawAction.on("draw-complete", () => {
+                this.pickAddresses_draw.reset();
+                (this.freeLine as any).symbol = this.SELECTED_PARCEL_SYMBOL;
+
+                const q = addressLayer.createQuery();
+                q.outFields = ["*"];
+                q.where = "1=1";
+                q.geometry = this.freeLine.geometry;
+                q.spatialRelationship = "contains";
+                q.returnGeometry = true;
+        
+                addressLayer.queryFeatures(q).then(
+                    results => {
+                        const addresses = results.features;
+                        if(addresses.length >0) {
+                            deferred.resolve(addresses);
+                        } else {
+                            deferred.cancel("No Addresses Found");
+                        }
+                    },
+                    error => {
+                        deferred.cancel(error);
+                    }
+                )
+            })
+            drawAction.on([
+                "vertex-add",
+                "vertex-remove",
+                "cursor-update",
+                "redo",
+                "undo",
+            ], event => {
+                if (event.vertices.length > 1) {
+                    this.mapView.graphics.removeAll();
+
+                    this.verticesWithoutLoops(event.vertices).then(v => {
+
+                        if(event.vertices.length != v.length && v.length >= 10) {
+                            event.vertices.length = v.length-1;
+                        }
+
+                        this.freeLine = new Graphic({
+                            geometry: new Polygon({
+                                rings: event.vertices,
+                                spatialReference: this.mapView.spatialReference
+                            }),
+                            symbol: this.LINE_SELECT_PARCELS_SYMBOL
+                        });
+
+                        this.mapView.graphics.add(this.freeLine);
+
+                    }, 
+                    error => {
+                        deferred.cancel(error);
+                    });
+
+                }
+            });
+        }
+        // })
+        return deferred.promise;
+    }
 
 }
 
