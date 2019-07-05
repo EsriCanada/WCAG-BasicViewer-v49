@@ -435,11 +435,15 @@ class UtilsViewModel extends declared(Accessor) {
     }
     
     _getFeaturesWithin = function(graphicsLayer, geometry) {
+        const deferred = new Deferred();
         let within = null
         if(graphicsLayer) {
             within = graphicsLayer.graphics.items.filter(g => geometryEngine.within(g.geometry, geometry) )
-        } 
-        return {features: within};
+            deferred.resolve({features: within});
+        } else {
+            deferred.cancel();
+        }
+        return deferred.promise;
     }
 
     _removeMarker = function(markerName:string) {
@@ -683,15 +687,18 @@ class UtilsViewModel extends declared(Accessor) {
                 (this.freeLine as any).symbol = this.SELECTED_PARCEL_SYMBOL;
 
                 const q = addressLayer.createQuery();
-                q.outFields = ["*"];
-                q.where = "1=1";
                 q.geometry = this.freeLine.geometry;
+                q.outFields = ["*"];
                 q.spatialRelationship = "contains";
-                q.returnGeometry = true;
-        
-                addressLayer.queryFeatures(q).then(
+                const oldaddresses = addressLayer.queryFeatures(q);
+                const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);
+                All([oldaddresses, newAddresses])
+                // addressLayer.queryFeatures(q)
+                // oldaddresses
+                // newAddresses
+                .then(
                     results => {
-                        const addresses = results.features;
+                        const addresses = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
                         if(addresses.length >0) {
                             deferred.resolve(addresses);
                         } else {

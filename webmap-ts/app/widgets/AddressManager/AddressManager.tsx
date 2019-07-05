@@ -1104,11 +1104,6 @@ import Polyline = require("esri/geometry/Polyline");
         }
     }
 
-    // private onCheckRules(event) {
-    //     if (this.addressPointFeatures.length === 0) return;
-    //     this._checkRules(this.selectedAddressPointFeature);
-    // }
-
     private isDirty(feature) {
         return "Dirty" in feature && feature.Dirty;
     }
