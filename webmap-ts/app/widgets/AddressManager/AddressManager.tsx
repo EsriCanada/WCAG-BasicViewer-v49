@@ -796,12 +796,13 @@ import Polyline = require("esri/geometry/Polyline");
         this.zoomBtn = element as HTMLElement;
 
         this.own(on(this.zoomBtn, "click", (event) => {
-            if(this.selectedAddressPointFeature) {
-                if(this.UtilsVM.selectedParcelsGraphic) {
-                    this.mapView.goTo(this.UtilsVM.selectedParcelsGraphic);
+            if(this.addressPointFeatures.length > 0) {
+                if(this.addressPointFeatures.length == 1) {
+                    this.mapView.goTo(this.selectedAddressPointFeature);
                 }
                 else {
-                    this.mapView.goTo(this.selectedAddressPointFeature);
+                    const buffer = geometryEngine.buffer(this.addressPointFeatures.map(a => (a as any).geometry).toArray(), 10, "meters", true);
+                    this.mapView.goTo(buffer);
                 }
             }
         }))
