@@ -617,8 +617,8 @@ class UtilsViewModel extends declared(Accessor) {
     
                         this.verticesWithoutLoops(event.vertices).then(v => {
 
-                            if(v.length >= 10) {
-                                event.vertices.length = v.length;
+                            if(event.vertices.length != v.length && v.length >= 10) {
+                                event.vertices.length = v.length-1;
                             }
 
                             this.freeLine = new Graphic({
