@@ -484,27 +484,32 @@ import Polyline = require("esri/geometry/Polyline");
     }
 
     private _onPickAddressRangeClicked = (event) => {
-
-        this.UtilsVM.pickParcels(this.parcelsGraphicLayer).then(
+        html.addClass(event.target, "active");
+        this.UtilsVM.PICK_PARCELS(this.parcelsGraphicLayer).then(
             selectedGeometries => {
                 if (selectedGeometries.length > 0) {
-                
-                    this.UtilsVM.GET_ADDRESS_IN_GEOMETRIES(selectedGeometries, this.siteAddressPointLayer).then(
+                    this.UtilsVM.GET_ADDRESS_IN_GEOMETRIES(selectedGeometries, this.siteAddressPointLayer)
+                    .then(
                         features => {
                             this.addressPointFeatures.removeAll();
                             this.addressPointFeatures.unshift(...(features as []));
                             this._populateAddressTable(0);
                             html.removeClass(event.target, "active");
-                        }, err => {
-                            console.log("PICK_ADDRESS_FROM_PARCEL_RANGE", err);
+                        }, error => {
                             html.removeClass(event.target, "active");
-                        }
-                    )
-                ,
+                            console.log("Pick parcels", error);
+                        })
+                    }
+                else {
+                    html.removeClass(event.target, "active");
+                    console.error("Pick parcels - No Parcels");
+                }
+            },
             error => {
-                console.error("Select parcels", error)
+                html.removeClass(event.target, "active");
+                console.error("Select parcels", error);
             }
-        }})
+        )
     }
 
     private _addAddressTitle = (element: Element) => {
@@ -566,7 +571,8 @@ import Polyline = require("esri/geometry/Polyline");
 
     private _addFillParcelsBtn = (element: Element) => {
         this.own(on(element, "click", event => {
-            this.UtilsVM.pickParcels(this.parcelsGraphicLayer).then(selectedGeometries => {
+            html.addClass(event.target, "active");
+            this.UtilsVM.PICK_PARCELS(this.parcelsGraphicLayer).then(selectedGeometries => {
                 this.addressPointFeatures.removeAll();
                 selectedGeometries.forEach(geo => {
                     const centroid = this.UtilsVM.GetCentroidCoordinates(geo) as Point;
@@ -581,7 +587,9 @@ import Polyline = require("esri/geometry/Polyline");
                     this.addressPointFeatures.push(feature);
                 });
                 this._populateAddressTable(0);
+                html.removeClass(event.target, "active");
             }, error => {
+                html.removeClass(event.target, "active");
                 console.error(error);
             })
         }));

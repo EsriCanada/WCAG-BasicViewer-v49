@@ -372,109 +372,6 @@ class UtilsViewModel extends declared(Accessor) {
         return deferred.promise;
     }
 
-    PICK_ADDRESS_FROM_PARCEL_RANGE_draw: Draw = null;
-    
-    PICK_ADDRESS_FROM_PARCEL_RANGE = (addressLayer, parcelLayer) => {
-        const deferred = new Deferred();
-        // this.mapView.popup.autoOpenEnabled = false; // ?
-        this.mapView.popup.close();
-
-        require(["./CursorToolTip"], CursorToolTip =>{
-            if(!this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw) {
-                this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw = new Draw({
-                view: this.mapView
-                })
-            }
-            const cursorToolTip = CursorToolTip.getInstance(this.mapView, "Draw a line over parcels to select");
-
-            if (this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw.activeAction) {
-                this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw.reset();
-                cursorToolTip.close();
-                deferred.cancel("User Cancel");
-                return deferred.promise;
-            }
-
-            const drawAction = this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw.create("polyline", {mode:"freehand"});
-            drawAction.on([
-                "vertex-add",
-                "vertex-remove",
-                "cursor-update",
-                "redo",
-                "undo",
-            ], lang.hitch(this, function(event) {
-                if (event.vertices.length > 1) {
-                    this.mapView.graphics.removeAll();
-
-                    const graphic = {
-                        geometry: {
-                            type: "polyline",
-                            paths: event.vertices,
-                            spatialReference: this.mapView.spatialReference
-                        },
-                        symbol: {
-                            type: "simple-line", 
-                            color: [255, 30, 30],
-                            width: 2,
-                            cap: "round",
-                            join: "round"
-                        }
-                    };
-                    this.mapView.graphics.add(graphic);
-                }
-            }));
-            drawAction.on("draw-complete", lang.hitch(this, function(event) {
-                this.PICK_ADDRESS_FROM_PARCEL_RANGE_draw.activeAction = null;
-                this.mapView.graphics.removeAll();
-                cursorToolTip.close();
-
-                const q = parcelLayer.createQuery();
-                q.outFields = ["OBJECTID"];
-                // q.where = "1=1";
-                q.geometry = {
-                    type: "polyline",
-                    paths: event.vertices,
-                    spatialReference: this.mapView.spatialReference
-                };
-                q.spatialRelationship = "intersects";
-                q.returnGeometry = true;
-
-                parcelLayer.queryFeatures(q).then(result => {
-                    const parcels = result.features;
-                    if (parcels.length > 0) {
-                        q.geometry = geometryEngine.buffer(parcels.map(p => p.geometry), 2.5, "meters", true)[0];
-                        q.outFields = ["*"];
-                        q.spatialRelationship = "contains";
-                        const oldaddresses = addressLayer.queryFeatures(q);
-                        const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);//this.addressGraphicsLayer.queryFeatures(q);
-                        All([oldaddresses, newAddresses])
-                        // addressLayer.queryFeatures(q)
-                        .then(results => {
-                            const features = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
-                            
-                            if (features && features.length > 0) {
-                                if (features.length > 1) {
-                                    this.selectedParcelsGraphic = { geometry:q.geometry, symbol: this.SELECTED_PARCEL_SYMBOL };
-                                    this.mapView.graphics.add(this.selectedParcelsGraphic);
-                                }
-
-                                deferred.resolve(features);
-                            } else {
-                                deferred.resolve(null);
-                                // deferred.cancel("No Addresses Found");
-                            }
-                        },
-                        err => { deferred.cancel(err)})
-                    } else {
-                        deferred.resolve(null);
-                        // deferred.cancel("No Parcels Found");
-                    }
-                },
-                err => { deferred.cancel(err)})
-            }))
-        })
-        return deferred.promise;
-    }
-
     GET_ADDRESS_IN_GEOMETRIES = (parcels, addressLayer) => {
         const deferred = new Deferred();
         if (parcels.length > 0) {
@@ -484,9 +381,7 @@ class UtilsViewModel extends declared(Accessor) {
             q.spatialRelationship = "contains";
             const oldaddresses = addressLayer.queryFeatures(q);
             const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);//this.addressGraphicsLayer.queryFeatures(q);
-            All([oldaddresses, newAddresses])
-            // addressLayer.queryFeatures(q)
-            .then(results => {
+            All([oldaddresses, newAddresses]).then(results => {
                 const features = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
                 
                 if (features && features.length > 0) {
@@ -677,7 +572,7 @@ class UtilsViewModel extends declared(Accessor) {
     private freeLine: Graphic;
     private selectedGeometries;
     
-    public pickParcels = (parcelsGraphicLayer): any => {
+    public PICK_PARCELS = (parcelsGraphicLayer): any => {
         const deferred = new Deferred();
         require(["./CursorToolTip"], CursorToolTip => {
             if(this.pickParcels_draw && this.pickParcels_draw.activeAction) {
@@ -698,17 +593,16 @@ class UtilsViewModel extends declared(Accessor) {
 
                 const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click and drag over parcels to select");
         
-                // const parcels = [];
                 const drawAction = this.pickParcels_draw.create("polyline", {mode: "freehand"});
                 drawAction.on("draw-complete", () => {
                     this.pickParcels_draw.reset();
                     cursorTooltip.close();
-                    // html.removeClass(event.target, "active");
-                    if(this.selectedParcelsGr) {
-                        this.mapView.graphics.remove(this.selectedParcelsGr);
-                        this.mapView.graphics.remove(this.freeLine);
+                    this.mapView.graphics.remove(this.freeLine);
 
+                    if(this.selectedGeometries && this.selectedGeometries.length > 0) {
                         deferred.resolve(this.selectedGeometries);
+                    } else {
+                        deferred.cancel("No Parcels");
                     }
                 })
                 drawAction.on([
@@ -759,7 +653,6 @@ class UtilsViewModel extends declared(Accessor) {
                         }, 
                         error => {
                             deferred.cancel(error);
-                            // console.error(error);
                         });
 
                     }
