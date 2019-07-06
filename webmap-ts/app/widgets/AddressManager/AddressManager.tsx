@@ -464,7 +464,7 @@ import Polyline = require("esri/geometry/Polyline");
 
         // this._onCancelClicked(null);
         this.mapView.graphics.removeAll();
-        // this._clearLabels();
+        DropDownItemMenu.ClearLabels();
 
         this.addressPointFeatures.removeAll();
         this.UtilsVM.PICK_ADDRESS_OR_PARCEL(this.siteAddressPointLayer, this.parcelsLayer).then(
@@ -554,7 +554,7 @@ import Polyline = require("esri/geometry/Polyline");
                 const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click to add a new address");
         
                 this.UtilsVM.ADD_NEW_ADDRESS().then(feature => {
-                    // // this._clearLabels();
+                    DropDownItemMenu.ClearLabels();
                     this.addressPointFeatures.push(feature as Feature);
                     // console.log("feature", feature);
         
@@ -632,7 +632,7 @@ import Polyline = require("esri/geometry/Polyline");
         const btn = event.target;
         // debugger;
         if(domClass.contains(btn, "orangeBtn")) {
-            // this._clearLabels();
+            DropDownItemMenu.ClearLabels();
             this._RemoveGraphic(this.selectedAddressPointFeature as any);
             this.addressPointFeatures.remove(this.selectedAddressPointFeature);
             this._populateAddressTable(0);
@@ -796,7 +796,7 @@ import Polyline = require("esri/geometry/Polyline");
             // }
         });
         
-        // this._clearLabels();
+        DropDownItemMenu.ClearLabels();
 
         this.addressPointFeatures.removeAll();
     }

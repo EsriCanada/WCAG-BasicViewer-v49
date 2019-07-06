@@ -355,6 +355,7 @@ class DropDownItemMenu extends declared(Widget) {
 
     static ClearLabels = () => {
         DropDownItemMenu.LabelsGraphicsLayer.removeAll();
+        DropDownItemMenu.LabelItemText = "Show Labels";
     }
 
     static LabelItemText = "Show Labels";
