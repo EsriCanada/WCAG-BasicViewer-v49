@@ -439,9 +439,14 @@ class UtilsViewModel extends declared(Accessor) {
         let within = null
         if(graphicsLayer) {
             within = graphicsLayer.graphics.items.filter(g => geometryEngine.within(g.geometry, geometry) )
-            deferred.resolve({features: within});
+            if(within && within.length > 0) {
+                deferred.resolve({features: within});
+            }
+            else {
+                deferred.resolve({features: []});
+            }
         } else {
-            deferred.cancel();
+            deferred.resolve({features: []});
         }
         return deferred.promise;
     }

@@ -514,6 +514,7 @@ import Polyline = require("esri/geometry/Polyline");
 
     private _onPickMultipleAddressClicked = event => {
         html.addClass(event.target, "active");
+
         require(["./CursorToolTip"], CursorToolTip => {
             const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click and drag around addresses to select");
 
@@ -522,7 +523,8 @@ import Polyline = require("esri/geometry/Polyline");
                     CursorToolTip.Close();
                     html.removeClass(event.target, "active");
 
-                    this.addressPointFeatures.removeAll();
+                    this._cancelFeatures();
+                    this._clearForm();
                     this.addressPointFeatures.unshift(...(addresses as []));
                     this._populateAddressTable(0);
                 },
@@ -743,34 +745,15 @@ import Polyline = require("esri/geometry/Polyline");
         this.cancelBtn = element as HTMLElement;
         this.own(on(this.cancelBtn, "click", event => {
             if(!domClass.contains(event.target, "blankBtn")) return;
-            
+
+            this.mapView.graphics.removeAll();
             this.addressPointFeatures.forEach((feature: any) => {
-                if (!this.canDelete(feature)) {
-                    if ("originalValues" in feature) {
-                        for (const fieldName in feature.originalValues) {
-                            if (fieldName != "geometry") {
-                                feature.attributes[fieldName] = feature.originalValues[fieldName];
-                                html.removeClass(this.inputControls[fieldName], "dirty");
-                            } else {
-                                // feature._layer.suspend();
-                                feature.geometry = feature.originalValues.geometry;
-                                // feature._layer.resume();
-                            }
-                        }
-                        this.clearDirty(feature);
-                    }
-                }
-                else {
+                if (this.canDelete(feature)) {
                     this._RemoveGraphic(feature);
                 }
-            })
-            this.mapView.graphics.removeAll();
-            // this._clearLabels();
-
-            this.addressPointFeatures.removeAll();
-
+            });
+            this._cancelFeatures();
             this._clearForm();
-
             this._setDirtyBtns();
         }))
     }
@@ -785,6 +768,37 @@ import Polyline = require("esri/geometry/Polyline");
 
     private _addStatusTable = (element: Element) => {
         this.statusTable = element as HTMLElement;
+    }
+
+    private _cancelFeatures() {
+        if(this.addressPointFeatures.length <= 0) return;
+
+        this.addressPointFeatures.forEach((feature: any) => {
+            if (!this.canDelete(feature)) {
+                if ("originalValues" in feature) {
+                    for (const fieldName in feature.originalValues) {
+                        if (fieldName != "geometry") {
+                            feature.attributes[fieldName] = feature.originalValues[fieldName];
+                            html.removeClass(this.inputControls[fieldName], "dirty");
+                        }
+                        else {
+                            // feature._layer.suspend();
+                            feature.geometry = feature.originalValues.geometry;
+                            // feature._layer.resume();
+                        }
+                    }
+                    this.clearDirty(feature);
+                }
+            }
+            // else {
+                // if (this.canDelete(feature)) {
+                //     this._RemoveGraphic(feature);
+            // }
+        });
+        
+        // this._clearLabels();
+
+        this.addressPointFeatures.removeAll();
     }
 
     private _activateButton(event) {
