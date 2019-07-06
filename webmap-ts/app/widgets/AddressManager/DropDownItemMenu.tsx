@@ -336,8 +336,9 @@ class DropDownItemMenu extends declared(Widget) {
     private _showLabels = () => {
         if(DropDownItemMenu.lastFieldName != this.fieldName) {
             this._clearLabels();
-            DropDownItemMenu.LabelItemText = this.labelItem.firstChild.textContent = "Hide Labels";
         }
+        DropDownItemMenu.LabelItemText = this.labelItem.firstChild.textContent = "Hide Labels";
+        
         DropDownItemMenu.lastFieldName = this.fieldName;
         for (let i = 0; i < this.addressPointFeatures.length; i++) {
             const feature = (this.addressPointFeatures as any).items[i];
