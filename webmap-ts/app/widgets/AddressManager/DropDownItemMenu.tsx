@@ -122,7 +122,7 @@ class DropDownItemMenu extends declared(Widget) {
 
                 <ul class="dropdown-content hide" afterCreate={this._addMenuContent} style="margin: 0; padding: 0;">
                     <li tabindex="0" afterCreate={this._addLabelsItem}>
-                        <a ahref="#" data-dojo-attach-point="labels" data-dojo-attach-event="click:_onMenuItemLabels">Show Labels</a>
+                        <a ahref="#" >Show Labels</a>
                     </li>
 
                     <li tabindex="0" class="sortItem" afterCreate={this._addSortItem}>
@@ -183,7 +183,7 @@ class DropDownItemMenu extends declared(Widget) {
     private _addLabelsItem = (element: Element) => {
         this.labelItem = element as HTMLElement;
         this.own(on(this.labelItem, "click", event => {
-            if (this.addressPointFeatures.length <= 1) return;
+            if (this.addressPointFeatures.length < 1) return;
 
             const show = DropDownItemMenu.LabelItemText == "Show Labels";
             // console.log("this.addressPointFeatures", this.addressPointFeatures);
@@ -341,7 +341,7 @@ class DropDownItemMenu extends declared(Widget) {
         DropDownItemMenu.lastFieldName = this.fieldName;
         for (let i = 0; i < this.addressPointFeatures.length; i++) {
             const feature = (this.addressPointFeatures as any).items[i];
-            if(feature.attributes && (this.fieldName in feature.attributes)) {
+            if(feature.attributes && (this.fieldName in feature.attributes && feature.attributes[this.fieldName])) {
                 const graphic = {geometry: feature.geometry, symbol: this.utilsVM.GET_LABEL_SYMBOL(feature.attributes[this.fieldName])};
                 DropDownItemMenu.LabelsGraphicsLayer.add(graphic);
             }
