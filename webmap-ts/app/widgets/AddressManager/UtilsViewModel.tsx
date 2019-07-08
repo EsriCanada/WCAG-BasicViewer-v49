@@ -411,12 +411,9 @@ class UtilsViewModel extends declared(Accessor) {
             haloColor: "white",
             haloSize: "3px",
             text: labelText,
-            // xoffset: 0,
-            yoffset: -20,
+            yoffset: -16,
             font: {  // autocast as new Font()
-                size: 14,
-                family: "'Avenir Light', Verdana, Geneva, sans-serif",
-                weight: "bold"
+                size: 12,
             },
 
             name: "Label"
