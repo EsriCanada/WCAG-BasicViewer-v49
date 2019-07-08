@@ -107,6 +107,8 @@ class DropDownItemMenu extends declared(Widget) {
     private menuItemCopyToAll: HTMLAnchorElement;
     private copyDomain: HTMLInputElement;
     private menuItemFilter: HTMLAnchorElement;
+    private fillSeriesBtn: HTMLElement;
+    private fillFromStart: HTMLInputElement;
 
     constructor() {
         super();
@@ -142,19 +144,19 @@ class DropDownItemMenu extends declared(Widget) {
                         <a ahref="#" afterCreate={this._addMenuItemFilter} >Filter This Value</a>
                     </li>
 
-                    <li tabindex="0"class="fillItem"  afterCreate={this._addFillItem}>
-                        <a ahref="#" data-dojo-attach-point="series" data-dojo-attach-event="click:_onFillSeriesClicked">Fill Series</a>
-                        <div class="fillItem_content hide" data-dojo-attach-point="series_content">
+                    <li tabindex="0" class="fillItem">
+                        <a ahref="#" afterCreate={this._addFillSeriesBtn}>Fill Series</a>
+                        <div class="fillSeries_content hide">
                             <label for="fillStart">Start:</label>
                             <input type="number" step="2" value="1" data-dojo-attach-point="fillStart"/>
                             <label for="fillStart">Step:</label>
                             <input type="number" step="1" value="2" data-dojo-attach-point="fillStep"/>
                             <label class="col2">
-                                <input type="radio" name="fillFrom" checked data-dojo-attach-point="fillFromStart"/>
+                                <input type="radio" name="fillFrom" afterCreate={this._addFillFromStart} value="fromStart" />
                                 From Start
                             </label>
                             <label class="col2">
-                                <input type="radio" name="fillFrom"/>
+                                <input type="radio" name="fillFrom" value="fromSelected"/>
                                 From Selected
                             </label>
                             <input class="col2" type="button" value="Apply" data-dojo-attach-event="click:_onFillApplyClicked"/>
@@ -299,10 +301,22 @@ class DropDownItemMenu extends declared(Widget) {
         this.copyItem = element as HTMLElement;
     }
 
-    private _addFillItem = (element: Element) => {
-        this.fillItem = element as HTMLElement;
+    private _addFillFromStart = (element: Element) => {
+        this.fillFromStart = element as HTMLInputElement;
+        this.fillFromStart.checked = true; // ??
+        // this.own(on(this.fillFromStart, "change", event => {
+        //     console.log("fromStart", this.fillFromStart.checked);
+        // }))
     }
 
+    private _addFillSeriesBtn= (element: Element) => {
+        this.fillSeriesBtn = element as HTMLElement;
+        this.own(on(this.fillSeriesBtn, "click", event => {
+            const fillSeriesContent = event.target.nextElementSibling;
+            html.toggleClass(fillSeriesContent, "hide");
+            html.toggleClass(event.target, "orangeBtn");
+        }))
+    }
 
     private getMenuItems() {
         this.labelItem.firstChild.textContent = DropDownItemMenu.LabelItemText;
