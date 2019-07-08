@@ -108,7 +108,9 @@ class DropDownItemMenu extends declared(Widget) {
     private copyDomain: HTMLInputElement;
     private menuItemFilter: HTMLAnchorElement;
     private fillSeriesBtn: HTMLElement;
-    private fillFromStart: HTMLInputElement;
+    private applyBtn: HTMLInputElement;
+    private fillStart: HTMLInputElement;
+    private fillStep: HTMLInputElement;
 
     constructor() {
         super();
@@ -144,22 +146,15 @@ class DropDownItemMenu extends declared(Widget) {
                         <a ahref="#" afterCreate={this._addMenuItemFilter} >Filter This Value</a>
                     </li>
 
-                    <li tabindex="0" class="fillItem">
+                    <li tabindex="0" class="fillItem" afterCreate={this._addfillItem}>
                         <a ahref="#" afterCreate={this._addFillSeriesBtn}>Fill Series</a>
                         <div class="fillSeries_content hide">
                             <label for="fillStart">Start:</label>
-                            <input type="number" step="2" value="1" data-dojo-attach-point="fillStart"/>
-                            <label for="fillStart">Step:</label>
-                            <input type="number" step="1" value="2" data-dojo-attach-point="fillStep"/>
-                            <label class="col2">
-                                <input type="radio" name="fillFrom" afterCreate={this._addFillFromStart} value="fromStart" />
-                                From Start
-                            </label>
-                            <label class="col2">
-                                <input type="radio" name="fillFrom" value="fromSelected"/>
-                                From Selected
-                            </label>
-                            <input class="col2" type="button" value="Apply" data-dojo-attach-event="click:_onFillApplyClicked"/>
+                            <input type="number" step="2" value="1" afterCreate={this._addFillStart}/>
+                            <label for="fillStep">Step:</label>
+                            <input type="number" step="1" value="2" afterCreate={this._addFillStep}/>
+                            <span></span>
+                            <input type="button" value="Apply" style="width: 64px; justify-self: right;" afterCreate={this._addApplyBtn}/>
                         </div>
                     </li>
                 </ul>
@@ -301,21 +296,46 @@ class DropDownItemMenu extends declared(Widget) {
         this.copyItem = element as HTMLElement;
     }
 
-    private _addFillFromStart = (element: Element) => {
-        this.fillFromStart = element as HTMLInputElement;
-        this.fillFromStart.checked = true; // ??
-        // this.own(on(this.fillFromStart, "change", event => {
-        //     console.log("fromStart", this.fillFromStart.checked);
-        // }))
+    private _addfillItem = (element: Element) => {
+        this.fillItem = element as HTMLElement;
     }
 
-    private _addFillSeriesBtn= (element: Element) => {
+    private _addFillSeriesBtn = (element: Element) => {
         this.fillSeriesBtn = element as HTMLElement;
         this.own(on(this.fillSeriesBtn, "click", event => {
             const fillSeriesContent = event.target.nextElementSibling;
             html.toggleClass(fillSeriesContent, "hide");
             html.toggleClass(event.target, "orangeBtn");
         }))
+    }
+
+    private _addFillStart = (element: Element) => {
+        this.fillStart = element as HTMLInputElement;
+    }
+
+    private _addFillStep = (element: Element) => {
+        this.fillStep = element as HTMLInputElement;
+    }
+
+    private _addApplyBtn = (element: Element) => {
+        this.applyBtn = element as HTMLInputElement;
+        this.own(on(this.applyBtn, "click", event => {
+            if (this.addressPointFeatures.length <= 1) return;
+
+            const start = Number(this.fillStart.value);
+            const step = Number(this.fillStep.value);
+            const input = this.inputControls[this.fieldName];
+            
+            this.addressPointFeatures.forEach((feature, index) => {
+                if(index >= this.addressPointFeaturesIndex) {
+                    this.setDirty(input, feature, this.fieldName, start + (index - this.addressPointFeaturesIndex) * step); // !
+                }
+            })
+            input.value = start;
+
+            this._clearLabels();
+            this._showLabels();
+        }));
     }
 
     private getMenuItems() {
