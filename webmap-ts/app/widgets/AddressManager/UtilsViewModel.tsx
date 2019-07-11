@@ -752,7 +752,8 @@ class UtilsViewModel extends declared(Accessor) {
     }
 
     public SHOW_ARROW = (p1 : Point, p2: Point, color = [0, 0, 0, 0.75]) => {
-        let angle = 0;
+        let ArrowSymbol = new SimpleMarkerSymbol({ style: "diamond", size:8, color: color, angle:0})
+
         if(p1.x != p2.x || p1.y != p2.y) {
             const arrowLine = new Graphic({
                 geometry: new Polyline({spatialReference: this.mapView.spatialReference}), 
@@ -764,14 +765,22 @@ class UtilsViewModel extends declared(Accessor) {
             arrowLine.geometry.paths = [[[p1.x, p1.y], [p2.x, p2.y]]];
             this.mapView.graphics.add(arrowLine);
 
-            angle = Math.atan2(p2.x-p1.x, p2.y-p1.y)*180/Math.PI;
-            // console.log("angle", angle);
+            const angle = -Math.atan2(p2.y-p1.y, p2.x-p1.x)*180/Math.PI;
+            console.log("angle", angle);
+
+            ArrowSymbol = {
+                type: "picture-marker",
+                url:"images/arrow.48x24.png",
+                width: 12,
+                height: 6,
+                angle: angle,
+            } as any;
         }
+
         const arrowCap = new Graphic({
             geometry: p2, 
-            symbol: new SimpleMarkerSymbol({ style: "diamond", size:8, color: color, angle:angle})
+            symbol: ArrowSymbol
         });
-
         this.mapView.graphics.add(arrowCap);
     }
 
