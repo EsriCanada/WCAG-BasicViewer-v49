@@ -23,6 +23,7 @@ import Color = require("esri/Color");
 import Font = require("esri/symbols/Font");
 import { createSemicolonClassElement } from "typescript";
 import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
+import SimpleMarkerSymbol = require("esri/symbols/SimpleMarkerSymbol");
 
 @subclass("esri.guide.UtilsViewModel")
 class UtilsViewModel extends declared(Accessor) {
@@ -748,6 +749,30 @@ class UtilsViewModel extends declared(Accessor) {
         }
         // })
         return deferred.promise;
+    }
+
+    public SHOW_ARROW = (p1 : Point, p2: Point, color = [0, 0, 0, 0.75]) => {
+        let angle = 0;
+        if(p1.x != p2.x || p1.y != p2.y) {
+            const arrowLine = new Graphic({
+                geometry: new Polyline({spatialReference: this.mapView.spatialReference}), 
+                symbol: new SimpleLineSymbol({
+                    style: "solid",
+                    width: 1,
+                    color: color,
+                })});
+            arrowLine.geometry.paths = [[[p1.x, p1.y], [p2.x, p2.y]]];
+            this.mapView.graphics.add(arrowLine);
+
+            angle = Math.atan2(p2.x-p1.x, p2.y-p1.y)*180/Math.PI;
+            // console.log("angle", angle);
+        }
+        const arrowCap = new Graphic({
+            geometry: p2, 
+            symbol: new SimpleMarkerSymbol({ style: "diamond", size:8, color: color, angle:angle})
+        });
+
+        this.mapView.graphics.add(arrowCap);
     }
 
 }

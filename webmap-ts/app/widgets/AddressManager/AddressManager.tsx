@@ -31,6 +31,7 @@ import watchUtils = require("esri/core/watchUtils");
 import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
 import Draw = require("esri/views/draw/Draw");
 import Polyline = require("esri/geometry/Polyline");
+import { SimpleLineSymbol, SimpleMarkerSymbol } from "esri/symbols";
 // import AddressCompiler = require("./AddressCompiler");
 
 @subclass("esri.widgets.AddressManager")
@@ -882,15 +883,35 @@ import Polyline = require("esri/geometry/Polyline");
                     if (geo) {
                         const centroid = this.UtilsVM.GetCentroidCoordinates(geo) as Point;
 
+                        this.UtilsVM.SHOW_ARROW((feature as any).geometry, centroid);
+
+                        // const arrowLine = new Graphic({
+                        //     geometry: new Polyline({spatialReference: this.mapView.spatialReference}), 
+                        //     symbol: new SimpleLineSymbol({
+                        //         style: "solid",
+                        //         width: 1,
+                        //         color: [0, 0, 0, 0.75],
+                        //     })})
+
+                        // arrowLine.geometry.paths = [[[(feature as any).geometry.x, (feature as any).geometry.y], [centroid.x, centroid.y]]];
+
+                        // const arrowCap = new Graphic({
+                        //     geometry: centroid, 
+                        //     symbol: new SimpleMarkerSymbol({ style: "diamond", size:7, color: [26, 26, 26, 0.75], angle:0})
+                        // });
+
+                        // this.mapView.graphics.add(arrowLine);
+                        // this.mapView.graphics.add(arrowCap);
+
                         this.x.value = centroid.x.toString();
                         this.y.value = centroid.y.toString();
 
                         const layer = (feature as any).layer;
 
-                        (feature as any).visible = false;
+                        // (feature as any).visible = false;
                         this._setDirty([this.x, this.y], feature, "geometry", centroid);
-                        this.mapView.graphics.add(feature as any);
-                        (feature as any).visible = true;
+                        // this.mapView.graphics.add(feature as any);
+                        // (feature as any).visible = true;
 
                         this.UtilsVM._removeMarker(this.UtilsVM.SELECTED_ADDRESS_SYMBOL.name);
                         const graphic = new Graphic({geometry: (feature as any).geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
