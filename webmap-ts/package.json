@@ -1,18 +1,18 @@
 {
-  "name": "webmap-ts",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@types/arcgis-js-api": "4.11.0"
-  },
-  "devDependencies": {
-    "dojo-typings": "^1.11.9"
-  }
+    "name": "webmap-ts",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@types/arcgis-js-api": "4.12.0"
+    },
+    "devDependencies": {
+        "dojo-typings": "^1.11.9"
+    }
 }
