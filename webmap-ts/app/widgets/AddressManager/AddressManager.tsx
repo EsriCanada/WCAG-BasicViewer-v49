@@ -134,6 +134,7 @@ import { SimpleLineSymbol, SimpleMarkerSymbol } from "esri/symbols";
     private freeLine: any;
     private selectedGeometries: Collection<__esri.Geometry>;
     private menuFieldName: string;
+    centerAll: HTMLElement;
 
     constructor() {
         super(); 
@@ -275,7 +276,7 @@ import { SimpleLineSymbol, SimpleMarkerSymbol } from "esri/symbols";
                                                     <img src="../images/icons_transp/ascending.black.18.png" />
                                                 </label>
                                             </div>
-                                            <a ahref="#" data-dojo-attach-point="centroidAll" data-dojo-attach-event="click:_onMenuItemCenterAll">Center All</a>
+                                            <a ahref="#" data-dojo-attach-point="centroidAll" afterCreate={this._addCenterAll}>Center All</a>
                                             <a ahref="#" data-dojo-attach-point="moveAll" data-dojo-attach-event="click:_onMenuItemMoveAll">Move All</a>
                                         </div>
                                     </div>
@@ -885,52 +886,57 @@ import { SimpleLineSymbol, SimpleMarkerSymbol } from "esri/symbols";
 
                         this.UtilsVM.SHOW_ARROW((feature as any).geometry, centroid);
 
-                        // const arrowLine = new Graphic({
-                        //     geometry: new Polyline({spatialReference: this.mapView.spatialReference}), 
-                        //     symbol: new SimpleLineSymbol({
-                        //         style: "solid",
-                        //         width: 1,
-                        //         color: [0, 0, 0, 0.75],
-                        //     })})
-
-                        // arrowLine.geometry.paths = [[[(feature as any).geometry.x, (feature as any).geometry.y], [centroid.x, centroid.y]]];
-
-                        // const arrowCap = new Graphic({
-                        //     geometry: centroid, 
-                        //     symbol: new SimpleMarkerSymbol({ style: "diamond", size:7, color: [26, 26, 26, 0.75], angle:0})
-                        // });
-
-                        // this.mapView.graphics.add(arrowLine);
-                        // this.mapView.graphics.add(arrowCap);
-
                         this.x.value = centroid.x.toString();
                         this.y.value = centroid.y.toString();
 
-                        const layer = (feature as any).layer;
-
-                        // (feature as any).visible = false;
                         this._setDirty([this.x, this.y], feature, "geometry", centroid);
-                        // this.mapView.graphics.add(feature as any);
-                        // (feature as any).visible = true;
 
                         this.UtilsVM._removeMarker(this.UtilsVM.SELECTED_ADDRESS_SYMBOL.name);
                         const graphic = new Graphic({geometry: (feature as any).geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
                         this.mapView.graphics.add(graphic);
-
-                        // this.mapView.popup.autoOpenEnabled = false;
-                        // this.mapView.whenLayerView(layer).then((layerView: FeatureLayerView) => {
-                        //     layerView.highlight(feature as any)
-                        // })
-
                     }
                 },
                 err => {
-                        html.removeClass(btn, "active");
-                        console.log("Centroid Error", err);
+                    html.removeClass(btn, "active");
+                    console.log("Centroid Error", err);
                 })
         }))
     };
 
+    private _addCenterAll = (element: Element) => {
+        this.centerAll = element as HTMLElement;
+        this.own(on(this.centerAll, "click", event => {
+            if(this.addressPointFeatures.length < 1) return;
+
+            this.addressPointFeatures.forEach(f => {
+                const address = f as any;
+
+                const q = this.parcelsLayer.createQuery();
+                q.outFields = ["OBJECTID"];
+                q.where = "1=1";
+                q.geometry = address.geometry;
+                q.spatialRelationship = "intersects";
+                q.returnGeometry = true;
+
+                this.parcelsLayer.queryFeatures(q).then(
+                ({features}) => {
+                    const [geo] = features.map(f => f.geometry);
+                    if (geo) {
+                        const centroid = this.UtilsVM.GetCentroidCoordinates(geo) as Point;
+
+                        this.UtilsVM.SHOW_ARROW(address.geometry, centroid);
+
+                        // this.x.value = centroid.x.toString();
+                        // this.y.value = centroid.y.toString();
+
+                        this._setDirty([centroid.x, centroid.y], address, "geometry", centroid);
+                    }
+                }
+            })
+
+            this._populateAddressTable(0);
+        }))
+    }
 
     private _makeAddressTableLayout() {
         this._showNavigator(false);
