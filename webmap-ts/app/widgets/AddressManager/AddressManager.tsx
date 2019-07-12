@@ -1627,7 +1627,9 @@ import Deferred = require("dojo/_base/Deferred");
                 }
                 feature.attributes[fieldName] = value;
             } else {
-                feature.originalValues.geometry = feature.geometry;
+                if(!("geometry" in feature.originalValues)) {
+                    feature.originalValues.geometry = feature.geometry;
+                }
                 feature.geometry = value;
             }
             const nullToBlankOrValue = (value:string) => {return value == null ? "" : value; };
