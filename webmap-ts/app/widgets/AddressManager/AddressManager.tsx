@@ -884,16 +884,18 @@ import { SimpleLineSymbol, SimpleMarkerSymbol } from "esri/symbols";
                     if (geo) {
                         const centroid = this.UtilsVM.GetCentroidCoordinates(geo) as Point;
 
-                        this.UtilsVM.SHOW_ARROW((feature as any).geometry, centroid);
+                        if((feature as any).geometry.x != centroid.x || (feature as any).geometry.y != centroid.y) {
+                            this.UtilsVM.SHOW_ARROW((feature as any).geometry, centroid);
 
-                        this.x.value = centroid.x.toString();
-                        this.y.value = centroid.y.toString();
+                            this.x.value = centroid.x.toString();
+                            this.y.value = centroid.y.toString();
 
-                        this._setDirty([this.x, this.y], feature, "geometry", centroid);
+                            this._setDirty([this.x, this.y], feature, "geometry", centroid);
 
-                        this.UtilsVM._removeMarker(this.UtilsVM.SELECTED_ADDRESS_SYMBOL.name);
-                        const graphic = new Graphic({geometry: (feature as any).geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
-                        this.mapView.graphics.add(graphic);
+                            this.UtilsVM._removeMarker(this.UtilsVM.SELECTED_ADDRESS_SYMBOL.name);
+                            const graphic = new Graphic({geometry: (feature as any).geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
+                            this.mapView.graphics.add(graphic);
+                        }
                     }
                 },
                 err => {
@@ -924,14 +926,12 @@ import { SimpleLineSymbol, SimpleMarkerSymbol } from "esri/symbols";
                     if (geo) {
                         const centroid = this.UtilsVM.GetCentroidCoordinates(geo) as Point;
 
-                        this.UtilsVM.SHOW_ARROW(address.geometry, centroid);
-
-                        // this.x.value = centroid.x.toString();
-                        // this.y.value = centroid.y.toString();
-
-                        this._setDirty([centroid.x, centroid.y], address, "geometry", centroid);
+                        if(address.geometry.x != centroid.x || address.geometry.y != centroid.y) {
+                            this.UtilsVM.SHOW_ARROW(address.geometry, centroid);
+                            this._setDirty([centroid.x, centroid.y], address, "geometry", centroid);
+                        }
                     }
-                }
+                })
             })
 
             this._populateAddressTable(0);
