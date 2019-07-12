@@ -786,7 +786,7 @@ class UtilsViewModel extends declared(Accessor) {
 
     private movePoint_draw : Draw;
 
-    public MOVE_POINT = (p: Point): any => {
+    public MOVE_POINT = (points: Point[]): any => {
         const deferred = new Deferred();
         this.mapView.graphics.removeAll();
 
@@ -806,17 +806,37 @@ class UtilsViewModel extends declared(Accessor) {
             const drawAction = this.movePoint_draw.create("point");
             drawAction.on("draw-complete", (event) => {
                 this.movePoint_draw.reset();
-                this.mapView.graphics.removeAll();
+                // this.mapView.graphics.removeAll();
                 const p1 = new Point({x: event.coordinates[0], y: event.coordinates[1], spatialReference: this.mapView.spatialReference});
-                this.SHOW_ARROW(p, p1);
-                deferred.resolve(p1);
+                // this.SHOW_ARROW(points[0], p1);
+                const ps = [p1];
+                if(points.length>1) {
+                    const dx = p1.x - points[0].x;
+                    const dy = p1.y - points[0].y;
+                    for(let i=1; i<points.length; i++) {
+                        ps.push(new Point({
+                            x:points[i].x+dx, y:points[i].y+dy, 
+                            spatialReference: this.mapView.spatialReference}
+                        ));
+                    }
+                }
+                deferred.resolve(ps);
             })
             drawAction.on([
                 "cursor-update",
             ], event => {
                 this.mapView.graphics.removeAll();
                 const p1 = new Point({x: event.coordinates[0], y: event.coordinates[1], spatialReference: this.mapView.spatialReference});
-                this.SHOW_ARROW(p, p1);
+                this.SHOW_ARROW(points[0], p1);
+                if(points.length>1) {
+                    const dx = p1.x - points[0].x;
+                    const dy = p1.y - points[0].y;
+                    for(let i=1; i<points.length; i++) {
+                        this.SHOW_ARROW(points[i], new Point({
+                            x:points[i].x+dx, y:points[i].y+dy, 
+                            spatialReference: this.mapView.spatialReference}
+                        ))
+                    }}
                 // console.log("move", event);
             })
         }
