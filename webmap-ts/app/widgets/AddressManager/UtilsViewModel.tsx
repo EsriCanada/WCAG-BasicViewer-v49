@@ -784,6 +784,44 @@ class UtilsViewModel extends declared(Accessor) {
         this.mapView.graphics.add(arrowCap);
     }
 
+    private movePoint_draw : Draw;
+
+    public MOVE_POINT = (p: Point): any => {
+        const deferred = new Deferred();
+        this.mapView.graphics.removeAll();
+
+        if(this.movePoint_draw && this.movePoint_draw.activeAction) {
+            this.movePoint_draw.reset();
+            deferred.cancel("User canceled MovePoint action");
+        } 
+        else {
+            if(!this.movePoint_draw) {
+                this.movePoint_draw = new Draw({
+                    view: this.mapView,
+                })
+            }
+
+            // this.mapView.graphics.removeAll();
+
+            const drawAction = this.movePoint_draw.create("point");
+            drawAction.on("draw-complete", (event) => {
+                this.movePoint_draw.reset();
+                this.mapView.graphics.removeAll();
+                const p1 = new Point({x: event.coordinates[0], y: event.coordinates[1], spatialReference: this.mapView.spatialReference});
+                this.SHOW_ARROW(p, p1);
+                deferred.resolve(p1);
+            })
+            drawAction.on([
+                "cursor-update",
+            ], event => {
+                this.mapView.graphics.removeAll();
+                const p1 = new Point({x: event.coordinates[0], y: event.coordinates[1], spatialReference: this.mapView.spatialReference});
+                this.SHOW_ARROW(p, p1);
+                // console.log("move", event);
+            })
+        }
+        return deferred.promise;
+    }
 }
 
 export = UtilsViewModel;

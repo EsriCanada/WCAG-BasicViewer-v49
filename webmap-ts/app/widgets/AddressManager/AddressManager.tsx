@@ -32,6 +32,7 @@ import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
 import Draw = require("esri/views/draw/Draw");
 import Polyline = require("esri/geometry/Polyline");
 import { SimpleLineSymbol, SimpleMarkerSymbol } from "esri/symbols";
+import Deferred = require("dojo/_base/Deferred");
 // import AddressCompiler = require("./AddressCompiler");
 
 @subclass("esri.widgets.AddressManager")
@@ -135,6 +136,7 @@ import { SimpleLineSymbol, SimpleMarkerSymbol } from "esri/symbols";
     private selectedGeometries: Collection<__esri.Geometry>;
     private menuFieldName: string;
     centerAll: HTMLElement;
+    moveAddressPointBtn: HTMLElement;
 
     constructor() {
         super(); 
@@ -259,7 +261,7 @@ import { SimpleLineSymbol, SimpleMarkerSymbol } from "esri/symbols";
                                 <div><label for="x_input">x:</label>
                                     <div style="float:right;">
                                         <input type="image" src="../images/icons_transp/centroid.bgwhite.24.png" title="Centroid" aria-label="Place Address Point to Centroid" afterCreate={this._addCentroidBtn} class="rowImg"/>
-                                        <input type="image" src="../images/icons_transp/movePoint.bgwhite.24.png" title="Move" aria-label="Move Address Point" data-dojo-attach-event="onclick:_onMoveAddressPointClicked" data-dojo-attach-point="moveAddressPoint" class="rowImg"/>
+                                        <input type="image" src="../images/icons_transp/movePoint.bgwhite.24.png" title="Move" aria-label="Move Address Point" afterCreate={this._addMoveAddressPointBtn} data-dojo-attach-point="moveAddressPoint" class="rowImg"/>
                                     </div>
                                 </div>
                             </th>
@@ -935,6 +937,71 @@ import { SimpleLineSymbol, SimpleMarkerSymbol } from "esri/symbols";
             })
 
             this._populateAddressTable(0);
+        }))
+    }
+
+    private _addMoveAddressPointBtn = (element: Element) => {
+        this.moveAddressPointBtn = element as HTMLElement;
+        this.own(on(this.moveAddressPointBtn, "click", event => {
+            if (!this.addressPointFeatures || this.addressPointFeatures.length == 0) return;
+            html.addClass(event.target, "active");
+            require(["./CursorToolTip"], CursorToolTip => {
+                const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click to end Move");
+
+                const feature = this.selectedAddressPointFeature as any;
+                let g = feature.geometry;
+                if("originalValues" in feature && "geometry" in feature.originalValues) {
+                    g = feature.originalValues.geometry;
+                }
+
+                this.UtilsVM.MOVE_POINT(g).then(
+                    result => {
+                        const feature = this.selectedAddressPointFeature as any;
+                        // console.log("move result", result);
+                        html.removeClass(event.target, "active");
+                        CursorToolTip.Close();
+
+                        this.x.value = result.x.toString();
+                        this.y.value = result.y.toString();
+
+                        this._setDirty([this.x, this.y], feature, "geometry", result);
+                        const selectGraphic = new Graphic({geometry: feature.geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
+                        this.mapView.graphics.add(selectGraphic);
+                    },
+                    error =>  {
+                        console.log("move error", error);
+                        html.removeClass(event.target, "active");
+                        CursorToolTip.Close();
+                        const selectGraphic = new Graphic({geometry: feature.geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
+                        this.mapView.graphics.add(selectGraphic);
+                    }
+                )
+            })
+
+        //     const moveStopHandler = this.editToolbar.on("graphic-move-stop", (event) => {
+        //         // console.log("graphic-move-stop", event);
+        //         this.editToolbar.deactivate();
+        //         moveStopHandler.remove();
+
+        //         this.x.value = event.graphic.geometry.x;
+        //         this.y.value = event.graphic.geometry.y;
+
+        //         const feature = this.addressPointFeatures[this.addressPointFeaturesIndex];
+
+        //         this._setDirty([this.x, this.y], feature, "geometry", event.graphic.geometry);
+
+        //         feature._layer.suspend();
+        //         feature.geometry.update(this.x.value, this.y.value);
+        //         feature._layer.resume();
+
+        //         html.removeClass(this.moveAddressPointBtn, "active");
+        //         deferred.resolve(feature.geometry);
+
+        //     });
+
+        //     this.editToolbar.activate(Edit.MOVE, selectedAddress);
+
+        //     return deferred.promise;        
         }))
     }
 
