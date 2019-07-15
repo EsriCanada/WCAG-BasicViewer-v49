@@ -24,6 +24,7 @@ import Font = require("esri/symbols/Font");
 import { createSemicolonClassElement } from "typescript";
 import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
 import SimpleMarkerSymbol = require("esri/symbols/SimpleMarkerSymbol");
+import CursorToolTip = require("./CursorToolTip");
 
 @subclass("esri.guide.UtilsViewModel")
 class UtilsViewModel extends declared(Accessor) {
@@ -174,12 +175,12 @@ class UtilsViewModel extends declared(Accessor) {
             if (this.PICK_ROAD_sketchVM.state == "active") {
                 this.PICK_ROAD_sketchVM.cancel();
                 // deferred.cancel("User Cancel");
-                reject("User Cancel");
+                CursorToolTip.Close();
                 setTimeout(() => { tempGraphicsLayer.removeAll(); }, 250);
+                reject("User Cancel");
                 // return deferred.promise;
             }
             else {
-                require(["./CursorToolTip"], CursorToolTip =>{
                     const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click a road to select");
 
                     this.PICK_ROAD_sketchVM.create("point");
@@ -187,7 +188,7 @@ class UtilsViewModel extends declared(Accessor) {
                         
                         if (event.state === "complete") {
                             const graphic = event.graphic;
-                            cursorTooltip.close();
+                            CursorToolTip.Close();
                             // console.log("event.graphic", event.graphic);
 
                             // sketchVM.layer.remove(graphic);
@@ -232,17 +233,17 @@ class UtilsViewModel extends declared(Accessor) {
                                 error => {
                                     // console.error("PICK_ROAD", error);
                                     // deferred.cancel(error);
-                                    reject(error);
+                                    CursorToolTip.Close();
                                     setTimeout(() => { this.mapView.graphics.removeAll(); }, 250);
+                                    reject(error);
                                 }
                             );
                         }
                     });
-                });
+                
             }
-
-            // return deferred.promise;
-        })
+        });
+        // return deferred.promise;
     }
 
     ADD_NEW_ADDRESS_sketchVM: SketchViewModel = null;
