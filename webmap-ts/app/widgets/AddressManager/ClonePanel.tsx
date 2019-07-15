@@ -467,7 +467,8 @@ import { isReturnStatement } from "typescript";
         html.removeClass(this.cloneApplyBtn, "blueBtn");        
         html.addClass(event.target, "active");
 
-        this.UtilsVM.PICK_ROAD().then(
+        this.UtilsVM.PICK_ROAD()
+        .then(
             roadSegment => {
                 html.removeClass(event.target, "active"); 
                 this.cutters = [];
@@ -500,14 +501,13 @@ import { isReturnStatement } from "typescript";
                 this.roadGraphicsLayer.add(this.addressRoadGraphic);
 
                 this.addressRoadGeometry = buffer;
-            },
-            error => {
-                console.error("PICK_ROAD", error);
+            })
+        .catch(error => {
+            console.error("PICK_ROAD", error);
 
-                // this.mapView.map.setInfoWindowOnClick(true);
-                html.removeClass(event.target, "active");
-            }
-        );
+            // this.mapView.map.setInfoWindowOnClick(true);
+            html.removeClass(event.target, "active");
+        });
     }
 
     private _addFlipSide = (element:Element) => {

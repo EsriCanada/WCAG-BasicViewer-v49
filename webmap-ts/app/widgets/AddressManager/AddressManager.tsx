@@ -32,7 +32,7 @@ import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
 import Draw = require("esri/views/draw/Draw");
 import Polyline = require("esri/geometry/Polyline");
 import { SimpleLineSymbol, SimpleMarkerSymbol } from "esri/symbols";
-import Deferred = require("dojo/_base/Deferred");
+// import Deferred = require("dojo/_base/Deferred");
 // import AddressCompiler = require("./AddressCompiler");
 
 @subclass("esri.widgets.AddressManager")
@@ -1375,7 +1375,8 @@ import Deferred = require("dojo/_base/Deferred");
                     event => {
                         html.addClass(event.target, "active");
 
-                        this.UtilsVM.PICK_ROAD().then(
+                        this.UtilsVM.PICK_ROAD()
+                        .then(
                             street => {
                                 const fullname = (street as any).attributes.fullname
                                 input.value = fullname;
@@ -1383,14 +1384,13 @@ import Deferred = require("dojo/_base/Deferred");
 
                                 this._inputChanged(field.name);
                                 html.removeClass(event.target, "active");
-                            },
-                            err => {
-                                console.log("PICK_ROAD", err);
+                        })
+                        .catch(err => {
+                            console.log("PICK_ROAD", err);
 
-                                // this.mapView.popup.autoOpenEnabled = true; // ?
-                                html.removeClass(event.target, "active");
-                            }
-                        );
+                            // this.mapView.popup.autoOpenEnabled = true; // ?
+                            html.removeClass(event.target, "active");
+                        });
                     }
                 ));
 

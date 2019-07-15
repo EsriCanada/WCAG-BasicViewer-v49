@@ -153,89 +153,96 @@ class UtilsViewModel extends declared(Accessor) {
     
     PICK_ROAD_sketchVM: SketchViewModel = null;
 
-    PICK_ROAD = function()  {
-        const deferred = new Deferred();
-        // this.mapView.popup.autoOpenEnabled = false; // ?
-        this.mapView.popup.close();
+    PICK_ROAD = function() : Promise<any> {
+        // const deferred = new Deferred();
+        return new Promise((resolve, reject) => {
+            // this.mapView.popup.autoOpenEnabled = false; // ?
+            this.mapView.popup.close();
 
-        // let drawDrawEnd = draw.on("draw-complete", lang.hitch(this, pickRoad));
-        // draw.activate(Draw.POINT);
-        const tempGraphicsLayer = new GraphicsLayer();
+            // let drawDrawEnd = draw.on("draw-complete", lang.hitch(this, pickRoad));
+            // draw.activate(Draw.POINT);
+            const tempGraphicsLayer = new GraphicsLayer();
 
-        this.mapView.map.add(tempGraphicsLayer); 
+            this.mapView.map.add(tempGraphicsLayer); 
 
-        if(!this.PICK_ROAD_sketchVM) {
-            this.PICK_ROAD_sketchVM = new SketchViewModel({
-                layer: tempGraphicsLayer,
-                view: this.mapView,
-            })
-        }
-        if (this.PICK_ROAD_sketchVM.state == "active") {
-            this.PICK_ROAD_sketchVM.cancel();
-            deferred.cancel("User Cancel");
-            setTimeout(() => { tempGraphicsLayer.removeAll(); }, 250);
-            return deferred.promise;
-        }
+            if(!this.PICK_ROAD_sketchVM) {
+                this.PICK_ROAD_sketchVM = new SketchViewModel({
+                    layer: tempGraphicsLayer,
+                    view: this.mapView,
+                })
+            }
+            if (this.PICK_ROAD_sketchVM.state == "active") {
+                this.PICK_ROAD_sketchVM.cancel();
+                // deferred.cancel("User Cancel");
+                reject("User Cancel");
+                setTimeout(() => { tempGraphicsLayer.removeAll(); }, 250);
+                // return deferred.promise;
+            }
+            else {
+                require(["./CursorToolTip"], CursorToolTip =>{
+                    const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click a road to select");
 
-        require(["./CursorToolTip"], CursorToolTip =>{
-            const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click a road to select");
+                    this.PICK_ROAD_sketchVM.create("point");
+                    this.PICK_ROAD_sketchVM.on("create", event => {
+                        
+                        if (event.state === "complete") {
+                            const graphic = event.graphic;
+                            cursorTooltip.close();
+                            // console.log("event.graphic", event.graphic);
 
-            this.PICK_ROAD_sketchVM.create("point");
-            this.PICK_ROAD_sketchVM.on("create", event => {
+                            // sketchVM.layer.remove(graphic);
+                            // mapView.graphics.add(graphic);
+
+                            tempGraphicsLayer.removeAll();
+
+                            const buffer = geometryEngine.buffer(graphic.geometry, 5, "meters");
                 
-                if (event.state === "complete") {
-                    const graphic = event.graphic;
-                    cursorTooltip.close();
-                    // console.log("event.graphic", event.graphic);
+                            const clickMarker = { 
+                                geometry: buffer, 
+                                symbol: this.BUFFER_SYMBOL
+                            };
+                            // console.log("gr", gr);
 
-                    // sketchVM.layer.remove(graphic);
-                    // mapView.graphics.add(graphic);
+                            tempGraphicsLayer.add(clickMarker as any);
+                    
+                            const q = this.roadsLayer.createQuery();
+                            q.outFields = ["*"];
+                            q.where = "1=1";
+                            q.geometry = buffer as any;
+                            q.spatialRelationship = "intersects";
+                            q.returnGeometry = true;
+                    
+                            this.roadsLayer.queryFeatures(q).then(
+                                results => {
+                                    const roads = results.features;
+                                    if (roads.length == 1) {
+                                        const streetMarker = geometryEngine.buffer((roads[0] as any).geometry, 5, "meters");
+                                        const streetGraphic = { geometry:streetMarker, symbol:this.BUFFER_SYMBOL};
+                                        tempGraphicsLayer.add(streetGraphic as any)
 
-                    tempGraphicsLayer.removeAll();
-
-                    const buffer = geometryEngine.buffer(graphic.geometry, 5, "meters");
-        
-                    const clickMarker = { 
-                        geometry: buffer, 
-                        symbol: this.BUFFER_SYMBOL
-                    };
-                    // console.log("gr", gr);
-
-                    tempGraphicsLayer.add(clickMarker as any);
-            
-                    const q = this.roadsLayer.createQuery();
-                    q.outFields = ["*"];
-                    q.where = "1=1";
-                    q.geometry = buffer as any;
-                    q.spatialRelationship = "intersects";
-                    q.returnGeometry = true;
-            
-                    this.roadsLayer.queryFeatures(q).then(
-                        results => {
-                            const roads = results.features;
-                            if (roads.length == 1) {
-                                const streetMarker = geometryEngine.buffer((roads[0] as any).geometry, 5, "meters");
-                                const streetGraphic = { geometry:streetMarker, symbol:this.BUFFER_SYMBOL};
-                                tempGraphicsLayer.add(streetGraphic as any)
-
-                                setTimeout(() =>  { tempGraphicsLayer.removeAll(); }, 250);
-                                deferred.resolve(roads[0]);
-                            } else {
-                                setTimeout(() =>  { tempGraphicsLayer.removeAll(); }, 250);
-                                deferred.cancel("Too many or no matches")
-                            }
-                        },
-                        error => {
-                            // console.error("PICK_ROAD", error);
-                            deferred.cancel(error);
-                            setTimeout(() => { this.mapView.graphics.removeAll(); }, 250);
+                                        setTimeout(() =>  { tempGraphicsLayer.removeAll(); }, 250);
+                                        // deferred.resolve(roads[0]);
+                                        resolve(roads[0]);
+                                    } else {
+                                        setTimeout(() =>  { tempGraphicsLayer.removeAll(); }, 250);
+                                        // deferred.cancel("Too many or no matches")
+                                        reject("Too many or no matches");
+                                    }
+                                },
+                                error => {
+                                    // console.error("PICK_ROAD", error);
+                                    // deferred.cancel(error);
+                                    reject(error);
+                                    setTimeout(() => { this.mapView.graphics.removeAll(); }, 250);
+                                }
+                            );
                         }
-                    );
-                }
-            });
-        });
+                    });
+                });
+            }
 
-        return deferred.promise;
+            // return deferred.promise;
+        })
     }
 
     ADD_NEW_ADDRESS_sketchVM: SketchViewModel = null;
