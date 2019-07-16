@@ -665,85 +665,84 @@ class UtilsViewModel extends declared(Accessor) {
     private pickAddresses_draw: Draw;
     
     public PICK_ADDRESSES = (addressLayer) => {
-        const deferred = new Deferred();
-        if(this.pickAddresses_draw && this.pickAddresses_draw.activeAction) {
-            this.pickAddresses_draw.reset();
-            deferred.cancel("User canceled pickParcels action");
-        } 
-        else {
-            if(!this.pickAddresses_draw) {
-                this.pickAddresses_draw = new Draw({
-                    view: this.mapView,
-                })
-            }
-
-            this.mapView.graphics.removeAll();
-
-            const drawAction = this.pickAddresses_draw.create("polygon", {mode: "freehand"});
-            drawAction.on("draw-complete", () => {
+        return new Promise((resolve, reject) => {
+            if(this.pickAddresses_draw && this.pickAddresses_draw.activeAction) {
                 this.pickAddresses_draw.reset();
-                (this.freeLine as any).symbol = this.SELECTED_PARCEL_SYMBOL;
+                reject("User canceled pickAddresses action");
+            } 
+            else {
+                if(!this.pickAddresses_draw) {
+                    this.pickAddresses_draw = new Draw({
+                        view: this.mapView,
+                    })
+                }
 
-                const q = addressLayer.createQuery();
-                q.geometry = this.freeLine.geometry;
-                q.outFields = ["*"];
-                q.spatialRelationship = "contains";
-                const oldaddresses = addressLayer.queryFeatures(q);
-                const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);
-                All([oldaddresses, newAddresses])
-                // addressLayer.queryFeatures(q)
-                // oldaddresses
-                // newAddresses
-                .then(
-                    results => {
-                        const addresses = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
-                        if(addresses.length >0) {
-                            deferred.resolve(addresses);
-                        } else {
-                            deferred.cancel("No Addresses Found");
+                this.mapView.graphics.removeAll();
+
+                const drawAction = this.pickAddresses_draw.create("polygon", {mode: "freehand"});
+                drawAction.on("draw-complete", () => {
+                    this.pickAddresses_draw.reset();
+                    (this.freeLine as any).symbol = this.SELECTED_PARCEL_SYMBOL;
+
+                    const q = addressLayer.createQuery();
+                    q.geometry = this.freeLine.geometry;
+                    q.outFields = ["*"];
+                    q.spatialRelationship = "contains";
+                    const oldaddresses = addressLayer.queryFeatures(q);
+                    const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);
+                    All([oldaddresses, newAddresses])
+                    // addressLayer.queryFeatures(q)
+                    // oldaddresses
+                    // newAddresses
+                    .then(
+                        results => {
+                            const addresses = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
+                            if(addresses.length >0) {
+                                resolve(addresses);
+                            } else {
+                                reject("No Addresses Found");
+                            }
+                        },
+                        error => {
+                            reject(error);
                         }
-                    },
-                    error => {
-                        deferred.cancel(error);
-                    }
-                )
-            })
-            drawAction.on([
-                "vertex-add",
-                "vertex-remove",
-                "cursor-update",
-                "redo",
-                "undo",
-            ], event => {
-                if (event.vertices.length > 1) {
-                    this.mapView.graphics.removeAll();
+                    )
+                })
+                drawAction.on([
+                    "vertex-add",
+                    "vertex-remove",
+                    "cursor-update",
+                    "redo",
+                    "undo",
+                ], event => {
+                    if (event.vertices.length > 1) {
+                        this.mapView.graphics.removeAll();
 
-                    this.verticesWithoutLoops(event.vertices).then(v => {
+                        this.verticesWithoutLoops(event.vertices).then(v => {
 
-                        if(event.vertices.length != v.length && v.length >= 10) {
-                            event.vertices.length = v.length-1;
-                        }
+                            if(event.vertices.length != v.length && v.length >= 10) {
+                                event.vertices.length = v.length-1;
+                            }
 
-                        this.freeLine = new Graphic({
-                            geometry: new Polygon({
-                                rings: event.vertices,
-                                spatialReference: this.mapView.spatialReference
-                            }),
-                            symbol: this.LINE_SELECT_PARCELS_SYMBOL
+                            this.freeLine = new Graphic({
+                                geometry: new Polygon({
+                                    rings: event.vertices,
+                                    spatialReference: this.mapView.spatialReference
+                                }),
+                                symbol: this.LINE_SELECT_PARCELS_SYMBOL
+                            });
+
+                            this.mapView.graphics.add(this.freeLine);
+
+                        }, 
+                        error => {
+                            reject(error);
                         });
 
-                        this.mapView.graphics.add(this.freeLine);
-
-                    }, 
-                    error => {
-                        deferred.cancel(error);
-                    });
-
-                }
-            });
-        }
-        // })
-        return deferred.promise;
+                    }
+                });
+            }
+        })
     }
 
     public SHOW_ARROW = (p1 : Point, p2: Point, color = [0, 0, 0, 0.75]) => {
