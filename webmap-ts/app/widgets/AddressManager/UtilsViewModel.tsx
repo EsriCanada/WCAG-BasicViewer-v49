@@ -393,13 +393,13 @@ class UtilsViewModel extends declared(Accessor) {
                         resolve(features);
                     } else {
                         resolve(null);
-                        // deferred.cancel("No Addresses Found");
+                        // cancel("No Addresses Found");
                     }
                 },
                 err => { reject(err)})
             } else {
                 resolve(null);
-                // deferred.cancel("No Parcels Found");
+                // cancel("No Parcels Found");
             }
         })
     }
@@ -432,20 +432,20 @@ class UtilsViewModel extends declared(Accessor) {
     }
     
     _getFeaturesWithin = function(graphicsLayer, geometry) {
-        const deferred = new Deferred();
-        let within = null
-        if(graphicsLayer) {
-            within = graphicsLayer.graphics.items.filter(g => geometryEngine.within(g.geometry, geometry) )
-            if(within && within.length > 0) {
-                deferred.resolve({features: within});
+        return new Promise((resolve,reject) => {
+            let within = null
+            if(graphicsLayer) {
+                within = graphicsLayer.graphics.items.filter(g => geometryEngine.within(g.geometry, geometry) )
+                if(within && within.length > 0) {
+                    resolve({features: within});
+                }
+                else {
+                    resolve({features: []});
+                }
+            } else {
+                resolve({features: []});
             }
-            else {
-                deferred.resolve({features: []});
-            }
-        } else {
-            deferred.resolve({features: []});
-        }
-        return deferred.promise;
+        });
     }
 
     _removeMarker = function(markerName:string) {
@@ -537,40 +537,40 @@ class UtilsViewModel extends declared(Accessor) {
     }
 
     public verticesWithoutLoops = (vertices : any[]) : any => {
-        const deferred = new Deferred()
-        const length = vertices.length;
+        return new Promise((resolve, reject) => {
+            const length = vertices.length;
 
-        if(length < 10) {
-            deferred.resolve(vertices);
-        }
-        
-        const lastSegmentGeometry = new Polyline({
-            spatialReference: this.mapView.spatialReference,
-            hasZ: false,
-            paths: [vertices.slice(length-2, length)]
-        });
-
-        const lineGeometry = new Polyline({
-            spatialReference: this.mapView.spatialReference,
-            hasZ: false,
-            paths: [vertices.slice(0, length-5)]
-        });
-
-        try {
-            const cuts = geometryEngine.cut(lineGeometry, lastSegmentGeometry);
-            if(cuts && cuts.length == 2) {
-                // console.log("cuts", cuts.map(c => c.paths[0]), length)
-                deferred.resolve(cuts[1].paths[0]);
+            if(length < 10) {
+                resolve(vertices);
             }
-            else {
-                deferred.resolve(vertices);
-            }
-        } catch(error) {
-            // console.log(error, lineGeometry, lastSegmentGeometry);
-            deferred.cancel(error);
-        }
+            
+            const lastSegmentGeometry = new Polyline({
+                spatialReference: this.mapView.spatialReference,
+                hasZ: false,
+                paths: [vertices.slice(length-2, length)]
+            });
 
-        return deferred.promise;
+            const lineGeometry = new Polyline({
+                spatialReference: this.mapView.spatialReference,
+                hasZ: false,
+                paths: [vertices.slice(0, length-5)]
+            });
+
+            try {
+                const cuts = geometryEngine.cut(lineGeometry, lastSegmentGeometry);
+                if(cuts && cuts.length == 2) {
+                    // console.log("cuts", cuts.map(c => c.paths[0]), length)
+                    resolve(cuts[1].paths[0]);
+                }
+                else {
+                    resolve(vertices);
+                }
+            } catch(error) {
+                // console.log(error, lineGeometry, lastSegmentGeometry);
+                reject(error);
+            }
+
+        })
     }
 
     private pickParcels_draw: Draw;
