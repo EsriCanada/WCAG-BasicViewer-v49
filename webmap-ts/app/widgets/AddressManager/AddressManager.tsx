@@ -1177,6 +1177,10 @@ import { rejects } from "assert";
 
     private _checkRules(feature): Promise<string[]> {
         return new Promise((resolve, reject) => {
+            html.removeClass(this.verifyRules, "active");
+            this.brokenRulesAlert.innerHTML = "";
+            this.verifyRules.title = "Verify Address Point Record";
+
             const brokenRules = [];
             if(feature) {
                 for (let fieldName in this.specialAttributes) {
@@ -1187,7 +1191,7 @@ import { rejects } from "assert";
                         const fieldConfig = this.specialAttributes[fieldName];
                         domAttr.set(input, "title", input.value);
                         if ("required" in fieldConfig && fieldConfig["required"] && input.value.isNullOrWhiteSpace()) {
-                            const brokenRule = "'" + alias + "' is required but not provided.";
+                            const brokenRule = "'{0}' is required but not provided.".format(alias);
                             brokenRules.push(brokenRule);
                             domAttr.set(input, "title", domAttr.get(input, "title") + "\n" + brokenRule);
                             html.addClass(input, "brokenRule");
@@ -1211,23 +1215,21 @@ import { rejects } from "assert";
                         }
                     }
                 }
-            }
 
-            html.removeClass(this.verifyRules, "active");
-            // html.setStyle(this.brokenRulesAlert, "display", "none");
-            this.brokenRulesAlert.innerHTML = "";
-            this.verifyRules.title = "Verify Address Point Record";
-            if (brokenRules.length > 0) {
-                const messages = brokenRules.join("\n");
-                this.verifyRules.title = messages;
-                html.addClass(this.verifyRules, "active");
-                brokenRules.forEach(msg => {
-                    this.brokenRulesAlert.innerHTML += "<li>"+msg+"</li>";
-                });
-                resolve(brokenRules);
+                if (brokenRules.length > 0) {
+                    const messages = brokenRules.join("\n");
+                    this.verifyRules.title = messages;
+                    html.addClass(this.verifyRules, "active");
+                    brokenRules.forEach(msg => {
+                        this.brokenRulesAlert.innerHTML += "<li>"+msg+"</li>";
+                    });
+                    resolve(brokenRules);
+                } else {
+                    html.addClass(this.displayBrokenRules, "hide");
+                    resolve(brokenRules);
+                }
             } else {
-                html.addClass(this.displayBrokenRules, "hide");
-                resolve(brokenRules);
+                reject("No Feature Selected");
             }
         })
     }
