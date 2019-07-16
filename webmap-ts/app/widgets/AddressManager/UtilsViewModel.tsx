@@ -5,7 +5,6 @@ import Accessor = require("esri/core/Accessor");
 
 import { subclass, declared, property } from "esri/core/accessorSupport/decorators";
 import MapView = require("esri/views/MapView");
-import Deferred = require("dojo/Deferred");
 import All = require("dojo/promise/all");
 import FeatureLayer = require("esri/layers/FeatureLayer");
 import GraphicsLayer = require("esri/layers/GraphicsLayer");
@@ -13,14 +12,10 @@ import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
 import Draw = require("esri/views/draw/Draw");
 import geometryEngine = require("esri/geometry/geometryEngine");
 import lang = require("dojo/_base/lang");
-import html = require("dojo/_base/html");
 import Query = require("esri/tasks/support/Query");
 import { ENGINE_METHOD_ALL } from "constants";
 import { Geometry, Point, Polyline, Polygon } from "esri/geometry";
 import Graphic = require("esri/Graphic");
-import TextSymbol = require("esri/symbols/TextSymbol");
-import Color = require("esri/Color");
-import Font = require("esri/symbols/Font");
 import { createSemicolonClassElement } from "typescript";
 import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
 import SimpleMarkerSymbol = require("esri/symbols/SimpleMarkerSymbol");
@@ -37,9 +32,6 @@ class UtilsViewModel extends declared(Accessor) {
 
     @property()
     roadsLayer: FeatureLayer;
-
-    // @property({ aliasOf: "mapView.map" })
-    // map: Map;
 
     @property({ readOnly: true })
     BUFFER_SYMBOL = {
@@ -159,8 +151,6 @@ class UtilsViewModel extends declared(Accessor) {
             // this.mapView.popup.autoOpenEnabled = false; // ?
             this.mapView.popup.close();
 
-            // let drawDrawEnd = draw.on("draw-complete", lang.hitch(this, pickRoad));
-            // draw.activate(Draw.POINT);
             const tempGraphicsLayer = new GraphicsLayer();
 
             this.mapView.map.add(tempGraphicsLayer); 
@@ -187,9 +177,6 @@ class UtilsViewModel extends declared(Accessor) {
                             const graphic = event.graphic;
                             CursorToolTip.Close();
                             // console.log("event.graphic", event.graphic);
-
-                            // sketchVM.layer.remove(graphic);
-                            // mapView.graphics.add(graphic);
 
                             tempGraphicsLayer.removeAll();
 
@@ -385,11 +372,6 @@ class UtilsViewModel extends declared(Accessor) {
                     const features = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
                     
                     if (features && features.length > 0) {
-                        // if (features.length > 1) {
-                        //     this.selectedParcelsGraphic = { geometry:q.geometry, symbol: this.SELECTED_PARCEL_SYMBOL };
-                        //     this.mapView.graphics.add(this.selectedParcelsGraphic);
-                        // }
-
                         resolve(features);
                     } else {
                         resolve(null);
@@ -691,9 +673,6 @@ class UtilsViewModel extends declared(Accessor) {
                     const oldaddresses = addressLayer.queryFeatures(q);
                     const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);
                     All([oldaddresses, newAddresses])
-                    // addressLayer.queryFeatures(q)
-                    // oldaddresses
-                    // newAddresses
                     .then(
                         results => {
                             const addresses = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
@@ -781,60 +760,60 @@ class UtilsViewModel extends declared(Accessor) {
     private movePoint_draw : Draw;
 
     public MOVE_POINT = (points: Point[]): any => {
-        const deferred = new Deferred();
-        this.mapView.graphics.removeAll();
+        return new Promise((resolve, reject) => {
+            this.mapView.graphics.removeAll();
 
-        if(this.movePoint_draw && this.movePoint_draw.activeAction) {
-            this.movePoint_draw.reset();
-            deferred.cancel("User canceled MovePoint action");
-        } 
-        else {
-            if(!this.movePoint_draw) {
-                this.movePoint_draw = new Draw({
-                    view: this.mapView,
+            if(this.movePoint_draw && this.movePoint_draw.activeAction) {
+                this.movePoint_draw.reset();
+                reject("User canceled MovePoint action");
+            } 
+            else {
+                if(!this.movePoint_draw) {
+                    this.movePoint_draw = new Draw({
+                        view: this.mapView,
+                    })
+                }
+
+                // this.mapView.graphics.removeAll();
+
+                const drawAction = this.movePoint_draw.create("point");
+                drawAction.on("draw-complete", (event) => {
+                    this.movePoint_draw.reset();
+                    // this.mapView.graphics.removeAll();
+                    const p1 = new Point({x: event.coordinates[0], y: event.coordinates[1], spatialReference: this.mapView.spatialReference});
+                    // this.SHOW_ARROW(points[0], p1);
+                    const ps = [p1];
+                    if(points.length>1) {
+                        const dx = p1.x - points[0].x;
+                        const dy = p1.y - points[0].y;
+                        for(let i=1; i<points.length; i++) {
+                            ps.push(new Point({
+                                x:points[i].x+dx, y:points[i].y+dy, 
+                                spatialReference: this.mapView.spatialReference}
+                            ));
+                        }
+                    }
+                    resolve(ps);
+                })
+                drawAction.on([
+                    "cursor-update",
+                ], event => {
+                    this.mapView.graphics.removeAll();
+                    const p1 = new Point({x: event.coordinates[0], y: event.coordinates[1], spatialReference: this.mapView.spatialReference});
+                    this.SHOW_ARROW(points[0], p1);
+                    if(points.length>1) {
+                        const dx = p1.x - points[0].x;
+                        const dy = p1.y - points[0].y;
+                        for(let i=1; i<points.length; i++) {
+                            this.SHOW_ARROW(points[i], new Point({
+                                x:points[i].x+dx, y:points[i].y+dy, 
+                                spatialReference: this.mapView.spatialReference}
+                            ))
+                        }}
+                    // console.log("move", event);
                 })
             }
-
-            // this.mapView.graphics.removeAll();
-
-            const drawAction = this.movePoint_draw.create("point");
-            drawAction.on("draw-complete", (event) => {
-                this.movePoint_draw.reset();
-                // this.mapView.graphics.removeAll();
-                const p1 = new Point({x: event.coordinates[0], y: event.coordinates[1], spatialReference: this.mapView.spatialReference});
-                // this.SHOW_ARROW(points[0], p1);
-                const ps = [p1];
-                if(points.length>1) {
-                    const dx = p1.x - points[0].x;
-                    const dy = p1.y - points[0].y;
-                    for(let i=1; i<points.length; i++) {
-                        ps.push(new Point({
-                            x:points[i].x+dx, y:points[i].y+dy, 
-                            spatialReference: this.mapView.spatialReference}
-                        ));
-                    }
-                }
-                deferred.resolve(ps);
-            })
-            drawAction.on([
-                "cursor-update",
-            ], event => {
-                this.mapView.graphics.removeAll();
-                const p1 = new Point({x: event.coordinates[0], y: event.coordinates[1], spatialReference: this.mapView.spatialReference});
-                this.SHOW_ARROW(points[0], p1);
-                if(points.length>1) {
-                    const dx = p1.x - points[0].x;
-                    const dy = p1.y - points[0].y;
-                    for(let i=1; i<points.length; i++) {
-                        this.SHOW_ARROW(points[i], new Point({
-                            x:points[i].x+dx, y:points[i].y+dy, 
-                            spatialReference: this.mapView.spatialReference}
-                        ))
-                    }}
-                // console.log("move", event);
-            })
-        }
-        return deferred.promise;
+        })
     }
 }
 
