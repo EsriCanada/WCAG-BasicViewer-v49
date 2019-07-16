@@ -301,7 +301,6 @@ class UtilsViewModel extends declared(Accessor) {
                 CursorToolTip.Close();
 
                 reject("User Cancel");
-                // return deferred.promise;
             }
             else {
                 const drawAction = this.PICK_ADDRESS_OR_PARCEL_draw.create("point");
@@ -374,35 +373,35 @@ class UtilsViewModel extends declared(Accessor) {
     }
 
     GET_ADDRESS_IN_GEOMETRIES = (parcels, addressLayer) => {
-        const deferred = new Deferred();
-        if (parcels.length > 0) {
-            const q = addressLayer.createQuery();
-            q.geometry = geometryEngine.buffer(parcels.items, 0, "meters", true)[0];
-            q.outFields = ["*"];
-            q.spatialRelationship = "contains";
-            const oldaddresses = addressLayer.queryFeatures(q);
-            const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);//this.addressGraphicsLayer.queryFeatures(q);
-            All([oldaddresses, newAddresses]).then(results => {
-                const features = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
-                
-                if (features && features.length > 0) {
-                    // if (features.length > 1) {
-                    //     this.selectedParcelsGraphic = { geometry:q.geometry, symbol: this.SELECTED_PARCEL_SYMBOL };
-                    //     this.mapView.graphics.add(this.selectedParcelsGraphic);
-                    // }
+        return new Promise((resolve, reject) => {
+            if (parcels.length > 0) {
+                const q = addressLayer.createQuery();
+                q.geometry = geometryEngine.buffer(parcels.items, 0, "meters", true)[0];
+                q.outFields = ["*"];
+                q.spatialRelationship = "contains";
+                const oldaddresses = addressLayer.queryFeatures(q);
+                const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);//this.addressGraphicsLayer.queryFeatures(q);
+                All([oldaddresses, newAddresses]).then(results => {
+                    const features = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
+                    
+                    if (features && features.length > 0) {
+                        // if (features.length > 1) {
+                        //     this.selectedParcelsGraphic = { geometry:q.geometry, symbol: this.SELECTED_PARCEL_SYMBOL };
+                        //     this.mapView.graphics.add(this.selectedParcelsGraphic);
+                        // }
 
-                    deferred.resolve(features);
-                } else {
-                    deferred.resolve(null);
-                    // deferred.cancel("No Addresses Found");
-                }
-            },
-            err => { deferred.cancel(err)})
-        } else {
-            deferred.resolve(null);
-            // deferred.cancel("No Parcels Found");
-        }
-        return deferred.promise;
+                        resolve(features);
+                    } else {
+                        resolve(null);
+                        // deferred.cancel("No Addresses Found");
+                    }
+                },
+                err => { reject(err)})
+            } else {
+                resolve(null);
+                // deferred.cancel("No Parcels Found");
+            }
+        })
     }
 
     GET_LABEL_SYMBOL = function(labelText: string) {
