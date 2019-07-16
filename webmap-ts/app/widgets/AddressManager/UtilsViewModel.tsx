@@ -569,7 +569,6 @@ class UtilsViewModel extends declared(Accessor) {
                 // console.log(error, lineGeometry, lastSegmentGeometry);
                 reject(error);
             }
-
         })
     }
 
@@ -579,12 +578,11 @@ class UtilsViewModel extends declared(Accessor) {
     private selectedGeometries;
     
     public PICK_PARCELS = (parcelsGraphicLayer): any => {
-        const deferred = new Deferred();
-        require(["./CursorToolTip"], CursorToolTip => {
+        return new Promise((resolve, reject) => {
             if(this.pickParcels_draw && this.pickParcels_draw.activeAction) {
                 this.pickParcels_draw.reset();
                 CursorToolTip.Close();
-                deferred.cancel("User canceled pickParcels action");
+                reject("User canceled pickParcels action");
             } 
             else {
                 if(!this.pickParcels_draw) {
@@ -604,9 +602,9 @@ class UtilsViewModel extends declared(Accessor) {
                     this.mapView.graphics.remove(this.freeLine);
 
                     if(this.selectedGeometries && this.selectedGeometries.length > 0) {
-                        deferred.resolve(this.selectedGeometries);
+                        resolve(this.selectedGeometries);
                     } else {
-                        deferred.cancel("No Parcels");
+                        reject("No Parcels");
                     }
                 })
                 drawAction.on([
@@ -618,7 +616,7 @@ class UtilsViewModel extends declared(Accessor) {
                 ], event => {
                     if (event.vertices.length > 1) {
                         this.mapView.graphics.removeAll();
-    
+
                         this.verticesWithoutLoops(event.vertices).then(v => {
 
                             if(event.vertices.length != v.length && v.length >= 10) {
@@ -656,14 +654,12 @@ class UtilsViewModel extends declared(Accessor) {
                             }
                         }, 
                         error => {
-                            deferred.cancel(error);
+                            reject(error);
                         });
-
                     }
                 });
             }
         })
-        return deferred.promise;
     };
 
     private pickAddresses_draw: Draw;
