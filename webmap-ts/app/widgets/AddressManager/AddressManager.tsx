@@ -11,7 +11,7 @@ import domAttr = require("dojo/dom-attr");
 
 import { renderable, tsx } from "esri/widgets/support/widget";
 
-import i18n = require("dojo/i18n!../nls/resources");
+import i18n = require("dojo/i18n!./nls/resources");
 import FeatureLayer = require("esri/layers/FeatureLayer");
 import Field = require("esri/layers/support/Field");
 import UtilsViewModel = require("./UtilsViewModel");
@@ -312,7 +312,7 @@ import { rejects } from "assert";
                 </div>
     
                 <div afterCreate={this._addDisplayBrokenRules} class="displayBrokenRules hide">
-                    <h1>Broken Rules</h1>
+                    <h1>{i18n.addressManager.brokenRules}</h1>
                     <ul afterCreate={this._addBrokenRulesAlert}></ul>
                     </div>
                 <div class="footer footer5cells">
@@ -1179,7 +1179,8 @@ import { rejects } from "assert";
         return new Promise((resolve, reject) => {
             html.removeClass(this.verifyRules, "active");
             this.brokenRulesAlert.innerHTML = "";
-            this.verifyRules.title = "Verify Address Point Record";
+            this.verifyRules.title = i18n.addressManager.verifyRecord;
+            //"Verify Address Point Record";
 
             const brokenRules = [];
             if(feature) {
@@ -1191,7 +1192,8 @@ import { rejects } from "assert";
                         const fieldConfig = this.specialAttributes[fieldName];
                         domAttr.set(input, "title", input.value);
                         if ("required" in fieldConfig && fieldConfig["required"] && input.value.isNullOrWhiteSpace()) {
-                            const brokenRule = "'{0}' is required but not provided.".format(alias);
+                            const brokenRule = //"'{0}' is required but not provided."
+                            i18n.addressManager.requiredNotProvided.format(alias);
                             brokenRules.push(brokenRule);
                             domAttr.set(input, "title", domAttr.get(input, "title") + "\n" + brokenRule);
                             html.addClass(input, "brokenRule");
@@ -1201,9 +1203,9 @@ import { rejects } from "assert";
                         }
                         if ("format"in fieldConfig) {
                             if (!input.value.match(new RegExp(fieldConfig.format))) {
-                                let brokenRule = "'" + alias + "' has incorrect format.";
+                                let brokenRule = i18n.addressManager.incorrectFormat.format(alias);
                                 if ("placeholder" in fieldConfig) {
-                                    brokenRule += " (Try '" + fieldConfig.placeholder + "')";
+                                    brokenRule += i18n.addressManager.tryFormat.format(fieldConfig.placeholder);
                                 }
                                 brokenRules.push(brokenRule);
                                 domAttr.set(input, "title", domAttr.get(input, "title") + "\n" + brokenRule);

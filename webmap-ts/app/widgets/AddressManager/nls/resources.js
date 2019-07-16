@@ -1,7 +1,11 @@
 define({
     root: ({
         addressManager: {
+            brokenRules: "Broken Rules",
             verifyRecord: "Verify Address Point Record",
+            requiredNotProvided: "'{0}' is required but not provided.",
+            incorrectFormat: "'{0}' has incorrect format.",
+            tryFormat: "(Try '{0}')",
         }
     }),
     "ar": 1,
