@@ -6,6 +6,10 @@ define({
             requiredNotProvided: "'{0}' is required but not provided.",
             incorrectFormat: "'{0}' has incorrect format.",
             tryFormat: "(Try '{0}')",
+
+            selectAddressLaso: "Click and drag around addresses to select",
+            clickForNewAddress: "Click to add a new address",
+            clickEndMove: "Click to end Move",
         }
     }),
     "ar": 1,

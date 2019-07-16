@@ -516,7 +516,7 @@ import { rejects } from "assert";
         html.addClass(event.target, "active");
 
         require(["./CursorToolTip"], CursorToolTip => {
-            const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click and drag around addresses to select");
+            const cursorTooltip = CursorToolTip.getInstance(this.mapView, i18n.addressManager.selectAddressLaso);
 
             this.UtilsVM.PICK_ADDRESSES(this.siteAddressPointLayer).then(
                 addresses => {
@@ -551,7 +551,7 @@ import { rejects } from "assert";
 
             domClass.add(event.target, "active");
             require(["./CursorToolTip"], CursorToolTip => {
-                const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click to add a new address");
+                const cursorTooltip = CursorToolTip.getInstance(this.mapView, i18n.addressManager.clickForNewAddress);
         
                 this.UtilsVM.ADD_NEW_ADDRESS().then(feature => {
                     DropDownItemMenu.ClearLabels();
@@ -942,7 +942,7 @@ import { rejects } from "assert";
             if (!this.addressPointFeatures || this.addressPointFeatures.length == 0) return;
             html.addClass(event.target, "active");
             require(["./CursorToolTip"], CursorToolTip => {
-                const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click to end Move");
+                const cursorTooltip = CursorToolTip.getInstance(this.mapView, i18n.addressManager.clickEndMove);
 
                 const feature = this.selectedAddressPointFeature as any;
                 let g = feature.geometry;
@@ -984,7 +984,7 @@ import { rejects } from "assert";
             
             html.addClass(event.target, "active");
             require(["./CursorToolTip"], CursorToolTip => {
-                const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click to end Move");
+                const cursorTooltip = CursorToolTip.getInstance(this.mapView, i18n.addressManager.clickEndMove);
 
                 const gs = this.addressPointFeatures.slice(this.addressPointFeaturesIndex).map(f => {
                     const feature = f as any;
