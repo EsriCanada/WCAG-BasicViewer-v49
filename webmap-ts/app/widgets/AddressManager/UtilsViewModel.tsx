@@ -155,7 +155,6 @@ class UtilsViewModel extends declared(Accessor) {
     PICK_ROAD_sketchVM: SketchViewModel = null;
 
     PICK_ROAD = function() : Promise<any> {
-        // const deferred = new Deferred();
         return new Promise((resolve, reject) => {
             // this.mapView.popup.autoOpenEnabled = false; // ?
             this.mapView.popup.close();
@@ -174,11 +173,9 @@ class UtilsViewModel extends declared(Accessor) {
             }
             if (this.PICK_ROAD_sketchVM.state == "active") {
                 this.PICK_ROAD_sketchVM.cancel();
-                // deferred.cancel("User Cancel");
                 CursorToolTip.Close();
                 setTimeout(() => { tempGraphicsLayer.removeAll(); }, 250);
                 reject("User Cancel");
-                // return deferred.promise;
             }
             else {
                     const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click a road to select");
@@ -222,17 +219,14 @@ class UtilsViewModel extends declared(Accessor) {
                                         tempGraphicsLayer.add(streetGraphic as any)
 
                                         setTimeout(() =>  { tempGraphicsLayer.removeAll(); }, 250);
-                                        // deferred.resolve(roads[0]);
                                         resolve(roads[0]);
                                     } else {
                                         setTimeout(() =>  { tempGraphicsLayer.removeAll(); }, 250);
-                                        // deferred.cancel("Too many or no matches")
                                         reject("Too many or no matches");
                                     }
                                 },
                                 error => {
                                     // console.error("PICK_ROAD", error);
-                                    // deferred.cancel(error);
                                     CursorToolTip.Close();
                                     setTimeout(() => { this.mapView.graphics.removeAll(); }, 250);
                                     reject(error);
@@ -243,50 +237,49 @@ class UtilsViewModel extends declared(Accessor) {
                 
             }
         });
-        // return deferred.promise;
     }
 
     ADD_NEW_ADDRESS_sketchVM: SketchViewModel = null;
     addressGraphicsLayer = null;
     
     ADD_NEW_ADDRESS = () => {
-        const deferred = new Deferred();
-        // this.mapView.popup.autoOpenEnabled = false; // ?
-        this.mapView.popup.close();
+        return new Promise((resolve, reject) => {
+            // this.mapView.popup.autoOpenEnabled = false; // ?
+            this.mapView.popup.close();
 
-        if(!this.addressGraphicsLayer) {
-            this.addressGraphicsLayer = new GraphicsLayer();
+            if(!this.addressGraphicsLayer) {
+                this.addressGraphicsLayer = new GraphicsLayer();
 
-            this.mapView.map.add(this.addressGraphicsLayer);
-        }
-
-        if(!this.ADD_NEW_ADDRESS_sketchVM) {
-            this.ADD_NEW_ADDRESS_sketchVM = new SketchViewModel({
-            layer: this.addressGraphicsLayer,
-            view: this.mapView,
-            pointSymbol: this.NEW_ADDRESS_SYMBOL
-          })
-        }
-        if (this.ADD_NEW_ADDRESS_sketchVM.state == "active") {
-            this.ADD_NEW_ADDRESS_sketchVM.cancel();
-            deferred.cancel("User Cancel");
-            // setTimeout(() => { this.mapView.graphics.removeAll(); }, 250);
-            return deferred.promise;
-        }
-        this.ADD_NEW_ADDRESS_sketchVM.create("point");
-        this.ADD_NEW_ADDRESS_sketchVM.on("create", lang.hitch(this, function(event) {
-            if (event.state === "complete") {
-                const feature = event.graphic;
-                feature.originalValues = {"status" : ""};
-                feature.attributes = { "status": 0 };
-                feature.Dirty = true;
-                // console.log("feature", event, feature);
-
-                deferred.resolve(feature);
+                this.mapView.map.add(this.addressGraphicsLayer);
             }
-        }));
 
-        return deferred.promise;
+            if(!this.ADD_NEW_ADDRESS_sketchVM) {
+                this.ADD_NEW_ADDRESS_sketchVM = new SketchViewModel({
+                    layer: this.addressGraphicsLayer,
+                    view: this.mapView,
+                    pointSymbol: this.NEW_ADDRESS_SYMBOL
+                })
+            }
+            if (this.ADD_NEW_ADDRESS_sketchVM.state == "active") {
+                this.ADD_NEW_ADDRESS_sketchVM.cancel();
+                reject("User Cancel");
+                // setTimeout(() => { this.mapView.graphics.removeAll(); }, 250);
+            }
+            else {
+                this.ADD_NEW_ADDRESS_sketchVM.create("point");
+                this.ADD_NEW_ADDRESS_sketchVM.on("create", lang.hitch(this, function(event) {
+                    if (event.state === "complete") {
+                        const feature = event.graphic;
+                        feature.originalValues = {"status" : ""};
+                        feature.attributes = { "status": 0 };
+                        feature.Dirty = true;
+                        // console.log("feature", event, feature);
+
+                        resolve(feature);
+                    }
+                }));
+            }
+        });
     }
 
     PICK_ADDRESS_OR_PARCEL_draw = null; 
