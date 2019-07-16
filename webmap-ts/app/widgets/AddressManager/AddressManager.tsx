@@ -25,15 +25,8 @@ import DropDownItemMenu = require("./DropDownItemMenu");
 import GraphicsLayer = require("esri/layers/GraphicsLayer");
 import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Point = require("esri/geometry/Point");
-import FeatureLayerView = require("esri/views/layers/FeatureLayerView");
-import { runInThisContext } from "vm";
 import watchUtils = require("esri/core/watchUtils");
-import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
 import Draw = require("esri/views/draw/Draw");
-import Polyline = require("esri/geometry/Polyline");
-import { SimpleLineSymbol, SimpleMarkerSymbol } from "esri/symbols";
-// import Deferred = require("dojo/_base/Deferred");
-// import AddressCompiler = require("./AddressCompiler");
 
 @subclass("esri.widgets.AddressManager")
   class AddressManager extends declared(Widget) {
