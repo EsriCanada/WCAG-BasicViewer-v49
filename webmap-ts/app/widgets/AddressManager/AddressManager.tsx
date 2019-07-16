@@ -25,15 +25,8 @@ import DropDownItemMenu = require("./DropDownItemMenu");
 import GraphicsLayer = require("esri/layers/GraphicsLayer");
 import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Point = require("esri/geometry/Point");
-import FeatureLayerView = require("esri/views/layers/FeatureLayerView");
-import { runInThisContext } from "vm";
 import watchUtils = require("esri/core/watchUtils");
-import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
 import Draw = require("esri/views/draw/Draw");
-import Polyline = require("esri/geometry/Polyline");
-import { SimpleLineSymbol, SimpleMarkerSymbol } from "esri/symbols";
-import Deferred = require("dojo/_base/Deferred");
-// import AddressCompiler = require("./AddressCompiler");
 
 @subclass("esri.widgets.AddressManager")
   class AddressManager extends declared(Widget) {
@@ -481,7 +474,7 @@ import Deferred = require("dojo/_base/Deferred");
                 // this._showLoading(false);
                 // this.map.setInfoWindowOnClick(true);
             }, err => {
-                console.log("PICK_ADDRESS_OR_PARCEL", err);
+                console.error("PICK_ADDRESS_OR_PARCEL", err);
                 // this._showLoading(false);
                 // this.map.setInfoWindowOnClick(true);
                 html.removeClass(event.target, "active");
@@ -1375,7 +1368,8 @@ import Deferred = require("dojo/_base/Deferred");
                     event => {
                         html.addClass(event.target, "active");
 
-                        this.UtilsVM.PICK_ROAD().then(
+                        this.UtilsVM.PICK_ROAD()
+                        .then(
                             street => {
                                 const fullname = (street as any).attributes.fullname
                                 input.value = fullname;
@@ -1383,14 +1377,13 @@ import Deferred = require("dojo/_base/Deferred");
 
                                 this._inputChanged(field.name);
                                 html.removeClass(event.target, "active");
-                            },
-                            err => {
-                                console.log("PICK_ROAD", err);
+                        })
+                        .catch(err => {
+                            console.log("PICK_ROAD", err);
 
-                                // this.mapView.popup.autoOpenEnabled = true; // ?
-                                html.removeClass(event.target, "active");
-                            }
-                        );
+                            // this.mapView.popup.autoOpenEnabled = true; // ?
+                            html.removeClass(event.target, "active");
+                        });
                     }
                 ));
 

@@ -5,7 +5,6 @@ import Accessor = require("esri/core/Accessor");
 
 import { subclass, declared, property } from "esri/core/accessorSupport/decorators";
 import MapView = require("esri/views/MapView");
-import Deferred = require("dojo/Deferred");
 import All = require("dojo/promise/all");
 import FeatureLayer = require("esri/layers/FeatureLayer");
 import GraphicsLayer = require("esri/layers/GraphicsLayer");
@@ -13,17 +12,14 @@ import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
 import Draw = require("esri/views/draw/Draw");
 import geometryEngine = require("esri/geometry/geometryEngine");
 import lang = require("dojo/_base/lang");
-import html = require("dojo/_base/html");
 import Query = require("esri/tasks/support/Query");
 import { ENGINE_METHOD_ALL } from "constants";
 import { Geometry, Point, Polyline, Polygon } from "esri/geometry";
 import Graphic = require("esri/Graphic");
-import TextSymbol = require("esri/symbols/TextSymbol");
-import Color = require("esri/Color");
-import Font = require("esri/symbols/Font");
 import { createSemicolonClassElement } from "typescript";
 import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
 import SimpleMarkerSymbol = require("esri/symbols/SimpleMarkerSymbol");
+import CursorToolTip = require("./CursorToolTip");
 
 @subclass("esri.guide.UtilsViewModel")
 class UtilsViewModel extends declared(Accessor) {
@@ -36,9 +32,6 @@ class UtilsViewModel extends declared(Accessor) {
 
     @property()
     roadsLayer: FeatureLayer;
-
-    // @property({ aliasOf: "mapView.map" })
-    // map: Map;
 
     @property({ readOnly: true })
     BUFFER_SYMBOL = {
@@ -153,256 +146,244 @@ class UtilsViewModel extends declared(Accessor) {
     
     PICK_ROAD_sketchVM: SketchViewModel = null;
 
-    PICK_ROAD = function()  {
-        const deferred = new Deferred();
-        // this.mapView.popup.autoOpenEnabled = false; // ?
-        this.mapView.popup.close();
+    PICK_ROAD = function() : Promise<any> {
+        return new Promise((resolve, reject) => {
+            // this.mapView.popup.autoOpenEnabled = false; // ?
+            this.mapView.popup.close();
 
-        // let drawDrawEnd = draw.on("draw-complete", lang.hitch(this, pickRoad));
-        // draw.activate(Draw.POINT);
-        const tempGraphicsLayer = new GraphicsLayer();
+            const tempGraphicsLayer = new GraphicsLayer();
 
-        this.mapView.map.add(tempGraphicsLayer); 
+            this.mapView.map.add(tempGraphicsLayer); 
 
-        if(!this.PICK_ROAD_sketchVM) {
-            this.PICK_ROAD_sketchVM = new SketchViewModel({
-                layer: tempGraphicsLayer,
-                view: this.mapView,
-            })
-        }
-        if (this.PICK_ROAD_sketchVM.state == "active") {
-            this.PICK_ROAD_sketchVM.cancel();
-            deferred.cancel("User Cancel");
-            setTimeout(() => { tempGraphicsLayer.removeAll(); }, 250);
-            return deferred.promise;
-        }
+            if(!this.PICK_ROAD_sketchVM) {
+                this.PICK_ROAD_sketchVM = new SketchViewModel({
+                    layer: tempGraphicsLayer,
+                    view: this.mapView,
+                })
+            }
+            if (this.PICK_ROAD_sketchVM.state == "active") {
+                this.PICK_ROAD_sketchVM.cancel();
+                CursorToolTip.Close();
+                setTimeout(() => { tempGraphicsLayer.removeAll(); }, 250);
+                reject("User Cancel");
+            }
+            else {
+                    const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click a road to select");
 
-        require(["./CursorToolTip"], CursorToolTip =>{
-            const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click a road to select");
+                    this.PICK_ROAD_sketchVM.create("point");
+                    this.PICK_ROAD_sketchVM.on("create", event => {
+                        
+                        if (event.state === "complete") {
+                            const graphic = event.graphic;
+                            CursorToolTip.Close();
+                            // console.log("event.graphic", event.graphic);
 
-            this.PICK_ROAD_sketchVM.create("point");
-            this.PICK_ROAD_sketchVM.on("create", event => {
+                            tempGraphicsLayer.removeAll();
+
+                            const buffer = geometryEngine.buffer(graphic.geometry, 5, "meters");
                 
-                if (event.state === "complete") {
-                    const graphic = event.graphic;
-                    cursorTooltip.close();
-                    // console.log("event.graphic", event.graphic);
+                            const clickMarker = { 
+                                geometry: buffer, 
+                                symbol: this.BUFFER_SYMBOL
+                            };
+                            // console.log("gr", gr);
 
-                    // sketchVM.layer.remove(graphic);
-                    // mapView.graphics.add(graphic);
+                            tempGraphicsLayer.add(clickMarker as any);
+                    
+                            const q = this.roadsLayer.createQuery();
+                            q.outFields = ["*"];
+                            q.where = "1=1";
+                            q.geometry = buffer as any;
+                            q.spatialRelationship = "intersects";
+                            q.returnGeometry = true;
+                    
+                            this.roadsLayer.queryFeatures(q).then(
+                                results => {
+                                    const roads = results.features;
+                                    if (roads.length == 1) {
+                                        const streetMarker = geometryEngine.buffer((roads[0] as any).geometry, 5, "meters");
+                                        const streetGraphic = { geometry:streetMarker, symbol:this.BUFFER_SYMBOL};
+                                        tempGraphicsLayer.add(streetGraphic as any)
 
-                    tempGraphicsLayer.removeAll();
-
-                    const buffer = geometryEngine.buffer(graphic.geometry, 5, "meters");
-        
-                    const clickMarker = { 
-                        geometry: buffer, 
-                        symbol: this.BUFFER_SYMBOL
-                    };
-                    // console.log("gr", gr);
-
-                    tempGraphicsLayer.add(clickMarker as any);
-            
-                    const q = this.roadsLayer.createQuery();
-                    q.outFields = ["*"];
-                    q.where = "1=1";
-                    q.geometry = buffer as any;
-                    q.spatialRelationship = "intersects";
-                    q.returnGeometry = true;
-            
-                    this.roadsLayer.queryFeatures(q).then(
-                        results => {
-                            const roads = results.features;
-                            if (roads.length == 1) {
-                                const streetMarker = geometryEngine.buffer((roads[0] as any).geometry, 5, "meters");
-                                const streetGraphic = { geometry:streetMarker, symbol:this.BUFFER_SYMBOL};
-                                tempGraphicsLayer.add(streetGraphic as any)
-
-                                setTimeout(() =>  { tempGraphicsLayer.removeAll(); }, 250);
-                                deferred.resolve(roads[0]);
-                            } else {
-                                setTimeout(() =>  { tempGraphicsLayer.removeAll(); }, 250);
-                                deferred.cancel("Too many or no matches")
-                            }
-                        },
-                        error => {
-                            // console.error("PICK_ROAD", error);
-                            deferred.cancel(error);
-                            setTimeout(() => { this.mapView.graphics.removeAll(); }, 250);
+                                        setTimeout(() =>  { tempGraphicsLayer.removeAll(); }, 250);
+                                        resolve(roads[0]);
+                                    } else {
+                                        setTimeout(() =>  { tempGraphicsLayer.removeAll(); }, 250);
+                                        reject("Too many or no matches");
+                                    }
+                                },
+                                error => {
+                                    // console.error("PICK_ROAD", error);
+                                    CursorToolTip.Close();
+                                    setTimeout(() => { this.mapView.graphics.removeAll(); }, 250);
+                                    reject(error);
+                                }
+                            );
                         }
-                    );
-                }
-            });
+                    });
+                
+            }
         });
-
-        return deferred.promise;
     }
 
     ADD_NEW_ADDRESS_sketchVM: SketchViewModel = null;
     addressGraphicsLayer = null;
     
     ADD_NEW_ADDRESS = () => {
-        const deferred = new Deferred();
-        // this.mapView.popup.autoOpenEnabled = false; // ?
-        this.mapView.popup.close();
+        return new Promise((resolve, reject) => {
+            // this.mapView.popup.autoOpenEnabled = false; // ?
+            this.mapView.popup.close();
 
-        if(!this.addressGraphicsLayer) {
-            this.addressGraphicsLayer = new GraphicsLayer();
+            if(!this.addressGraphicsLayer) {
+                this.addressGraphicsLayer = new GraphicsLayer();
 
-            this.mapView.map.add(this.addressGraphicsLayer);
-        }
-
-        if(!this.ADD_NEW_ADDRESS_sketchVM) {
-            this.ADD_NEW_ADDRESS_sketchVM = new SketchViewModel({
-            layer: this.addressGraphicsLayer,
-            view: this.mapView,
-            pointSymbol: this.NEW_ADDRESS_SYMBOL
-          })
-        }
-        if (this.ADD_NEW_ADDRESS_sketchVM.state == "active") {
-            this.ADD_NEW_ADDRESS_sketchVM.cancel();
-            deferred.cancel("User Cancel");
-            // setTimeout(() => { this.mapView.graphics.removeAll(); }, 250);
-            return deferred.promise;
-        }
-        this.ADD_NEW_ADDRESS_sketchVM.create("point");
-        this.ADD_NEW_ADDRESS_sketchVM.on("create", lang.hitch(this, function(event) {
-            if (event.state === "complete") {
-                const feature = event.graphic;
-                feature.originalValues = {"status" : ""};
-                feature.attributes = { "status": 0 };
-                feature.Dirty = true;
-                // console.log("feature", event, feature);
-
-                deferred.resolve(feature);
+                this.mapView.map.add(this.addressGraphicsLayer);
             }
-        }));
 
-        return deferred.promise;
+            if(!this.ADD_NEW_ADDRESS_sketchVM) {
+                this.ADD_NEW_ADDRESS_sketchVM = new SketchViewModel({
+                    layer: this.addressGraphicsLayer,
+                    view: this.mapView,
+                    pointSymbol: this.NEW_ADDRESS_SYMBOL
+                })
+            }
+            if (this.ADD_NEW_ADDRESS_sketchVM.state == "active") {
+                this.ADD_NEW_ADDRESS_sketchVM.cancel();
+                reject("User Cancel");
+                // setTimeout(() => { this.mapView.graphics.removeAll(); }, 250);
+            }
+            else {
+                this.ADD_NEW_ADDRESS_sketchVM.create("point");
+                this.ADD_NEW_ADDRESS_sketchVM.on("create", lang.hitch(this, function(event) {
+                    if (event.state === "complete") {
+                        const feature = event.graphic;
+                        feature.originalValues = {"status" : ""};
+                        feature.attributes = { "status": 0 };
+                        feature.Dirty = true;
+                        // console.log("feature", event, feature);
+
+                        resolve(feature);
+                    }
+                }));
+            }
+        });
     }
 
     PICK_ADDRESS_OR_PARCEL_draw = null; 
 
     PICK_ADDRESS_OR_PARCEL = (addressLayer, parcelLayer)  => {
-        const deferred = new Deferred();
-        // map.setInfoWindowOnClick(false);
-        this.mapView.popup.close();
+        return new Promise((resolve, reject) => {
+            // map.setInfoWindowOnClick(false);
+            this.mapView.popup.close();
 
-        if(!this.PICK_ADDRESS_OR_PARCEL_draw) {
-            this.PICK_ADDRESS_OR_PARCEL_draw = new Draw({
-            view: this.mapView
-            })
-        }
-        require(["./CursorToolTip"], CursorToolTip =>{
+            if(!this.PICK_ADDRESS_OR_PARCEL_draw) {
+                this.PICK_ADDRESS_OR_PARCEL_draw = new Draw({
+                view: this.mapView
+                })
+            }
             const cursorToolTip = CursorToolTip.getInstance(this.mapView, "Click Address or parcel");
 
             if (this.PICK_ADDRESS_OR_PARCEL_draw.activeAction) {
                 this.PICK_ADDRESS_OR_PARCEL_draw.reset();
-                cursorToolTip.close();
+                CursorToolTip.Close();
 
-                deferred.cancel("User Cancel");
-                return deferred.promise;
+                reject("User Cancel");
             }
+            else {
+                const drawAction = this.PICK_ADDRESS_OR_PARCEL_draw.create("point");
+                drawAction.on("draw-complete", event => {
+                    cursorToolTip.close();
 
-            const drawAction = this.PICK_ADDRESS_OR_PARCEL_draw.create("point");
-            drawAction.on("draw-complete", event => {
-                cursorToolTip.close();
+                    this.PICK_ADDRESS_OR_PARCEL_draw = null; 
 
-                this.PICK_ADDRESS_OR_PARCEL_draw = null; 
+                    const clickedPoint = new Point({ x: event.coordinates[0], y:event.coordinates[1], spatialReference: this.mapView.spatialReference} );
 
-                const clickedPoint = new Point({ x: event.coordinates[0], y:event.coordinates[1], spatialReference: this.mapView.spatialReference} );
+                    const buffer = geometryEngine.buffer(clickedPoint, 2, "meters");
+                    const clickMarker = { 
+                        geometry: buffer, 
+                        symbol: this.BUFFER_SYMBOL
+                    };
+                    this.mapView.graphics.add(clickMarker as any);
+            
+                    const q = new Query();
+                    q.outFields = ["*"];
+                    q.where = "1=1";
+                    q.geometry = buffer as Geometry;
+                    q.spatialRelationship = "contains";
+                    q.returnGeometry = true;
 
-                const buffer = geometryEngine.buffer(clickedPoint, 2, "meters");
-                const clickMarker = { 
-                    geometry: buffer, 
-                    symbol: this.BUFFER_SYMBOL
-                };
-                this.mapView.graphics.add(clickMarker as any);
-        
-                const q = new Query();
-                q.outFields = ["*"];
-                q.where = "1=1";
-                q.geometry = buffer as Geometry;
-                q.spatialRelationship = "contains";
-                q.returnGeometry = true;
-
-                const oldaddresses = addressLayer.queryFeatures(q);
-                const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);
-                All([oldaddresses, newAddresses])
-                .then(results => {
-                    const features = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
-                    if (features && features.length == 1) {
-                        deferred.resolve(features);
-                        setTimeout(() => { this._removeGraphic(clickMarker, this.mapView.graphics); }, 250);
-                    } else {
-                        q.geometry = clickedPoint;
-                        q.spatialRelationship = "intersects";
-                        parcelLayer.queryFeatures(q).then(
-                        result => {
-                            const features = result.features;
-                            if (features && features.length == 1) {
-                                q.geometry = features[0].geometry;
-                                q.spatialRelationship = "contains";
-                                const oldaddresses = addressLayer.queryFeatures(q);
-                                const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);
-                                All([oldaddresses, newAddresses])
-                                .then(results => {
-                                    const features = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
-                                    if (features && features.length > 0) {
-                                        if (features.length > 1) {
-                                            const g = { geometry: q.geometry, symbol: this.SELECTED_PARCEL_SYMBOL} as any;
-                                            this.mapView.graphics.add(g);
+                    const oldaddresses = addressLayer.queryFeatures(q);
+                    const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);
+                    All([oldaddresses, newAddresses])
+                    .then(results => {
+                        const features = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
+                        if (features && features.length == 1) {
+                            resolve(features);
+                            setTimeout(() => { this._removeGraphic(clickMarker, this.mapView.graphics); }, 250);
+                        } else {
+                            q.geometry = clickedPoint;
+                            q.spatialRelationship = "intersects";
+                            parcelLayer.queryFeatures(q).then(
+                            result => {
+                                const features = result.features;
+                                if (features && features.length == 1) {
+                                    q.geometry = features[0].geometry;
+                                    q.spatialRelationship = "contains";
+                                    const oldaddresses = addressLayer.queryFeatures(q);
+                                    const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);
+                                    All([oldaddresses, newAddresses])
+                                    .then(results => {
+                                        const features = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
+                                        if (features && features.length > 0) {
+                                            if (features.length > 1) {
+                                                const g = { geometry: q.geometry, symbol: this.SELECTED_PARCEL_SYMBOL} as any;
+                                                this.mapView.graphics.add(g);
+                                            }
+                                            resolve(features);
+                                            setTimeout(() => { this._removeGraphic(clickMarker, this.mapView.graphics); }, 250);
+                                        } else {
+                                            reject("No Addresses Found");
+                                            setTimeout(() => { this._removeGraphic(clickMarker, this.mapView.graphics); }, 250);
                                         }
-                                        deferred.resolve(features);
-                                        setTimeout(() => { this._removeGraphic(clickMarker, this.mapView.graphics); }, 250);
-                                    } else {
-                                        deferred.cancel("No Addresses Found");
-                                        setTimeout(() => { this._removeGraphic(clickMarker, this.mapView.graphics); }, 250);
-                                    }
-                                })
-                            } else {
-                                deferred.cancel("No Parcel Found");
-                                setTimeout(() => { this._removeGraphic(clickMarker, this.mapView.graphics); }, 250);
-                            }
-                        })
-                        
-                    }
+                                    })
+                                } else {
+                                    reject("No Parcel Found");
+                                    setTimeout(() => { this._removeGraphic(clickMarker, this.mapView.graphics); }, 250);
+                                }
+                            })
+                            
+                        }
+                    })
                 })
-            })
+            }
         })
-        return deferred.promise;
     }
 
     GET_ADDRESS_IN_GEOMETRIES = (parcels, addressLayer) => {
-        const deferred = new Deferred();
-        if (parcels.length > 0) {
-            const q = addressLayer.createQuery();
-            q.geometry = geometryEngine.buffer(parcels.items, 0, "meters", true)[0];
-            q.outFields = ["*"];
-            q.spatialRelationship = "contains";
-            const oldaddresses = addressLayer.queryFeatures(q);
-            const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);//this.addressGraphicsLayer.queryFeatures(q);
-            All([oldaddresses, newAddresses]).then(results => {
-                const features = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
-                
-                if (features && features.length > 0) {
-                    // if (features.length > 1) {
-                    //     this.selectedParcelsGraphic = { geometry:q.geometry, symbol: this.SELECTED_PARCEL_SYMBOL };
-                    //     this.mapView.graphics.add(this.selectedParcelsGraphic);
-                    // }
-
-                    deferred.resolve(features);
-                } else {
-                    deferred.resolve(null);
-                    // deferred.cancel("No Addresses Found");
-                }
-            },
-            err => { deferred.cancel(err)})
-        } else {
-            deferred.resolve(null);
-            // deferred.cancel("No Parcels Found");
-        }
-        return deferred.promise;
+        return new Promise((resolve, reject) => {
+            if (parcels.length > 0) {
+                const q = addressLayer.createQuery();
+                q.geometry = geometryEngine.buffer(parcels.items, 0, "meters", true)[0];
+                q.outFields = ["*"];
+                q.spatialRelationship = "contains";
+                const oldaddresses = addressLayer.queryFeatures(q);
+                const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);//this.addressGraphicsLayer.queryFeatures(q);
+                All([oldaddresses, newAddresses]).then(results => {
+                    const features = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
+                    
+                    if (features && features.length > 0) {
+                        resolve(features);
+                    } else {
+                        resolve(null);
+                        // cancel("No Addresses Found");
+                    }
+                },
+                err => { reject(err)})
+            } else {
+                resolve(null);
+                // cancel("No Parcels Found");
+            }
+        })
     }
 
     GET_LABEL_SYMBOL = function(labelText: string) {
@@ -433,20 +414,20 @@ class UtilsViewModel extends declared(Accessor) {
     }
     
     _getFeaturesWithin = function(graphicsLayer, geometry) {
-        const deferred = new Deferred();
-        let within = null
-        if(graphicsLayer) {
-            within = graphicsLayer.graphics.items.filter(g => geometryEngine.within(g.geometry, geometry) )
-            if(within && within.length > 0) {
-                deferred.resolve({features: within});
+        return new Promise((resolve,reject) => {
+            let within = null
+            if(graphicsLayer) {
+                within = graphicsLayer.graphics.items.filter(g => geometryEngine.within(g.geometry, geometry) )
+                if(within && within.length > 0) {
+                    resolve({features: within});
+                }
+                else {
+                    resolve({features: []});
+                }
+            } else {
+                resolve({features: []});
             }
-            else {
-                deferred.resolve({features: []});
-            }
-        } else {
-            deferred.resolve({features: []});
-        }
-        return deferred.promise;
+        });
     }
 
     _removeMarker = function(markerName:string) {
@@ -538,40 +519,39 @@ class UtilsViewModel extends declared(Accessor) {
     }
 
     public verticesWithoutLoops = (vertices : any[]) : any => {
-        const deferred = new Deferred()
-        const length = vertices.length;
+        return new Promise((resolve, reject) => {
+            const length = vertices.length;
 
-        if(length < 10) {
-            deferred.resolve(vertices);
-        }
-        
-        const lastSegmentGeometry = new Polyline({
-            spatialReference: this.mapView.spatialReference,
-            hasZ: false,
-            paths: [vertices.slice(length-2, length)]
-        });
-
-        const lineGeometry = new Polyline({
-            spatialReference: this.mapView.spatialReference,
-            hasZ: false,
-            paths: [vertices.slice(0, length-5)]
-        });
-
-        try {
-            const cuts = geometryEngine.cut(lineGeometry, lastSegmentGeometry);
-            if(cuts && cuts.length == 2) {
-                // console.log("cuts", cuts.map(c => c.paths[0]), length)
-                deferred.resolve(cuts[1].paths[0]);
+            if(length < 10) {
+                resolve(vertices);
             }
-            else {
-                deferred.resolve(vertices);
-            }
-        } catch(error) {
-            // console.log(error, lineGeometry, lastSegmentGeometry);
-            deferred.cancel(error);
-        }
+            
+            const lastSegmentGeometry = new Polyline({
+                spatialReference: this.mapView.spatialReference,
+                hasZ: false,
+                paths: [vertices.slice(length-2, length)]
+            });
 
-        return deferred.promise;
+            const lineGeometry = new Polyline({
+                spatialReference: this.mapView.spatialReference,
+                hasZ: false,
+                paths: [vertices.slice(0, length-5)]
+            });
+
+            try {
+                const cuts = geometryEngine.cut(lineGeometry, lastSegmentGeometry);
+                if(cuts && cuts.length == 2) {
+                    // console.log("cuts", cuts.map(c => c.paths[0]), length)
+                    resolve(cuts[1].paths[0]);
+                }
+                else {
+                    resolve(vertices);
+                }
+            } catch(error) {
+                // console.log(error, lineGeometry, lastSegmentGeometry);
+                reject(error);
+            }
+        })
     }
 
     private pickParcels_draw: Draw;
@@ -580,12 +560,11 @@ class UtilsViewModel extends declared(Accessor) {
     private selectedGeometries;
     
     public PICK_PARCELS = (parcelsGraphicLayer): any => {
-        const deferred = new Deferred();
-        require(["./CursorToolTip"], CursorToolTip => {
+        return new Promise((resolve, reject) => {
             if(this.pickParcels_draw && this.pickParcels_draw.activeAction) {
                 this.pickParcels_draw.reset();
                 CursorToolTip.Close();
-                deferred.cancel("User canceled pickParcels action");
+                reject("User canceled pickParcels action");
             } 
             else {
                 if(!this.pickParcels_draw) {
@@ -605,9 +584,9 @@ class UtilsViewModel extends declared(Accessor) {
                     this.mapView.graphics.remove(this.freeLine);
 
                     if(this.selectedGeometries && this.selectedGeometries.length > 0) {
-                        deferred.resolve(this.selectedGeometries);
+                        resolve(this.selectedGeometries);
                     } else {
-                        deferred.cancel("No Parcels");
+                        reject("No Parcels");
                     }
                 })
                 drawAction.on([
@@ -619,7 +598,7 @@ class UtilsViewModel extends declared(Accessor) {
                 ], event => {
                     if (event.vertices.length > 1) {
                         this.mapView.graphics.removeAll();
-    
+
                         this.verticesWithoutLoops(event.vertices).then(v => {
 
                             if(event.vertices.length != v.length && v.length >= 10) {
@@ -657,98 +636,92 @@ class UtilsViewModel extends declared(Accessor) {
                             }
                         }, 
                         error => {
-                            deferred.cancel(error);
+                            reject(error);
+                        });
+                    }
+                });
+            }
+        })
+    };
+
+    private pickAddresses_draw: Draw;
+    
+    public PICK_ADDRESSES = (addressLayer) => {
+        return new Promise((resolve, reject) => {
+            if(this.pickAddresses_draw && this.pickAddresses_draw.activeAction) {
+                this.pickAddresses_draw.reset();
+                reject("User canceled pickAddresses action");
+            } 
+            else {
+                if(!this.pickAddresses_draw) {
+                    this.pickAddresses_draw = new Draw({
+                        view: this.mapView,
+                    })
+                }
+
+                this.mapView.graphics.removeAll();
+
+                const drawAction = this.pickAddresses_draw.create("polygon", {mode: "freehand"});
+                drawAction.on("draw-complete", () => {
+                    this.pickAddresses_draw.reset();
+                    (this.freeLine as any).symbol = this.SELECTED_PARCEL_SYMBOL;
+
+                    const q = addressLayer.createQuery();
+                    q.geometry = this.freeLine.geometry;
+                    q.outFields = ["*"];
+                    q.spatialRelationship = "contains";
+                    const oldaddresses = addressLayer.queryFeatures(q);
+                    const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);
+                    All([oldaddresses, newAddresses])
+                    .then(
+                        results => {
+                            const addresses = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
+                            if(addresses.length >0) {
+                                resolve(addresses);
+                            } else {
+                                reject("No Addresses Found");
+                            }
+                        },
+                        error => {
+                            reject(error);
+                        }
+                    )
+                })
+                drawAction.on([
+                    "vertex-add",
+                    "vertex-remove",
+                    "cursor-update",
+                    "redo",
+                    "undo",
+                ], event => {
+                    if (event.vertices.length > 1) {
+                        this.mapView.graphics.removeAll();
+
+                        this.verticesWithoutLoops(event.vertices).then(v => {
+
+                            if(event.vertices.length != v.length && v.length >= 10) {
+                                event.vertices.length = v.length-1;
+                            }
+
+                            this.freeLine = new Graphic({
+                                geometry: new Polygon({
+                                    rings: event.vertices,
+                                    spatialReference: this.mapView.spatialReference
+                                }),
+                                symbol: this.LINE_SELECT_PARCELS_SYMBOL
+                            });
+
+                            this.mapView.graphics.add(this.freeLine);
+
+                        }, 
+                        error => {
+                            reject(error);
                         });
 
                     }
                 });
             }
         })
-        return deferred.promise;
-    };
-
-    private pickAddresses_draw: Draw;
-    
-    public PICK_ADDRESSES = (addressLayer) => {
-        const deferred = new Deferred();
-        if(this.pickAddresses_draw && this.pickAddresses_draw.activeAction) {
-            this.pickAddresses_draw.reset();
-            deferred.cancel("User canceled pickParcels action");
-        } 
-        else {
-            if(!this.pickAddresses_draw) {
-                this.pickAddresses_draw = new Draw({
-                    view: this.mapView,
-                })
-            }
-
-            this.mapView.graphics.removeAll();
-
-            const drawAction = this.pickAddresses_draw.create("polygon", {mode: "freehand"});
-            drawAction.on("draw-complete", () => {
-                this.pickAddresses_draw.reset();
-                (this.freeLine as any).symbol = this.SELECTED_PARCEL_SYMBOL;
-
-                const q = addressLayer.createQuery();
-                q.geometry = this.freeLine.geometry;
-                q.outFields = ["*"];
-                q.spatialRelationship = "contains";
-                const oldaddresses = addressLayer.queryFeatures(q);
-                const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);
-                All([oldaddresses, newAddresses])
-                // addressLayer.queryFeatures(q)
-                // oldaddresses
-                // newAddresses
-                .then(
-                    results => {
-                        const addresses = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
-                        if(addresses.length >0) {
-                            deferred.resolve(addresses);
-                        } else {
-                            deferred.cancel("No Addresses Found");
-                        }
-                    },
-                    error => {
-                        deferred.cancel(error);
-                    }
-                )
-            })
-            drawAction.on([
-                "vertex-add",
-                "vertex-remove",
-                "cursor-update",
-                "redo",
-                "undo",
-            ], event => {
-                if (event.vertices.length > 1) {
-                    this.mapView.graphics.removeAll();
-
-                    this.verticesWithoutLoops(event.vertices).then(v => {
-
-                        if(event.vertices.length != v.length && v.length >= 10) {
-                            event.vertices.length = v.length-1;
-                        }
-
-                        this.freeLine = new Graphic({
-                            geometry: new Polygon({
-                                rings: event.vertices,
-                                spatialReference: this.mapView.spatialReference
-                            }),
-                            symbol: this.LINE_SELECT_PARCELS_SYMBOL
-                        });
-
-                        this.mapView.graphics.add(this.freeLine);
-
-                    }, 
-                    error => {
-                        deferred.cancel(error);
-                    });
-
-                }
-            });
-        }
-        // })
-        return deferred.promise;
     }
 
     public SHOW_ARROW = (p1 : Point, p2: Point, color = [0, 0, 0, 0.75]) => {
@@ -787,60 +760,60 @@ class UtilsViewModel extends declared(Accessor) {
     private movePoint_draw : Draw;
 
     public MOVE_POINT = (points: Point[]): any => {
-        const deferred = new Deferred();
-        this.mapView.graphics.removeAll();
+        return new Promise((resolve, reject) => {
+            this.mapView.graphics.removeAll();
 
-        if(this.movePoint_draw && this.movePoint_draw.activeAction) {
-            this.movePoint_draw.reset();
-            deferred.cancel("User canceled MovePoint action");
-        } 
-        else {
-            if(!this.movePoint_draw) {
-                this.movePoint_draw = new Draw({
-                    view: this.mapView,
+            if(this.movePoint_draw && this.movePoint_draw.activeAction) {
+                this.movePoint_draw.reset();
+                reject("User canceled MovePoint action");
+            } 
+            else {
+                if(!this.movePoint_draw) {
+                    this.movePoint_draw = new Draw({
+                        view: this.mapView,
+                    })
+                }
+
+                // this.mapView.graphics.removeAll();
+
+                const drawAction = this.movePoint_draw.create("point");
+                drawAction.on("draw-complete", (event) => {
+                    this.movePoint_draw.reset();
+                    // this.mapView.graphics.removeAll();
+                    const p1 = new Point({x: event.coordinates[0], y: event.coordinates[1], spatialReference: this.mapView.spatialReference});
+                    // this.SHOW_ARROW(points[0], p1);
+                    const ps = [p1];
+                    if(points.length>1) {
+                        const dx = p1.x - points[0].x;
+                        const dy = p1.y - points[0].y;
+                        for(let i=1; i<points.length; i++) {
+                            ps.push(new Point({
+                                x:points[i].x+dx, y:points[i].y+dy, 
+                                spatialReference: this.mapView.spatialReference}
+                            ));
+                        }
+                    }
+                    resolve(ps);
+                })
+                drawAction.on([
+                    "cursor-update",
+                ], event => {
+                    this.mapView.graphics.removeAll();
+                    const p1 = new Point({x: event.coordinates[0], y: event.coordinates[1], spatialReference: this.mapView.spatialReference});
+                    this.SHOW_ARROW(points[0], p1);
+                    if(points.length>1) {
+                        const dx = p1.x - points[0].x;
+                        const dy = p1.y - points[0].y;
+                        for(let i=1; i<points.length; i++) {
+                            this.SHOW_ARROW(points[i], new Point({
+                                x:points[i].x+dx, y:points[i].y+dy, 
+                                spatialReference: this.mapView.spatialReference}
+                            ))
+                        }}
+                    // console.log("move", event);
                 })
             }
-
-            // this.mapView.graphics.removeAll();
-
-            const drawAction = this.movePoint_draw.create("point");
-            drawAction.on("draw-complete", (event) => {
-                this.movePoint_draw.reset();
-                // this.mapView.graphics.removeAll();
-                const p1 = new Point({x: event.coordinates[0], y: event.coordinates[1], spatialReference: this.mapView.spatialReference});
-                // this.SHOW_ARROW(points[0], p1);
-                const ps = [p1];
-                if(points.length>1) {
-                    const dx = p1.x - points[0].x;
-                    const dy = p1.y - points[0].y;
-                    for(let i=1; i<points.length; i++) {
-                        ps.push(new Point({
-                            x:points[i].x+dx, y:points[i].y+dy, 
-                            spatialReference: this.mapView.spatialReference}
-                        ));
-                    }
-                }
-                deferred.resolve(ps);
-            })
-            drawAction.on([
-                "cursor-update",
-            ], event => {
-                this.mapView.graphics.removeAll();
-                const p1 = new Point({x: event.coordinates[0], y: event.coordinates[1], spatialReference: this.mapView.spatialReference});
-                this.SHOW_ARROW(points[0], p1);
-                if(points.length>1) {
-                    const dx = p1.x - points[0].x;
-                    const dy = p1.y - points[0].y;
-                    for(let i=1; i<points.length; i++) {
-                        this.SHOW_ARROW(points[i], new Point({
-                            x:points[i].x+dx, y:points[i].y+dy, 
-                            spatialReference: this.mapView.spatialReference}
-                        ))
-                    }}
-                // console.log("move", event);
-            })
-        }
-        return deferred.promise;
+        })
     }
 }
 

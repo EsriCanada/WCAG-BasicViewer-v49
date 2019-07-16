@@ -11,7 +11,6 @@ import domAttr = require("dojo/dom-attr");
 import domStyle = require("dojo/dom-style");
 import domClass = require("dojo/dom-class");
 import html = require("dojo/_base/html");
-import Deferred = require("dojo/Deferred");
 
 import UtilsViewModel = require("./UtilsViewModel");
 import AddressManagerViewModel = require("./AddressManagerViewModel");
@@ -31,6 +30,7 @@ import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
 import { watch } from "fs";
 import CursorToolTip = require("./CursorToolTip");
 import { isReturnStatement } from "typescript";
+import { Geometry } from "esri/geometry";
 
 @subclass("esri.widgets.ClonePanel")
   class ClonePanel extends declared(Widget) {
@@ -408,9 +408,9 @@ import { isReturnStatement } from "typescript";
             // this.map.setInfoWindowOnClick(false);
             this.mapView.popup.close();
     
-            // this.cutters = [];
             if (this.cutters.length == 0) {
-                this.GET_CUTTER_BY_POINT(this.useCurrentSeed.checked && this.parent.selectedAddressPointFeature ? this.parent.selectedAddressPointFeature.geometry : null, [63, 127, 255, 255], "Please make first cut").then(cutter => {
+                this.GET_CUTTER_BY_POINT(this.useCurrentSeed.checked && this.parent.selectedAddressPointFeature ? this.parent.selectedAddressPointFeature.geometry : null, [63, 127, 255, 255], "Please make first cut")
+                .then(cutter => {
                     this.cutters.push(cutter);
                     this.GET_CUTTER_BY_POINT(null, [63, 127, 255, 255], "Please make second cut").then(cutter => {
                         html.removeClass(event.target, "active");
@@ -467,7 +467,8 @@ import { isReturnStatement } from "typescript";
         html.removeClass(this.cloneApplyBtn, "blueBtn");        
         html.addClass(event.target, "active");
 
-        this.UtilsVM.PICK_ROAD().then(
+        this.UtilsVM.PICK_ROAD()
+        .then(
             roadSegment => {
                 html.removeClass(event.target, "active"); 
                 this.cutters = [];
@@ -500,14 +501,13 @@ import { isReturnStatement } from "typescript";
                 this.roadGraphicsLayer.add(this.addressRoadGraphic);
 
                 this.addressRoadGeometry = buffer;
-            },
-            error => {
-                console.error("PICK_ROAD", error);
+            })
+        .catch(error => {
+            console.error("PICK_ROAD", error);
 
-                // this.mapView.map.setInfoWindowOnClick(true);
-                html.removeClass(event.target, "active");
-            }
-        );
+            // this.mapView.map.setInfoWindowOnClick(true);
+            html.removeClass(event.target, "active");
+        });
     }
 
     private _addFlipSide = (element:Element) => {
@@ -528,40 +528,38 @@ import { isReturnStatement } from "typescript";
     }
 
     GET_CUTTER_BY_POINT_draw = null; 
-    private GET_CUTTER_BY_POINT = (point, color, tip) => {
-        const deferred = new Deferred();
-        if (point) {
-            deferred.resolve(this.makeCutter(point /*.geometry*/ , color))
-        } else {
-            if(!this.GET_CUTTER_BY_POINT_draw) {
-                this.GET_CUTTER_BY_POINT_draw = new Draw({
-                view: this.mapView
-                })
-            }
-    
-            require(["./CursorToolTip"], CursorToolTip =>{
+    private GET_CUTTER_BY_POINT = (point: Geometry, color: string | __esri.Color | number[], tip: string) => {
+        return new Promise((resolve, reject) => {
+            if (point) {
+                resolve(this.makeCutter(point, color))
+            } else {
+                if(!this.GET_CUTTER_BY_POINT_draw) {
+                    this.GET_CUTTER_BY_POINT_draw = new Draw({
+                    view: this.mapView
+                    })
+                }
+        
                 const cursorToolTip = CursorToolTip.getInstance(this.mapView, tip);
 
                 if (this.GET_CUTTER_BY_POINT_draw.activeAction) {
                     this.GET_CUTTER_BY_POINT_draw.reset();
                     cursorToolTip.close();
-                    deferred.cancel("User Cancel");
-                    return deferred.promise;
+                    reject("User Cancel");
                 }
-        
-                const drawAction = this.GET_CUTTER_BY_POINT_draw.create("point");
-                drawAction.on("draw-complete", event => {
-                    cursorToolTip.close();
-                    this.GET_CUTTER_BY_POINT_draw = null; 
-                    const point = new Point({x:event.coordinates[0], y:event.coordinates[1], spatialReference: this.mapView.spatialReference});
-                    deferred.resolve(this.makeCutter(point, color))
-                });
-            });
-        }
-        return deferred.promise;
+                else {
+                    const drawAction = this.GET_CUTTER_BY_POINT_draw.create("point");
+                    drawAction.on("draw-complete", event => {
+                        cursorToolTip.close();
+                        this.GET_CUTTER_BY_POINT_draw = null; 
+                        const point = new Point({x:event.coordinates[0], y:event.coordinates[1], spatialReference: this.mapView.spatialReference});
+                        resolve(this.makeCutter(point, color))
+                    });
+                }
+            }
+        })
     }
 
-    private makeCutter = (p2, color) => {
+    private makeCutter = (p2, color: string | __esri.Color | number[]) => {
         if (!this.addressRoadGeometry) return null;
         const nearestCoordinate = geometryEngine.nearestCoordinate(this.roadMarker, p2);
         const p1 = new Point(nearestCoordinate.coordinate);
