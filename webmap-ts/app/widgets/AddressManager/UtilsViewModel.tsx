@@ -5,7 +5,6 @@ import Accessor = require("esri/core/Accessor");
 
 import { subclass, declared, property } from "esri/core/accessorSupport/decorators";
 import MapView = require("esri/views/MapView");
-import All = require("dojo/promise/all");
 import FeatureLayer = require("esri/layers/FeatureLayer");
 import GraphicsLayer = require("esri/layers/GraphicsLayer");
 import SketchViewModel = require("esri/widgets/Sketch/SketchViewModel");
@@ -13,10 +12,8 @@ import Draw = require("esri/views/draw/Draw");
 import geometryEngine = require("esri/geometry/geometryEngine");
 import lang = require("dojo/_base/lang");
 import Query = require("esri/tasks/support/Query");
-import { ENGINE_METHOD_ALL } from "constants";
 import { Geometry, Point, Polyline, Polygon } from "esri/geometry";
 import Graphic = require("esri/Graphic");
-import { createSemicolonClassElement } from "typescript";
 import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
 import SimpleMarkerSymbol = require("esri/symbols/SimpleMarkerSymbol");
 import CursorToolTip = require("./CursorToolTip");
@@ -314,7 +311,7 @@ class UtilsViewModel extends declared(Accessor) {
 
                     const oldaddresses = addressLayer.queryFeatures(q);
                     const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);
-                    All([oldaddresses, newAddresses])
+                    Promise.all([oldaddresses, newAddresses])
                     .then(results => {
                         const features = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
                         if (features && features.length == 1) {
@@ -331,7 +328,7 @@ class UtilsViewModel extends declared(Accessor) {
                                     q.spatialRelationship = "contains";
                                     const oldaddresses = addressLayer.queryFeatures(q);
                                     const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);
-                                    All([oldaddresses, newAddresses])
+                                    Promise.all([oldaddresses, newAddresses])
                                     .then(results => {
                                         const features = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
                                         if (features && features.length > 0) {
@@ -368,7 +365,7 @@ class UtilsViewModel extends declared(Accessor) {
                 q.spatialRelationship = "contains";
                 const oldaddresses = addressLayer.queryFeatures(q);
                 const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);//this.addressGraphicsLayer.queryFeatures(q);
-                All([oldaddresses, newAddresses]).then(results => {
+                Promise.all([oldaddresses, newAddresses]).then(results => {
                     const features = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
                     
                     if (features && features.length > 0) {
@@ -672,7 +669,7 @@ class UtilsViewModel extends declared(Accessor) {
                     q.spatialRelationship = "contains";
                     const oldaddresses = addressLayer.queryFeatures(q);
                     const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);
-                    All([oldaddresses, newAddresses])
+                    Promise.all([oldaddresses, newAddresses])
                     .then(
                         results => {
                             const addresses = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
