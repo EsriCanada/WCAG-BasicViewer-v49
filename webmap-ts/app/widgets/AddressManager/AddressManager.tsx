@@ -474,7 +474,7 @@ import Draw = require("esri/views/draw/Draw");
                 // this._showLoading(false);
                 // this.map.setInfoWindowOnClick(true);
             }, err => {
-                console.log("PICK_ADDRESS_OR_PARCEL", err);
+                console.error("PICK_ADDRESS_OR_PARCEL", err);
                 // this._showLoading(false);
                 // this.map.setInfoWindowOnClick(true);
                 html.removeClass(event.target, "active");
