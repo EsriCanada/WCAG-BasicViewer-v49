@@ -27,6 +27,8 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Point = require("esri/geometry/Point");
 import watchUtils = require("esri/core/watchUtils");
 import Draw = require("esri/views/draw/Draw");
+import { resolve } from "path";
+import { rejects } from "assert";
 
 @subclass("esri.widgets.AddressManager")
   class AddressManager extends declared(Widget) {
@@ -1173,58 +1175,61 @@ import Draw = require("esri/views/draw/Draw");
         this.UtilsVM.selectedParcelsGraphic = null;
     }
 
-    private _checkRules(feature) {
-        const brokenRules = [];
-        if(feature) {
-            for (let fieldName in this.inputControls) {
-                const input = this.inputControls[fieldName];
-                const alias = html.getAttr(input, "data-alias");
+    private _checkRules(feature): Promise<string[]> {
+        return new Promise((resolve, reject) => {
+            const brokenRules = [];
+            if(feature) {
+                for (let fieldName in this.specialAttributes) {
+                    const input = this.inputControls[fieldName];
+                    if(input) {
+                        const alias = html.getAttr(input, "data-alias");
 
-                if (fieldName in this.specialAttributes) {
-                    const fieldConfig = this.specialAttributes[fieldName];
-                    domAttr.set(input, "title", input.value);
-                    if ("required" in fieldConfig && fieldConfig["required"] && input.value.isNullOrWhiteSpace()) {
-                        const brokenRule = "'" + alias + "' is required but not provided.";
-                        brokenRules.push(brokenRule);
-                        domAttr.set(input, "title", domAttr.get(input, "title") + "\n" + brokenRule);
-                        html.addClass(input, "brokenRule");
-                    } else {
-                        html.removeClass(input, "brokenRule");
-                        html.setAttr(input, "title", input.value);
-                    }
-                    if ("format"in fieldConfig) {
-                        if (!input.value.match(new RegExp(fieldConfig.format))) {
-                            let brokenRule = "'" + alias + "' has incorrect format.";
-                            if ("placeholder" in fieldConfig) {
-                                brokenRule += " (Try '" + fieldConfig.placeholder + "')";
-                            }
+                        const fieldConfig = this.specialAttributes[fieldName];
+                        domAttr.set(input, "title", input.value);
+                        if ("required" in fieldConfig && fieldConfig["required"] && input.value.isNullOrWhiteSpace()) {
+                            const brokenRule = "'" + alias + "' is required but not provided.";
                             brokenRules.push(brokenRule);
                             domAttr.set(input, "title", domAttr.get(input, "title") + "\n" + brokenRule);
                             html.addClass(input, "brokenRule");
                         } else {
                             html.removeClass(input, "brokenRule");
-                            domAttr.set(input, "title", input.value);
+                            html.setAttr(input, "title", input.value);
+                        }
+                        if ("format"in fieldConfig) {
+                            if (!input.value.match(new RegExp(fieldConfig.format))) {
+                                let brokenRule = "'" + alias + "' has incorrect format.";
+                                if ("placeholder" in fieldConfig) {
+                                    brokenRule += " (Try '" + fieldConfig.placeholder + "')";
+                                }
+                                brokenRules.push(brokenRule);
+                                domAttr.set(input, "title", domAttr.get(input, "title") + "\n" + brokenRule);
+                                html.addClass(input, "brokenRule");
+                            } else {
+                                html.removeClass(input, "brokenRule");
+                                domAttr.set(input, "title", input.value);
+                            }
                         }
                     }
                 }
             }
-        }
 
-        html.removeClass(this.verifyRules, "active");
-        // html.setStyle(this.brokenRulesAlert, "display", "none");
-        this.brokenRulesAlert.innerHTML = "";
-        this.verifyRules.title = "Verify Address Point Record";
-        if (brokenRules.length > 0) {
-            const messages = brokenRules.join("\n");
-            this.verifyRules.title = messages;
-            html.addClass(this.verifyRules, "active");
-            // this.brokenRulesAlert.innerHTML = messages.replace(/\n/, "<br />");
-            brokenRules.forEach(msg => {
-                this.brokenRulesAlert.innerHTML += "<li>"+msg+"</li>";
-            });
-        } else {
-            html.addClass(this.displayBrokenRules, "hide");
-        }
+            html.removeClass(this.verifyRules, "active");
+            // html.setStyle(this.brokenRulesAlert, "display", "none");
+            this.brokenRulesAlert.innerHTML = "";
+            this.verifyRules.title = "Verify Address Point Record";
+            if (brokenRules.length > 0) {
+                const messages = brokenRules.join("\n");
+                this.verifyRules.title = messages;
+                html.addClass(this.verifyRules, "active");
+                brokenRules.forEach(msg => {
+                    this.brokenRulesAlert.innerHTML += "<li>"+msg+"</li>";
+                });
+                resolve(brokenRules);
+            } else {
+                html.addClass(this.displayBrokenRules, "hide");
+                resolve(brokenRules);
+            }
+        })
     }
 
     private isDirty(feature) {
