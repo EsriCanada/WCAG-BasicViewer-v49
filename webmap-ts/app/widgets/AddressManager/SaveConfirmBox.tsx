@@ -14,9 +14,13 @@ import watchUtils = require("esri/core/watchUtils");
 
 @subclass("esri.widgets.SaveConfirmBox")
 class SaveConfirmBox extends declared(Widget) {
+    static SAVE = "SAVE";
+    static SAVE_SAFE = "SAVE_SAFE";
+    static CANCEL = "CANCEL";
 
-    // @property()
-    // selectionMade;
+
+    @property()
+    Response: string = null;
 
     private confirmBox: HTMLElement;
     private confirmBoxContent: HTMLElement;
@@ -29,7 +33,7 @@ class SaveConfirmBox extends declared(Widget) {
             <div class="confirm" afterCreate={this._addConfirmBox} style="display: none;">
                 <div class="wrapper">
                     <div class="box">
-                    <div class="header">{i18n.addressManager.saveConfirmTitle}</div>
+                    <div class="header"><h1>{i18n.addressManager.saveConfirmTitle}</h1></div>
                     <div class="content"afterCreate={this._addConfirmBoxContent} ></div>
                     <div class="footer">
                     <input type="button" afterCreate={this._addSaveConfirmBtn} style="justify-self: left;" class="orangeBtn" value="Save"/>
@@ -53,19 +57,42 @@ class SaveConfirmBox extends declared(Widget) {
     private _addCancelSaveBtn = (element: Element) => {
         this.cancelSaveBtn = element as HTMLElement;
         this.own(on(this.cancelSaveBtn, "click", event => {
+            this.Response = SaveConfirmBox.CANCEL;
         }))
     }
 
     private _addSaveConfirmBtn = (element: Element) => {
         this.saveConfirmBtn = element as HTMLElement;
         this.own(on(this.saveConfirmBtn, "click", event => {
+            this.Response = SaveConfirmBox.SAVE;
         }))
     }
 
     private _addSaveConfirmSafeBtn = (element: Element) => {
         this.saveConfirmSafeBtn = element as HTMLElement;
         this.own(on(this.saveConfirmSafeBtn, "click", event => {
+            this.Response = SaveConfirmBox.SAVE_SAFE;
         }))
+    }
+
+    public Ask = (rules: string[], title:string = null): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            if(rules == null || rules.length == 0) {
+                resolve(this.Response = SaveConfirmBox.SAVE);
+            } else {
+                this.confirmBoxContent.innerHTML = rules.join("<br/>");
+                this.Response = null;
+                html.setStyle(this.confirmBox, "display", "");
+                watchUtils.once(this, "Response", () => {
+                    html.setStyle(this.confirmBox, "display", "none");
+                    if(this.Response != SaveConfirmBox.CANCEL) {
+                        resolve(this.Response);
+                    } else {
+                        reject(this.Response);
+                    }
+                })
+            }
+        })
     }
 
 }

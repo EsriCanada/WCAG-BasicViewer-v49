@@ -694,57 +694,55 @@ import { rejects } from "assert";
 
     private saveFeature = (feature: any) => {
         this._checkRules(feature).then(brokenRules => {
-            console.log("Broken Rules", brokenRules.join("\n"));
-            if (brokenRules.length > 0) {
-
-            }
-
-            let applyWhat = {};
-            if (this.canDelete(feature)) {
-                applyWhat["addFeatures"] = [feature];
-            }
-            else {
-                applyWhat["updateFeatures"] = [feature];
-            }
-            this.siteAddressPointLayer.applyEdits(applyWhat).then(results => {
-                const { addFeatureResults, updateFeatureResults } = results;
-                const [addedFeature] = addFeatureResults;
-                if (addedFeature) {
-                    if (addedFeature.error) {
-                        throw (addedFeature.error);
-                    }
-                    this._RemoveGraphic(feature);
-                    feature.attributes['OBJECTID'] = addedFeature['objectId'];
-                    if (this.addressPointFeatures.length > 0 && this.selectedAddressPointFeature == feature) {
-                        (html.byId('OBJECTID_input') as HTMLInputElement).value = addedFeature['objectId'];
-                    }
-                    const q = this.siteAddressPointLayer.createQuery();
-                    q.outFields = ["*"];
-                    q.objectIds = [addedFeature['objectId']];
-                    q.returnGeometry = true;
-                    this.siteAddressPointLayer.queryFeatures(q).then(({ features }) => {
-                        if (features && features.length === 1) {
-                            this.mapView.graphics.remove(feature);
-                            feature.attributes = features[0].attributes;
-                            this.clearDirty(feature);
+            // console.log("Broken Rules", brokenRules.join("\n"));
+            this.confirmSaveBox.Ask(brokenRules).then(response => {
+                let applyWhat = {};
+                if (this.canDelete(feature)) {
+                    applyWhat["addFeatures"] = [feature];
+                }
+                else {
+                    applyWhat["updateFeatures"] = [feature];
+                }
+                this.siteAddressPointLayer.applyEdits(applyWhat).then(results => {
+                    const { addFeatureResults, updateFeatureResults } = results;
+                    const [addedFeature] = addFeatureResults;
+                    if (addedFeature) {
+                        if (addedFeature.error) {
+                            throw (addedFeature.error);
                         }
-                    });
-                }
-                const [updatedFeature] = updateFeatureResults;
-                if (updatedFeature) {
-                    if (updatedFeature.error) {
-                        throw (updatedFeature.error);
+                        this._RemoveGraphic(feature);
+                        feature.attributes['OBJECTID'] = addedFeature['objectId'];
+                        if (this.addressPointFeatures.length > 0 && this.selectedAddressPointFeature == feature) {
+                            (html.byId('OBJECTID_input') as HTMLInputElement).value = addedFeature['objectId'];
+                        }
+                        const q = this.siteAddressPointLayer.createQuery();
+                        q.outFields = ["*"];
+                        q.objectIds = [addedFeature['objectId']];
+                        q.returnGeometry = true;
+                        this.siteAddressPointLayer.queryFeatures(q).then(({ features }) => {
+                            if (features && features.length === 1) {
+                                this.mapView.graphics.remove(feature);
+                                feature.attributes = features[0].attributes;
+                                this.clearDirty(feature);
+                            }
+                        });
                     }
-                    this.clearDirty(feature);
-                    delete feature.originalValues;
-                }
-                this._setDirtyBtns();
-            })
-                .catch(error => {
-                    console.error(`============================================
-                        [ applyEdits ] FAILURE: ${error}'`);
-                });
-        });
+                    const [updatedFeature] = updateFeatureResults;
+                    if (updatedFeature) {
+                        if (updatedFeature.error) {
+                            throw (updatedFeature.error);
+                        }
+                        this.clearDirty(feature);
+                        delete feature.originalValues;
+                    }
+                    this._setDirtyBtns();
+                })
+                    .catch(error => {
+                        console.error(`============================================
+                            [ applyEdits ] FAILURE: ${error}'`);
+                    });
+            });
+        })
     }
 
     private _addConfirmBoxNode = (element: Element) => {
