@@ -3,6 +3,8 @@
 
 import Accessor = require("esri/core/Accessor");
 
+import i18n = require("dojo/i18n!./nls/resources");
+
 import { subclass, declared, property } from "esri/core/accessorSupport/decorators";
 import MapView = require("esri/views/MapView");
 import FeatureLayer = require("esri/layers/FeatureLayer");
@@ -165,7 +167,7 @@ class UtilsViewModel extends declared(Accessor) {
                 reject("User Cancel");
             }
             else {
-                    const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click a road to select");
+                    const cursorTooltip = CursorToolTip.getInstance(this.mapView, i18n.addressManager.selectRoad);
 
                     this.PICK_ROAD_sketchVM.create("point");
                     this.PICK_ROAD_sketchVM.on("create", event => {
@@ -572,7 +574,7 @@ class UtilsViewModel extends declared(Accessor) {
 
                 this.mapView.graphics.removeAll();
 
-                const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click and drag over parcels to select");
+                const cursorTooltip = CursorToolTip.getInstance(this.mapView, i18n.addressManager.freeLineSelectParcels);
         
                 const drawAction = this.pickParcels_draw.create("polyline", {mode: "freehand"});
                 drawAction.on("draw-complete", () => {

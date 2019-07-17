@@ -130,9 +130,11 @@ import { rejects } from "assert";
     private freeLine: any;
     private selectedGeometries: Collection<__esri.Geometry>;
     private menuFieldName: string;
-    centerAll: HTMLElement;
-    moveAddressPointBtn: HTMLElement;
-    moveAllItem: HTMLElement;
+    private centerAll: HTMLElement;
+    private moveAddressPointBtn: HTMLElement;
+    private moveAllItem: HTMLElement;
+    private confirmBox: HTMLElement;
+    private confirmBoxContent: HTMLElement;
 
     constructor() {
         super(); 
@@ -323,7 +325,16 @@ import { rejects } from "assert";
                     <input type="button" id="Cancel" afterCreate={this._addCancelBtn} style="justify-self: right; grid-column-start: 5" data-dojo-attach-event="onclick:_onCancelClicked" value="Cancel"/>
                 </div>
 
-            </div>        
+            </div> 
+            <div class="confirm" afterCreate={this._addConfirmBox} style="display: none;">
+                <div class="wrapper">
+                    <div class="box">
+                    <div class="header">Alert</div>
+                    <div class="content"afterCreate={this._addConfirmBoxContent} >Some Content</div>
+                    <div class="footer">Save</div>
+                </div>
+                </div>
+            </div>
         </div>
         );
     }
@@ -682,59 +693,72 @@ import { rejects } from "assert";
             if(!(html as any).hasClass(event.target, "blueBtn")) return;
 
             const feature = this.selectedAddressPointFeature as any;
+
+            this.saveFeature(feature);
+        }))
+    }
+
+    private saveFeature = (feature: any) => {
+        this._checkRules(feature).then(brokenRules => {
+            console.log("Broken Rules", brokenRules.join("\n"));
+            if (brokenRules.length > 0) {
+
+            }
+
             let applyWhat = {};
-            if(this.canDelete(feature)) {
+            if (this.canDelete(feature)) {
                 applyWhat["addFeatures"] = [feature];
-            } else {
+            }
+            else {
                 applyWhat["updateFeatures"] = [feature];
             }
             this.siteAddressPointLayer.applyEdits(applyWhat).then(results => {
-                const {addFeatureResults, updateFeatureResults} = results;
+                const { addFeatureResults, updateFeatureResults } = results;
                 const [addedFeature] = addFeatureResults;
-                if(addedFeature) {
-                    if(addedFeature.error) {
-                        throw(addedFeature.error);
+                if (addedFeature) {
+                    if (addedFeature.error) {
+                        throw (addedFeature.error);
                     }
                     this._RemoveGraphic(feature);
                     feature.attributes['OBJECTID'] = addedFeature['objectId'];
-
                     if (this.addressPointFeatures.length > 0 && this.selectedAddressPointFeature == feature) {
                         (html.byId('OBJECTID_input') as HTMLInputElement).value = addedFeature['objectId'];
                     }
-
                     const q = this.siteAddressPointLayer.createQuery();
-
                     q.outFields = ["*"];
                     q.objectIds = [addedFeature['objectId']];
                     q.returnGeometry = true;
-
-                    this.siteAddressPointLayer.queryFeatures(q).then(({features}) => {
+                    this.siteAddressPointLayer.queryFeatures(q).then(({ features }) => {
                         if (features && features.length === 1) {
                             this.mapView.graphics.remove(feature);
-
                             feature.attributes = features[0].attributes;
-
                             this.clearDirty(feature);
                         }
-                    })
+                    });
                 }
                 const [updatedFeature] = updateFeatureResults;
-                if(updatedFeature) {
-                    if(updatedFeature.error) {
-                        throw(updatedFeature.error);
+                if (updatedFeature) {
+                    if (updatedFeature.error) {
+                        throw (updatedFeature.error);
                     }
                     this.clearDirty(feature);
                     delete feature.originalValues;
                 }
                 this._setDirtyBtns();
             })
-            .catch(error => {
-                console.error(
-                    `============================================
-                    [ applyEdits ] FAILURE: ${error}'`
-                );
-            })
-        }))
+                .catch(error => {
+                    console.error(`============================================
+                        [ applyEdits ] FAILURE: ${error}'`);
+                });
+        });
+    }
+
+    private _addConfirmBox = (element: Element) => {
+        this.confirmBox = element as HTMLElement;
+    }
+
+    private _addConfirmBoxContent = (element: Element) => {
+        this.confirmBoxContent = element as HTMLElement;
     }
 
     private _addSubmitAddressAll = (element: Element) => {

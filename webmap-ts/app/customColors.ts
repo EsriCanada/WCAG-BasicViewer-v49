@@ -266,11 +266,11 @@ export function CustomColors(config: ApplicationConfig) : void {
 }
 
 .AddressManager .toolbar {
-  border-bottom: 1px solid #004da8;
+  border-bottom: 1px solid ${bgColor};
 }
 
 .AddressManager .footer {
-  border-top: 1px solid #004da8;
+  border-top: 1px solid ${bgColor};
 }
 
 .AddressManager table caption {
@@ -296,8 +296,14 @@ export function CustomColors(config: ApplicationConfig) : void {
 }
 
 .AddressManager .ClonePanel,
-.AddressManager .dropdown-content {
+.AddressManager .dropdown-content
+{
   border: 2px solid ${bgColor};
+  box-shadow: 4px 4px 5px ${Transparent(bgColor, "7f")};
+}
+
+.AddressManager .confirm .box
+{
   box-shadow: 4px 4px 5px ${Transparent(bgColor, "7f")};
 }
 
