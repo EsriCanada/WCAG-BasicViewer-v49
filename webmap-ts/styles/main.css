@@ -1957,7 +1957,6 @@ AddressManager .dropdown-content li {
 .AddressManager .confirm {
     position: absolute;
     z-index: 1;
-    padding-top: 100px;
     left: 0;
     top: 0;
     width: 100%;
@@ -1969,6 +1968,9 @@ AddressManager .dropdown-content li {
 
 .AddressManager .confirm .wrapper {
     width: 90%;
+    position: absolute;
+    bottom: 50px;
+    max-height: calc(100% - 50px);
 }
 
 .AddressManager .confirm .box {

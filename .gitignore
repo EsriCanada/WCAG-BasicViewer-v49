@@ -127,3 +127,5 @@ webmap-ts/app/widgets/AddressManager/PickupRoads\.js
 webmap-ts/app/widgets/Filters/FilterCodedDomain\.js
 
 webmap-ts\.4-11\.zip
+
+webmap-ts/app/widgets/AddressManager/SaveConfirmBox\.js

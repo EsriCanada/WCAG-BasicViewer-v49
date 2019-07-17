@@ -9,7 +9,7 @@ import html = require("dojo/_base/html");
 
 import { renderable, tsx } from "esri/widgets/support/widget";
 
-import i18n = require("dojo/i18n!../nls/resources");
+import i18n = require("dojo/i18n!./nls/resources");
 import watchUtils = require("esri/core/watchUtils");
 
 @subclass("esri.widgets.SaveConfirmBox")
@@ -33,7 +33,7 @@ class SaveConfirmBox extends declared(Widget) {
                     <div class="content"afterCreate={this._addConfirmBoxContent} ></div>
                     <div class="footer">
                     <input type="button" afterCreate={this._addSaveConfirmBtn} style="justify-self: left;" class="orangeBtn" value="Save"/>
-                    <input type="button" afterCreate={this._addSaveConfirmSafeBtn} style="justify-self: left;" class="greenBtn" value="Save as WorkingOn"/>
+                    <input type="button" afterCreate={this._addSaveConfirmSafeBtn} style="justify-self: left;" class="greenBtn" value="Save as To Review"/>
                     <input type="button" afterCreate={this._addCancelSaveBtn} style="justify-self: right; grid-column-start: 5" class="blankBtn"value="Cancel"/>
                     </div>
                 </div>

@@ -19,7 +19,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/core/tsSupport/decorateHelper", "esri/core/accessorSupport/decorators", "esri/widgets/Widget", "dojo/on", "esri/widgets/support/widget", "dojo/i18n!../nls/resources"], function (require, exports, __extends, __decorate, decorators_1, Widget, on, widget_1, i18n) {
+define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/core/tsSupport/decorateHelper", "esri/core/accessorSupport/decorators", "esri/widgets/Widget", "dojo/on", "esri/widgets/support/widget", "dojo/i18n!./nls/resources"], function (require, exports, __extends, __decorate, decorators_1, Widget, on, widget_1, i18n) {
     "use strict";
     var SaveConfirmBox = /** @class */ (function (_super) {
         __extends(SaveConfirmBox, _super);
@@ -58,7 +58,7 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                         widget_1.tsx("div", { class: "content", afterCreate: this._addConfirmBoxContent }),
                         widget_1.tsx("div", { class: "footer" },
                             widget_1.tsx("input", { type: "button", afterCreate: this._addSaveConfirmBtn, style: "justify-self: left;", class: "orangeBtn", value: "Save" }),
-                            widget_1.tsx("input", { type: "button", afterCreate: this._addSaveConfirmSafeBtn, style: "justify-self: left;", class: "greenBtn", value: "Save as WorkingOn" }),
+                            widget_1.tsx("input", { type: "button", afterCreate: this._addSaveConfirmSafeBtn, style: "justify-self: left;", class: "greenBtn", value: "Save as To Review" }),
                             widget_1.tsx("input", { type: "button", afterCreate: this._addCancelSaveBtn, style: "justify-self: right; grid-column-start: 5", class: "blankBtn", value: "Cancel" }))))));
         };
         SaveConfirmBox = __decorate([
