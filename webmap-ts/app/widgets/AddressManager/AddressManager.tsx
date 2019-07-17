@@ -695,7 +695,11 @@ import { rejects } from "assert";
     private saveFeature = (feature: any) => {
         this._checkRules(feature).then(brokenRules => {
             // console.log("Broken Rules", brokenRules.join("\n"));
-            this.confirmSaveBox.Ask(brokenRules).then(response => {
+            this.confirmSaveBox.Ask(feature.attributes.status == 1 ? null : brokenRules)
+            .then(response => {
+                if(response == ConfirmSaveBox.SAVE_SAFE) {
+                    feature.attributes.status = 1;
+                }
                 let applyWhat = {};
                 if (this.canDelete(feature)) {
                     applyWhat["addFeatures"] = [feature];
@@ -703,7 +707,8 @@ import { rejects } from "assert";
                 else {
                     applyWhat["updateFeatures"] = [feature];
                 }
-                this.siteAddressPointLayer.applyEdits(applyWhat).then(results => {
+                this.siteAddressPointLayer.applyEdits(applyWhat)
+                .then(results => {
                     const { addFeatureResults, updateFeatureResults } = results;
                     const [addedFeature] = addFeatureResults;
                     if (addedFeature) {
@@ -724,6 +729,7 @@ import { rejects } from "assert";
                                 this.mapView.graphics.remove(feature);
                                 feature.attributes = features[0].attributes;
                                 this.clearDirty(feature);
+                                this._populateAddressTable(this.addressPointFeaturesIndex);
                             }
                         });
                     }
@@ -734,13 +740,18 @@ import { rejects } from "assert";
                         }
                         this.clearDirty(feature);
                         delete feature.originalValues;
+                        this._populateAddressTable(this.addressPointFeaturesIndex);
                     }
-                    this._setDirtyBtns();
+                    // this._setDirtyBtns();
                 })
-                    .catch(error => {
-                        console.error(`============================================
-                            [ applyEdits ] FAILURE: ${error}'`);
-                    });
+                .catch(error => {
+                    console.error(`Save [ applyEdits ]: ${error}`);
+                });
+            })
+            .catch(error => {
+                if(error != ConfirmSaveBox.CANCEL) {
+                    console.error("Save", error);
+                }
             });
         })
     }

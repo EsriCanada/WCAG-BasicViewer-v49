@@ -2012,4 +2012,5 @@ AddressManager .dropdown-content li {
 .AddressManager .confirm .box .content {
     min-height: 60px;
     background: white;
+    font-family: 'Roboto Condensed', sans-serif;
 }
