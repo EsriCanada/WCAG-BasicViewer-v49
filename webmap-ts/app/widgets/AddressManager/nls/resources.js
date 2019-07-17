@@ -14,6 +14,8 @@ define({
             selectRoad: "Click a road to select",
 
             saveConfirmTitle: "There are Broken Rules on this Address",
+
+            saveSafe: "Save as To Review",
         }
     }),
     "ar": 1,
