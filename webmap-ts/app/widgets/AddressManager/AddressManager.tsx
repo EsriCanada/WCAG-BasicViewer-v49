@@ -1125,11 +1125,11 @@ import { rejects } from "assert";
                         const input = this.inputControls[fieldName];
 
                         if (fieldName in attributes) {
-                            // if (input.type === "date") {
-                            //     input.value = new Date(attributes[fieldName]).toInputDate()
-                            // } else {
+                            if (input.type === "date") {
+                                input.value = new Date(attributes[fieldName]).toInputDate()
+                            } else {
                                 input.value = attributes[fieldName];
-                            // }
+                            }
                         } else {
                             input.value = null;
                         }
