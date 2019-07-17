@@ -11,11 +11,12 @@ import domAttr = require("dojo/dom-attr");
 
 import { renderable, tsx } from "esri/widgets/support/widget";
 
-import i18n = require("dojo/i18n!../nls/resources");
+import i18n = require("dojo/i18n!./nls/resources");
 import FeatureLayer = require("esri/layers/FeatureLayer");
 import Field = require("esri/layers/support/Field");
 import UtilsViewModel = require("./UtilsViewModel");
 import AddressManagerViewModel = require("./AddressManagerViewModel");
+import ConfirmSaveBox = require("./SaveConfirmBox");
 import Graphic = require("esri/Graphic");
 import Feature = require("esri/widgets/Feature");
 import Collection = require("esri/core/Collection");
@@ -27,6 +28,8 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
 import Point = require("esri/geometry/Point");
 import watchUtils = require("esri/core/watchUtils");
 import Draw = require("esri/views/draw/Draw");
+import { resolve } from "path";
+import { rejects } from "assert";
 
 @subclass("esri.widgets.AddressManager")
   class AddressManager extends declared(Widget) {
@@ -128,9 +131,11 @@ import Draw = require("esri/views/draw/Draw");
     private freeLine: any;
     private selectedGeometries: Collection<__esri.Geometry>;
     private menuFieldName: string;
-    centerAll: HTMLElement;
-    moveAddressPointBtn: HTMLElement;
-    moveAllItem: HTMLElement;
+    private centerAll: HTMLElement;
+    private moveAddressPointBtn: HTMLElement;
+    private moveAllItem: HTMLElement;
+    confirmSaveBox: ConfirmSaveBox;
+    // private confirmBoxNode: HTMLElement;
 
     constructor() {
         super(); 
@@ -310,7 +315,7 @@ import Draw = require("esri/views/draw/Draw");
                 </div>
     
                 <div afterCreate={this._addDisplayBrokenRules} class="displayBrokenRules hide">
-                    <h1>Broken Rules</h1>
+                    <h1>{i18n.addressManager.brokenRules}</h1>
                     <ul afterCreate={this._addBrokenRulesAlert}></ul>
                     </div>
                 <div class="footer footer5cells">
@@ -321,7 +326,9 @@ import Draw = require("esri/views/draw/Draw");
                     <input type="button" id="Cancel" afterCreate={this._addCancelBtn} style="justify-self: right; grid-column-start: 5" data-dojo-attach-event="onclick:_onCancelClicked" value="Cancel"/>
                 </div>
 
-            </div>        
+            </div> 
+            <div afterCreate={this._addConfirmBoxNode}>
+            </div>
         </div>
         );
     }
@@ -514,7 +521,7 @@ import Draw = require("esri/views/draw/Draw");
         html.addClass(event.target, "active");
 
         require(["./CursorToolTip"], CursorToolTip => {
-            const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click and drag around addresses to select");
+            const cursorTooltip = CursorToolTip.getInstance(this.mapView, i18n.addressManager.selectAddressLaso);
 
             this.UtilsVM.PICK_ADDRESSES(this.siteAddressPointLayer).then(
                 addresses => {
@@ -549,7 +556,7 @@ import Draw = require("esri/views/draw/Draw");
 
             domClass.add(event.target, "active");
             require(["./CursorToolTip"], CursorToolTip => {
-                const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click to add a new address");
+                const cursorTooltip = CursorToolTip.getInstance(this.mapView, i18n.addressManager.clickForNewAddress);
         
                 this.UtilsVM.ADD_NEW_ADDRESS().then(feature => {
                     DropDownItemMenu.ClearLabels();
@@ -680,63 +687,82 @@ import Draw = require("esri/views/draw/Draw");
             if(!(html as any).hasClass(event.target, "blueBtn")) return;
 
             const feature = this.selectedAddressPointFeature as any;
-            let applyWhat = {};
-            if(this.canDelete(feature)) {
-                applyWhat["addFeatures"] = [feature];
-            } else {
-                applyWhat["updateFeatures"] = [feature];
-            }
-            this.siteAddressPointLayer.applyEdits(applyWhat).then(results => {
-                const {addFeatureResults, updateFeatureResults} = results;
-                const [addedFeature] = addFeatureResults;
-                if(addedFeature) {
-                    if(addedFeature.error) {
-                        throw(addedFeature.error);
-                    }
-                    this._RemoveGraphic(feature);
-                    feature.attributes['OBJECTID'] = addedFeature['objectId'];
 
-                    if (this.addressPointFeatures.length > 0 && this.selectedAddressPointFeature == feature) {
-                        (html.byId('OBJECTID_input') as HTMLInputElement).value = addedFeature['objectId'];
-                    }
-
-                    const q = this.siteAddressPointLayer.createQuery();
-
-                    q.outFields = ["*"];
-                    q.objectIds = [addedFeature['objectId']];
-                    q.returnGeometry = true;
-
-                    this.siteAddressPointLayer.queryFeatures(q).then(({features}) => {
-                        if (features && features.length === 1) {
-                            this.mapView.graphics.remove(feature);
-
-                            feature.attributes = features[0].attributes;
-
-                            this.clearDirty(feature);
-                        }
-                    })
-                }
-                const [updatedFeature] = updateFeatureResults;
-                if(updatedFeature) {
-                    if(updatedFeature.error) {
-                        throw(updatedFeature.error);
-                    }
-                    this.clearDirty(feature);
-                    delete feature.originalValues;
-                }
-                this._setDirtyBtns();
-            })
-            .catch(error => {
-                console.error(
-                    `============================================
-                    [ applyEdits ] FAILURE: ${error}'`
-                );
-            })
+            this.saveFeature(feature);
         }))
     }
 
+    private saveFeature = (feature: any) => {
+        this._checkRules(feature).then(brokenRules => {
+            // console.log("Broken Rules", brokenRules.join("\n"));
+            this.confirmSaveBox.Ask(feature.attributes.status == 1 ? null : brokenRules)
+            .then(response => {
+                if(response == ConfirmSaveBox.SAVE_SAFE) {
+                    feature.attributes.status = 1;
+                }
+                let applyWhat = {};
+                if (this.canDelete(feature)) {
+                    applyWhat["addFeatures"] = [feature];
+                }
+                else {
+                    applyWhat["updateFeatures"] = [feature];
+                }
+                this.siteAddressPointLayer.applyEdits(applyWhat)
+                .then(results => {
+                    const { addFeatureResults, updateFeatureResults } = results;
+                    const [addedFeature] = addFeatureResults;
+                    if (addedFeature) {
+                        if (addedFeature.error) {
+                            throw (addedFeature.error);
+                        }
+                        this._RemoveGraphic(feature);
+                        feature.attributes['OBJECTID'] = addedFeature['objectId'];
+                        if (this.addressPointFeatures.length > 0 && this.selectedAddressPointFeature == feature) {
+                            (html.byId('OBJECTID_input') as HTMLInputElement).value = addedFeature['objectId'];
+                        }
+                        const q = this.siteAddressPointLayer.createQuery();
+                        q.outFields = ["*"];
+                        q.objectIds = [addedFeature['objectId']];
+                        q.returnGeometry = true;
+                        this.siteAddressPointLayer.queryFeatures(q).then(({ features }) => {
+                            if (features && features.length === 1) {
+                                this.mapView.graphics.remove(feature);
+                                feature.attributes = features[0].attributes;
+                                this.clearDirty(feature);
+                                this._populateAddressTable(this.addressPointFeaturesIndex);
+                            }
+                        });
+                    }
+                    const [updatedFeature] = updateFeatureResults;
+                    if (updatedFeature) {
+                        if (updatedFeature.error) {
+                            throw (updatedFeature.error);
+                        }
+                        this.clearDirty(feature);
+                        delete feature.originalValues;
+                        this._populateAddressTable(this.addressPointFeaturesIndex);
+                    }
+                    // this._setDirtyBtns();
+                })
+                .catch(error => {
+                    console.error(`Save [ applyEdits ]: ${error}`);
+                });
+            })
+            .catch(error => {
+                if(error != ConfirmSaveBox.CANCEL) {
+                    console.error("Save", error);
+                }
+            });
+        })
+    }
+
+    private _addConfirmBoxNode = (element: Element) => {
+        // this.confirmBoxNode = element as HTMLElement;
+        this.confirmSaveBox = new ConfirmSaveBox({container:element as HTMLElement});
+    }
+
     private _addSubmitAddressAll = (element: Element) => {
-        this.submitAddressAll= element as HTMLElement;
+        this.submitAddressAll = element as HTMLElement;
     }
 
     private _addCancelBtn = (element: Element) => {
@@ -940,7 +966,7 @@ import Draw = require("esri/views/draw/Draw");
             if (!this.addressPointFeatures || this.addressPointFeatures.length == 0) return;
             html.addClass(event.target, "active");
             require(["./CursorToolTip"], CursorToolTip => {
-                const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click to end Move");
+                const cursorTooltip = CursorToolTip.getInstance(this.mapView, i18n.addressManager.clickEndMove);
 
                 const feature = this.selectedAddressPointFeature as any;
                 let g = feature.geometry;
@@ -982,7 +1008,7 @@ import Draw = require("esri/views/draw/Draw");
             
             html.addClass(event.target, "active");
             require(["./CursorToolTip"], CursorToolTip => {
-                const cursorTooltip = CursorToolTip.getInstance(this.mapView, "Click to end Move");
+                const cursorTooltip = CursorToolTip.getInstance(this.mapView, i18n.addressManager.clickEndMove);
 
                 const gs = this.addressPointFeatures.slice(this.addressPointFeaturesIndex).map(f => {
                     const feature = f as any;
@@ -1173,58 +1199,65 @@ import Draw = require("esri/views/draw/Draw");
         this.UtilsVM.selectedParcelsGraphic = null;
     }
 
-    private _checkRules(feature) {
-        const brokenRules = [];
-        if(feature) {
-            for (let fieldName in this.inputControls) {
-                const input = this.inputControls[fieldName];
-                const alias = html.getAttr(input, "data-alias");
+    private _checkRules(feature): Promise<string[]> {
+        return new Promise((resolve, reject) => {
+            html.removeClass(this.verifyRules, "active");
+            this.brokenRulesAlert.innerHTML = "";
+            this.verifyRules.title = i18n.addressManager.verifyRecord;
+            //"Verify Address Point Record";
 
-                if (fieldName in this.specialAttributes) {
-                    const fieldConfig = this.specialAttributes[fieldName];
-                    domAttr.set(input, "title", input.value);
-                    if ("required" in fieldConfig && fieldConfig["required"] && input.value.isNullOrWhiteSpace()) {
-                        const brokenRule = "'" + alias + "' is required but not provided.";
-                        brokenRules.push(brokenRule);
-                        domAttr.set(input, "title", domAttr.get(input, "title") + "\n" + brokenRule);
-                        html.addClass(input, "brokenRule");
-                    } else {
-                        html.removeClass(input, "brokenRule");
-                        html.setAttr(input, "title", input.value);
-                    }
-                    if ("format"in fieldConfig) {
-                        if (!input.value.match(new RegExp(fieldConfig.format))) {
-                            let brokenRule = "'" + alias + "' has incorrect format.";
-                            if ("placeholder" in fieldConfig) {
-                                brokenRule += " (Try '" + fieldConfig.placeholder + "')";
-                            }
+            const brokenRules = [];
+            if(feature) {
+                for (let fieldName in this.specialAttributes) {
+                    const input = this.inputControls[fieldName];
+                    if(input) {
+                        const alias = html.getAttr(input, "data-alias");
+
+                        const fieldConfig = this.specialAttributes[fieldName];
+                        domAttr.set(input, "title", input.value);
+                        if ("required" in fieldConfig && fieldConfig["required"] && input.value.isNullOrWhiteSpace()) {
+                            const brokenRule = //"'{0}' is required but not provided."
+                            i18n.addressManager.requiredNotProvided.format(alias);
                             brokenRules.push(brokenRule);
                             domAttr.set(input, "title", domAttr.get(input, "title") + "\n" + brokenRule);
                             html.addClass(input, "brokenRule");
                         } else {
                             html.removeClass(input, "brokenRule");
-                            domAttr.set(input, "title", input.value);
+                            html.setAttr(input, "title", input.value);
+                        }
+                        if ("format"in fieldConfig) {
+                            if (!input.value.match(new RegExp(fieldConfig.format))) {
+                                let brokenRule = i18n.addressManager.incorrectFormat.format(alias);
+                                if ("placeholder" in fieldConfig) {
+                                    brokenRule += i18n.addressManager.tryFormat.format(fieldConfig.placeholder);
+                                }
+                                brokenRules.push(brokenRule);
+                                domAttr.set(input, "title", domAttr.get(input, "title") + "\n" + brokenRule);
+                                html.addClass(input, "brokenRule");
+                            } else {
+                                html.removeClass(input, "brokenRule");
+                                domAttr.set(input, "title", input.value);
+                            }
                         }
                     }
                 }
-            }
-        }
 
-        html.removeClass(this.verifyRules, "active");
-        // html.setStyle(this.brokenRulesAlert, "display", "none");
-        this.brokenRulesAlert.innerHTML = "";
-        this.verifyRules.title = "Verify Address Point Record";
-        if (brokenRules.length > 0) {
-            const messages = brokenRules.join("\n");
-            this.verifyRules.title = messages;
-            html.addClass(this.verifyRules, "active");
-            // this.brokenRulesAlert.innerHTML = messages.replace(/\n/, "<br />");
-            brokenRules.forEach(msg => {
-                this.brokenRulesAlert.innerHTML += "<li>"+msg+"</li>";
-            });
-        } else {
-            html.addClass(this.displayBrokenRules, "hide");
-        }
+                if (brokenRules.length > 0) {
+                    const messages = brokenRules.join("\n");
+                    this.verifyRules.title = messages;
+                    html.addClass(this.verifyRules, "active");
+                    brokenRules.forEach(msg => {
+                        this.brokenRulesAlert.innerHTML += "<li>"+msg+"</li>";
+                    });
+                    resolve(brokenRules);
+                } else {
+                    html.addClass(this.displayBrokenRules, "hide");
+                    resolve(brokenRules);
+                }
+            } else {
+                reject("No Feature Selected");
+            }
+        })
     }
 
     private isDirty(feature) {
