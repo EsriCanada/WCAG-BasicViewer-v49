@@ -135,6 +135,9 @@ import { rejects } from "assert";
     private moveAllItem: HTMLElement;
     private confirmBox: HTMLElement;
     private confirmBoxContent: HTMLElement;
+    cancelSaveBtn: HTMLElement;
+    saveConfirmBtn: HTMLElement;
+    saveConfirmSafeBtn: HTMLElement;
 
     constructor() {
         super(); 
@@ -329,9 +332,13 @@ import { rejects } from "assert";
             <div class="confirm" afterCreate={this._addConfirmBox} style="display: none;">
                 <div class="wrapper">
                     <div class="box">
-                    <div class="header">Alert</div>
+                    <div class="header">There are Broken Rules on this Address</div>
                     <div class="content"afterCreate={this._addConfirmBoxContent} >Some Content</div>
-                    <div class="footer">Save</div>
+                    <div class="footer" style="display: grid; grid-template-columns: auto auto auto;">
+                    <input type="button" afterCreate={this._addSaveConfirmBtn} style="justify-self: left;" class="orangeBtn" value="Save"/>
+                    <input type="button" afterCreate={this._addSaveConfirmSafeBtn} style="justify-self: left;" class="greenBtn" value="Save as WorkingOn"/>
+                    <input type="button" afterCreate={this._addCancelSaveBtn} style="justify-self: right; grid-column-start: 5" class="blankBtn"value="Cancel"/>
+                    </div>
                 </div>
                 </div>
             </div>
@@ -779,6 +786,24 @@ import { rejects } from "assert";
             this._cancelFeatures();
             this._clearForm();
             this._setDirtyBtns();
+        }))
+    }
+
+    private _addCancelSaveBtn = (element: Element) => {
+        this.cancelSaveBtn = element as HTMLElement;
+        this.own(on(this.cancelSaveBtn, "click", event => {
+        }))
+    }
+
+    private _addSaveConfirmBtn = (element: Element) => {
+        this.saveConfirmBtn = element as HTMLElement;
+        this.own(on(this.saveConfirmBtn, "click", event => {
+        }))
+    }
+
+    private _addSaveConfirmSafeBtn = (element: Element) => {
+        this.saveConfirmSafeBtn = element as HTMLElement;
+        this.own(on(this.saveConfirmSafeBtn, "click", event => {
         }))
     }
 

@@ -12,6 +12,8 @@ define({
             clickEndMove: "Click to end Move",
             freeLineSelectParcels: "Click and drag over parcels to select",
             selectRoad: "Click a road to select",
+
+            saveConfirmTitle: "There are Broken Rules on this Address",
         }
     }),
     "ar": 1,

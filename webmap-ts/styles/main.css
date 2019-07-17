@@ -1968,7 +1968,7 @@ AddressManager .dropdown-content li {
 }
 
 .AddressManager .confirm .wrapper {
-    width: 80%;
+    width: 90%;
 }
 
 .AddressManager .confirm .box {
@@ -1977,7 +1977,7 @@ AddressManager .dropdown-content li {
     display: inline-block;
     line-height: 10px;
     background: transparent;
-    left: 10%;
+    left: 5%;
 }
 
 .AddressManager .confirm .box .header,
@@ -1986,7 +1986,11 @@ AddressManager .dropdown-content li {
     color: linen;
 }
 
-,
+.AddressManager .confirm .box .footer {
+    display: grid;
+    grid-template-columns: auto auto auto;
+}
+
 .AddressManager .confirm .box {
     border: 2px solid darkred;
 }

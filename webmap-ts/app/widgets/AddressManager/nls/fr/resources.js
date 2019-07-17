@@ -12,6 +12,8 @@ define(
             clickEndMove: "Cliquez pour terminer Déplacer",
             freeLineSelectParcels: "Cliquez et faites glisser sur des parcelles pour sélectionner",
             selectRoad: "Cliquez sur une route pour sélectionner",
+
+            saveConfirmTitle: "Il y a des règles brisées sur cette adresse",
         }
     })
 );
