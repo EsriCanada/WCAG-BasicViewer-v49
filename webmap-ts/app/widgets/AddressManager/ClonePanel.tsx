@@ -214,13 +214,13 @@ import { Geometry } from "esri/geometry";
                         </td>
                     </tr>
                     <tr>
-                        <th><label for="StreeNumStart">Street # Start:</label></th>
+                        <th><label for="StreeNumStart">Address # Start:</label></th>
                         <td>
                             <input type="number" class="numInput" id="StreeNumStart" min="1" step="1" name="StreeNumStart" value="1" afterCreate={this._addStreeNumStart}/>
                         </td> 
                     </tr>
                     <tr>
-                        <th><label for="StreeNumStep">Street # Step:</label></th>
+                        <th><label for="StreeNumStep">Address # Step:</label></th>
                         <td>
                             <input type="number" class="numInput" id="StreeNumStep" min="1" max="8" step="1" name="StreeNumStep" value="2" afterCreate={this._addStreeNumStep}/>
                         </td> 
