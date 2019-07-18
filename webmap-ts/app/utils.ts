@@ -14,7 +14,7 @@ String.prototype.format = function() : string {
     });
 };
 
-String.prototype.stripTags = function() : string {
+String.prototype.stripTags = function() : string { 
     return this.replace(/<[^>]*>/g, "", ) as string;
 }
 
@@ -46,6 +46,15 @@ Date.prototype.toSQL = function() : string {
     }
     return this.getFullYear().padLeft(4) + (this.getMonth() + 1).padLeft(2) + this.getDate().padLeft(2);
 };
+
+Date.prototype.toInputDate = function() : string {
+    if (this.toDateString() === "Invalid Date") {
+        return null;
+    }
+    const date = this.getFullYear().padLeft(4) + "-" + (this.getMonth() + 1).padLeft(2) + "-" + this.getDate().padLeft(2);
+    return (date === "1899-12-31") || (date === "1969-12-31") ? "" : date;
+};
+
 
 if (!String.prototype.startsWith) {
     String.prototype.startsWith = function(search : string, pos? : number) : boolean {

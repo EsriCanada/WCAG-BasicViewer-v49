@@ -18,6 +18,7 @@ declare interface String {
 
 declare interface Date {
     toSQL() : string;
+    toInputDate() : string;
 }
 
 declare interface Number {

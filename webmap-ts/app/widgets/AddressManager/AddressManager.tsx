@@ -257,7 +257,7 @@ import { rejects } from "assert";
                         <caption><h2>Location</h2></caption>
                         <tr>
                             <th>
-                                <div><label for="x_input">x:</label>
+                                <div><label for="x_input">x</label>
                                     <div style="float:right;">
                                         <input type="image" src="../images/icons_transp/centroid.bgwhite.24.png" title="Centroid" aria-label="Place Address Point to Centroid" afterCreate={this._addCentroidBtn} class="rowImg"/>
                                         <input type="image" src="../images/icons_transp/movePoint.bgwhite.24.png" title="Move" aria-label="Move Address Point" afterCreate={this._addMoveAddressPointBtn} data-dojo-attach-point="moveAddressPoint" class="rowImg"/>
@@ -285,7 +285,7 @@ import { rejects } from "assert";
                             </td>
                         </tr>
                         <tr>
-                            <th><label for="y_input">y:</label></th>
+                            <th><label for="y_input">y</label></th>
                             <td>
                                 <div class="dataCell-container">
                                     <input type="text" id="y_input" class="dataCell-input" afterCreate={this._addY}/>
@@ -1125,11 +1125,11 @@ import { rejects } from "assert";
                         const input = this.inputControls[fieldName];
 
                         if (fieldName in attributes) {
-                            // if (input.type === "date") {
-                            //     input.value = new Date(attributes[fieldName]).toInputDate()
-                            // } else {
+                            if (input.type === "date") {
+                                input.value = new Date(attributes[fieldName]).toInputDate()
+                            } else {
                                 input.value = attributes[fieldName];
-                            // }
+                            }
                         } else {
                             input.value = null;
                         }
@@ -1342,7 +1342,7 @@ import { rejects } from "assert";
         const labelContainer = html.create("div", {}, head);
         const label = html.create("label", {
             for: field.name + "_input",
-            innerHTML: field.alias + ":"
+            innerHTML: field.alias
         }, labelContainer);
         const labelBtns = html.create("div", {}, labelContainer);
 
