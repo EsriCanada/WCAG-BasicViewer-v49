@@ -99,7 +99,7 @@ class FilterNumber extends declared(FilterItemBase) {
         const maxNumb = this.maxValueNode.value;
         if (maxNumb) {
           const where = `${this.field.name}${this.criteriaElement.value}'${minNumb}' AND '${maxNumb}'`;
-          console.log("filterNumber->filterExpression", where);
+          // console.log("filterNumber->filterExpression", where);
           return where;
         }
         else {
@@ -107,7 +107,7 @@ class FilterNumber extends declared(FilterItemBase) {
         }
       } else {
         const where = `${this.field.name}${this.criteriaElement.value}'${minNumb}'`;
-        console.log("filterNumber->filterExpression", where);
+        // console.log("filterNumber->filterExpression", where);
         return where;
       }
     }
