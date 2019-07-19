@@ -16,6 +16,7 @@ define({
             saveConfirmTitle: "There are Broken Rules on this Address",
 
             saveSafe: "Save as To Review",
+            applyToAll: "Apply to All",
         }
     }),
     "ar": 1,

@@ -40,6 +40,7 @@ class SaveConfirmBox extends declared(Widget) {
                     <input type="button" afterCreate={this._addSaveConfirmBtn} style="justify-self: left;" class="orangeBtn" value={i18nCommon.save}/>
                     <input type="button" afterCreate={this._addSaveConfirmSafeBtn} style="justify-self: left;" class="greenBtn" value={i18n.addressManager.saveSafe}/>
                     <input type="button" afterCreate={this._addCancelSaveBtn} style="justify-self: right; grid-column-start: 5" class="blankBtn"value={i18nCommon.cancel}/>
+                    <label><input type="checkbox"></input>{i18n.addressManager.applyToAll}</label>
                     </div>
                 </div>
                 </div>
