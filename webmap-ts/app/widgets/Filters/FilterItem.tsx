@@ -52,7 +52,7 @@ class FilterItem extends declared(FilterBase) {
     }
 
     public showError = (error: string) : void => {
-        console.log("Error:", error);
+        console.error("FilterItem:", error);
         this.hasErrors = !error.isNullOrWhiteSpace();
         if(this.hasErrors) {
             domClass.add(this.filterItem, "filter-filterItem__hasErrors");
@@ -71,7 +71,7 @@ class FilterItem extends declared(FilterBase) {
     private _addedActive = (element: Element) => {
         this.own(on(element, "change", (event) => { 
             this.active = event.target.checked;
-            console.log("Active", this.active);
+            // console.log("Active", this.active);
         }));
     }
 
@@ -83,7 +83,7 @@ class FilterItem extends declared(FilterBase) {
     }
 
     private _filterItemAddContent = (element: Element) => {
-        console.log("_filterItemAddContent", this.field.name, ": ", this.field.type);
+        // console.log("_filterItemAddContent", this.field.name, ": ", this.field.type);
         
         this.layer.when(() => {
             if("domain" in (this.field as any) && this.field.domain) {
