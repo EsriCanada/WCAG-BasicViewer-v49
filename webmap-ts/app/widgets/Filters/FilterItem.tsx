@@ -86,7 +86,7 @@ class FilterItem extends declared(FilterBase) {
         console.log("_filterItemAddContent", this.field.name, ": ", this.field.type);
         
         this.layer.when(() => {
-            if("domain" in (this.field as any)) {
+            if("domain" in (this.field as any) && this.field.domain) {
                 require(["./FilterCodedDomain"], (FilterCodedDomain) => { 
                     this.FilterPart = new FilterCodedDomain({
                         layer: this.layer, 
