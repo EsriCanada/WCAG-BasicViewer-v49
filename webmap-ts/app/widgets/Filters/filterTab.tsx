@@ -91,7 +91,7 @@ import i18n = require("dojo/i18n!../nls/resources");
     }
 
     private _addFilterTab = (elemenet: Element) => {
-        console.log("layer", this.layer.title);
+        // console.log("layer", this.layer.title);
     }
 
     private ulFilterList : HTMLElement;
@@ -108,7 +108,7 @@ import i18n = require("dojo/i18n!../nls/resources");
     }
 
     private _filterTabChange = (event) => {
-        console.log("_filterTabChange", event.target, event.target.nextSibling);
+        // console.log("_filterTabChange", event.target, event.target.nextSibling);
         event.target.nextSibling.scrollIntoView({inline: "center", behavior: "smooth"});
         const activePageId = this.filterTabContentPage.id;
         const tabContentPages = query(".tabContent", dom.byId("filterTabsCOntent"));
@@ -234,18 +234,18 @@ import i18n = require("dojo/i18n!../nls/resources");
 
     public filterApply = (event) => {
         const exps = [];
-        console.log("FilterItems", this.FilterItems);
+        // console.log("FilterItems", this.FilterItems);
         this.FilterItems.filter((f) => { return f.active && !f.hasErrors; }).forEach((f : any) => {// 
             try {
-                console.log("F", f, f.FilterPart);
+                // console.log("F", f, f.FilterPart);
                 const exp = f.FilterPart.getFilterExpresion();
-                console.log("E", exp);
+                // console.log("E", exp);
                 if(exp) {
                     exps.push(exp);
                 }
             }
             catch (error) {
-                console.log("filterApply Error", error);
+                console.error("filterApply", error);
             }
         })
 
@@ -268,14 +268,14 @@ import i18n = require("dojo/i18n!../nls/resources");
     }
 
     private getDefinitionExtensionExtent = (layer : __esri.FeatureLayer, expression : string) => {
-        console.log("LayerDeffinition ", "'"+expression+"'");
+        // console.log("LayerDeffinition ", "'"+expression+"'");
         layer.definitionExpression = expression;
         const _query = this.layer.createQuery();
         _query.where = expression ? expression : "1=1";
         _query.outFields = [];
         _query.returnGeometry = true;
         this.layer.queryExtent(_query).then((results) => {
-            console.log("myExtent", results, _query);
+            // console.log("myExtent", results, _query);
             if(results) {
                 if((results.extent.xmin === results.extent.xmax && results.extent.ymin === results.extent.ymax)) {
                     this.mapView.goTo({target: results.extent.center, zoom: 13});
