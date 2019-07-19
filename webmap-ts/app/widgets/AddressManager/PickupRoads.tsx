@@ -12,7 +12,6 @@ import domAttr = require("dojo/dom-attr");
 import domStyle = require("dojo/dom-style");
 import domClass = require("dojo/dom-class");
 import html = require("dojo/_base/html");
-import Deferred = require("dojo/Deferred");
 
 import UtilsViewModel = require("./UtilsViewModel");
 

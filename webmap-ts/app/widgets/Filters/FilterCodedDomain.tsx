@@ -21,7 +21,7 @@ class FilterCodedDomain extends declared(FilterItemBase) {
     render() {
         return(
             <div class="filter__grid-container">
-                <fieldset class="_fieldExamples" afterCreate={this._addListInput}>
+                <fieldset class="_fieldExamples" style="max-height: 300px; overflow-y: auto; margin-bottom: 6px;" afterCreate={this._addListInput}>
                 </fieldset>
             </div>
       )

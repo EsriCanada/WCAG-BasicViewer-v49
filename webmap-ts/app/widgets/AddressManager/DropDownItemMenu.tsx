@@ -94,7 +94,7 @@ class DropDownItemMenu extends declared(Widget) {
 
     // private viewModel : AddressManagerViewModel;
 
-    private dropDownButton: any;
+    private dropDownButton: HTMLInputElement;
     private menuContent: HTMLElement;
     private labelItem: HTMLElement;
     private sortItem: HTMLElement;
@@ -107,6 +107,10 @@ class DropDownItemMenu extends declared(Widget) {
     private menuItemCopyToAll: HTMLAnchorElement;
     private copyDomain: HTMLInputElement;
     private menuItemFilter: HTMLAnchorElement;
+    private fillSeriesBtn: HTMLElement;
+    private applyBtn: HTMLInputElement;
+    private fillStart: HTMLInputElement;
+    private fillStep: HTMLInputElement;
 
     constructor() {
         super();
@@ -122,7 +126,7 @@ class DropDownItemMenu extends declared(Widget) {
 
                 <ul class="dropdown-content hide" afterCreate={this._addMenuContent} style="margin: 0; padding: 0;">
                     <li tabindex="0" afterCreate={this._addLabelsItem}>
-                        <a ahref="#" data-dojo-attach-point="labels" data-dojo-attach-event="click:_onMenuItemLabels">Show Labels</a>
+                        <a ahref="#" >Show Labels</a>
                     </li>
 
                     <li tabindex="0" class="sortItem" afterCreate={this._addSortItem}>
@@ -142,22 +146,15 @@ class DropDownItemMenu extends declared(Widget) {
                         <a ahref="#" afterCreate={this._addMenuItemFilter} >Filter This Value</a>
                     </li>
 
-                    <li tabindex="0"class="fillItem"  afterCreate={this._addFillItem}>
-                        <a ahref="#" data-dojo-attach-point="series" data-dojo-attach-event="click:_onFillSeriesClicked">Fill Series</a>
-                        <div class="fillItem_content hide" data-dojo-attach-point="series_content">
+                    <li tabindex="0" class="fillItem" afterCreate={this._addfillItem}>
+                        <a ahref="#" afterCreate={this._addFillSeriesBtn}>Fill Series</a>
+                        <div class="fillSeries_content hide">
                             <label for="fillStart">Start:</label>
-                            <input type="number" step="2" value="1" data-dojo-attach-point="fillStart"/>
-                            <label for="fillStart">Step:</label>
-                            <input type="number" step="1" value="2" data-dojo-attach-point="fillStep"/>
-                            <label class="col2">
-                                <input type="radio" name="fillFrom" checked data-dojo-attach-point="fillFromStart"/>
-                                From Start
-                            </label>
-                            <label class="col2">
-                                <input type="radio" name="fillFrom"/>
-                                From Selected
-                            </label>
-                            <input class="col2" type="button" value="Apply" data-dojo-attach-event="click:_onFillApplyClicked"/>
+                            <input type="number" step="2" value="1" afterCreate={this._addFillStart}/>
+                            <label for="fillStep">Step:</label>
+                            <input type="number" step="1" value="2" afterCreate={this._addFillStep}/>
+                            <span></span>
+                            <input type="button" value="Apply" style="width: 64px; justify-self: right;" afterCreate={this._addApplyBtn}/>
                         </div>
                     </li>
                 </ul>
@@ -183,7 +180,7 @@ class DropDownItemMenu extends declared(Widget) {
     private _addLabelsItem = (element: Element) => {
         this.labelItem = element as HTMLElement;
         this.own(on(this.labelItem, "click", event => {
-            if (this.addressPointFeatures.length <= 1) return;
+            if (this.addressPointFeatures.length < 1) return;
 
             const show = DropDownItemMenu.LabelItemText == "Show Labels";
             // console.log("this.addressPointFeatures", this.addressPointFeatures);
@@ -299,10 +296,47 @@ class DropDownItemMenu extends declared(Widget) {
         this.copyItem = element as HTMLElement;
     }
 
-    private _addFillItem = (element: Element) => {
+    private _addfillItem = (element: Element) => {
         this.fillItem = element as HTMLElement;
     }
 
+    private _addFillSeriesBtn = (element: Element) => {
+        this.fillSeriesBtn = element as HTMLElement;
+        this.own(on(this.fillSeriesBtn, "click", event => {
+            const fillSeriesContent = event.target.nextElementSibling;
+            html.toggleClass(fillSeriesContent, "hide");
+            html.toggleClass(event.target, "orangeBtn");
+        }))
+    }
+
+    private _addFillStart = (element: Element) => {
+        this.fillStart = element as HTMLInputElement;
+    }
+
+    private _addFillStep = (element: Element) => {
+        this.fillStep = element as HTMLInputElement;
+    }
+
+    private _addApplyBtn = (element: Element) => {
+        this.applyBtn = element as HTMLInputElement;
+        this.own(on(this.applyBtn, "click", event => {
+            if (this.addressPointFeatures.length <= 1) return;
+
+            const start = Number(this.fillStart.value);
+            const step = Number(this.fillStep.value);
+            const input = this.inputControls[this.fieldName];
+            
+            this.addressPointFeatures.forEach((feature, index) => {
+                if(index >= this.addressPointFeaturesIndex) {
+                    this.setDirty(input, feature, this.fieldName, start + (index - this.addressPointFeaturesIndex) * step); // !
+                }
+            })
+            input.value = start;
+
+            this._clearLabels();
+            this._showLabels();
+        }));
+    }
 
     private getMenuItems() {
         this.labelItem.firstChild.textContent = DropDownItemMenu.LabelItemText;
@@ -336,15 +370,16 @@ class DropDownItemMenu extends declared(Widget) {
     private _showLabels = () => {
         if(DropDownItemMenu.lastFieldName != this.fieldName) {
             this._clearLabels();
-            DropDownItemMenu.LabelItemText = this.labelItem.firstChild.textContent = "Hide Labels";
         }
+        DropDownItemMenu.LabelItemText = this.labelItem.firstChild.textContent = "Hide Labels";
+        
         DropDownItemMenu.lastFieldName = this.fieldName;
         for (let i = 0; i < this.addressPointFeatures.length; i++) {
             const feature = (this.addressPointFeatures as any).items[i];
-            // console.log("feature", feature);
-            const graphic = {geometry: feature.geometry, symbol: this.utilsVM.GET_LABEL_SYMBOL(feature.attributes[this.fieldName])};
-            // this.map.graphics.add(graphic);
-            DropDownItemMenu.LabelsGraphicsLayer.add(graphic);
+            if(feature.attributes && (this.fieldName in feature.attributes && feature.attributes[this.fieldName])) {
+                const graphic = {geometry: feature.geometry, symbol: this.utilsVM.GET_LABEL_SYMBOL(feature.attributes[this.fieldName])};
+                DropDownItemMenu.LabelsGraphicsLayer.add(graphic);
+            }
         }
     }
 
@@ -355,6 +390,7 @@ class DropDownItemMenu extends declared(Widget) {
 
     static ClearLabels = () => {
         DropDownItemMenu.LabelsGraphicsLayer.removeAll();
+        DropDownItemMenu.LabelItemText = "Show Labels";
     }
 
     static LabelItemText = "Show Labels";

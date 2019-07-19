@@ -65,17 +65,40 @@ import html = require("dojo/_base/html");
     private pausableHandler = null;
     private _addToolTip = (element: Element) => {
         this.toolTip = element as HTMLElement;
-        this.own(this.pausableHandler = on.pausable(this.mapView, "pointer-move", event => {
-            if(!this.content) return;
-            const x = event.native.offsetX;
-            const y = event.native.offsetY;
-            html.setStyle(this.toolTip, { left: (x + 24) + "px", top: (y + 24) + "px", display: "" });
-        }))
+        this.own(this.pausableHandler = on.pausable(this.mapView, "pointer-move", this.moveHandler))
+    }
+
+    private moveHandler = (event) => {
+        event.stopPropagation();
+        event.native.preventDefault();
+        if(!this.content) return;
+        const x = event.native.offsetX;
+        const y = event.native.offsetY;
+        const h = event.native.currentTarget.clientHeight;
+        const w = event.native.currentTarget.clientWidth;
+        const th = this.toolTip.clientHeight;
+        const tw = this.toolTip.clientWidth;
+        if(x < w*3/4) {
+            html.setStyle(this.toolTip, { left: (x + 24) + "px", display: "" });
+        } else {
+            html.setStyle(this.toolTip, { left: (x - tw - 24) + "px", display: "" });
+        }
+        if(y < h*3/4) {
+            html.setStyle(this.toolTip, { top: (y + 24) + "px"});
+        } else {
+            html.setStyle(this.toolTip, { top: (y - th - 24) + "px"});
+        }
     }
 
     public close() {
         html.setStyle(this.toolTip, { display: "none"});
         this.content = null;
+    }
+
+    static Close() {
+        if (CursorToolTip.instance) {
+            CursorToolTip.instance.close();
+        }
     }
 }
 export = CursorToolTip;

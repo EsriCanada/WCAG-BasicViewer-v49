@@ -9,7 +9,6 @@ define({
         wcagViewer: "Accessible Viewer",
         leftCollapse: "Collapse Left Panel",
         leftExpand: "Expand Left Panel",
-        moreHelp: "More Help",
         totalCount: "Total Count: {0}",
         contactUs: "Contact Us",
         EsriWorldGeocoder: "Esri World Geocoder",

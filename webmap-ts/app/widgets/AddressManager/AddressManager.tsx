@@ -11,11 +11,12 @@ import domAttr = require("dojo/dom-attr");
 
 import { renderable, tsx } from "esri/widgets/support/widget";
 
-import i18n = require("dojo/i18n!../nls/resources");
+import i18n = require("dojo/i18n!./nls/resources");
 import FeatureLayer = require("esri/layers/FeatureLayer");
 import Field = require("esri/layers/support/Field");
 import UtilsViewModel = require("./UtilsViewModel");
 import AddressManagerViewModel = require("./AddressManagerViewModel");
+import ConfirmSaveBox = require("./SaveConfirmBox");
 import Graphic = require("esri/Graphic");
 import Feature = require("esri/widgets/Feature");
 import Collection = require("esri/core/Collection");
@@ -24,7 +25,11 @@ import geometryEngine = require("esri/geometry/geometryEngine");
 import DropDownItemMenu = require("./DropDownItemMenu");
 import GraphicsLayer = require("esri/layers/GraphicsLayer");
 import { ApplicationConfig } from "ApplicationBase/interfaces";
-// import AddressCompiler = require("./AddressCompiler");
+import Point = require("esri/geometry/Point");
+import watchUtils = require("esri/core/watchUtils");
+import Draw = require("esri/views/draw/Draw");
+import { resolve } from "path";
+import { rejects } from "assert";
 
 @subclass("esri.widgets.AddressManager")
   class AddressManager extends declared(Widget) {
@@ -72,6 +77,10 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
     labelsGraphicsLayer: GraphicsLayer;
 
     @property()
+    @aliasOf("viewModel.parcelsGraphicLayer")
+    parcelsGraphicLayer: GraphicsLayer;
+
+    @property()
     @aliasOf("viewModel.inputControls")
     inputControls;
 
@@ -104,9 +113,9 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
     private submitDelete: HTMLElement;
     private x: HTMLInputElement;
     private y: HTMLInputElement;
-    private submitAddressForm: HTMLElement;
+    private saveBtn: HTMLElement;
     private submitAddressAll: HTMLElement;
-    private submitCancel: HTMLElement;
+    private cancelBtn: HTMLElement;
     private verifyRules: HTMLElement;
     private brokenRulesAlert: HTMLElement;
     private displayBrokenRules: HTMLElement;
@@ -117,6 +126,16 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
     private selectDropDownDiv: HTMLElement;
     private addressCompiler: any;
     private pickupRoads: any;
+    private centroidBtn: HTMLInputElement;
+    private pickParcels_draw: Draw;
+    private freeLine: any;
+    private selectedGeometries: Collection<__esri.Geometry>;
+    private menuFieldName: string;
+    private centerAll: HTMLElement;
+    private moveAddressPointBtn: HTMLElement;
+    private moveAllItem: HTMLElement;
+    confirmSaveBox: ConfirmSaveBox;
+    // private confirmBoxNode: HTMLElement;
 
     constructor() {
         super(); 
@@ -146,6 +165,44 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
             this.mapView.map.layers.add(this.labelsGraphicsLayer);
             DropDownItemMenu.LabelsGraphicsLayer = this.labelsGraphicsLayer;
 
+            this.parcelsGraphicLayer = new GraphicsLayer();
+            this.mapView.map.add(this.parcelsGraphicLayer);
+            
+            this.parcelsLayer.when(pLayer => {
+                watchUtils.whenTrue(this.mapView, "stationary", () => {
+                    this.parcelsGraphicLayer.removeAll();
+                    const q = pLayer.createQuery();
+                    q.outFields = ["OBJECTID"];
+                    q.where = "1=1";
+                    q.geometry = this.mapView.extent;
+                    q.spatialRelationship = "intersects";
+                    q.returnGeometry = true;
+            
+                    pLayer.queryFeatures(q).then(result => {
+                        // console.log("result", result)
+                        const {features} = result;
+                        const geometries = features.map(f => {
+                            const g = f.geometry;
+                            g.id = f.attributes["OBJECTID"];
+                            return g;
+                        })
+                        // console.log("geometries", geometries);
+                        const graphics = geometries.map(g => new Graphic({geometry: g, symbol: {
+                            type:"simple-fill",
+                            color: [0, 0, 0, 0],
+                            outline: {
+                                color:[0, 0, 0, 0],
+                                width:0,
+                                style:"solid"
+                            }} as any})
+                        );
+                        // console.log("graphics", graphics);
+                        this.parcelsGraphicLayer.addMany(graphics)
+                    })
+                })
+            })
+        
+
             this.UtilsVM = new UtilsViewModel({mapView:this.mapView, roadsLayer: this.roadsLayer});
 
             this.addressPointFeatures.watch("length", (newValue) => {
@@ -169,7 +226,7 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
                         <input type="image" src="../images/icons_transp/Generate.bggray.24.png" class="button" afterCreate={this._addMoreToolsButton} aria-label="Clone Addresses" title="Clone Addresses"></input>
                         <div afterCreate={this._addClonePanel} ></div>
                     </div>
-                    <input type="image" src="../images/icons_transp/parcels.bggray.24.png" class="button" afterCreate={this._addFillParcelsButton} data-dojo-attach-event="click:_onFillParcelClicked" aria-label="Fill Parcels" title="Fill Parcels"></input>
+                    <input type="image" src="../images/icons_transp/parcels.bggray.24.png" class="button" afterCreate={this._addFillParcelsBtn} aria-label="Fill Parcels" title="Fill Parcels"></input>
                     <div afterCreate={this._addSelectDropDownBtn} ></div>
 
                     <div class="rightTools">
@@ -200,10 +257,10 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
                         <caption><h2>Location</h2></caption>
                         <tr>
                             <th>
-                                <div><label for="x_input">x:</label>
+                                <div><label for="x_input">x</label>
                                     <div style="float:right;">
-                                        <input type="image" src="../images/icons_transp/centroid.bgwhite.24.png" title="Centroid" aria-label="Place Address Point to Centroid" data-dojo-attach-event="onclick:_onCentroidClicked" class="rowImg"/>
-                                        <input type="image" src="../images/icons_transp/movePoint.bgwhite.24.png" title="Move" aria-label="Move Address Point" data-dojo-attach-event="onclick:_onMoveAddressPointClicked" data-dojo-attach-point="moveAddressPoint" class="rowImg"/>
+                                        <input type="image" src="../images/icons_transp/centroid.bgwhite.24.png" title="Centroid" aria-label="Place Address Point to Centroid" afterCreate={this._addCentroidBtn} class="rowImg"/>
+                                        <input type="image" src="../images/icons_transp/movePoint.bgwhite.24.png" title="Move" aria-label="Move Address Point" afterCreate={this._addMoveAddressPointBtn} data-dojo-attach-point="moveAddressPoint" class="rowImg"/>
                                     </div>
                                 </div>
                             </th>
@@ -211,34 +268,34 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
                                 <div class="dataCell-container">
                                     <input type="text" id="x_input" class="dataCell-input" afterCreate={this._addX}/>
                                     <div class="dropdown hide">
-                                        <input type="image" src="../images/Burger.24.png" class="dropdown-button" aria-label="X coordinate" data-field="x" data-dojo-attach-event="click:_dropdownLocationToggle"/>
-                                        <div class="dropdown-content hide" data-dojo-attach-point="menuLocationContent_x">
+                                        <input type="image" src="../images/Burger.24.png" class="dropdown-button" aria-label="X coordinate" data-field="x" afterCreate={this._addMenuToggleX}/>
+                                        <div class="dropdown-content hide" id="menuLocationContent_x">
                                             <div class="sortItem">
-                                                <a ahref="#" data-dojo-attach-point="sort_x" data-dojo-attach-event="click:_onMenuItemLocationSort" data-field="x">Sort On This</a>
+                                                <a ahref="#" data-dojo-attach-point="sort_x" afterCreate={this._addMenuItemLocationSort} data-field="x">Sort On This</a>
                                                 <label title="Sort Order">
-                                                    <input type="checkbox" data-dojo-attach-point="directionSortOn_y" />
+                                                    <input type="checkbox" style="display:none;" id="directionSortOn_x" />
                                                     <img src="../images/icons_transp/ascending.black.18.png" />
                                                 </label>
                                             </div>
-                                            <a ahref="#" data-dojo-attach-point="centroidAll" data-dojo-attach-event="click:_onMenuItemCenterAll">Center All</a>
-                                            <a ahref="#" data-dojo-attach-point="moveAll" data-dojo-attach-event="click:_onMenuItemMoveAll">Move All</a>
+                                            <a ahref="#" data-dojo-attach-point="centroidAll" afterCreate={this._addCenterAll}>Center All</a>
+                                            <a ahref="#" data-dojo-attach-point="moveAll" afterCreate={this._addMoveAllItem}>Move All</a>
                                         </div>
                                     </div>
                                 </div>
                             </td>
                         </tr>
                         <tr>
-                            <th><label for="y_input">y:</label></th>
+                            <th><label for="y_input">y</label></th>
                             <td>
                                 <div class="dataCell-container">
                                     <input type="text" id="y_input" class="dataCell-input" afterCreate={this._addY}/>
                                     <div class="dropdown hide">
-                                        <input type="image" src="../images/Burger.24.png" class="dropdown-button" aria-label="Y coordinate" data-field="y" data-dojo-attach-event="click:_dropdownLocationToggle"/>
-                                        <div class="dropdown-content hide" data-dojo-attach-point="menuLocationContent_y">
+                                        <input type="image" src="../images/Burger.24.png" class="dropdown-button" aria-label="Y coordinate" data-field="y" afterCreate={this._addMenuToggleY}/>
+                                        <div class="dropdown-content hide" id="menuLocationContent_y">
                                             <div class="sortItem">
-                                                <a ahref="#" data-dojo-attach-point="sort_y" data-dojo-attach-event="click:_onMenuItemLocationSort" data-field="y">Sort On This</a>
+                                                <a ahref="#" data-dojo-attach-point="sort_y" afterCreate={this._addMenuItemLocationSort}  data-field="y">Sort On This</a>
                                                 <label title="Sort Order">
-                                                    <input type="checkbox" data-dojo-attach-point="directionSortOn_y" />
+                                                    <input type="checkbox" style="display:none;" id="directionSortOn_y"/>
                                                     <img src="../images/icons_transp/ascending.black.18.png" />
                                                 </label>
                                             </div>
@@ -258,18 +315,20 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
                 </div>
     
                 <div afterCreate={this._addDisplayBrokenRules} class="displayBrokenRules hide">
-                    <h1>Broken Rules</h1>
+                    <h1>{i18n.addressManager.brokenRules}</h1>
                     <ul afterCreate={this._addBrokenRulesAlert}></ul>
                     </div>
                 <div class="footer footer5cells">
-                    <input type="button" id="sumbitAddressForm" afterCreate={this._addSubmitAddressForm} style="justify-self: left;" data-dojo-attach-event="onclick:_onSubmitAddressClicked" value="Save"/>
+                    <input type="button" id="sumbitAddressForm" afterCreate={this._addSaveBtn} style="justify-self: left;" value="Save"/>
                     <input type="button" id="sumbitAddressAll" afterCreate={this._addSubmitAddressAll} style="justify-self: left;" data-dojo-attach-event="onclick:_onSubmitSaveAllClicked" value="Save All"/>
                     <input type="image" src="../images/icons_transp/verify.bgwhite.24.png" alt="Broken Rules" afterCreate={this._addVerifyRules} style="justify-self: center;" class="verifyBtn" title="Display Broken Rules" />
                     <input type="button" id="Delete" afterCreate={this._addSubmitDelete} style="justify-self: right;" data-dojo-attach-event="onclick:_onDeleteClicked" value="Delete"/>
-                    <input type="button" id="Cancel" afterCreate={this._addSubmitCancel} style="justify-self: right; grid-column-start: 5" data-dojo-attach-event="onclick:_onCancelClicked" value="Cancel"/>
+                    <input type="button" id="Cancel" afterCreate={this._addCancelBtn} style="justify-self: right; grid-column-start: 5" data-dojo-attach-event="onclick:_onCancelClicked" value="Cancel"/>
                 </div>
 
-            </div>        
+            </div> 
+            <div afterCreate={this._addConfirmBoxNode}>
+            </div>
         </div>
         );
     }
@@ -381,7 +440,7 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
                     {
                         src: "../images/icons_transp/pickMultipleAddresses.bggray.24.png",
                         label: "Select Multiple Addresses",
-                        // callback: event => lang.hitch(this, this._onPickMultipleAddressClicked(event))
+                        callback: this._onPickMultipleAddressClicked
                     }
                 ],
             container: element as HTMLElement
@@ -389,12 +448,28 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
         })
     }
 
+    private _addMenuToggleX = (element) => {
+        this.own(on(element, "click", this.onLocationMenuClick))
+    }
+    
+    private _addMenuToggleY = (element) => {
+        this.own(on(element, "click", this.onLocationMenuClick))
+    }
+
+    private onLocationMenuClick = event => {
+        const menuLocationContent = html.byId("menuLocationContent_"+event.target.dataset["field"]);
+        html.toggleClass(menuLocationContent, "hide");
+        if(!(html as any).hasClass(menuLocationContent, "hide")) {
+            this.emit("openMenu", { menu: menuLocationContent });
+        }
+    }
+    
     private _onPickAddressClicked = (event) => {
         html.addClass(event.target, "active");
 
         // this._onCancelClicked(null);
         this.mapView.graphics.removeAll();
-        // this._clearLabels();
+        DropDownItemMenu.ClearLabels();
 
         this.addressPointFeatures.removeAll();
         this.UtilsVM.PICK_ADDRESS_OR_PARCEL(this.siteAddressPointLayer, this.parcelsLayer).then(
@@ -406,7 +481,7 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
                 // this._showLoading(false);
                 // this.map.setInfoWindowOnClick(true);
             }, err => {
-                console.log("PICK_ADDRESS_OR_PARCEL", err);
+                console.error("PICK_ADDRESS_OR_PARCEL", err);
                 // this._showLoading(false);
                 // this.map.setInfoWindowOnClick(true);
                 html.removeClass(event.target, "active");
@@ -414,29 +489,61 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
     }
 
     private _onPickAddressRangeClicked = (event) => {
-        // console.log("_onPickAddressRangeClicked", event, this);
         html.addClass(event.target, "active");
-        this.mapView.graphics.removeAll();
-        // this._clearLabels();
-
-        this.UtilsVM.PICK_ADDRESS_FROM_PARCEL_RANGE(this.siteAddressPointLayer, this.parcelsLayer)
-            .then(features => {
+        this.UtilsVM.PICK_PARCELS(this.parcelsGraphicLayer).then(
+            selectedGeometries => {
+                if (selectedGeometries.length > 0) {
+                    this.UtilsVM.GET_ADDRESS_IN_GEOMETRIES(selectedGeometries, this.siteAddressPointLayer)
+                    .then(
+                        features => {
+                            this.addressPointFeatures.removeAll();
+                            this.addressPointFeatures.unshift(...(features as []));
+                            this._populateAddressTable(0);
+                            html.removeClass(event.target, "active");
+                        }, error => {
+                            html.removeClass(event.target, "active");
+                            console.log("Pick parcels", error);
+                        })
+                    }
+                else {
+                    html.removeClass(event.target, "active");
+                    console.error("Pick parcels - No Parcels");
+                }
+            },
+            error => {
                 html.removeClass(event.target, "active");
-                this.addressPointFeatures.removeAll();
-                this.addressPointFeatures.unshift(...(features as []));
-                this._populateAddressTable(0);
+                console.error("Select parcels", error);
+            }
+        )
+    }
 
-                // this._showLoading(false);
-                // this.mapView.popup.autoOpenEnabled = true; // ?
-            }, err => {
-                console.log("PICK_ADDRESS_FROM_PARCEL_RANGE", err);
-                // this._onCancelClicked(null);
+    private _onPickMultipleAddressClicked = event => {
+        html.addClass(event.target, "active");
 
-                // this._showLoading(false);
-                // this.mapView.popup.autoOpenEnabled = true; // ?
-                html.removeClass(event.target, "active");
-            });
-        }
+        require(["./CursorToolTip"], CursorToolTip => {
+            const cursorTooltip = CursorToolTip.getInstance(this.mapView, i18n.addressManager.selectAddressLaso);
+
+            this.UtilsVM.PICK_ADDRESSES(this.siteAddressPointLayer).then(
+                addresses => {
+                    CursorToolTip.Close();
+                    html.removeClass(event.target, "active");
+
+                    this._cancelFeatures();
+                    this._clearForm();
+                    this.addressPointFeatures.unshift(...(addresses as []));
+                    this._populateAddressTable(0);
+                },
+                error => {
+                    CursorToolTip.Close();
+                    html.removeClass(event.target, "active");
+
+                    if(error) {
+                        console.error("PICK_ADDRESSES", error)
+                    }
+                }
+            )
+        })
+    }
 
     private _addAddressTitle = (element: Element) => {
         this.addressTitle = element as HTMLElement;
@@ -444,8 +551,33 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
 
     private _addAddressPointButton = (element: Element) => {
         this.addressPointButton = element as HTMLElement;
-        this.own(on(element, "click", this._activateButton));
-        this.own(on(element, "click", lang.hitch(this, this._addSingleAddressClicked)));
+        this.own(on(element, "click", event => {
+            // https://developers.arcgis.com/javascript/3/sandbox/sandbox.html?sample=fl_featureCollection
+
+            domClass.add(event.target, "active");
+            require(["./CursorToolTip"], CursorToolTip => {
+                const cursorTooltip = CursorToolTip.getInstance(this.mapView, i18n.addressManager.clickForNewAddress);
+        
+                this.UtilsVM.ADD_NEW_ADDRESS().then(feature => {
+                    DropDownItemMenu.ClearLabels();
+                    this.addressPointFeatures.push(feature as Feature);
+                    // console.log("feature", feature);
+        
+                    this._populateAddressTable(this.addressPointFeatures.length - 1);
+        
+                    // this.mapView.popup.autoOpenEnabled = true; // ?
+                    html.removeClass(event.target, "active");
+                    cursorTooltip.close();
+                },
+                error => {
+                    console.error("ADD_NEW_ADDRESS", error);
+        
+                    // this.mapView.popup.autoOpenEnabled = true; // ?
+                    html.removeClass(event.target, "active");
+                    cursorTooltip.close();
+                })
+            });
+        }))
     }
 
     private _addClonePanel = (element: Element) => {
@@ -454,6 +586,7 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
             this.clonePanel = new ClonePanel({
                 parent: this,
                 mapView: this.mapView,
+                addressManagerVM: this.viewModel,
                 siteAddressPointLayer: this.siteAddressPointLayer,
                 roadsLayer: this.roadsLayer,
                 parcelsLayer: this.parcelsLayer,
@@ -469,8 +602,30 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
         this.own(on(element, "click", lang.hitch(this, this._toggleMoreToolsButton)));
     }
 
-    private _addFillParcelsButton = (element: Element) => {
-        this.own(on(element, "click", this._activateButton));
+    private _addFillParcelsBtn = (element: Element) => {
+        this.own(on(element, "click", event => {
+            html.addClass(event.target, "active");
+            this.UtilsVM.PICK_PARCELS(this.parcelsGraphicLayer).then(selectedGeometries => {
+                this.addressPointFeatures.removeAll();
+                selectedGeometries.forEach(geo => {
+                    const centroid = this.UtilsVM.GetCentroidCoordinates(geo) as Point;
+                    const feature = {
+                        geometry: centroid, 
+                        symbol: this.UtilsVM.NEW_ADDRESS_SYMBOL,
+                        attributes: { "status": 0 },
+                        originalValues: {"status" : ""},
+                        Dirty: true
+                    } as any;
+                    this.mapView.graphics.add(feature);
+                    this.addressPointFeatures.push(feature);
+                });
+                this._populateAddressTable(0);
+                html.removeClass(event.target, "active");
+            }, error => {
+                html.removeClass(event.target, "active");
+                console.error(error);
+            })
+        }));
     }
 
     private _addSubmitDelete = (element: Element) => {
@@ -482,7 +637,7 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
         const btn = event.target;
         // debugger;
         if(domClass.contains(btn, "orangeBtn")) {
-            // this._clearLabels();
+            DropDownItemMenu.ClearLabels();
             this._RemoveGraphic(this.selectedAddressPointFeature as any);
             this.addressPointFeatures.remove(this.selectedAddressPointFeature);
             this._populateAddressTable(0);
@@ -526,16 +681,105 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
         this.y = element as HTMLInputElement;
     }
     
-    private _addSubmitAddressForm = (element: Element) => {
-        this.submitAddressForm = element as HTMLElement;
+    private _addSaveBtn = (element: Element) => {
+        this.saveBtn = element as HTMLElement;
+        this.own(on(this.saveBtn, "click", event => {
+            if(!(html as any).hasClass(event.target, "blueBtn")) return;
+
+            const feature = this.selectedAddressPointFeature as any;
+
+            this.saveFeature(feature);
+        }))
+    }
+
+    private saveFeature = (feature: any) => {
+        this._checkRules(feature).then(brokenRules => {
+            // console.log("Broken Rules", brokenRules.join("\n"));
+            this.confirmSaveBox.Ask(feature.attributes.status == 1 ? null : brokenRules)
+            .then(response => {
+                if(response == ConfirmSaveBox.SAVE_SAFE) {
+                    feature.attributes.status = 1;
+                }
+                let applyWhat = {};
+                if (this.canDelete(feature)) {
+                    applyWhat["addFeatures"] = [feature];
+                }
+                else {
+                    applyWhat["updateFeatures"] = [feature];
+                }
+                this.siteAddressPointLayer.applyEdits(applyWhat)
+                .then(results => {
+                    const { addFeatureResults, updateFeatureResults } = results;
+                    const [addedFeature] = addFeatureResults;
+                    if (addedFeature) {
+                        if (addedFeature.error) {
+                            throw (addedFeature.error);
+                        }
+                        this._RemoveGraphic(feature);
+                        feature.attributes['OBJECTID'] = addedFeature['objectId'];
+                        if (this.addressPointFeatures.length > 0 && this.selectedAddressPointFeature == feature) {
+                            (html.byId('OBJECTID_input') as HTMLInputElement).value = addedFeature['objectId'];
+                        }
+                        const q = this.siteAddressPointLayer.createQuery();
+                        q.outFields = ["*"];
+                        q.objectIds = [addedFeature['objectId']];
+                        q.returnGeometry = true;
+                        this.siteAddressPointLayer.queryFeatures(q).then(({ features }) => {
+                            if (features && features.length === 1) {
+                                this.mapView.graphics.remove(feature);
+                                feature.attributes = features[0].attributes;
+                                this.clearDirty(feature);
+                                this._populateAddressTable(this.addressPointFeaturesIndex);
+                            }
+                        });
+                    }
+                    const [updatedFeature] = updateFeatureResults;
+                    if (updatedFeature) {
+                        if (updatedFeature.error) {
+                            throw (updatedFeature.error);
+                        }
+                        this.clearDirty(feature);
+                        delete feature.originalValues;
+                        this._populateAddressTable(this.addressPointFeaturesIndex);
+                    }
+                    // this._setDirtyBtns();
+                })
+                .catch(error => {
+                    console.error(`Save [ applyEdits ]: ${error}`);
+                });
+            })
+            .catch(error => {
+                if(error != ConfirmSaveBox.CANCEL) {
+                    console.error("Save", error);
+                }
+            });
+        })
+    }
+
+    private _addConfirmBoxNode = (element: Element) => {
+        // this.confirmBoxNode = element as HTMLElement;
+        this.confirmSaveBox = new ConfirmSaveBox({container:element as HTMLElement});
     }
 
     private _addSubmitAddressAll = (element: Element) => {
-        this.submitAddressAll= element as HTMLElement;
+        this.submitAddressAll = element as HTMLElement;
     }
 
-    private _addSubmitCancel = (element: Element) => {
-        this.submitCancel = element as HTMLElement;
+    private _addCancelBtn = (element: Element) => {
+        this.cancelBtn = element as HTMLElement;
+        this.own(on(this.cancelBtn, "click", event => {
+            if(!domClass.contains(event.target, "blankBtn")) return;
+
+            this.mapView.graphics.removeAll();
+            this.addressPointFeatures.forEach((feature: any) => {
+                if (this.canDelete(feature)) {
+                    this._RemoveGraphic(feature);
+                }
+            });
+            this._cancelFeatures();
+            this._clearForm();
+            this._setDirtyBtns();
+        }))
     }
 
     private _addAddressTable = (element: Element) => {
@@ -550,6 +794,37 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
         this.statusTable = element as HTMLElement;
     }
 
+    private _cancelFeatures() {
+        if(this.addressPointFeatures.length <= 0) return;
+
+        this.addressPointFeatures.forEach((feature: any) => {
+            if (!this.canDelete(feature)) {
+                if ("originalValues" in feature) {
+                    for (const fieldName in feature.originalValues) {
+                        if (fieldName != "geometry") {
+                            feature.attributes[fieldName] = feature.originalValues[fieldName];
+                            html.removeClass(this.inputControls[fieldName], "dirty");
+                        }
+                        else {
+                            // feature._layer.suspend();
+                            feature.geometry = feature.originalValues.geometry;
+                            // feature._layer.resume();
+                        }
+                    }
+                    this.clearDirty(feature);
+                }
+            }
+            // else {
+                // if (this.canDelete(feature)) {
+                //     this._RemoveGraphic(feature);
+            // }
+        });
+        
+        DropDownItemMenu.ClearLabels();
+
+        this.addressPointFeatures.removeAll();
+    }
+
     private _activateButton(event) {
         // console.log("_activateButton", event);
         domClass.add(event.target, "active");
@@ -561,28 +836,6 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
             this.clonePanel.show(domClass.contains(event.target, "active"));
         }
     }
-
-    private _addSingleAddressClicked(event) {
-        // https://developers.arcgis.com/javascript/3/sandbox/sandbox.html?sample=fl_featureCollection
-
-        this.UtilsVM.ADD_NEW_ADDRESS().then(feature => {
-            // // this._clearLabels();
-            this.addressPointFeatures.push(feature as Feature);
-            // console.log("feature", feature);
-
-            this._populateAddressTable(this.addressPointFeatures.length - 1);
-
-            // this.mapView.popup.autoOpenEnabled = true; // ?
-            html.removeClass(event.target, "active");
-        },
-        error => {
-            console.error("ADD_NEW_ADDRESS", error);
-
-            // this.mapView.popup.autoOpenEnabled = true; // ?
-            html.removeClass(event.target, "active");
-        });
-
-    };
 
     private _addPreviousBtn = (element: Element) => {
         this.previousBtn = element as HTMLElement;
@@ -605,6 +858,17 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
 
     private _addZoomBtn = (element: Element) => {
         this.zoomBtn = element as HTMLElement;
+
+        this.own(on(this.zoomBtn, "click", (event) => {
+            if(this.addressPointFeatures.length > 0) {
+                const [buffer] = geometryEngine.buffer(this.addressPointFeatures.map(a => (a as any).geometry).toArray(), [15], "meters", true) as any;
+                this.mapView.goTo(buffer);
+
+                const bufferGr = new Graphic({ geometry: buffer, symbol: this.UtilsVM.BUFFER_SYMBOL})
+                this.mapView.graphics.add(bufferGr);
+                setTimeout(() => {this.mapView.graphics.remove(bufferGr);}, 500);
+            }
+        }))
     };
 
     private _addAddressPointNavigator = (element: Element) => {
@@ -618,6 +882,169 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
     private _addAddressPointCount = (element: Element) => {
         this.addressPointCountEl = element as HTMLElement;
     };
+
+    private _addCentroidBtn = (element: Element) => {
+        this.centroidBtn = element as HTMLInputElement;
+        this.own(on(this.centroidBtn, "click", event => {
+            if (!this.addressPointFeatures || this.addressPointFeatures.length == 0) return;
+                const btn = event.target;
+                html.addClass(btn, "active");
+
+                const feature = this.selectedAddressPointFeature;
+
+                const q = this.parcelsLayer.createQuery();
+                q.outFields = ["OBJECTID"];
+                q.where = "1=1";
+                q.geometry = (feature as any).geometry;
+                q.spatialRelationship = "intersects";
+                q.returnGeometry = true;
+
+                this.parcelsLayer.queryFeatures(q).then(
+                ({features}) => {
+                    html.removeClass(btn, "active");
+                    const [geo] = features.map(f => f.geometry);
+                    if (geo) {
+                        const centroid = this.UtilsVM.GetCentroidCoordinates(geo) as Point;
+
+                        if((feature as any).geometry.x != centroid.x || (feature as any).geometry.y != centroid.y) {
+                            this.UtilsVM.SHOW_ARROW((feature as any).geometry, centroid);
+
+                            this.x.value = centroid.x.toString();
+                            this.y.value = centroid.y.toString();
+
+                            this._setDirty([this.x, this.y], feature, "geometry", centroid);
+
+                            this.UtilsVM._removeMarker(this.UtilsVM.SELECTED_ADDRESS_SYMBOL.name);
+                            const graphic = new Graphic({geometry: (feature as any).geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
+                            this.mapView.graphics.add(graphic);
+                        }
+                    }
+                },
+                err => {
+                    html.removeClass(btn, "active");
+                    console.log("Centroid Error", err);
+                })
+        }))
+    };
+
+    private _addCenterAll = (element: Element) => {
+        this.centerAll = element as HTMLElement;
+        this.own(on(this.centerAll, "click", event => {
+            if(this.addressPointFeatures.length < 1) return;
+
+            this.addressPointFeatures.forEach(f => {
+                const address = f as any;
+
+                const q = this.parcelsLayer.createQuery();
+                q.outFields = ["OBJECTID"];
+                q.where = "1=1";
+                q.geometry = address.geometry;
+                q.spatialRelationship = "intersects";
+                q.returnGeometry = true;
+
+                this.parcelsLayer.queryFeatures(q).then(
+                ({features}) => {
+                    const [geo] = features.map(f => f.geometry);
+                    if (geo) {
+                        const centroid = this.UtilsVM.GetCentroidCoordinates(geo) as Point;
+
+                        if(address.geometry.x != centroid.x || address.geometry.y != centroid.y) {
+                            this.UtilsVM.SHOW_ARROW(address.geometry, centroid);
+                            this._setDirty([centroid.x, centroid.y], address, "geometry", centroid);
+                        }
+                    }
+                })
+            })
+
+            this._populateAddressTable(0);
+        }))
+    }
+
+    private _addMoveAddressPointBtn = (element: Element) => {
+        this.moveAddressPointBtn = element as HTMLElement;
+        this.own(on(this.moveAddressPointBtn, "click", event => {
+            if (!this.addressPointFeatures || this.addressPointFeatures.length == 0) return;
+            html.addClass(event.target, "active");
+            require(["./CursorToolTip"], CursorToolTip => {
+                const cursorTooltip = CursorToolTip.getInstance(this.mapView, i18n.addressManager.clickEndMove);
+
+                const feature = this.selectedAddressPointFeature as any;
+                let g = feature.geometry;
+                if("originalValues" in feature && "geometry" in feature.originalValues) {
+                    g = feature.originalValues.geometry;
+                }
+
+                this.UtilsVM.MOVE_POINT([g]).then(
+                    ([result]) => {
+                        const feature = this.selectedAddressPointFeature as any;
+                        // console.log("move result", result);
+                        html.removeClass(event.target, "active");
+                        CursorToolTip.Close();
+
+                        this.x.value = result.x.toString();
+                        this.y.value = result.y.toString();
+
+                        this._setDirty([this.x, this.y], feature, "geometry", result);
+                        const selectGraphic = new Graphic({geometry: feature.geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
+                        this.mapView.graphics.add(selectGraphic);
+                    },
+                    error =>  {
+                        console.log("move error", error);
+                        html.removeClass(event.target, "active");
+                        CursorToolTip.Close();
+                        const selectGraphic = new Graphic({geometry: feature.geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
+                        this.mapView.graphics.add(selectGraphic);
+                    }
+                )
+            })
+
+        }))
+    }
+
+    private _addMoveAllItem = (element: Element) => {
+        this.moveAllItem = element as HTMLElement;
+        this.own(on(this.moveAllItem, "click", event => {
+            if (!this.addressPointFeatures || this.addressPointFeatures.length == 0) return;
+            
+            html.addClass(event.target, "active");
+            require(["./CursorToolTip"], CursorToolTip => {
+                const cursorTooltip = CursorToolTip.getInstance(this.mapView, i18n.addressManager.clickEndMove);
+
+                const gs = this.addressPointFeatures.slice(this.addressPointFeaturesIndex).map(f => {
+                    const feature = f as any;
+                    let g = feature.geometry;
+                    if("originalValues" in feature && "geometry" in feature.originalValues) {
+                        g = feature.originalValues.geometry;
+                    }
+                    return g;
+                }).toArray();
+
+                const feature = this.selectedAddressPointFeature as any;
+                this.UtilsVM.MOVE_POINT(gs).then(
+                    results => {
+                        // console.log("move result", result);
+                        html.removeClass(event.target, "active");
+                        CursorToolTip.Close();
+
+                        results.forEach((result:Point, i:number) => {
+                            const feature = this.addressPointFeatures.getItemAt(this.addressPointFeaturesIndex + i);
+                            this._setDirty([this.x, this.y], feature, "geometry", result);
+                        })
+                        this._populateAddressTable(this.addressPointFeaturesIndex);
+                },
+                    error =>  {
+                        console.log("move error", error);
+                        html.removeClass(event.target, "active");
+                        CursorToolTip.Close();
+                        const selectGraphic = new Graphic({geometry: feature.geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
+                        this.mapView.graphics.add(selectGraphic);
+                    }
+                )
+
+            })
+        }))
+    }
+
 
     private _makeAddressTableLayout() {
         this._showNavigator(false);
@@ -682,13 +1109,12 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
                 html.removeClass(this.y, "dirty");
             };
 
-            if ("attributes" in feature) {
+            if ("attributes" in feature && feature.attributes) {
                 const attributes = feature.attributes
-                if (this.config.title in attributes) {
-                    // this.addressCompiler.set("address", feature.attributes[this.config.title]);
-                }
-                const canDelete = !("OBJECTID" in attributes) || !attributes["OBJECTID"];
-                if (!canDelete) {
+                // if (this.config.title in attributes) {
+                //     // this.addressCompiler.set("address", feature.attributes[this.config.title]);
+                // }
+                if (!this.canDelete(feature)) {
                     html.removeClass(this.submitDelete, "orangeBtn");
                 } else {
                     html.addClass(this.submitDelete, "orangeBtn");
@@ -699,11 +1125,11 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
                         const input = this.inputControls[fieldName];
 
                         if (fieldName in attributes) {
-                            // if (input.type === "date") {
-                            //     input.value = new Date(attributes[fieldName]).toInputDate()
-                            // } else {
+                            if (input.type === "date") {
+                                input.value = new Date(attributes[fieldName]).toInputDate()
+                            } else {
                                 input.value = attributes[fieldName];
-                            // }
+                            }
                         } else {
                             input.value = null;
                         }
@@ -716,14 +1142,18 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
                         };
                     }
                 }
+
+                this.addressCompiler.evaluate(feature);
             }
 
-            this.addressCompiler.evaluate(feature);
-
             const menuBtns = query(".dropdown");
-            menuBtns.forEach(menu => {
-                html.removeClass(menu, "hide");
-
+            menuBtns.forEach(menu=> {
+                const field = ((menu as HTMLElement).children[0] as HTMLElement).dataset["field"];
+                if((field !="x" && field !="y") || this.addressPointFeatures.length > 1) {
+                    html.removeClass(menu, "hide");
+                } else {
+                    html.addClass(menu, "hide");
+                }
             })
 
         } else {
@@ -739,6 +1169,9 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
         // this._showFieldMenus(false);
         this.x.value = "";
         this.y.value = "";
+        html.removeClass(html.byId("x_input"), "dirty");
+        html.removeClass(html.byId("y_input"), "dirty");
+
         // this.mapView.popup.autoOpenEnabled = true; // ?
 
         for (let fieldName in this.inputControls) {
@@ -747,8 +1180,11 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
                 input.value = null;
                 html.removeAttr(input, "title");
                 html.removeClass(input, "brokenRule");
+                html.removeClass(this.inputControls[fieldName], "dirty");
             }
         }
+
+        html.removeClass(this.submitDelete, "orangeBtn");
 
         // const [addressTitle] = query(".addressTitle");
         if (this.addressTitle) {
@@ -760,93 +1196,110 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
             html.addClass(menu, "hide");
         })
 
+        this.UtilsVM.selectedParcelsGraphic = null;
     }
 
-    private _checkRules(feature) {
-        const brokenRules = [];
-        if(feature) {
-            for (let fieldName in this.inputControls) {
-                const input = this.inputControls[fieldName];
-                const alias = html.getAttr(input, "data-alias");
+    private _checkRules(feature): Promise<string[]> {
+        return new Promise((resolve, reject) => {
+            html.removeClass(this.verifyRules, "active");
+            this.brokenRulesAlert.innerHTML = "";
+            this.verifyRules.title = i18n.addressManager.verifyRecord;
+            //"Verify Address Point Record";
 
-                if (fieldName in this.specialAttributes) {
-                    const fieldConfig = this.specialAttributes[fieldName];
-                    domAttr.set(input, "title", input.value);
-                    if ("required" in fieldConfig && fieldConfig["required"] && input.value.isNullOrWhiteSpace()) {
-                        const brokenRule = "'" + alias + "' is required but not provided.";
-                        brokenRules.push(brokenRule);
-                        domAttr.set(input, "title", domAttr.get(input, "title") + "\n" + brokenRule);
-                        html.addClass(input, "brokenRule");
-                    } else {
-                        html.removeClass(input, "brokenRule");
-                        html.setAttr(input, "title", input.value);
-                    }
-                    if ("format"in fieldConfig) {
-                        if (!input.value.match(new RegExp(fieldConfig.format))) {
-                            let brokenRule = "'" + alias + "' has incorrect format.";
-                            if ("placeholder" in fieldConfig) {
-                                brokenRule += " (Try '" + fieldConfig.placeholder + "')";
-                            }
+            const brokenRules = [];
+            if(feature) {
+                for (let fieldName in this.specialAttributes) {
+                    const input = this.inputControls[fieldName];
+                    if(input) {
+                        const alias = html.getAttr(input, "data-alias");
+
+                        const fieldConfig = this.specialAttributes[fieldName];
+                        domAttr.set(input, "title", input.value);
+                        if ("required" in fieldConfig && fieldConfig["required"] && input.value.isNullOrWhiteSpace()) {
+                            const brokenRule = //"'{0}' is required but not provided."
+                            i18n.addressManager.requiredNotProvided.format(alias);
                             brokenRules.push(brokenRule);
                             domAttr.set(input, "title", domAttr.get(input, "title") + "\n" + brokenRule);
                             html.addClass(input, "brokenRule");
                         } else {
                             html.removeClass(input, "brokenRule");
-                            domAttr.set(input, "title", input.value);
+                            html.setAttr(input, "title", input.value);
+                        }
+                        if ("format"in fieldConfig) {
+                            if (!input.value.match(new RegExp(fieldConfig.format))) {
+                                let brokenRule = i18n.addressManager.incorrectFormat.format(alias);
+                                if ("placeholder" in fieldConfig) {
+                                    brokenRule += i18n.addressManager.tryFormat.format(fieldConfig.placeholder);
+                                }
+                                brokenRules.push(brokenRule);
+                                domAttr.set(input, "title", domAttr.get(input, "title") + "\n" + brokenRule);
+                                html.addClass(input, "brokenRule");
+                            } else {
+                                html.removeClass(input, "brokenRule");
+                                domAttr.set(input, "title", input.value);
+                            }
                         }
                     }
                 }
+
+                if (brokenRules.length > 0) {
+                    const messages = brokenRules.join("\n");
+                    this.verifyRules.title = messages;
+                    html.addClass(this.verifyRules, "active");
+                    brokenRules.forEach(msg => {
+                        this.brokenRulesAlert.innerHTML += "<li>"+msg+"</li>";
+                    });
+                    resolve(brokenRules);
+                } else {
+                    html.addClass(this.displayBrokenRules, "hide");
+                    resolve(brokenRules);
+                }
+            } else {
+                reject("No Feature Selected");
             }
-        }
-
-        html.removeClass(this.verifyRules, "active");
-        // html.setStyle(this.brokenRulesAlert, "display", "none");
-        this.brokenRulesAlert.innerHTML = "";
-        this.verifyRules.title = "Verify Address Point Record";
-        if (brokenRules.length > 0) {
-            const messages = brokenRules.join("\n");
-            this.verifyRules.title = messages;
-            html.addClass(this.verifyRules, "active");
-            // this.brokenRulesAlert.innerHTML = messages.replace(/\n/, "<br />");
-            brokenRules.forEach(msg => {
-                this.brokenRulesAlert.innerHTML += "<li>"+msg+"</li>";
-            });
-        } else {
-            html.addClass(this.displayBrokenRules, "hide");
-        }
+        })
     }
-
-    // private onCheckRules(event) {
-    //     if (this.addressPointFeatures.length === 0) return;
-    //     this._checkRules(this.selectedAddressPointFeature);
-    // }
 
     private isDirty(feature) {
         return "Dirty" in feature && feature.Dirty;
     }
 
     private _setDirtyBtns() {
-        html.removeClass(this.submitAddressForm, "blueBtn");
+        html.removeClass(this.saveBtn, "blueBtn");
         html.removeClass(this.submitAddressAll, "greenBtn");
         html.removeClass(this.submitDelete, "orangeBtn");
-        html.removeClass(this.submitCancel, "blankBtn");
+        html.removeClass(this.cancelBtn, "blankBtn");
         if (this.addressPointFeatures.length > 0) {
+            html.addClass(this.cancelBtn, "blankBtn");
             if (this.isDirty(this.selectedAddressPointFeature)) {
-                html.addClass(this.submitAddressForm, "blueBtn");
-                html.addClass(this.submitCancel, "blankBtn");
+                html.addClass(this.saveBtn, "blueBtn");
+                // html.addClass(this.submitCancel, "blankBtn");
             }
-        const attributes = (this.selectedAddressPointFeature as any).attributes;
-        const canDelete = !attributes || !("OBJECTID" in attributes) || !attributes["OBJECTID"];
-        if (canDelete) {
+        if (this.canDelete(this.selectedAddressPointFeature)) {
             html.addClass(this.submitDelete, "orangeBtn");
         }
         this.addressPointFeatures.forEach(feature => {
                 if (this.selectedAddressPointFeature != feature && this.isDirty(feature)) {
                     html.addClass(this.submitAddressAll, "greenBtn");
-                    html.addClass(this.submitCancel, "blankBtn");
+                    // html.addClass(this.submitCancel, "blankBtn");
                 }
             })
         }
+    }
+
+    private canDelete = feature => {
+        const attributes = feature.attributes;
+        return !attributes || !("OBJECTID" in attributes) || !attributes["OBJECTID"];
+    }
+
+    private clearDirty = feature => {
+        feature.Dirty = false;
+        delete feature.originalValues;
+        for(let key in this.inputControls) {
+            html.removeClass(this.inputControls[key], "dirty");
+        };
+        html.removeClass(html.byId("x_input"), "dirty");
+        html.removeClass(html.byId("y_input"), "dirty");
     }
 
     private getAddressFields() {
@@ -889,7 +1342,7 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
         const labelContainer = html.create("div", {}, head);
         const label = html.create("label", {
             for: field.name + "_input",
-            innerHTML: field.alias + ":"
+            innerHTML: field.alias
         }, labelContainer);
         const labelBtns = html.create("div", {}, labelContainer);
 
@@ -948,7 +1401,8 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
                     event => {
                         html.addClass(event.target, "active");
 
-                        this.UtilsVM.PICK_ROAD().then(
+                        this.UtilsVM.PICK_ROAD()
+                        .then(
                             street => {
                                 const fullname = (street as any).attributes.fullname
                                 input.value = fullname;
@@ -956,14 +1410,13 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
 
                                 this._inputChanged(field.name);
                                 html.removeClass(event.target, "active");
-                            },
-                            err => {
-                                console.log("PICK_ROAD", err);
+                        })
+                        .catch(err => {
+                            console.log("PICK_ROAD", err);
 
-                                // this.mapView.popup.autoOpenEnabled = true; // ?
-                                html.removeClass(event.target, "active");
-                            }
-                        );
+                            // this.mapView.popup.autoOpenEnabled = true; // ?
+                            html.removeClass(event.target, "active");
+                        });
                     }
                 ));
 
@@ -1029,8 +1482,6 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
                 viewModel: this.viewModel,
                 fieldName: field.name,
                 specialAttributes: this.specialAttributes[field.name],
-                // addressPointFeatures: this.addressPointFeatures,
-                // labelsGraphicsLayer: this.labelsGraphicsLayer,
                 utilsVM: this.UtilsVM,
                 onMenuActionReady: () => this._populateAddressTable(0),
                 setDirty: this._setDirty,
@@ -1207,6 +1658,9 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
 
     _setDirty = (input, feature, fieldName, value) => {
         if (!input || !feature) return false;
+        if(!feature.attributes) {
+            feature["attributes"] = {};
+        }
         if (fieldName == "geometry" || feature.attributes[fieldName] != value) {
             if (!("originalValues" in feature)) {
                 feature.originalValues = {};
@@ -1220,25 +1674,36 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
                     feature.originalValues[fieldName] = feature.attributes[fieldName];
                 }
                 feature.attributes[fieldName] = value;
+            } else {
+                if(!("geometry" in feature.originalValues)) {
+                    feature.originalValues.geometry = feature.geometry;
+                }
+                feature.geometry = value;
             }
             const nullToBlankOrValue = (value:string) => {return value == null ? "" : value; };
             // feature.Dirty 
             const dirtyField = nullToBlankOrValue(feature.originalValues[fieldName]) != nullToBlankOrValue(value);
 
-            if(dirtyField) {
-                html.addClass(input, "dirty");
-                feature.Dirty = true;
-            } else {
-                html.removeClass(input, "dirty");
-                feature.Dirty = false;
-                for(let i=0; i < this.inputControls.length; i++) {
-                    const inp = this.inputControls[i];
-                    if(domClass.contains(inp, "dirty")) {
-                        feature.Dirty = true;
-                        break;
+            let inputs = input;
+            if(!Array.isArray(input)) {
+                inputs = [input];
+            }
+            inputs.forEach(input => {
+                if(dirtyField) {
+                    html.addClass(input, "dirty");
+                    feature.Dirty = true;
+                } else {
+                    html.removeClass(input, "dirty");
+                    feature.Dirty = false;
+                    for(let i=0; i < this.inputControls.length; i++) {
+                        const inp = this.inputControls[i];
+                        if(domClass.contains(inp, "dirty")) {
+                            feature.Dirty = true;
+                            break;
+                        }
                     }
-                }
-            };
+                };
+            });
 
             this._setDirtyBtns();
 
@@ -1247,6 +1712,34 @@ import { ApplicationConfig } from "ApplicationBase/interfaces";
             }
         }
         // return this.isDirty(feature);
+    }
+
+    private _addMenuItemLocationSort = element => {
+        this.own(on(element, "click", this._onMenuItemLocationSort));
+    }
+
+    private _onMenuItemLocationSort = event => {
+        if (this.addressPointFeatures.length <= 1) return;
+
+        this.menuFieldName = event.target.attributes["data-field"].value;
+        const directionSort = (html.byId("directionSortOn_" + this.menuFieldName) as HTMLInputElement).checked;
+
+        function sortDescending(a, b) {
+            const a1 = a.geometry[this.menuFieldName];
+            const b1 = b.geometry[this.menuFieldName];
+            return (a1 - b1);
+        }
+
+        function sortAscending(a, b) {
+            const a1 = a.geometry[this.menuFieldName];
+            const b1 = b.geometry[this.menuFieldName];
+            return (b1 - a1);
+        }
+        this.addressPointFeatures.sort(lang.hitch(this, directionSort ? sortDescending : sortAscending));
+
+        this._populateAddressTable(0);
+
+        html.addClass(html.byId("menuLocationContent_" + this.menuFieldName), "hide");
     }
 
 }

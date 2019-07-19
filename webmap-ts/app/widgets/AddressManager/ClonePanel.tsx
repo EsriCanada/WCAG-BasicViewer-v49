@@ -11,9 +11,9 @@ import domAttr = require("dojo/dom-attr");
 import domStyle = require("dojo/dom-style");
 import domClass = require("dojo/dom-class");
 import html = require("dojo/_base/html");
-import Deferred = require("dojo/Deferred");
 
 import UtilsViewModel = require("./UtilsViewModel");
+import AddressManagerViewModel = require("./AddressManagerViewModel");
 
 import GeometryService = require("esri/tasks/GeometryService");
 import geometryEngine = require("esri/geometry/geometryEngine");
@@ -29,6 +29,8 @@ import Point = require("esri/geometry/Point");
 import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
 import { watch } from "fs";
 import CursorToolTip = require("./CursorToolTip");
+import { isReturnStatement } from "typescript";
+import { Geometry } from "esri/geometry";
 
 @subclass("esri.widgets.ClonePanel")
   class ClonePanel extends declared(Widget) {
@@ -38,6 +40,9 @@ import CursorToolTip = require("./CursorToolTip");
   
     @property()
     mapView: __esri.MapView;
+
+    @property()
+    addressManagerVM: AddressManagerViewModel;
 
     @property()
     siteAddressPointLayer;
@@ -54,6 +59,31 @@ import CursorToolTip = require("./CursorToolTip");
     @property()
     onClose:any = null;
 
+    @property()
+    // private Length: Number = 0;
+    get PolylineLength() : number {
+        return this._get("PolylineLength");
+    }
+    set PolylineLength(value: number) {
+        this._set("PolylineLength", value);
+        
+        const polylineLength = html.byId("polylineLength") as HTMLSpanElement;
+        if(polylineLength) {
+            if(value != 0) {
+                polylineLength.innerHTML = (Math.round(value*5)/5).toLocaleString();
+                polylineLength.title = value.toLocaleString();
+
+                if(this.unitCount && this.unitCountRadio && this.unitDist && this.unitDistRadio) {
+                    [this.addressCount, this.addressDistance] = this.unitCountRadio.checked ? this._getCount() : this._getDistCount();
+                }
+
+            } else {
+                polylineLength.innerHTML = "";
+
+            }
+        }
+    }
+
     private UtilsVM : UtilsViewModel;
 
     private roadSegments = [] as any;
@@ -67,16 +97,56 @@ import CursorToolTip = require("./CursorToolTip");
     private polylineGraph: Graphic;
     private cutters: any[] = [];
     private flip: boolean = false;
-    private length: Number = 0;
     private pickRoadBtn: HTMLElement;
     private roadCell: HTMLElement;
     private roadMarker: any = null;
-    private submitCloneCancel: HTMLElement;
-    cutBtn: HTMLElement;
-    cutFlip: number;
+    private cloneCancelBtn: HTMLElement;
+    private cutBtn: HTMLElement;
+    private cutFlip: number;
+    private unitCount: HTMLInputElement;
+    private unitCountRadio: HTMLInputElement;
+    private unitDist: HTMLInputElement;
+    private unitDistRadio: HTMLInputElement;
+    private addressCount: number;
+    private addressDistance: number;
+    private equalPoints: any[];
+    private reverse: any;
+    private streeNumStart: HTMLInputElement;
+    private streeNumStep: HTMLInputElement;
+    private cloneApplyBtn: HTMLInputElement;
+    private flipSideBtn: HTMLInputElement;
+    private reverseBtn: HTMLInputElement;
 
     constructor() {
         super();
+        this.PolylineLength = 0;
+    }
+
+    private _getDistCount() {
+        const dist = Number(this.unitDist.value);
+        let count = 0;
+        if (dist > 0) {
+            count = Math.round(this.PolylineLength / dist);
+            this.unitCount.value = (count+1).toLocaleString();
+        }
+        else {
+            this.unitCount.value = "";
+        }
+        return [count, dist];
+    }
+
+    private _getCount() {
+        const count = Number(this.unitCount.value) - 1;
+        let dist = 0;
+        if (count > 0) {
+            dist = this.PolylineLength / count;
+            this.unitDist.value = (Math.round(dist * 5) / 5).toLocaleString();
+            this.unitDist.title = dist.toLocaleString();
+        }
+        else {
+            this.unitDist.value = "";
+        }
+        return [count, dist];
     }
 
     postInitialize() {
@@ -91,9 +161,9 @@ import CursorToolTip = require("./CursorToolTip");
             <div class="toolbar">
                 <input type="image" src="../images/icons_transp/pickRoad2.bgwhite.24.png" class="button" afterCreate={this._addPickRoadBtn} title="Pick Road" aria-label="Pick Road"/>
                 <input type="image" src="../images/icons_transp/Cut.bgwhite.24.png" class="button" afterCreate={this._addCutBtn} title="Cut Line" aria-label="Cut Line"/>
-                <input type="image" src="../images/icons_transp/Flip1.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onFlipSideClicked" title="Flip Side" aria-label="Flip Side"/>
-                <input type="image" src="../images/icons_transp/Flip2.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onReverseClicked" title="Reverse Direction" aria-label="Reverse Direction"/>
-                <input type="image" src="../images/icons_transp/restart.bgwhite.24.png" class="button" data-dojo-attach-event="click:_onRestartCutsClicked" title="Restart Cuts" aria-label="Restart Cuts"/>
+                <input type="image" src="../images/icons_transp/Flip1.bgwhite.24.png" class="button" afterCreate={this._addFlipSide} title="Flip Side" aria-label="Flip Side"/>
+                <input type="image" src="../images/icons_transp/Flip2.bgwhite.24.png" class="button" afterCreate={this._addReverse} title="Reverse Direction" aria-label="Reverse Direction"/>
+                <input type="image" src="../images/icons_transp/restart.bgwhite.24.png" class="button hide" title="Restart Cuts" aria-label="Restart Cuts"/>
             </div>
             <div class="content">
                 <table style="border-collapse: collapse; border: none;">
@@ -126,40 +196,40 @@ import CursorToolTip = require("./CursorToolTip");
                     </tr>
                     <tr>
                         <th><label for="polylineLength">Length:</label></th>
-                        <td><span id="polylineLength" data-dojo-attach-point="polylineLength"></span>
+                        <td><span id="polylineLength"></span>
                         <span style="float:right; font-weight: normal; float: right;">meters</span></td> 
                     </tr>
                     <tr>
                         <th style="border-top: 1px solid gray; border-left: 1px solid gray;"><label for="unitCount">Unit Count:</label></th>
                         <td style="border-top: 1px solid gray; border-right: 1px solid gray;">
-                            <input type="number" class="numInput" id="unitCount" min="3" max="500" step="1" name="unitCountDist" value="10" data-dojo-attach-point="unitCount" data-dojo-attach-event="change:_onUnitCountChange,input:_onUnitCountInput"/>
-                            <input type="radio" checked name="units" value="unitCount" style="float: right;" data-dojo-attach-point="unitCountRadio"/>
+                            <input type="number" class="numInput" id="unitCount" min="2" max="500" step="1" value="10" afterCreate={this._addUnitCount}/>
+                            <input type="radio" checked name="units" value="unitCount" style="float: right;" id="unitCountRadio" afterCreate={this._addUnitCountRadio} />
                         </td>
                     </tr> 
                     <tr>
                         <th style="border-bottom: 1px solid gray; border-left: 1px solid gray;"><label for="unitDist">Unit Distance:</label></th>
                         <td style="border-bottom: 1px solid gray; border-right: 1px solid gray;">
-                            <input type="number" class="numInput" id="unitDist" min="20" max="100" step="1" name="unitCountDist" value="25" data-dojo-attach-point="unitDist" data-dojo-attach-event="change:_onUnitDistChange,input:_onUnitDistInput"/>
-                            <input type="radio" name="units" value="unitDist" style="float: right;" data-dojo-attach-point="unitDistRadio"></input>
+                            <input type="number" class="numInput" id="unitDist" min="20" max="100" step="0.2" value="25" afterCreate={this._addUnitDist}/>
+                            <input type="radio" name="units" value="unitDist" style="float: right;" id="unitDistRadio" afterCreate={this._addUnitDistRadio} ></input>
                         </td>
                     </tr>
                     <tr>
-                        <th><label for="StreeNumStart">Street # Start:</label></th>
+                        <th><label for="StreeNumStart">Address # Start:</label></th>
                         <td>
-                            <input type="number" class="numInput" id="StreeNumStart" min="1" step="1" name="StreeNumStart" value="1" data-dojo-attach-point="StreeNumStart" data-dojo-attach-event="change:_onUnitCountChange,input:_onUnitCountInput"/>
+                            <input type="number" class="numInput" id="StreeNumStart" min="1" step="1" name="StreeNumStart" value="1" afterCreate={this._addStreeNumStart}/>
                         </td> 
                     </tr>
                     <tr>
-                        <th><label for="StreeNumStep">Street # Step:</label></th>
+                        <th><label for="StreeNumStep">Address # Step:</label></th>
                         <td>
-                            <input type="number" class="numInput" id="StreeNumStep" min="1" max="8" step="1" name="StreeNumStep" value="2" data-dojo-attach-point="StreeNumStep" data-dojo-attach-event="change:_onUnitCountChange,input:_onUnitCountInput"/>
+                            <input type="number" class="numInput" id="StreeNumStep" min="1" max="8" step="1" name="StreeNumStep" value="2" afterCreate={this._addStreeNumStep}/>
                         </td> 
                     </tr>
                 </table>
             </div>
             <div class="footer footer2cells">
-            <input type="button" class="pageBtn" style="justify-self: left;" data-dojo-attach-point="submitCloneApply" value="Apply"/>
-            <input type="button" class="pageBtn blankBtn" style="justify-self: right;" afterCreate={this._addSubmitCloneCancel} value="Cancel"/>
+            <input type="button" class="pageBtn" style="justify-self: left;" afterCreate={this._addApplyBtn} value="Apply"/>
+            <input type="button" class="pageBtn blankBtn" style="justify-self: right;" afterCreate={this._addCloneCancelBtn} value="Cancel"/>
             </div> 
         </div>
         );
@@ -188,7 +258,7 @@ import CursorToolTip = require("./CursorToolTip");
         
         const mutationObserver = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
-                console.log("mutation", mutation);
+                // console.log("mutation", mutation);
                 if(mutation.attributeName == "class" && domClass.contains(this.clonePanelDiv, "hide")) {
                     this.onClose();
                 }
@@ -200,22 +270,40 @@ import CursorToolTip = require("./CursorToolTip");
         });
     }
 
-    private _addSubmitCloneCancel = (element: Element) => {
-        this.submitCloneCancel = element as HTMLElement;
-        this.own(on(this.submitCloneCancel, "click", lang.hitch(this, function(event) {
-            this.streetNameError.innerHTML = "";
-            html.addClass(this.streetNameErrorRow, "hide");
-            html.addClass(this.roadCell, "hide");
-            this.roadGraphicsLayer.removeAll();
-            this.roadSegments.length = 0;
-            this.cutters = [];
+    private _addApplyBtn = (element: Element) => {
+        this.cloneApplyBtn = element as HTMLInputElement;
+        this.own(on(this.cloneApplyBtn, "click", event => {
+            const cloneApplyBtn = event.target;
+            if(!(html as any).hasClass(cloneApplyBtn, "blueBtn")) return;
+            
+            this.addressManagerVM.addressPointFeatures.removeAll();
+            this.equalPoints.forEach(point => {
+                const feature = new Graphic({geometry: point, symbol: this.UtilsVM.NEW_ADDRESS_SYMBOL, attributes: point.attributes});
+                this.mapView.graphics.add(feature);
+                this.addressManagerVM.addressPointFeatures.add(feature as any);
+            })
+            this._cancel();
+        }))
+    }
+    
+    private _addCloneCancelBtn = (element: Element) => {
+        this.cloneCancelBtn = element as HTMLElement;
+        this.own(on(this.cloneCancelBtn, "click", this._cancel));
+    }
 
-            html.addClass(this.clonePanelDiv, "hide");
+    private _cancel = () => {
+        this.streetNameError.innerHTML = "";
+        html.addClass(this.streetNameErrorRow, "hide");
+        html.addClass(this.roadCell, "hide");
+        this.roadGraphicsLayer.removeAll();
+        this.roadSegments.length = 0;
+        this.cutters = [];
+        this.addressRoadGeometry = null;
 
-            // console.log("onClose", this.onClose);
+        html.removeClass(this.cloneApplyBtn, "blueBtn");
+        html.addClass(this.clonePanelDiv, "hide");
 
-            if(this.onClose) this.onClose();
-        })));
+        if(this.onClose) this.onClose();
     }
 
     private _addDistRoadRange = (element: Element) => {
@@ -227,10 +315,21 @@ import CursorToolTip = require("./CursorToolTip");
         this.distRoadValue = element as HTMLElement;
     }
 
+    private _addStreeNumStart = (element: Element) => {
+        this.streeNumStart = element as HTMLInputElement;
+        this.own(on(this.streeNumStart, "input", this._splitPolyline));
+    }
+
+    private _addStreeNumStep = (element: Element) => {
+        this.streeNumStep = element as HTMLInputElement;
+        this.own(on(this.streeNumStep, "input", this._splitPolyline));
+    }
+
     private _distRoadRangeChange = (event) => {
         const value = event.target.value;
         this.distRoadValue.innerHTML = value;
 
+        html.removeClass(this.cloneApplyBtn, "blueBtn");
         if (this.roadGeometries && this.roadGeometries.length > 0) {
             if (this.addressRoadGraphic) {
                 this.roadGraphicsLayer.remove(this.addressRoadGraphic);
@@ -270,17 +369,109 @@ import CursorToolTip = require("./CursorToolTip");
         this.useCurrentSeed = element as HTMLInputElement;
     }
 
+    private _addUnitCount = (element:Element) => {
+        this.unitCount = element as HTMLInputElement;
+        this.own(on(this.unitCount, "input", this._splitPolyline));
+    }
+
+    private _addUnitCountRadio = (element:Element) => {
+        this.unitCountRadio = element as HTMLInputElement;
+        this.own(on(this.unitCountRadio, "change", event => {
+            if(event.target.checked) {
+                [this.addressCount, this.addressDistance] = this._getCount();
+                this._splitPolyline();
+            }
+        }))
+    }
+
+    private _addUnitDist = (element:Element) => {
+        this.unitDist = element as HTMLInputElement;
+        this.own(on(this.unitDist, "input", this._splitPolyline));
+    }
+
+    private _addUnitDistRadio = (element:Element) => {
+        this.unitDistRadio = element as HTMLInputElement;
+        this.own(on(this.unitDistRadio, "change", event => {
+            if(event.target.checked) {
+                [this.addressCount, this.addressDistance] = this._getDistCount();
+                this._splitPolyline();
+            }
+        }))
+    }
+
     private _addCutBtn = (element:Element) => {
         this.cutBtn = element as HTMLElement;
-        this.own(on(this.cutBtn, "click", event => this._onCutClicked(event)))
+        this.own(on(this.cutBtn, "click", event => {
+            if (!this.addressRoadGeometry) return;
+            const btn = event.target;
+            html.addClass(btn, "active");
+            // this.map.setInfoWindowOnClick(false);
+            this.mapView.popup.close();
+    
+            if (this.cutters.length == 0) {
+                this.GET_CUTTER_BY_POINT(this.useCurrentSeed.checked && this.parent.selectedAddressPointFeature ? this.parent.selectedAddressPointFeature.geometry : null, [63, 127, 255, 255], "Please make first cut")
+                .then(cutter => {
+                    this.cutters.push(cutter);
+                    this.GET_CUTTER_BY_POINT(null, [63, 127, 255, 255], "Please make second cut").then(cutter => {
+                        html.removeClass(event.target, "active");
+    
+                        this.cutters.push(cutter);
+    
+                        this._splitPolyline();
+                        // this.map.setInfoWindowOnClick(true);
+                    })
+                })
+            } else {
+                // this.cutFlip = (this.cutFlip + 1) % 2;
+    
+                // const cutter = this.cutters[this.cutFlip];
+                // cutter.symbol.style = "solid";
+                // cutter.symbol.width = 6;
+                // this.roadGraphicsLayer.refresh();
+    
+                // if (!this.editToolbar) {
+                //     this.editToolbar = new Edit(this.map);
+                // }
+                // this.editToolbar.activate(Edit.MOVE, cutter);
+    
+                // const moveStopHandler = this.editToolbar.on("graphic-move-stop", (evn) => {
+                //     this.editToolbar.deactivate();
+                //     moveStopHandler.remove();
+    
+                //     html.removeClass(event.target, "active");
+                //     evn.graphic.symbol.style = "dash";
+                //     evn.graphic.symbol.width = 2;
+                //     this.roadGraphicLayer.refresh();
+    
+                //     this.splitPolyline();
+    
+                //     const refPoint = this.equalPoints[this.cutFlip * (this.equalPoints.length - 1)];
+                //     // const graphic = new Graphic(refPoint, myUtils.SELECTED_ADDRESS_SYMBOL);
+                //     // this.roadGraphicLayer.add(graphic);
+    
+                //     // const pl = new Polyline(this.map.spatialReference);
+                //     // pl.paths = this.addressRoadGeometry.rings;
+    
+                //     // const p = geometryEngine.intersect(pl, cutter.geometry);
+    
+                //     this.getCutterByPoint(refPoint, [63, 127, 255, 255]).then(cutter => {
+                //         this.roadGraphicsLayer.remove(this.cutters[this.cutFlip]);
+                //         this.cutters[this.cutFlip] = cutter;
+                //     });
+                // })
+            }
+        }))
     }
 
     private _onPickRoadClicked = (event) => {
+        html.removeClass(this.cloneApplyBtn, "blueBtn");        
         html.addClass(event.target, "active");
-        
-        this.UtilsVM.PICK_ROAD().then(
+
+        this.UtilsVM.PICK_ROAD()
+        .then(
             roadSegment => {
                 html.removeClass(event.target, "active"); 
+                this.cutters = [];
                 // this.mapView.map.setInfoWindowOnClick(true);
 
                 const found = this.roadSegments.find(road => (roadSegment as any).attributes.OBJECTID == road.attributes.OBJECTID);
@@ -310,112 +501,65 @@ import CursorToolTip = require("./CursorToolTip");
                 this.roadGraphicsLayer.add(this.addressRoadGraphic);
 
                 this.addressRoadGeometry = buffer;
-            },
-            error => {
-                console.error("PICK_ROAD", error);
+            })
+        .catch(error => {
+            console.error("PICK_ROAD", error);
 
-                // this.mapView.map.setInfoWindowOnClick(true);
-                html.removeClass(event.target, "active");
-            }
-        );
+            // this.mapView.map.setInfoWindowOnClick(true);
+            html.removeClass(event.target, "active");
+        });
     }
 
-    private _onCutClicked = event => {
-        if (!this.addressRoadGeometry) return;
-        const btn = event.target;
-        html.addClass(btn, "active");
-        // this.map.setInfoWindowOnClick(false);
-        this.mapView.popup.close();
+    private _addFlipSide = (element:Element) => {
+        this.flipSideBtn = element as HTMLInputElement;
+        this.own(on(this.flipSideBtn, "click", event => {
+            this.flip = !this.flip;
+            this._splitPolyline();
+        }))
+    }
 
-        // this.cutters = [];
-        if (this.cutters.length == 0) {
-            this.GET_CUTTER_BY_POINT(this.useCurrentSeed.checked && this.parent.selectedAddressPointFeature ? this.parent.selectedAddressPointFeature.geometry : null, [63, 127, 255, 255], "Please make first cut").then(cutter => {
-                this.cutters.push(cutter);
-                this.GET_CUTTER_BY_POINT(null, [63, 127, 255, 255], "Please make second cut").then(cutter => {
-                    html.removeClass(event.target, "active");
-
-                    this.cutters.push(cutter);
-
-                    this._splitPolyline();
-                    // this.map.setInfoWindowOnClick(true);
-                })
-            })
-        } else {
-            // this.cutFlip = (this.cutFlip + 1) % 2;
-
-            // const cutter = this.cutters[this.cutFlip];
-            // cutter.symbol.style = "solid";
-            // cutter.symbol.width = 6;
-            // this.roadGraphicsLayer.refresh();
-
-            // if (!this.editToolbar) {
-            //     this.editToolbar = new Edit(this.map);
-            // }
-            // this.editToolbar.activate(Edit.MOVE, cutter);
-
-            // const moveStopHandler = this.editToolbar.on("graphic-move-stop", (evn) => {
-            //     this.editToolbar.deactivate();
-            //     moveStopHandler.remove();
-
-            //     html.removeClass(event.target, "active");
-            //     evn.graphic.symbol.style = "dash";
-            //     evn.graphic.symbol.width = 2;
-            //     this.roadGraphicLayer.refresh();
-
-            //     this.splitPolyline();
-
-            //     const refPoint = this.equalPoints[this.cutFlip * (this.equalPoints.length - 1)];
-            //     // const graphic = new Graphic(refPoint, myUtils.SELECTED_ADDRESS_SYMBOL);
-            //     // this.roadGraphicLayer.add(graphic);
-
-            //     // const pl = new Polyline(this.map.spatialReference);
-            //     // pl.paths = this.addressRoadGeometry.rings;
-
-            //     // const p = geometryEngine.intersect(pl, cutter.geometry);
-
-            //     this.getCutterByPoint(refPoint, [63, 127, 255, 255]).then(cutter => {
-            //         this.roadGraphicsLayer.remove(this.cutters[this.cutFlip]);
-            //         this.cutters[this.cutFlip] = cutter;
-            //     });
-            // })
-        }
+    private _addReverse = (element:Element) => {
+        this.reverseBtn = element as HTMLInputElement;
+        this.own(on(this.reverseBtn, "click", event => {
+            if (!this.addressRoadGeometry || !this.polyline || !(this.cutters && this.cutters.length == 2)) return;
+            this.reverse = !this.reverse;
+            this._splitPolyline();
+        }))
     }
 
     GET_CUTTER_BY_POINT_draw = null; 
-    private GET_CUTTER_BY_POINT = (point, color, tip) => {
-        const deferred = new Deferred();
-        if (point) {
-            deferred.resolve(this.makeCutter(point /*.geometry*/ , color))
-        } else {
-            if(!this.GET_CUTTER_BY_POINT_draw) {
-                this.GET_CUTTER_BY_POINT_draw = new Draw({
-                view: this.mapView
-                })
-            }
-    
-            require(["./CursorToolTip"], CursorToolTip =>{
+    private GET_CUTTER_BY_POINT = (point: Geometry, color: string | __esri.Color | number[], tip: string) => {
+        return new Promise((resolve, reject) => {
+            if (point) {
+                resolve(this.makeCutter(point, color))
+            } else {
+                if(!this.GET_CUTTER_BY_POINT_draw) {
+                    this.GET_CUTTER_BY_POINT_draw = new Draw({
+                    view: this.mapView
+                    })
+                }
+        
                 const cursorToolTip = CursorToolTip.getInstance(this.mapView, tip);
 
                 if (this.GET_CUTTER_BY_POINT_draw.activeAction) {
                     this.GET_CUTTER_BY_POINT_draw.reset();
                     cursorToolTip.close();
-                    deferred.cancel("User Cancel");
-                    return deferred.promise;
+                    reject("User Cancel");
                 }
-        
-                const drawAction = this.GET_CUTTER_BY_POINT_draw.create("point");
-                drawAction.on("draw-complete", event => {
-                    cursorToolTip.close();
-                    this.GET_CUTTER_BY_POINT_draw = null; 
-                    const point = new Point({x:event.coordinates[0], y:event.coordinates[1], spatialReference: this.mapView.spatialReference});
-                    deferred.resolve(this.makeCutter(point, color))
-                });
-            });
-        }
-        return deferred.promise;
+                else {
+                    const drawAction = this.GET_CUTTER_BY_POINT_draw.create("point");
+                    drawAction.on("draw-complete", event => {
+                        cursorToolTip.close();
+                        this.GET_CUTTER_BY_POINT_draw = null; 
+                        const point = new Point({x:event.coordinates[0], y:event.coordinates[1], spatialReference: this.mapView.spatialReference});
+                        resolve(this.makeCutter(point, color))
+                    });
+                }
+            }
+        })
     }
 
-    private makeCutter = (p2, color) => {
+    private makeCutter = (p2, color: string | __esri.Color | number[]) => {
         if (!this.addressRoadGeometry) return null;
         const nearestCoordinate = geometryEngine.nearestCoordinate(this.roadMarker, p2);
         const p1 = new Point(nearestCoordinate.coordinate);
@@ -464,16 +608,57 @@ import CursorToolTip = require("./CursorToolTip");
         }
     }
 
-    private _mesurePolyline() {
-        // throw new Error("Method not implemented.");
+    private _getPolylineLength(): number {
+        if (!this.polyline) return 0;
+        const length = geometryEngine.planarLength(this.polyline as any, "meters");
+        return length;
     }
 
-    private _getLength(): Number {
-        // throw new Error("Method not implemented.");
-        return 0;
+    private getEqualPoints = (dist, path, addEndPoint) => {
+        // const path = path.split();
+        const results = [];
+        if(dist == 0) return results;
+        let i = 0;
+        let sum = 0;
+        let distance = dist;
+        let p1 = new Point({x:path[0][0], y:path[0][1], spatialReference: this.mapView.spatialReference});
+        results.push(p1);
+        while (i < path.length - 1) {
+            const p2 = new Point({x:path[i+1][0], y:path[i+1][1], spatialReference: this.mapView.spatialReference});
+            const d = geometryEngine.distance(p1, p2, "meters");
+            if (sum + d >= distance) {
+                const dif = distance - sum;
+                const x1 = p1.x;
+                const x2 = p2.x;
+                const y1 = p1.y;
+                const y2 = p2.y;
+
+                const f = dif / d;
+                const x = x1 + (x2 - x1) * f;
+                const y = y1 + (y2 - y1) * f;
+
+                const p = new Point({x:x, y:y, spatialReference: this.mapView.spatialReference});
+                results.push(p)
+                distance += dist;
+            } else {
+                p1 = p2;
+                sum += d;
+                i++;
+            }
+        }
+        if (addEndPoint) {
+            const p = path[path.length - 1];
+            const endPoint = new Point({x: p[0], y: p[1], spatialReference: this.mapView.spatialReference});
+            if (geometryEngine.distance(endPoint, results[results.length - 1], "meters") > dist * 9 / 10) {
+                results.push(endPoint);
+            }
+        }
+        return results;
     }
 
-    private _splitPolyline() {
+    private _splitPolyline = () => {
+        html.removeClass(this.cloneApplyBtn, "blueBtn");
+
         if (this.cutters.length != 2) return;
         
         this.roadGraphicsLayer.removeAll();
@@ -489,7 +674,7 @@ import CursorToolTip = require("./CursorToolTip");
             this.roadGraphicsLayer.remove(this.addressRoadGraphic);
 
             this.polyline = new Polyline({spatialReference: this.mapView.spatialReference});
-            let point0 = new Point({ x: (pieces[1]as any).paths[0][0][0], y: (pieces[1]as any).paths[0][0][1] });
+            let point0 = new Point({ x: (pieces[1] as any).paths[0][0][0], y: (pieces[1] as any).paths[0][0][1] });
 
             if (geometryEngine.contains(this.cutters[0].geometry, point0)) {
                 this.polyline.addPath(
@@ -514,13 +699,32 @@ import CursorToolTip = require("./CursorToolTip");
                         this.polyline.addPath((pieces1[1] as any).paths[0]);
                         break;
                 }
-                const symb = new SimpleLineSymbol({ style: "solid", color: [255, 0, 0, 63], width:2 });
-                this.polylineGraph = new Graphic({geometry: this.polyline,  symbol: symb});
+                this.polylineGraph = new Graphic({geometry: this.polyline,  symbol: this.UtilsVM.LINE_SELECT_PARCELS_SYMBOL});
                 this.roadGraphicsLayer.add(this.polylineGraph);
 
-                this.length = this._getLength();
+                this.PolylineLength = this._getPolylineLength();
 
-                this._mesurePolyline();
+                this.equalPoints = this.getEqualPoints(this.addressDistance, this.polyline.paths[0], this.unitCountRadio.checked);
+                if (this.reverse) {
+                    this.equalPoints = this.equalPoints.reverse();
+                }
+
+                if(!this.equalPoints.some(() => true)) return;
+
+                this.equalPoints.forEach((point, i) => {
+                    point["attributes"] = {};
+                    point["attributes"]["add_num"] = Number(this.streeNumStart.value) + i * Number(this.streeNumStep.value);
+                    point["attributes"]["name_body"] = this.roadCell.innerText;
+                    point["attributes"]["status"] = 0;
+
+                    this.UtilsVM.SHOW_POINT(point, [0, 0, 0, 255], this.roadGraphicsLayer);
+        
+                    const label = this.UtilsVM.GET_LABEL_SYMBOL(point["attributes"]["add_num"]);
+                    const graphic = new Graphic({geometry: point, symbol: label});
+                    this.roadGraphicsLayer.add(graphic);
+                });
+
+                html.addClass(this.cloneApplyBtn, "blueBtn");
             }
         }
     }

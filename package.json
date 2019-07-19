@@ -21,7 +21,7 @@
     ],
     "devDependencies": {
         "@esri/application-base-js": "^0.0.2",
-        "@types/arcgis-js-api": "4.11.0",
+        "@types/arcgis-js-api": "4.12.0",
         "@types/core-js": "^0.9.36",
         "@types/node": "^10.12.10",
         "autoprefixer": "^6.3.6",
