@@ -580,7 +580,11 @@ class UtilsViewModel extends declared(Accessor) {
                 drawAction.on("draw-complete", () => {
                     this.pickParcels_draw.reset();
                     cursorTooltip.close();
-                    this.mapView.graphics.remove(this.freeLine);
+                    if(this.freeLine) {
+                        this.mapView.graphics.remove(this.freeLine);
+                        this.freeLine = null;
+                        // this._removeGraphic(this.freeLine, this.mapView.graphics);
+                    }
 
                     if(this.selectedGeometries && this.selectedGeometries.length > 0) {
                         resolve(this.selectedGeometries);
@@ -596,23 +600,31 @@ class UtilsViewModel extends declared(Accessor) {
                     "undo",
                 ], event => {
                     if (event.vertices.length > 1) {
-                        this.mapView.graphics.removeAll();
-
+                        // this.mapView.graphics.removeAll();
+                        // if(this.freeLine) {
+                        //     this._removeGraphic(this.freeLine, this.mapView.graphics);
+                        // }
                         this.verticesWithoutLoops(event.vertices).then(v => {
 
                             if(event.vertices.length != v.length && v.length >= 10) {
                                 event.vertices.length = v.length-1;
                             }
 
-                            this.freeLine = new Graphic({
-                                geometry: new Polyline({
-                                    paths: event.vertices,
-                                    spatialReference: this.mapView.spatialReference
-                                }),
-                                symbol: this.LINE_SELECT_PARCELS_SYMBOL
+                            const g = new Polyline({
+                                paths: event.vertices,
+                                spatialReference: this.mapView.spatialReference
                             });
-
-                            this.mapView.graphics.add(this.freeLine);
+                            if(!this.freeLine) {
+                                this.freeLine = new Graphic({
+                                    geometry: g,
+                                    symbol: this.LINE_SELECT_PARCELS_SYMBOL
+                                });
+                                this.mapView.graphics.add(this.freeLine);
+                            }
+                            else {
+                                this.freeLine.geometry = g;
+                            }
+                            
 
                             this.selectedGeometries = parcelsGraphicLayer.graphics
                             .map(g => g.geometry)
