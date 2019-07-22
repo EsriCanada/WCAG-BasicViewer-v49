@@ -278,8 +278,9 @@ import { Geometry } from "esri/geometry";
             
             this.addressManagerVM.addressPointFeatures.removeAll();
             this.equalPoints.forEach(point => {
-                const feature = new Graphic({geometry: point, symbol: this.UtilsVM.NEW_ADDRESS_SYMBOL, attributes: point.attributes});
-                this.mapView.graphics.add(feature);
+                const feature = new Graphic({geometry: point, symbol: this.UtilsVM.NEW_ADDRESS_SYMBOL, attributes: point.attributes, layer: this.addressManagerVM.newAddressGraphicsLayer});
+                // this.mapView.graphics.add(feature);
+                this.addressManagerVM.newAddressGraphicsLayer.add(feature);
                 this.addressManagerVM.addressPointFeatures.add(feature as any);
             })
             this._cancel();

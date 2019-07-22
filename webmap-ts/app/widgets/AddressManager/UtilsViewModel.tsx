@@ -32,6 +32,9 @@ class UtilsViewModel extends declared(Accessor) {
     @property()
     roadsLayer: FeatureLayer;
 
+    @property()
+    newAddressLayer: GraphicsLayer;
+
     @property({ readOnly: true })
     BUFFER_SYMBOL = {
         type:"simple-fill",
@@ -226,22 +229,22 @@ class UtilsViewModel extends declared(Accessor) {
     }
 
     ADD_NEW_ADDRESS_sketchVM: SketchViewModel = null;
-    addressGraphicsLayer = null;
+    // addressGraphicsLayer = null;
     
     ADD_NEW_ADDRESS = () => {
         return new Promise((resolve, reject) => {
             // this.mapView.popup.autoOpenEnabled = false; // ?
             this.mapView.popup.close();
 
-            if(!this.addressGraphicsLayer) {
-                this.addressGraphicsLayer = new GraphicsLayer();
+            // if(!this.newAddressLayer) {
+            //     this.newAddressLayer = new GraphicsLayer();
 
-                this.mapView.map.add(this.addressGraphicsLayer);
-            }
+            //     this.mapView.map.add(this.newAddressLayer);
+            // }
 
             if(!this.ADD_NEW_ADDRESS_sketchVM) {
                 this.ADD_NEW_ADDRESS_sketchVM = new SketchViewModel({
-                    layer: this.addressGraphicsLayer,
+                    layer: this.newAddressLayer,
                     view: this.mapView,
                     pointSymbol: this.NEW_ADDRESS_SYMBOL
                 })
@@ -312,7 +315,7 @@ class UtilsViewModel extends declared(Accessor) {
                     q.returnGeometry = true;
 
                     const oldaddresses = addressLayer.queryFeatures(q);
-                    const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);
+                    const newAddresses = this._getFeaturesWithin(this.newAddressLayer, q.geometry);
                     Promise.all([oldaddresses, newAddresses])
                     .then(results => {
                         const features = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
@@ -329,7 +332,7 @@ class UtilsViewModel extends declared(Accessor) {
                                     q.geometry = features[0].geometry;
                                     q.spatialRelationship = "contains";
                                     const oldaddresses = addressLayer.queryFeatures(q);
-                                    const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);
+                                    const newAddresses = this._getFeaturesWithin(this.newAddressLayer, q.geometry);
                                     Promise.all([oldaddresses, newAddresses])
                                     .then(results => {
                                         const features = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
@@ -366,7 +369,7 @@ class UtilsViewModel extends declared(Accessor) {
                 q.outFields = ["*"];
                 q.spatialRelationship = "contains";
                 const oldaddresses = addressLayer.queryFeatures(q);
-                const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);//this.addressGraphicsLayer.queryFeatures(q);
+                const newAddresses = this._getFeaturesWithin(this.newAddressLayer, q.geometry);//this.addressGraphicsLayer.queryFeatures(q);
                 Promise.all([oldaddresses, newAddresses]).then(results => {
                     const features = [...(results[0] as any).features, ...(results[1] as any).features].filter(Boolean);
                     
@@ -682,7 +685,7 @@ class UtilsViewModel extends declared(Accessor) {
                     q.outFields = ["*"];
                     q.spatialRelationship = "contains";
                     const oldaddresses = addressLayer.queryFeatures(q);
-                    const newAddresses = this._getFeaturesWithin(this.addressGraphicsLayer, q.geometry);
+                    const newAddresses = this._getFeaturesWithin(this.newAddressLayer, q.geometry);
                     Promise.all([oldaddresses, newAddresses])
                     .then(
                         results => {

@@ -73,6 +73,10 @@ import { rejects } from "assert";
     selectedAddressPointFeature: Feature;
 
     @property()
+    @aliasOf("viewModel.newAddressGraphicsLayer")
+    newAddressGraphicsLayer: GraphicsLayer;
+
+    @property()
     @aliasOf("viewModel.labelsGraphicsLayer")
     labelsGraphicsLayer: GraphicsLayer;
 
@@ -161,6 +165,9 @@ import { rejects } from "assert";
             this.roadsLayer = getLayer("roadsegment");
             this.parcelsLayer = getLayer("parcel");
             
+            this.newAddressGraphicsLayer = new GraphicsLayer();
+            this.mapView.map.layers.add(this.newAddressGraphicsLayer);
+
             this.labelsGraphicsLayer = new GraphicsLayer();
             this.mapView.map.layers.add(this.labelsGraphicsLayer);
             DropDownItemMenu.LabelsGraphicsLayer = this.labelsGraphicsLayer;
@@ -203,7 +210,7 @@ import { rejects } from "assert";
             })
         
 
-            this.UtilsVM = new UtilsViewModel({mapView:this.mapView, roadsLayer: this.roadsLayer});
+            // this.UtilsVM = new UtilsViewModel({mapView:this.mapView, roadsLayer: this.roadsLayer, newAddressLayer: this.newAddressGraphicsLayer});
 
             this.addressPointFeatures.watch("length", (newValue) => {
                 html.setStyle(this.zoomBtn, "display", newValue > 0 ? "": "none");
@@ -360,7 +367,7 @@ import { rejects } from "assert";
             this.parcelsLayer = getLayer("parcel");
             this.roadFieldName = "fullname";
 
-            this.UtilsVM = new UtilsViewModel({mapView:this.mapView, roadsLayer: this.roadsLayer});
+            this.UtilsVM = new UtilsViewModel({mapView:this.mapView, roadsLayer: this.roadsLayer, newAddressLayer: this.newAddressGraphicsLayer});
 
             // console.log("this.config", this.config);
             this.ignoreAttributes = this.config.ignoreAttributes;
@@ -591,7 +598,12 @@ import { rejects } from "assert";
                 roadsLayer: this.roadsLayer,
                 parcelsLayer: this.parcelsLayer,
                 roadFieldName: this.roadFieldName,
-                onClose: () => { html.removeClass(this.moreToolsButton, "active") },
+                onClose: () => { 
+                    html.removeClass(this.moreToolsButton, "active");
+                    if(this.addressPointFeatures.length > 0) {
+                        this._populateAddressTable(0);
+                    }
+                },
                 container: element as HTMLElement
             });
         });
@@ -616,7 +628,9 @@ import { rejects } from "assert";
                         originalValues: {"status" : ""},
                         Dirty: true
                     } as any;
-                    this.mapView.graphics.add(feature);
+                    // this.mapView.graphics.add(feature);
+                    feature.layer = this.newAddressGraphicsLayer;
+                    this.newAddressGraphicsLayer.add(feature);
                     this.addressPointFeatures.push(feature);
                 });
                 this._populateAddressTable(0);
@@ -771,6 +785,7 @@ import { rejects } from "assert";
             if(!domClass.contains(event.target, "blankBtn")) return;
 
             this.mapView.graphics.removeAll();
+            this.newAddressGraphicsLayer.removeAll(); // ?
             this.addressPointFeatures.forEach((feature: any) => {
                 if (this.canDelete(feature)) {
                     this._RemoveGraphic(feature);
