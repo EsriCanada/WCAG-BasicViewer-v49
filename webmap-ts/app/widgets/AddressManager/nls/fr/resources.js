@@ -24,8 +24,9 @@ define(
 
             save: "Sauver",
             saveAll: "Sauver tous",
+            skip: "Sauter",
 
-            displayBrokenRules : "Afficher les règles brisées",
+            displayBrokenRules: "Afficher les règles brisées",
 
         }
     })

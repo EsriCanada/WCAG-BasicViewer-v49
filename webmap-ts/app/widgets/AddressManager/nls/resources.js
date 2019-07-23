@@ -24,8 +24,9 @@ define({
 
             save: "Save",
             saveAll: "Save All",
+            skip: "Skip",
 
-            displayBrokenRules : "Display Broken Rules",
+            displayBrokenRules: "Display Broken Rules",
 
         }
     }),

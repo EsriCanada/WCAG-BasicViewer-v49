@@ -104,7 +104,6 @@ import { rejects } from "assert";
     private addressAttributes: any;
     private addressTable: any;
     private specialAttributes: any;
-    // private inputControls: any = {};
     private statusTable: any;
     private hiddenFields: any;
     private distanceBtn: HTMLElement;
@@ -114,7 +113,6 @@ import { rejects } from "assert";
     private addressPointCountEl: HTMLElement;
     private previousBtn: HTMLElement;
     private nextBtn: HTMLElement;
-    // private addressCopyAttributeNames: any[];
     private submitDelete: HTMLElement;
     private x: HTMLInputElement;
     private y: HTMLInputElement;
@@ -139,8 +137,7 @@ import { rejects } from "assert";
     private centerAll: HTMLElement;
     private moveAddressPointBtn: HTMLElement;
     private moveAllItem: HTMLElement;
-    confirmSaveBox: ConfirmSaveBox;
-    // private confirmBoxNode: HTMLElement;
+    private confirmSaveBox: ConfirmSaveBox;
 
     constructor() {
         super(); 
@@ -702,9 +699,8 @@ import { rejects } from "assert";
         this.own(on(this.saveBtn, "click", event => {
             if(!(html as any).hasClass(event.target, "blueBtn")) return;
 
-            const feature = this.selectedAddressPointFeature as any;
-
-            this.saveFeature(feature);
+            this.confirmSaveBox.showApplyAll(false);
+            this.saveFeature(this.selectedAddressPointFeature);
         }))
     }
 
@@ -779,6 +775,16 @@ import { rejects } from "assert";
 
     private _addSubmitAddressAll = (element: Element) => {
         this.submitAddressAll = element as HTMLElement;
+        this.own(on(this.submitAddressAll, "click", event => {
+            html.addClass(this.submitAddressAll, "active");
+            this.confirmSaveBox.showApplyAll(true);
+            for(let i = 0; i < this.addressPointFeatures.length; i++) {
+                this._populateAddressTable(i).then(feature => {
+                    this.saveFeature(feature);
+                });
+            }
+            html.removeClass(this.submitAddressAll, "active");
+        }))
     }
 
     private _addCancelBtn = (element: Element) => {
@@ -1104,82 +1110,85 @@ import { rejects } from "assert";
     }
 
     private _populateAddressTable(index: any) {
-        this.UtilsVM._removeMarker(this.UtilsVM.SELECTED_ADDRESS_SYMBOL.name);
+        return new Promise((resolve, reject) => {
+            this.UtilsVM._removeMarker(this.UtilsVM.SELECTED_ADDRESS_SYMBOL.name);
 
-        this.addressPointFeaturesIndex = index;
-        const feature = this.selectedAddressPointFeature = this.addressPointFeatures.toArray()[index] as any;
+            this.addressPointFeaturesIndex = index;
+            const feature = this.selectedAddressPointFeature = this.addressPointFeatures.toArray()[index] as any;
 
-        this.addressPointIndexEl.innerHTML = (this.addressPointFeaturesIndex + 1) + "";
+            this.addressPointIndexEl.innerHTML = (this.addressPointFeaturesIndex + 1) + "";
 
-        if(feature) {
-            const graphic = new Graphic({geometry: feature.geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
-            this.mapView.graphics.add(graphic as any);
+            if(feature) {
+                const graphic = new Graphic({geometry: feature.geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
+                this.mapView.graphics.add(graphic as any);
 
-            this.x.value = (feature as any).geometry["x"];
-            this.y.value = (feature as any).geometry["y"];
+                this.x.value = (feature as any).geometry["x"];
+                this.y.value = (feature as any).geometry["y"];
 
-            if ("originalValues" in feature && "geometry" in feature.originalValues) {
-                html.addClass(this.x, "dirty");
-                html.addClass(this.y, "dirty");
-            } else {
-                html.removeClass(this.x, "dirty");
-                html.removeClass(this.y, "dirty");
-            };
-
-            if ("attributes" in feature && feature.attributes) {
-                const attributes = feature.attributes
-                // if (this.config.title in attributes) {
-                //     // this.addressCompiler.set("address", feature.attributes[this.config.title]);
-                // }
-                if (!this.canDelete(feature)) {
-                    html.removeClass(this.submitDelete, "orangeBtn");
+                if ("originalValues" in feature && "geometry" in feature.originalValues) {
+                    html.addClass(this.x, "dirty");
+                    html.addClass(this.y, "dirty");
                 } else {
-                    html.addClass(this.submitDelete, "orangeBtn");
-                }
+                    html.removeClass(this.x, "dirty");
+                    html.removeClass(this.y, "dirty");
+                };
 
-                for (let fieldName in this.inputControls) {
-                    if (fieldName in this.inputControls) {
-                        const input = this.inputControls[fieldName];
-
-                        if (fieldName in attributes) {
-                            if (input.type === "date") {
-                                input.value = new Date(attributes[fieldName]).toInputDate()
-                            } else {
-                                input.value = attributes[fieldName];
-                            }
-                        } else {
-                            input.value = null;
-                        }
-                        input.title = input.value;
-
-                        if ("originalValues" in feature && fieldName in feature.originalValues && feature.originalValues[fieldName] != input.value) {
-                            html.addClass(input, "dirty");
-                        } else {
-                            html.removeClass(input, "dirty");
-                        };
+                if ("attributes" in feature && feature.attributes) {
+                    const attributes = feature.attributes
+                    // if (this.config.title in attributes) {
+                    //     // this.addressCompiler.set("address", feature.attributes[this.config.title]);
+                    // }
+                    if (!this.canDelete(feature)) {
+                        html.removeClass(this.submitDelete, "orangeBtn");
+                    } else {
+                        html.addClass(this.submitDelete, "orangeBtn");
                     }
+
+                    for (let fieldName in this.inputControls) {
+                        if (fieldName in this.inputControls) {
+                            const input = this.inputControls[fieldName];
+
+                            if (fieldName in attributes) {
+                                if (input.type === "date") {
+                                    input.value = new Date(attributes[fieldName]).toInputDate()
+                                } else {
+                                    input.value = attributes[fieldName];
+                                }
+                            } else {
+                                input.value = null;
+                            }
+                            input.title = input.value;
+
+                            if ("originalValues" in feature && fieldName in feature.originalValues && feature.originalValues[fieldName] != input.value) {
+                                html.addClass(input, "dirty");
+                            } else {
+                                html.removeClass(input, "dirty");
+                            };
+                        }
+                    }
+
+                    this.addressCompiler.evaluate(feature);
                 }
 
-                this.addressCompiler.evaluate(feature);
+                const menuBtns = query(".dropdown");
+                menuBtns.forEach(menu=> {
+                    const field = ((menu as HTMLElement).children[0] as HTMLElement).dataset["field"];
+                    if((field !="x" && field !="y") || this.addressPointFeatures.length > 1) {
+                        html.removeClass(menu, "hide");
+                    } else {
+                        html.addClass(menu, "hide");
+                    }
+                })
+                this._setDirtyBtns();
+                this._checkRules(feature);
+                resolve(feature);
+            } else {
+                this._clearForm();
+                reject("No features selected")
             }
-
-            const menuBtns = query(".dropdown");
-            menuBtns.forEach(menu=> {
-                const field = ((menu as HTMLElement).children[0] as HTMLElement).dataset["field"];
-                if((field !="x" && field !="y") || this.addressPointFeatures.length > 1) {
-                    html.removeClass(menu, "hide");
-                } else {
-                    html.addClass(menu, "hide");
-                }
-            })
-
-        } else {
-            this._clearForm();
-        }
-        this._setDirtyBtns();
-        this._checkRules(feature);
-        // this._showLoading(false);
-        // this.mapView.popup.autoOpenEnabled = true; // ?
+            // this._showLoading(false);
+            // this.mapView.popup.autoOpenEnabled = true; // ?
+        })
     }
 
     private _clearForm() {

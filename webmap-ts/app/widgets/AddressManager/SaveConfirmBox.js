@@ -26,6 +26,20 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
         function SaveConfirmBox() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
             _this.Response = null;
+            _this.showingApplyToAll = false;
+            _this.showApplyAll = function (show) {
+                if (_this.showingApplyToAll = show) {
+                    html.removeClass(_this.applyToAllLabel, "hide");
+                    _this.applyToAll.checked = false;
+                }
+                else {
+                    html.addClass(_this.applyToAllLabel, "hide");
+                }
+            };
+            _this._addApplyToAll = function (element) {
+                _this.applyToAllLabel = element;
+                _this.applyToAll = _this.applyToAllLabel.firstChild;
+            };
             _this._addConfirmBox = function (element) {
                 _this.confirmBox = element;
             };
@@ -85,8 +99,8 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                         widget_1.tsx("div", { class: "footer" },
                             widget_1.tsx("input", { type: "button", afterCreate: this._addSaveConfirmBtn, style: "justify-self: left;", class: "orangeBtn", value: i18nCommon.save }),
                             widget_1.tsx("input", { type: "button", afterCreate: this._addSaveConfirmSafeBtn, style: "justify-self: left;", class: "greenBtn", value: i18n.addressManager.saveSafe }),
-                            widget_1.tsx("input", { type: "button", afterCreate: this._addCancelSaveBtn, style: "justify-self: right; grid-column-start: 5", class: "blankBtn", value: i18nCommon.cancel }),
-                            widget_1.tsx("label", null,
+                            widget_1.tsx("input", { type: "button", afterCreate: this._addCancelSaveBtn, style: "justify-self: right; grid-column-start: 5", class: "blankBtn", value: i18n.addressManager.skip }),
+                            widget_1.tsx("label", { afterCreate: this._addApplyToAll, class: "hide" },
                                 widget_1.tsx("input", { type: "checkbox" }),
                                 i18n.addressManager.applyToAll))))));
         };
@@ -97,6 +111,9 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
         __decorate([
             decorators_1.property()
         ], SaveConfirmBox.prototype, "Response", void 0);
+        __decorate([
+            decorators_1.property("readonly")
+        ], SaveConfirmBox.prototype, "showingApplyToAll", void 0);
         SaveConfirmBox = SaveConfirmBox_1 = __decorate([
             decorators_1.subclass("esri.widgets.SaveConfirmBox")
         ], SaveConfirmBox);
