@@ -85,7 +85,10 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                         widget_1.tsx("div", { class: "footer" },
                             widget_1.tsx("input", { type: "button", afterCreate: this._addSaveConfirmBtn, style: "justify-self: left;", class: "orangeBtn", value: i18nCommon.save }),
                             widget_1.tsx("input", { type: "button", afterCreate: this._addSaveConfirmSafeBtn, style: "justify-self: left;", class: "greenBtn", value: i18n.addressManager.saveSafe }),
-                            widget_1.tsx("input", { type: "button", afterCreate: this._addCancelSaveBtn, style: "justify-self: right; grid-column-start: 5", class: "blankBtn", value: i18nCommon.cancel }))))));
+                            widget_1.tsx("input", { type: "button", afterCreate: this._addCancelSaveBtn, style: "justify-self: right; grid-column-start: 5", class: "blankBtn", value: i18nCommon.cancel }),
+                            widget_1.tsx("label", null,
+                                widget_1.tsx("input", { type: "checkbox" }),
+                                i18n.addressManager.applyToAll))))));
         };
         var SaveConfirmBox_1;
         SaveConfirmBox.SAVE = "SAVE";

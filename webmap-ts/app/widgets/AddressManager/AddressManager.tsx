@@ -73,6 +73,10 @@ import { rejects } from "assert";
     selectedAddressPointFeature: Feature;
 
     @property()
+    @aliasOf("viewModel.newAddressGraphicsLayer")
+    newAddressGraphicsLayer: GraphicsLayer;
+
+    @property()
     @aliasOf("viewModel.labelsGraphicsLayer")
     labelsGraphicsLayer: GraphicsLayer;
 
@@ -161,6 +165,9 @@ import { rejects } from "assert";
             this.roadsLayer = getLayer("roadsegment");
             this.parcelsLayer = getLayer("parcel");
             
+            this.newAddressGraphicsLayer = new GraphicsLayer();
+            this.mapView.map.layers.add(this.newAddressGraphicsLayer);
+
             this.labelsGraphicsLayer = new GraphicsLayer();
             this.mapView.map.layers.add(this.labelsGraphicsLayer);
             DropDownItemMenu.LabelsGraphicsLayer = this.labelsGraphicsLayer;
@@ -203,7 +210,7 @@ import { rejects } from "assert";
             })
         
 
-            this.UtilsVM = new UtilsViewModel({mapView:this.mapView, roadsLayer: this.roadsLayer});
+            // this.UtilsVM = new UtilsViewModel({mapView:this.mapView, roadsLayer: this.roadsLayer, newAddressLayer: this.newAddressGraphicsLayer});
 
             this.addressPointFeatures.watch("length", (newValue) => {
                 html.setStyle(this.zoomBtn, "display", newValue > 0 ? "": "none");
@@ -250,14 +257,14 @@ import { rejects } from "assert";
 
                 <div afterCreate={this._addHiddenFields} style="display:none;"></div>
 
-                <h1 class="addressTitle" afterCreate={this._addAddressTitle}>[Full Address]</h1>
+                <h1 class="addressTitle" afterCreate={this._addAddressTitle}></h1>
                 <div class="tables" data-dojo-attach-point="AddressManager_Tables">
                 
                     <table data-dojo-attach-point="locationTable">
-                        <caption><h2>Location</h2></caption>
+                        <caption><h2>{i18n.addressManager.location}</h2></caption>
                         <tr>
                             <th>
-                                <div><label for="x_input">x:</label>
+                                <div><label for="x_input">x</label>
                                     <div style="float:right;">
                                         <input type="image" src="../images/icons_transp/centroid.bgwhite.24.png" title="Centroid" aria-label="Place Address Point to Centroid" afterCreate={this._addCentroidBtn} class="rowImg"/>
                                         <input type="image" src="../images/icons_transp/movePoint.bgwhite.24.png" title="Move" aria-label="Move Address Point" afterCreate={this._addMoveAddressPointBtn} data-dojo-attach-point="moveAddressPoint" class="rowImg"/>
@@ -285,7 +292,7 @@ import { rejects } from "assert";
                             </td>
                         </tr>
                         <tr>
-                            <th><label for="y_input">y:</label></th>
+                            <th><label for="y_input">y</label></th>
                             <td>
                                 <div class="dataCell-container">
                                     <input type="text" id="y_input" class="dataCell-input" afterCreate={this._addY}/>
@@ -307,17 +314,18 @@ import { rejects } from "assert";
                     </table>
 
                     <table id="addressTable" afterCreate={this._addAddressTable}>
-                        <caption><h2>Address Fields</h2></caption>
+                        <caption><h2>{i18n.addressManager.addressFields}</h2></caption>
                     </table>
                     <table id="statusTable" afterCreate={this._addStatusTable}>
-                        <caption><h2>Status</h2></caption>
+                        <caption><h2>{i18n.addressManager.status}</h2></caption>
                     </table>
                 </div>
     
                 <div afterCreate={this._addDisplayBrokenRules} class="displayBrokenRules hide">
                     <h1>{i18n.addressManager.brokenRules}</h1>
                     <ul afterCreate={this._addBrokenRulesAlert}></ul>
-                    </div>
+                </div>
+
                 <div class="footer footer5cells">
                     <input type="button" id="sumbitAddressForm" afterCreate={this._addSaveBtn} style="justify-self: left;" value="Save"/>
                     <input type="button" id="sumbitAddressAll" afterCreate={this._addSubmitAddressAll} style="justify-self: left;" data-dojo-attach-event="onclick:_onSubmitSaveAllClicked" value="Save All"/>
@@ -360,7 +368,7 @@ import { rejects } from "assert";
             this.parcelsLayer = getLayer("parcel");
             this.roadFieldName = "fullname";
 
-            this.UtilsVM = new UtilsViewModel({mapView:this.mapView, roadsLayer: this.roadsLayer});
+            this.UtilsVM = new UtilsViewModel({mapView:this.mapView, roadsLayer: this.roadsLayer, newAddressLayer: this.newAddressGraphicsLayer});
 
             // console.log("this.config", this.config);
             this.ignoreAttributes = this.config.ignoreAttributes;
@@ -591,7 +599,12 @@ import { rejects } from "assert";
                 roadsLayer: this.roadsLayer,
                 parcelsLayer: this.parcelsLayer,
                 roadFieldName: this.roadFieldName,
-                onClose: () => { html.removeClass(this.moreToolsButton, "active") },
+                onClose: () => { 
+                    html.removeClass(this.moreToolsButton, "active");
+                    if(this.addressPointFeatures.length > 0) {
+                        this._populateAddressTable(0);
+                    }
+                },
                 container: element as HTMLElement
             });
         });
@@ -616,7 +629,9 @@ import { rejects } from "assert";
                         originalValues: {"status" : ""},
                         Dirty: true
                     } as any;
-                    this.mapView.graphics.add(feature);
+                    // this.mapView.graphics.add(feature);
+                    feature.layer = this.newAddressGraphicsLayer;
+                    this.newAddressGraphicsLayer.add(feature);
                     this.addressPointFeatures.push(feature);
                 });
                 this._populateAddressTable(0);
@@ -771,6 +786,7 @@ import { rejects } from "assert";
             if(!domClass.contains(event.target, "blankBtn")) return;
 
             this.mapView.graphics.removeAll();
+            this.newAddressGraphicsLayer.removeAll(); // ?
             this.addressPointFeatures.forEach((feature: any) => {
                 if (this.canDelete(feature)) {
                     this._RemoveGraphic(feature);
@@ -1342,7 +1358,7 @@ import { rejects } from "assert";
         const labelContainer = html.create("div", {}, head);
         const label = html.create("label", {
             for: field.name + "_input",
-            innerHTML: field.alias + ":"
+            innerHTML: field.alias
         }, labelContainer);
         const labelBtns = html.create("div", {}, labelContainer);
 

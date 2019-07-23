@@ -54,6 +54,9 @@ class AddressManagerViewModel extends declared(Accessor) {
     parcelsLayer: FeatureLayer;
   
     @property()
+    newAddressGraphicsLayer: GraphicsLayer;
+
+    @property()
     labelsGraphicsLayer: GraphicsLayer;
 
     @property()
