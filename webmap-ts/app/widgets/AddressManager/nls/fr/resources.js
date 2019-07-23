@@ -18,6 +18,9 @@ define(
             saveSafe: "Pour réviser",
             applyToAll: "Appliquer à tous",
 
+            location: "Position",
+            addressFields: "Étiquettes d'adresse",
+            status: "Condition",
         }
     })
 );

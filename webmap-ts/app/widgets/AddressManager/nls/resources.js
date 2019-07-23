@@ -17,6 +17,10 @@ define({
 
             saveSafe: "Save as To Review",
             applyToAll: "Apply to All",
+
+            location: "Location",
+            addressFields: "Address Fields",
+            status: "Status",
         }
     }),
     "ar": 1,
