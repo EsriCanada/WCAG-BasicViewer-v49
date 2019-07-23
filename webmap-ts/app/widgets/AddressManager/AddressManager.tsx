@@ -329,10 +329,10 @@ import { rejects } from "assert";
 
                 <div class="footer footer5cells">
                     <input type="button" id="sumbitAddressForm" afterCreate={this._addSaveBtn} style="justify-self: left;" value={i18n.addressManager.save}/>
-                    <input type="button" id="sumbitAddressAll" afterCreate={this._addSubmitAddressAll} style="justify-self: left;" data-dojo-attach-event="onclick:_onSubmitSaveAllClicked" value={i18n.addressManager.saveAll}/>
-                    <input type="image" src="../images/icons_transp/verify.bgwhite.24.png" alt="Broken Rules" afterCreate={this._addVerifyRules} style="justify-self: center;" class="verifyBtn" title={i18n.addressManager.displayBrokenRules} />
-                    <input type="button" id="Delete" afterCreate={this._addSubmitDelete} style="justify-self: right;" data-dojo-attach-event="onclick:_onDeleteClicked" value={i18nCommon.delete}/>
-                    <input type="button" id="Cancel" afterCreate={this._addCancelBtn} style="justify-self: right; grid-column-start: 5" data-dojo-attach-event="onclick:_onCancelClicked" value={i18nCommon.cancel}/>
+                    <input type="button" id="sumbitAddressAll" afterCreate={this._addSubmitAddressAll} style="justify-self: left;" value={i18n.addressManager.saveAll}/>
+                    <input type="image" src="../images/icons_transp/verify.bgwhite.24.png" alt={i18n.addressManager.displayBrokenRules} afterCreate={this._addVerifyRules} style="justify-self: center;" class="verifyBtn" title={i18n.addressManager.displayBrokenRules} />
+                    <input type="button" id="Delete" afterCreate={this._addSubmitDelete} style="justify-self: right;" value={i18nCommon.delete}/>
+                    <input type="button" id="Cancel" afterCreate={this._addCancelBtn} style="justify-self: right; grid-column-start: 5" value={i18nCommon.cancel}/>
                 </div>
 
             </div> 
@@ -1214,13 +1214,17 @@ import { rejects } from "assert";
         })
 
         this.UtilsVM.selectedParcelsGraphic = null;
+
+        html.removeClass(this.verifyRules, "active");
+        this.brokenRulesAlert.innerHTML = "";
+        this.verifyRules.title = i18n.addressManager.displayBrokenRules;
     }
 
     private _checkRules(feature): Promise<string[]> {
         return new Promise((resolve, reject) => {
             html.removeClass(this.verifyRules, "active");
             this.brokenRulesAlert.innerHTML = "";
-            this.verifyRules.title = i18n.addressManager.verifyRecord;
+            this.verifyRules.title = i18n.addressManager.displayBrokenRules;
             //"Verify Address Point Record";
 
             const brokenRules = [];
