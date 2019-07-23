@@ -21,6 +21,12 @@ define({
             location: "Location",
             addressFields: "Address Fields",
             status: "Status",
+
+            save: "Save",
+            saveAll: "Save All",
+
+            displayBrokenRules : "Display Broken Rules",
+
         }
     }),
     "ar": 1,

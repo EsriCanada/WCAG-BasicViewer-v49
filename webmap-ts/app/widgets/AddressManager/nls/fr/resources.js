@@ -21,6 +21,12 @@ define(
             location: "Position",
             addressFields: "Étiquettes d'adresse",
             status: "Condition",
+
+            save: "Sauver",
+            saveAll: "Sauver tous",
+
+            displayBrokenRules : "Afficher les règles brisées",
+
         }
     })
 );
