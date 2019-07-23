@@ -68,7 +68,7 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                 if (title === void 0) { title = null; }
                 return new Promise(function (resolve, reject) {
                     if (rules == null || rules.length == 0) {
-                        resolve(_this.Response = SaveConfirmBox_1.SAVE);
+                        resolve(SaveConfirmBox_1.SAVE);
                     }
                     else {
                         _this.confirmBoxContent.innerHTML = rules.join("<br/>");
@@ -76,11 +76,13 @@ define(["require", "exports", "esri/core/tsSupport/declareExtendsHelper", "esri/
                         html.setStyle(_this.confirmBox, "display", "");
                         watchUtils.once(_this, "Response", function () {
                             html.setStyle(_this.confirmBox, "display", "none");
-                            if (_this.Response != SaveConfirmBox_1.CANCEL) {
-                                resolve(_this.Response);
+                            var response = _this.lastResponse = _this.Response;
+                            _this.Response = null;
+                            if (response != SaveConfirmBox_1.CANCEL) {
+                                resolve(response);
                             }
                             else {
-                                reject(_this.Response);
+                                reject(response);
                             }
                         });
                     }

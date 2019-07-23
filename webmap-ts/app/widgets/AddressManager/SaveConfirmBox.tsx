@@ -33,6 +33,7 @@ class SaveConfirmBox extends declared(Widget) {
     private saveConfirmSafeBtn: HTMLElement;
     private applyToAllLabel: HTMLElement;
     private applyToAll: HTMLInputElement;
+    lastResponse: string;
 
     render() {
         return ( 
@@ -100,17 +101,19 @@ class SaveConfirmBox extends declared(Widget) {
     public Ask = (rules: string[], title:string = null): Promise<string> => {
         return new Promise((resolve, reject) => {
             if(rules == null || rules.length == 0) {
-                resolve(this.Response = SaveConfirmBox.SAVE);
+                resolve(SaveConfirmBox.SAVE);
             } else {
                 this.confirmBoxContent.innerHTML = rules.join("<br/>");
                 this.Response = null;
                 html.setStyle(this.confirmBox, "display", "");
                 watchUtils.once(this, "Response", () => {
                     html.setStyle(this.confirmBox, "display", "none");
-                    if(this.Response != SaveConfirmBox.CANCEL) {
-                        resolve(this.Response);
+                    const response = this.lastResponse = this.Response;
+                    this.Response = null;
+                    if(response != SaveConfirmBox.CANCEL) {
+                        resolve(response);
                     } else {
-                        reject(this.Response);
+                        reject(response);
                     }
                 })
             }
