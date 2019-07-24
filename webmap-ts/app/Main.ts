@@ -255,6 +255,9 @@ class MapExample {
               }
           });
 
+          (mapView as __esri.MapView).ui.add("panelSearch", "top-right");
+          (mapView as __esri.MapView).ui.add("panelTools", "top-right");
+
           this.addSearch(this.config, mapView);
           this.createTools(mapView);
 
@@ -298,7 +301,6 @@ class MapExample {
         container:"panelSearch"});
       // console.log("MySearch", mySearch, mySearch.search);
       this.search = MySearch.search;
-      (mapView as __esri.MapView).ui.add("panelSearch", "top-right");
     });
   }
 
@@ -315,7 +317,7 @@ class MapExample {
         search: search, 
         container: "panelTools" })
       );
-      (mapView as __esri.MapView).ui.add("panelTools", "top-right");    });
+    });
   }
 
   private languageMenu = (config: ApplicationConfig) : void => {
