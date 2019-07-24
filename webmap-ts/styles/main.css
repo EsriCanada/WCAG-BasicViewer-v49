@@ -103,15 +103,15 @@ header.top-nav {
 }
 
 #panelTools {
-    min-height: 22px;
-    width: calc(100% - 4px);
+    /* min-height: 22px; */
+    /* width: calc(100% - 4px); */
     margin: 2px;
     clear: both
 }
 
 @media only screen and (min-width: 720px) {
     #panelTools {
-        min-height: 26px
+        /* min-height: 26px */
     }
 }
 
@@ -131,7 +131,7 @@ header.top-nav {
     background-color: transparent;
     cursor: pointer;
     position: relative;
-    display: inline-block
+    /* display: inline-block */
 }
 
 .panelTool input[type="image"] {
@@ -371,7 +371,8 @@ header.top-nav {
     -webkit-box-flex: 0;
     -ms-flex: 0;
     flex: 0;
-    white-space: nowrap
+    white-space: nowrap;
+    display: none;
 }
 
 .arcgisSearch .searchIcon {
