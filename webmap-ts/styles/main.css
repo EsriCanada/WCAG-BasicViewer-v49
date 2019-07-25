@@ -629,7 +629,7 @@ header.top-nav {
 
 @media only screen and (min-width: 720px) {
     .pageBody {
-        height: calc(100% - 29px)
+        height: calc(100% - 24px)
     }
 }
 
@@ -1560,7 +1560,7 @@ blockquote[lang] {
 }
 
 .AddressManager .footer {
-    padding: 12px;
+    padding: 10px;
     background: white;
     border-top: 1px solid #999999;
 }
