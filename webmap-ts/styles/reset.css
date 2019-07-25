@@ -1,0 +1,296 @@
+@import url("https://fonts.googleapis.com/css?family=Roboto+Condensed|Ubuntu+Mono");
+@import url("https://fonts.googleapis.com/css?family=Raleway:200,300,400,500,600,700");
+* {
+    outline-offset: -2px
+}
+
+.esri-input::-webkit-input-placeholder {
+    color: #000000cf
+}
+
+.esri-input:-ms-input-placeholder {
+    color: #000000cf
+}
+
+.esri-input::placeholder {
+    color: #000000cf
+}
+
+.esri-input:-ms-input-placeholder {
+    color: #000000cf
+}
+
+.esri-input::-ms-input-placeholder {
+    color: #000000cf
+}
+
+html,
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'Raleway', sans-serif;
+    -webkit-font-smoothing: antialiased
+}
+
+.esriPopup.light .actionsPane .action {
+    background-image: url("https://js.arcgis.com/3.12/esri/css/calcite/images/popup-sprite.png")
+}
+
+#loadingTitle {
+    display: none
+}
+
+blockquote {
+    -webkit-margin-before: 0;
+    -webkit-margin-after: 0;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+    margin-left: 0;
+    margin-right: 0;
+    font-style: italic
+}
+
+.claro .dijitArrowButtonInner {
+    width: auto;
+    height: auto;
+    margin: auto;
+    background-image: none;
+    background-repeat: no-repeat
+}
+
+.claro .dijitButton .dijitButtonNode,
+.claro .dijitDropDownButton .dijitButtonNode,
+.claro .dijitComboButton .dijitButtonNode,
+.claro .dijitToggleButton .dijitButtonNode {
+    color: #000000;
+    box-shadow: 0 0 0;
+    padding: 0;
+    background-color: transparent;
+    background-image: none
+}
+
+.claro .dijitButtonText {
+    padding: 4px 8px;
+    font-weight: bold
+}
+
+.arcgisSearch .showNoResults .noResultsMenu {
+    width: calc(100% - 6px);
+    margin: 0 2px
+}
+
+.esriRTL label.checkbox {
+    float: right
+}
+
+.esriRTL .checkbox {
+    float: right
+}
+
+.esriLegendServiceLabel {
+    -webkit-margin-before: 0;
+    -webkit-margin-after: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 2px;
+    margin: 0
+}
+
+:focus {
+    outline-width: 2px;
+    outline-offset: -1px;
+    outline-style: solid
+}
+
+.esri-input {
+    background-color: white !important;
+    color: black !important
+}
+
+.esri-input[type="text"],
+.esri-input[type="number"] {
+    height: initial;
+}
+
+.esri-search--multiple-sources .esri-search__input {
+    /* border-left: 0; */
+    border: none;
+}
+
+.esri-search__container {
+    /* -webkit-box-flex: 1 !important;
+    -ms-flex: 1 0 80% !important;
+    flex: 1 0 80% !important */
+    border-style: ridge;
+}
+
+.esri-search {
+    width: auto;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1
+}
+
+input.esri-input.esri-search__input::-webkit-input-placeholder {
+    color: #0f0f0f
+}
+
+.esri-icon-font-fallback-text {
+    color: black !important;
+    background: white !important
+}
+
+.esri-basemap-gallery__item {
+    border-left: 8px solid transparent
+}
+
+.esri-basemap-gallery__item-title {
+    font-size: 16px;
+    word-break: break-word;
+    padding: 8px
+}
+
+.esri-basemap-gallery__item .esri-basemap-gallery__item-title,
+.esri-basemap-gallery__item:focus .esri-basemap-gallery__item-title,
+.esri-basemap-gallery__item--selected .esri-basemap-gallery__item-title {
+    color: black
+}
+
+.esri-basemap-gallery {
+    color: black;
+    width: auto;
+    max-width: none
+}
+
+.esri-basemap-gallery__item-thumbnail {
+    height: 56px
+}
+
+.esri-widget__heading {
+    color: black
+}
+
+.esri-legend__service {
+    padding: 4px 4px;
+    border-bottom: 0
+}
+
+.esri-legend .esri-widget__heading {
+    padding: 2px 8px
+}
+
+.esri-legend__layer-caption {
+    padding: 0 0 4px 0;
+    font-weight: bold;
+    font-size: 16px
+}
+
+.esri-legend__layer-cell--info {
+    font-size: 16px;
+    padding-left: 7px;
+    padding-right: 7px;
+    word-wrap: normal;
+    word-break: normal;
+    max-width: inherit;
+    font-weight: normal
+}
+
+.esri-legend__layer-cell {
+    padding: 2px
+}
+
+.esri-print__header-title {
+    display: none
+}
+
+.esri-print__layout-tab[aria-selected="true"],
+.esri-print__layout-tab[aria-selected="true"]:hover {
+    background-color: #fff;
+    color: black;
+    border-color: black;
+    border-bottom-color: #fff;
+    border-radius: 5px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0
+}
+
+.esri-print__layout-tab {
+    color: black
+}
+
+.esri-print__layout-section,
+.esri-print__map-only-section {
+    border-top: 1px solid black
+}
+
+.esri-widget {
+    color: black;
+    font-size: 16px;
+    font-weight: bold
+}
+
+.esri-print__exported-file-link {
+    color: black;
+    font-size: 18px
+}
+
+.esri-print__layout-tab:focus {
+    outline-offset: -6px
+}
+
+.esri-input,
+.esri-select {
+    background-color: #fff;
+    border: 1px solid black;
+    color: black
+}
+
+.esri-print__advanced-options-button-title,
+.esri-print__advanced-options-container {
+    font-size: 16px;
+    color: black
+}
+
+.esri-print__advanced-options-section [class*="esri-icon"],
+.esri-print__size-container [class*="esri-icon"] {
+    color: black
+}
+
+input[type="checkbox"] {
+    height: 18px;
+    width: 18px;
+    border: 1px solid #bababa;
+    vertical-align: sub;
+    cursor: pointer
+}
+
+.esri-print__advanced-options-section {
+    background-color: transparent;
+    color: black;
+    border: 1px solid black;
+    border-radius: 5px
+}
+
+.esri-print {
+    margin: 2px
+}
+
+.esri-basemap-gallery__item:focus {
+    background-color: white
+}
+
+.esri-popup--is-docked.esri-popup__feature-menu,
+.esri-popup__feature-menu {
+    top: 40px !important
+}
+
+.esri-popup__button {
+    color: black
+}
+
+.esri-popup__action-image {
+    -webkit-box-flex: 0;
+    -ms-flex: none;
+    flex: none
+}

@@ -16,6 +16,7 @@ import ApplicationBase = require("ApplicationBase/ApplicationBase");
 
 import BorderContainer = require("dijit/layout/BorderContainer");
 import ContentPane = require("dojox/layout/ContentPane");
+import html = require("dojo/_base/html");
 import lang = require("dojo/_base/lang");
 import on = require("dojo/on");
 
@@ -254,6 +255,9 @@ class MapExample {
               }
           });
 
+          (mapView as __esri.MapView).ui.add("panelSearch", "top-right");
+          (mapView as __esri.MapView).ui.add("panelTools", "top-right");
+
           this.addSearch(this.config, mapView);
           this.createTools(mapView);
 
@@ -289,11 +293,15 @@ class MapExample {
 
   private search = new Deferred();
   private addSearch = (config: ApplicationConfig, mapView: __esri.MapView | __esri.SceneView) => {
-    require(["./widgets/MySearch/MySearch"], lang.hitch(this, function(MySearch) {
-      const mySearch = new MySearch({config: this.config, mapView: mapView, search:this.search, container:"panelSearch"});
+    require(["./widgets/MySearch/MySearch"], MySearch => {
+      const mySearch = new MySearch({
+        config: this.config, 
+        mapView: mapView, 
+        search: this.search, 
+        container:"panelSearch"});
       // console.log("MySearch", mySearch, mySearch.search);
       this.search = MySearch.search;
-    }));
+    });
   }
 
   private createTools = (mapView: __esri.MapView |__esri.SceneView) => {
@@ -302,7 +310,12 @@ class MapExample {
       "./widgets/toolbar/toolbar"
     ], (Toolbar) => {
       this.search.then(search => 
-      new Toolbar({ portal: this.base.portal, config: this.config, mapView: mapView, search: search, container: "panelTools" })
+      new Toolbar({ 
+        portal: this.base.portal, 
+        config: this.config, 
+        mapView: mapView, 
+        search: search, 
+        container: "panelTools" })
       );
     });
   }

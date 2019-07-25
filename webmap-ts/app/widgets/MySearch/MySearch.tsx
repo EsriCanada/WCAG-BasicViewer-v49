@@ -20,7 +20,6 @@ import { tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!../nls/resources");
 import { Has } from "../../utils";
-// import { Has } from "../../utils";
 
 @subclass("esri.widgets.Search")
 class Search extends declared(Widget) {
@@ -253,7 +252,7 @@ class Search extends declared(Widget) {
         // }
         if(!error.isNullOrWhiteSpace()) {
             console.log("Error", error);
-            alert("Error: "+error);
+            // alert("Error: "+error);
         }
     }
 
