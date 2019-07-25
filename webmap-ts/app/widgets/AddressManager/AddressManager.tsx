@@ -12,11 +12,12 @@ import domAttr = require("dojo/dom-attr");
 import { renderable, tsx } from "esri/widgets/support/widget";
 
 import i18n = require("dojo/i18n!./nls/resources");
+import i18nCommon = require("dojo/i18n!esri/nls/common");
 import FeatureLayer = require("esri/layers/FeatureLayer");
 import Field = require("esri/layers/support/Field");
 import UtilsViewModel = require("./UtilsViewModel");
 import AddressManagerViewModel = require("./AddressManagerViewModel");
-import ConfirmSaveBox = require("./SaveConfirmBox");
+import SaveConfirmBox = require("./SaveConfirmBox");
 import Graphic = require("esri/Graphic");
 import Feature = require("esri/widgets/Feature");
 import Collection = require("esri/core/Collection");
@@ -103,7 +104,6 @@ import { rejects } from "assert";
     private addressAttributes: any;
     private addressTable: any;
     private specialAttributes: any;
-    // private inputControls: any = {};
     private statusTable: any;
     private hiddenFields: any;
     private distanceBtn: HTMLElement;
@@ -113,12 +113,11 @@ import { rejects } from "assert";
     private addressPointCountEl: HTMLElement;
     private previousBtn: HTMLElement;
     private nextBtn: HTMLElement;
-    // private addressCopyAttributeNames: any[];
     private submitDelete: HTMLElement;
     private x: HTMLInputElement;
     private y: HTMLInputElement;
     private saveBtn: HTMLElement;
-    private submitAddressAll: HTMLElement;
+    private saveAllBtn: HTMLElement;
     private cancelBtn: HTMLElement;
     private verifyRules: HTMLElement;
     private brokenRulesAlert: HTMLElement;
@@ -138,8 +137,7 @@ import { rejects } from "assert";
     private centerAll: HTMLElement;
     private moveAddressPointBtn: HTMLElement;
     private moveAllItem: HTMLElement;
-    confirmSaveBox: ConfirmSaveBox;
-    // private confirmBoxNode: HTMLElement;
+    private saveConfirmBox: SaveConfirmBox;
 
     constructor() {
         super(); 
@@ -327,11 +325,11 @@ import { rejects } from "assert";
                 </div>
 
                 <div class="footer footer5cells">
-                    <input type="button" id="sumbitAddressForm" afterCreate={this._addSaveBtn} style="justify-self: left;" value="Save"/>
-                    <input type="button" id="sumbitAddressAll" afterCreate={this._addSubmitAddressAll} style="justify-self: left;" data-dojo-attach-event="onclick:_onSubmitSaveAllClicked" value="Save All"/>
-                    <input type="image" src="../images/icons_transp/verify.bgwhite.24.png" alt="Broken Rules" afterCreate={this._addVerifyRules} style="justify-self: center;" class="verifyBtn" title="Display Broken Rules" />
-                    <input type="button" id="Delete" afterCreate={this._addSubmitDelete} style="justify-self: right;" data-dojo-attach-event="onclick:_onDeleteClicked" value="Delete"/>
-                    <input type="button" id="Cancel" afterCreate={this._addCancelBtn} style="justify-self: right; grid-column-start: 5" data-dojo-attach-event="onclick:_onCancelClicked" value="Cancel"/>
+                    <input type="button" id="sumbitAddressForm" afterCreate={this._addSaveBtn} style="justify-self: left;" value={i18n.addressManager.save}/>
+                    <input type="button" id="sumbitAddressAll" afterCreate={this._addSaveAllBtn} style="justify-self: left;" value={i18n.addressManager.saveAll}/>
+                    <input type="image" src="../images/icons_transp/verify.bgwhite.24.png" alt={i18n.addressManager.displayBrokenRules} afterCreate={this._addVerifyRules} style="justify-self: center;" class="verifyBtn" title={i18n.addressManager.displayBrokenRules} />
+                    <input type="button" id="Delete" afterCreate={this._addSubmitDelete} style="justify-self: right;" value={i18nCommon.delete}/>
+                    <input type="button" id="Cancel" afterCreate={this._addCancelBtn} style="justify-self: right; grid-column-start: 5" value={i18nCommon.cancel}/>
                 </div>
 
             </div> 
@@ -701,83 +699,89 @@ import { rejects } from "assert";
         this.own(on(this.saveBtn, "click", event => {
             if(!(html as any).hasClass(event.target, "blueBtn")) return;
 
-            const feature = this.selectedAddressPointFeature as any;
-
-            this.saveFeature(feature);
+            this.saveConfirmBox.showApplyAll(false);
+            this.saveFeature(this.selectedAddressPointFeature);
         }))
     }
 
-    private saveFeature = (feature: any) => {
-        this._checkRules(feature).then(brokenRules => {
-            // console.log("Broken Rules", brokenRules.join("\n"));
-            this.confirmSaveBox.Ask(feature.attributes.status == 1 ? null : brokenRules)
-            .then(response => {
-                if(response == ConfirmSaveBox.SAVE_SAFE) {
-                    feature.attributes.status = 1;
-                }
-                let applyWhat = {};
-                if (this.canDelete(feature)) {
-                    applyWhat["addFeatures"] = [feature];
-                }
-                else {
-                    applyWhat["updateFeatures"] = [feature];
-                }
-                this.siteAddressPointLayer.applyEdits(applyWhat)
-                .then(results => {
-                    const { addFeatureResults, updateFeatureResults } = results;
-                    const [addedFeature] = addFeatureResults;
-                    if (addedFeature) {
-                        if (addedFeature.error) {
-                            throw (addedFeature.error);
-                        }
-                        this._RemoveGraphic(feature);
-                        feature.attributes['OBJECTID'] = addedFeature['objectId'];
-                        if (this.addressPointFeatures.length > 0 && this.selectedAddressPointFeature == feature) {
-                            (html.byId('OBJECTID_input') as HTMLInputElement).value = addedFeature['objectId'];
-                        }
-                        const q = this.siteAddressPointLayer.createQuery();
-                        q.outFields = ["*"];
-                        q.objectIds = [addedFeature['objectId']];
-                        q.returnGeometry = true;
-                        this.siteAddressPointLayer.queryFeatures(q).then(({ features }) => {
-                            if (features && features.length === 1) {
-                                this.mapView.graphics.remove(feature);
-                                feature.attributes = features[0].attributes;
-                                this.clearDirty(feature);
-                                this._populateAddressTable(this.addressPointFeaturesIndex);
-                            }
-                        });
+    private _addSaveAllBtn = (element: Element) => {
+        this.saveAllBtn = element as HTMLElement;
+        this.own(on(this.saveAllBtn, "click", async event => {
+            html.addClass(this.saveAllBtn, "active");
+            this.saveConfirmBox.showApplyAll(true);
+            for(let i = 0; i< this.addressPointFeatures.length; i++) {
+                await this.saveFeature(await this._populateAddressTable(i));
+            }
+            html.removeClass(this.saveAllBtn, "active");
+        }))
+    }
+
+    private saveFeature = async (feature: any) => {
+        const brokenRules = this._checkRules(feature);
+        // console.log("Broken Rules", brokenRules.join("\n"));
+        await this.saveConfirmBox.Ask(feature.attributes.status == 1 ? null : brokenRules)
+        .then(async response => {
+            if(response == SaveConfirmBox.SAVE_SAFE) {
+                feature.attributes.status = 1;
+            }
+            let applyWhat = {};
+            if (this.canDelete(feature)) {
+                applyWhat["addFeatures"] = [feature];
+            }
+            else {
+                applyWhat["updateFeatures"] = [feature];
+            }
+            await this.siteAddressPointLayer.applyEdits(applyWhat)
+            .then(results => {
+                const { addFeatureResults, updateFeatureResults } = results;
+                const [addedFeature] = addFeatureResults;
+                if (addedFeature) {
+                    if (addedFeature.error) {
+                        throw (addedFeature.error);
                     }
-                    const [updatedFeature] = updateFeatureResults;
-                    if (updatedFeature) {
-                        if (updatedFeature.error) {
-                            throw (updatedFeature.error);
-                        }
-                        this.clearDirty(feature);
-                        delete feature.originalValues;
-                        this._populateAddressTable(this.addressPointFeaturesIndex);
+                    this._RemoveGraphic(feature);
+                    feature.attributes['OBJECTID'] = addedFeature['objectId'];
+                    if (this.addressPointFeatures.length > 0 && this.selectedAddressPointFeature == feature) {
+                        (html.byId('OBJECTID_input') as HTMLInputElement).value = addedFeature['objectId'];
                     }
-                    // this._setDirtyBtns();
-                })
-                .catch(error => {
-                    console.error(`Save [ applyEdits ]: ${error}`);
-                });
+                    const q = this.siteAddressPointLayer.createQuery();
+                    q.outFields = ["*"];
+                    q.objectIds = [addedFeature['objectId']];
+                    q.returnGeometry = true;
+                    this.siteAddressPointLayer.queryFeatures(q).then(({ features }) => {
+                        if (features && features.length === 1) {
+                            this.mapView.graphics.remove(feature);
+                            feature.attributes = features[0].attributes;
+                            this.clearDirty(feature);
+                            this._populateAddressTable(this.addressPointFeaturesIndex);
+                        }
+                    });
+                }
+                const [updatedFeature] = updateFeatureResults;
+                if (updatedFeature) {
+                    if (updatedFeature.error) {
+                        throw (updatedFeature.error);
+                    }
+                    this.clearDirty(feature);
+                    delete feature.originalValues;
+                    this._populateAddressTable(this.addressPointFeaturesIndex);
+                }
+                // this._setDirtyBtns();
             })
             .catch(error => {
-                if(error != ConfirmSaveBox.CANCEL) {
-                    console.error("Save", error);
-                }
+                console.error(`Save [ applyEdits ]: ${error}`);
             });
         })
+        .catch(error => {
+            if(error != SaveConfirmBox.CANCEL) {
+                console.error("Save", error);
+            }
+        });
     }
 
     private _addConfirmBoxNode = (element: Element) => {
         // this.confirmBoxNode = element as HTMLElement;
-        this.confirmSaveBox = new ConfirmSaveBox({container:element as HTMLElement});
-    }
-
-    private _addSubmitAddressAll = (element: Element) => {
-        this.submitAddressAll = element as HTMLElement;
+        this.saveConfirmBox = new SaveConfirmBox({container:element as HTMLElement});
     }
 
     private _addCancelBtn = (element: Element) => {
@@ -1102,83 +1106,87 @@ import { rejects } from "assert";
         return statusFields;
     }
 
-    private _populateAddressTable(index: any) {
-        this.UtilsVM._removeMarker(this.UtilsVM.SELECTED_ADDRESS_SYMBOL.name);
+    private _populateAddressTable(index: any) : Promise<any> {
+        return new Promise((resolve, reject) => {
+            this.UtilsVM._removeMarker(this.UtilsVM.SELECTED_ADDRESS_SYMBOL.name);
 
-        this.addressPointFeaturesIndex = index;
-        const feature = this.selectedAddressPointFeature = this.addressPointFeatures.toArray()[index] as any;
+            this.addressPointFeaturesIndex = index;
+            const feature = this.selectedAddressPointFeature = this.addressPointFeatures.toArray()[index] as any;
 
-        this.addressPointIndexEl.innerHTML = (this.addressPointFeaturesIndex + 1) + "";
+            this.addressPointIndexEl.innerHTML = (this.addressPointFeaturesIndex + 1) + "";
 
-        if(feature) {
-            const graphic = new Graphic({geometry: feature.geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
-            this.mapView.graphics.add(graphic as any);
+            if(feature) {
+                const graphic = new Graphic({geometry: feature.geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
+                this.mapView.graphics.add(graphic as any);
 
-            this.x.value = (feature as any).geometry["x"];
-            this.y.value = (feature as any).geometry["y"];
+                this.x.value = (feature as any).geometry["x"];
+                this.y.value = (feature as any).geometry["y"];
 
-            if ("originalValues" in feature && "geometry" in feature.originalValues) {
-                html.addClass(this.x, "dirty");
-                html.addClass(this.y, "dirty");
-            } else {
-                html.removeClass(this.x, "dirty");
-                html.removeClass(this.y, "dirty");
-            };
-
-            if ("attributes" in feature && feature.attributes) {
-                const attributes = feature.attributes
-                // if (this.config.title in attributes) {
-                //     // this.addressCompiler.set("address", feature.attributes[this.config.title]);
-                // }
-                if (!this.canDelete(feature)) {
-                    html.removeClass(this.submitDelete, "orangeBtn");
+                if ("originalValues" in feature && "geometry" in feature.originalValues) {
+                    html.addClass(this.x, "dirty");
+                    html.addClass(this.y, "dirty");
                 } else {
-                    html.addClass(this.submitDelete, "orangeBtn");
-                }
+                    html.removeClass(this.x, "dirty");
+                    html.removeClass(this.y, "dirty");
+                };
 
-                for (let fieldName in this.inputControls) {
-                    if (fieldName in this.inputControls) {
-                        const input = this.inputControls[fieldName];
-
-                        if (fieldName in attributes) {
-                            if (input.type === "date") {
-                                input.value = new Date(attributes[fieldName]).toInputDate()
-                            } else {
-                                input.value = attributes[fieldName];
-                            }
-                        } else {
-                            input.value = null;
-                        }
-                        input.title = input.value;
-
-                        if ("originalValues" in feature && fieldName in feature.originalValues && feature.originalValues[fieldName] != input.value) {
-                            html.addClass(input, "dirty");
-                        } else {
-                            html.removeClass(input, "dirty");
-                        };
+                if ("attributes" in feature && feature.attributes) {
+                    const attributes = feature.attributes
+                    // if (this.config.title in attributes) {
+                    //     // this.addressCompiler.set("address", feature.attributes[this.config.title]);
+                    // }
+                    if (!this.canDelete(feature)) {
+                        html.removeClass(this.submitDelete, "orangeBtn");
+                    } else {
+                        html.addClass(this.submitDelete, "orangeBtn");
                     }
+
+                    for (let fieldName in this.inputControls) {
+                        if (fieldName in this.inputControls) {
+                            const input = this.inputControls[fieldName];
+
+                            if (fieldName in attributes) {
+                                if (input.type === "date") {
+                                    input.value = new Date(attributes[fieldName]).toInputDate()
+                                } else {
+                                    input.value = attributes[fieldName];
+                                }
+                            } else {
+                                input.value = null;
+                            }
+                            input.title = input.value;
+
+                            if ("originalValues" in feature && fieldName in feature.originalValues && feature.originalValues[fieldName] != input.value) {
+                                html.addClass(input, "dirty");
+                            } else {
+                                html.removeClass(input, "dirty");
+                            };
+                        }
+                    }
+
+                    this.addressCompiler.evaluate(feature);
                 }
 
-                this.addressCompiler.evaluate(feature);
+                const menuBtns = query(".dropdown");
+                menuBtns.forEach(menu=> {
+                    const field = ((menu as HTMLElement).children[0] as HTMLElement).dataset["field"];
+                    if((field !="x" && field !="y") || this.addressPointFeatures.length > 1) {
+                        html.removeClass(menu, "hide");
+                    } else {
+                        html.addClass(menu, "hide");
+                    }
+                })
+                this._setDirtyBtns();
+                this._checkRules(feature);
+
+                resolve(feature)
+            } else {
+                this._clearForm();
+                reject("No features selected");
             }
-
-            const menuBtns = query(".dropdown");
-            menuBtns.forEach(menu=> {
-                const field = ((menu as HTMLElement).children[0] as HTMLElement).dataset["field"];
-                if((field !="x" && field !="y") || this.addressPointFeatures.length > 1) {
-                    html.removeClass(menu, "hide");
-                } else {
-                    html.addClass(menu, "hide");
-                }
-            })
-
-        } else {
-            this._clearForm();
-        }
-        this._setDirtyBtns();
-        this._checkRules(feature);
-        // this._showLoading(false);
-        // this.mapView.popup.autoOpenEnabled = true; // ?
+            // this._showLoading(false);
+            // this.mapView.popup.autoOpenEnabled = true; // ?
+        })
     }
 
     private _clearForm() {
@@ -1213,67 +1221,69 @@ import { rejects } from "assert";
         })
 
         this.UtilsVM.selectedParcelsGraphic = null;
+
+        html.removeClass(this.verifyRules, "active");
+        this.brokenRulesAlert.innerHTML = "";
+        this.verifyRules.title = i18n.addressManager.displayBrokenRules;
     }
 
-    private _checkRules(feature): Promise<string[]> {
-        return new Promise((resolve, reject) => {
-            html.removeClass(this.verifyRules, "active");
-            this.brokenRulesAlert.innerHTML = "";
-            this.verifyRules.title = i18n.addressManager.verifyRecord;
-            //"Verify Address Point Record";
+    private _checkRules(feature) {
+        html.removeClass(this.verifyRules, "active");
+        this.brokenRulesAlert.innerHTML = "";
+        this.verifyRules.title = i18n.addressManager.displayBrokenRules;
+        //"Verify Address Point Record";
 
-            const brokenRules = [];
-            if(feature) {
-                for (let fieldName in this.specialAttributes) {
-                    const input = this.inputControls[fieldName];
-                    if(input) {
-                        const alias = html.getAttr(input, "data-alias");
+        const brokenRules = [];
+        if(feature) {
+            for (let fieldName in this.specialAttributes) {
+                const input = this.inputControls[fieldName];
+                if(input) {
+                    const alias = html.getAttr(input, "data-alias");
 
-                        const fieldConfig = this.specialAttributes[fieldName];
-                        domAttr.set(input, "title", input.value);
-                        if ("required" in fieldConfig && fieldConfig["required"] && input.value.isNullOrWhiteSpace()) {
-                            const brokenRule = //"'{0}' is required but not provided."
-                            i18n.addressManager.requiredNotProvided.format(alias);
+                    const fieldConfig = this.specialAttributes[fieldName];
+                    domAttr.set(input, "title", input.value);
+                    if ("required" in fieldConfig && fieldConfig["required"] && input.value.isNullOrWhiteSpace()) {
+                        const brokenRule = //"'{0}' is required but not provided."
+                        i18n.addressManager.requiredNotProvided.format(alias);
+                        brokenRules.push(brokenRule);
+                        domAttr.set(input, "title", domAttr.get(input, "title") + "\n" + brokenRule);
+                        html.addClass(input, "brokenRule");
+                    } else {
+                        html.removeClass(input, "brokenRule");
+                        html.setAttr(input, "title", input.value);
+                    }
+                    if ("format"in fieldConfig) {
+                        if (!input.value.match(new RegExp(fieldConfig.format))) {
+                            let brokenRule = i18n.addressManager.incorrectFormat.format(alias);
+                            if ("placeholder" in fieldConfig) {
+                                brokenRule += i18n.addressManager.tryFormat.format(fieldConfig.placeholder);
+                            }
                             brokenRules.push(brokenRule);
                             domAttr.set(input, "title", domAttr.get(input, "title") + "\n" + brokenRule);
                             html.addClass(input, "brokenRule");
                         } else {
                             html.removeClass(input, "brokenRule");
-                            html.setAttr(input, "title", input.value);
-                        }
-                        if ("format"in fieldConfig) {
-                            if (!input.value.match(new RegExp(fieldConfig.format))) {
-                                let brokenRule = i18n.addressManager.incorrectFormat.format(alias);
-                                if ("placeholder" in fieldConfig) {
-                                    brokenRule += i18n.addressManager.tryFormat.format(fieldConfig.placeholder);
-                                }
-                                brokenRules.push(brokenRule);
-                                domAttr.set(input, "title", domAttr.get(input, "title") + "\n" + brokenRule);
-                                html.addClass(input, "brokenRule");
-                            } else {
-                                html.removeClass(input, "brokenRule");
-                                domAttr.set(input, "title", input.value);
-                            }
+                            domAttr.set(input, "title", input.value);
                         }
                     }
                 }
-
-                if (brokenRules.length > 0) {
-                    const messages = brokenRules.join("\n");
-                    this.verifyRules.title = messages;
-                    html.addClass(this.verifyRules, "active");
-                    brokenRules.forEach(msg => {
-                        this.brokenRulesAlert.innerHTML += "<li>"+msg+"</li>";
-                    });
-                    resolve(brokenRules);
-                } else {
-                    html.addClass(this.displayBrokenRules, "hide");
-                    resolve(brokenRules);
-                }
-            } else {
-                reject("No Feature Selected");
             }
-        })
+
+            if (brokenRules.length > 0) {
+                const messages = brokenRules.join("\n");
+                this.verifyRules.title = messages;
+                html.addClass(this.verifyRules, "active");
+                brokenRules.forEach(msg => {
+                    this.brokenRulesAlert.innerHTML += "<li>"+msg+"</li>";
+                });
+                return brokenRules;
+            } else {
+                html.addClass(this.displayBrokenRules, "hide");
+                return brokenRules;
+            }
+        } else {
+            return null;
+        }
     }
 
     private isDirty(feature) {
@@ -1282,7 +1292,7 @@ import { rejects } from "assert";
 
     private _setDirtyBtns() {
         html.removeClass(this.saveBtn, "blueBtn");
-        html.removeClass(this.submitAddressAll, "greenBtn");
+        html.removeClass(this.saveAllBtn, "greenBtn");
         html.removeClass(this.submitDelete, "orangeBtn");
         html.removeClass(this.cancelBtn, "blankBtn");
         if (this.addressPointFeatures.length > 0) {
@@ -1296,7 +1306,7 @@ import { rejects } from "assert";
         }
         this.addressPointFeatures.forEach(feature => {
                 if (this.selectedAddressPointFeature != feature && this.isDirty(feature)) {
-                    html.addClass(this.submitAddressAll, "greenBtn");
+                    html.addClass(this.saveAllBtn, "greenBtn");
                     // html.addClass(this.submitCancel, "blankBtn");
                 }
             })

@@ -23,11 +23,17 @@ class SaveConfirmBox extends declared(Widget) {
     @property()
     Response: string = null;
 
+    @property("readonly")
+    showingApplyToAll: boolean = false;
+    
     private confirmBox: HTMLElement;
     private confirmBoxContent: HTMLElement;
     private cancelSaveBtn: HTMLElement;
     private saveConfirmBtn: HTMLElement;
     private saveConfirmSafeBtn: HTMLElement;
+    private applyToAllLabel: HTMLElement;
+    private applyToAll: HTMLInputElement;
+    lastResponse: string;
 
     render() {
         return ( 
@@ -39,13 +45,28 @@ class SaveConfirmBox extends declared(Widget) {
                     <div class="footer">
                     <input type="button" afterCreate={this._addSaveConfirmBtn} style="justify-self: left;" class="orangeBtn" value={i18nCommon.save}/>
                     <input type="button" afterCreate={this._addSaveConfirmSafeBtn} style="justify-self: left;" class="greenBtn" value={i18n.addressManager.saveSafe}/>
-                    <input type="button" afterCreate={this._addCancelSaveBtn} style="justify-self: right; grid-column-start: 5" class="blankBtn"value={i18nCommon.cancel}/>
-                    <label><input type="checkbox"></input>{i18n.addressManager.applyToAll}</label>
+                    <input type="button" afterCreate={this._addCancelSaveBtn} style="justify-self: right; grid-column-start: 5" class="blankBtn" value={i18n.addressManager.skip}/>
+                    <label afterCreate={this._addApplyToAll} class="hide"><input type="checkbox"></input>{i18n.addressManager.applyToAll}</label>
                     </div>
                 </div>
                 </div>
             </div>
         )
+    }
+
+    public showApplyAll = show => {
+        if(this.showingApplyToAll = show) {
+            html.removeClass(this.applyToAllLabel, "hide");
+            this.applyToAll.checked = false;
+        }
+        else {
+            html.addClass(this.applyToAllLabel, "hide");
+        }
+    }
+
+    private _addApplyToAll = (element: Element) => {
+        this.applyToAllLabel = element as HTMLElement;
+        this.applyToAll = this.applyToAllLabel.firstChild as HTMLInputElement;
     }
 
     private _addConfirmBox = (element: Element) => {
@@ -80,17 +101,19 @@ class SaveConfirmBox extends declared(Widget) {
     public Ask = (rules: string[], title:string = null): Promise<string> => {
         return new Promise((resolve, reject) => {
             if(rules == null || rules.length == 0) {
-                resolve(this.Response = SaveConfirmBox.SAVE);
+                resolve(SaveConfirmBox.SAVE);
             } else {
                 this.confirmBoxContent.innerHTML = rules.join("<br/>");
                 this.Response = null;
                 html.setStyle(this.confirmBox, "display", "");
                 watchUtils.once(this, "Response", () => {
                     html.setStyle(this.confirmBox, "display", "none");
-                    if(this.Response != SaveConfirmBox.CANCEL) {
-                        resolve(this.Response);
+                    const response = this.lastResponse = this.Response;
+                    this.Response = null;
+                    if(response != SaveConfirmBox.CANCEL) {
+                        resolve(response);
                     } else {
-                        reject(this.Response);
+                        reject(response);
                     }
                 })
             }
