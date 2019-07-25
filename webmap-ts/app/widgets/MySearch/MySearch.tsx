@@ -252,7 +252,7 @@ class Search extends declared(Widget) {
         // }
         if(!error.isNullOrWhiteSpace()) {
             console.log("Error", error);
-            alert("Error: "+error);
+            // alert("Error: "+error);
         }
     }
 

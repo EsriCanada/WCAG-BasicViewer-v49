@@ -106,7 +106,8 @@ header.top-nav {
     /* min-height: 22px; */
     /* width: calc(100% - 4px); */
     margin: 2px;
-    clear: both
+    clear: both;
+    border-style: ridge;
 }
 
 @media only screen and (min-width: 720px) {
@@ -144,7 +145,8 @@ header.top-nav {
     .panelTool input[type="image"] {
         width: 24px;
         height: 24px;
-        float: left
+        float: left;
+        padding: 3px;
     }
 }
 
@@ -192,7 +194,7 @@ header.top-nav {
 
 @media only screen and (min-width: 720px) {
     #panelPages {
-        height: calc(100% - 28px)
+        height: 100%;
     }
 }
 
@@ -210,7 +212,8 @@ header.top-nav {
     #panelBottom {
         width: calc(100% - 8px);
         padding: 4px;
-        font-size: 17px
+        font-size: 17px;
+        display: none;
     }
 }
 
@@ -1357,7 +1360,7 @@ blockquote[lang] {
 .AddressManager .confirm .box .header {
     /* width: 100%; */
     flex-grow: 0;
-    padding: 12px;
+    padding: 8px;
     background: white;
     border-bottom: 1px solid #999999;
     line-height: 10px;
