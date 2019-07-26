@@ -130,7 +130,7 @@ class UtilsViewModel extends declared(Accessor) {
         return symb;
     }
 
-    SHOW_POINT = function(point, color, graphicsLayer: GraphicsLayer) {
+    SHOW_POINT = function(point, color = [255, 0, 0], width = 2, graphicsLayer: GraphicsLayer = this.mapView) {
         const symbol = {
             color: [255, 255, 255, 1],
             size: 5,
@@ -138,7 +138,7 @@ class UtilsViewModel extends declared(Accessor) {
             style: "circle",
             outline: {
                 color: color,
-                width: 2,
+                width: width,
                 style: "solid"
             }
         }
@@ -816,8 +816,7 @@ class UtilsViewModel extends declared(Accessor) {
                     this.SHOW_POINT(new Point({
                         x:p1.x, y:p1.y, 
                         spatialReference: this.mapView.spatialReference}
-                    ),
-                    [255, 0 , 0], this.mapView as any);
+                    ));
                     if(points.length>1) {
                         const dx = p1.x - points[0].x;
                         const dy = p1.y - points[0].y;
@@ -825,8 +824,7 @@ class UtilsViewModel extends declared(Accessor) {
                             this.SHOW_POINT(new Point({
                                     x:points[i].x+dx, y:points[i].y+dy, 
                                     spatialReference: this.mapView.spatialReference}
-                                ),
-                                [255, 0 , 0], this.mapView as any);
+                                ));
                             // this.SHOW_ARROW(points[i], new Point({
                             //     x:points[i].x+dx, y:points[i].y+dy, 
                             //     spatialReference: this.mapView.spatialReference}

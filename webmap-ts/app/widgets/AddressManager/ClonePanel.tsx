@@ -718,7 +718,7 @@ import { Geometry } from "esri/geometry";
                     point["attributes"]["name_body"] = this.roadCell.innerText;
                     point["attributes"]["status"] = 0;
 
-                    this.UtilsVM.SHOW_POINT(point, [0, 0, 0, 255], this.roadGraphicsLayer);
+                    this.UtilsVM.SHOW_POINT(point, [0, 0, 0, 255], 2, this.roadGraphicsLayer);
         
                     const label = this.UtilsVM.GET_LABEL_SYMBOL(point["attributes"]["add_num"]);
                     const graphic = new Graphic({geometry: point, symbol: label});
