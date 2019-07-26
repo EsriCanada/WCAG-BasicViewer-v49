@@ -19,6 +19,7 @@ import Graphic = require("esri/Graphic");
 import SimpleLineSymbol = require("esri/symbols/SimpleLineSymbol");
 import SimpleMarkerSymbol = require("esri/symbols/SimpleMarkerSymbol");
 import CursorToolTip = require("./CursorToolTip");
+import { rejects } from "assert";
 
 @subclass("esri.guide.UtilsViewModel")
 class UtilsViewModel extends declared(Accessor) {
@@ -34,6 +35,9 @@ class UtilsViewModel extends declared(Accessor) {
 
     @property()
     newAddressLayer: GraphicsLayer;
+
+    @property()
+    parcelsGraphicLayer: GraphicsLayer;
 
     @property({ readOnly: true })
     BUFFER_SYMBOL = {
@@ -561,7 +565,7 @@ class UtilsViewModel extends declared(Accessor) {
     private freeLine: Graphic;
     private selectedGeometries;
     
-    public PICK_PARCELS = (parcelsGraphicLayer): any => {
+    public PICK_PARCELS = (): any => {
         return new Promise((resolve, reject) => {
             if(this.pickParcels_draw && this.pickParcels_draw.activeAction) {
                 this.pickParcels_draw.reset();
@@ -629,7 +633,7 @@ class UtilsViewModel extends declared(Accessor) {
                             }
                             
 
-                            this.selectedGeometries = parcelsGraphicLayer.graphics
+                            this.selectedGeometries = this.parcelsGraphicLayer.graphics
                             .map(g => g.geometry)
                             .filter(g => {
                                 return geometryEngine.intersects(g, this.freeLine.geometry);
@@ -788,12 +792,42 @@ class UtilsViewModel extends declared(Accessor) {
                     })
                 }
 
+                const extentParcelGeometries = this.parcelsGraphicLayer.graphics.map(g => g.geometry).toArray();
+                var startParcel = extentParcelGeometries.find(g => geometryEngine.intersects(g, points[0]));
+                var allInside = (p1: Point) : boolean => {
+                    if(!startParcel) return true;
+
+                    const ps = [];
+                    const dx = p1.x - points[0].x;
+                    const dy = p1.y - points[0].y;
+                    for(let i=0; i<points.length; i++) {
+                        ps.push(new Point({
+                            x:points[i].x+dx, y:points[i].y+dy, 
+                            spatialReference: this.mapView.spatialReference}
+                        ));
+                    }
+
+                    this.mapView.graphics.removeAll();
+                    const isInside = ps.reduce((r, v) => r && geometryEngine.contains(startParcel, v), true);
+                    // this.SHOW_POINT(p1, isInside ? [255, 0, 0] : [0, 0, 255], 1);
+                    return isInside;
+                }
+                
+                
+                // geometryEngine.intersect(extentParcelGeometries, points[0]).find(p => p); 
+                console.log("startParcel", startParcel);
+
                 const drawAction = this.movePoint_draw.create("point");
                 drawAction.on("draw-complete", (event) => {
                     this.movePoint_draw.reset();
                     // this.mapView.graphics.removeAll();
                     const p1 = new Point({x: event.coordinates[0], y: event.coordinates[1], spatialReference: this.mapView.spatialReference});
                     // this.SHOW_ARROW(points[0], p1);
+                    if(!allInside(p1)) {
+                        reject("not all inside parcel");
+                        return;
+                    }
+
                     const ps = [p1];
                     if(points.length>1) {
                         const dx = p1.x - points[0].x;
@@ -810,13 +844,13 @@ class UtilsViewModel extends declared(Accessor) {
                 drawAction.on([
                     "cursor-update",
                 ], event => {
-                    this.mapView.graphics.removeAll();
                     const p1 = new Point({x: event.coordinates[0], y: event.coordinates[1], spatialReference: this.mapView.spatialReference});
+
+                    if(!allInside(p1)) return;
+
+                    this.mapView.graphics.removeAll();
                     // this.SHOW_ARROW(points[0], p1);
-                    this.SHOW_POINT(new Point({
-                        x:p1.x, y:p1.y, 
-                        spatialReference: this.mapView.spatialReference}
-                    ));
+                    this.SHOW_POINT(p1);
                     if(points.length>1) {
                         const dx = p1.x - points[0].x;
                         const dy = p1.y - points[0].y;

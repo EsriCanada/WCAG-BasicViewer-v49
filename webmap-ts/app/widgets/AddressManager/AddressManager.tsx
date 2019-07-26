@@ -367,7 +367,7 @@ import { rejects } from "assert";
             this.parcelsLayer = getLayer("parcel");
             this.roadFieldName = "fullname";
 
-            this.UtilsVM = new UtilsViewModel({mapView:this.mapView, roadsLayer: this.roadsLayer, newAddressLayer: this.newAddressGraphicsLayer});
+            this.UtilsVM = new UtilsViewModel({mapView:this.mapView, roadsLayer: this.roadsLayer, newAddressLayer: this.newAddressGraphicsLayer, parcelsGraphicLayer: this.parcelsGraphicLayer});
 
             // console.log("this.config", this.config);
             this.ignoreAttributes = this.config.ignoreAttributes;
@@ -497,7 +497,7 @@ import { rejects } from "assert";
 
     private _onPickAddressRangeClicked = (event) => {
         html.addClass(event.target, "active");
-        this.UtilsVM.PICK_PARCELS(this.parcelsGraphicLayer).then(
+        this.UtilsVM.PICK_PARCELS().then(
             selectedGeometries => {
                 if (selectedGeometries.length > 0) {
                     this.UtilsVM.GET_ADDRESS_IN_GEOMETRIES(selectedGeometries, this.siteAddressPointLayer)
@@ -617,7 +617,7 @@ import { rejects } from "assert";
     private _addFillParcelsBtn = (element: Element) => {
         this.own(on(element, "click", event => {
             html.addClass(event.target, "active");
-            this.UtilsVM.PICK_PARCELS(this.parcelsGraphicLayer).then(selectedGeometries => {
+            this.UtilsVM.PICK_PARCELS().then(selectedGeometries => {
                 this.addressPointFeatures.removeAll();
                 selectedGeometries.forEach(geo => {
                     const centroid = this.UtilsVM.GetCentroidCoordinates(geo) as Point;
@@ -1010,7 +1010,7 @@ import { rejects } from "assert";
                     this.mapView.graphics.add(selectGraphic);
                 },
                 error =>  {
-                    console.log("move error", error);
+                    console.error("move", error);
                     html.removeClass(event.target, "active");
                     CursorToolTip.Close();
                     const selectGraphic = new Graphic({geometry: feature.geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
@@ -1052,7 +1052,7 @@ import { rejects } from "assert";
                         this._populateAddressTable(this.addressPointFeaturesIndex);
                 },
                     error =>  {
-                        console.log("move error", error);
+                        console.error("move", error);
                         html.removeClass(event.target, "active");
                         CursorToolTip.Close();
                         const selectGraphic = new Graphic({geometry: feature.geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
