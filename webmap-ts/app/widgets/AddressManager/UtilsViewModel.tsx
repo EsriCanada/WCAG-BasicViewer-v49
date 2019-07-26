@@ -134,7 +134,7 @@ class UtilsViewModel extends declared(Accessor) {
         return symb;
     }
 
-    SHOW_POINT = function(point, color = [255, 0, 0], width = 2, graphicsLayer: GraphicsLayer = this.mapView) {
+    SHOW_POINT = function(point, color = [255, 0, 0], width = 2, graphicsLayer: GraphicsLayer = this.mapView.graphics) : Graphic {
         const symbol = {
             color: [255, 255, 255, 1],
             size: 5,
@@ -147,7 +147,9 @@ class UtilsViewModel extends declared(Accessor) {
             }
         }
 
-        graphicsLayer.graphics.add({geometry: point, symbol:symbol} as any);
+        const graphic = {geometry: point, symbol:symbol} as any;
+        graphicsLayer.add(graphic);
+        return graphic;
     }
     
     PICK_ROAD_sketchVM: SketchViewModel = null;
@@ -807,7 +809,7 @@ class UtilsViewModel extends declared(Accessor) {
                         ));
                     }
 
-                    this.mapView.graphics.removeAll();
+                    // this.mapView.graphics.removeAll();
                     const isInside = ps.reduce((r, v) => r && geometryEngine.contains(startParcel, v), true);
                     // this.SHOW_POINT(p1, isInside ? [255, 0, 0] : [0, 0, 255], 1);
                     return isInside;
@@ -824,6 +826,7 @@ class UtilsViewModel extends declared(Accessor) {
                     const p1 = new Point({x: event.coordinates[0], y: event.coordinates[1], spatialReference: this.mapView.spatialReference});
                     // this.SHOW_ARROW(points[0], p1);
                     if(!allInside(p1)) {
+                        this.mapView.graphics.removeAll();
                         reject("not all inside parcel");
                         return;
                     }
@@ -851,6 +854,10 @@ class UtilsViewModel extends declared(Accessor) {
                     this.mapView.graphics.removeAll();
                     // this.SHOW_ARROW(points[0], p1);
                     this.SHOW_POINT(p1);
+
+                    // const pg = this.SHOW_POINT(p1);
+                    // pg.symbol = points[0].symbol;
+
                     if(points.length>1) {
                         const dx = p1.x - points[0].x;
                         const dy = p1.y - points[0].y;
