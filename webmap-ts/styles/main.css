@@ -89,6 +89,7 @@ header.top-nav {
 
 #panelTitle h1 {
     font-family: 'Roboto Condensed', sans-serif;
+    font-family: "Avenir Next W00", "Helvetica Neue", Helvetica, Arial, sans-serif;
     padding: 6px;
     margin: 0;
     -webkit-margin-before: 0;
@@ -187,6 +188,7 @@ header.top-nav {
 #panelPages {
     font-family: Helvetica, Arial, sans-serif;
     font-family: 'Raleway', sans-serif;
+    font-family: "Avenir Next W00", "Helvetica Neue", Helvetica, Arial, sans-serif;
     height: calc(100% - 68px);
     overflow: auto;
     overflow-y: hidden;
@@ -797,6 +799,7 @@ myKey img {
 .toc-panel__listItem>label {
     padding: 2px;
     font-family: 'Roboto Condensed', sans-serif;
+    font-family: "Avenir Next W00", "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: bold;
     font-size: 18px
 }
@@ -1331,7 +1334,7 @@ blockquote[lang] {
 }
 
 .AddressManager {
-    font-family: Raleway, 'Avenir Light', Verdana, Geneva, sans-serif;
+    font-family: "Avenir Next W00", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .AddressManager table {
@@ -1397,6 +1400,7 @@ blockquote[lang] {
     flex-direction: column;
     border: inset;
     font-family: 'Roboto Condensed', sans-serif;
+    font-family: "Avenir Next W00", "Helvetica Neue", Helvetica, Arial, sans-serif;
     background: white;
 }
 
@@ -1408,6 +1412,7 @@ blockquote[lang] {
     font-weight: bold;
     font-size: 14px;
     font-family: 'Avenir Light', Verdana, Geneva, sans-serif;
+    font-family: "Avenir Next W00", "Helvetica Neue", Helvetica, Arial, sans-serif;
     border: none;
     border-radius: 2px;
 }
@@ -1486,7 +1491,7 @@ blockquote[lang] {
 .AddressManager table input,
 .AddressManager table select,
 .AddressManager table textarea {
-    font-family: 'Roboto Condensed', sans-serif;
+    font-family: "Avenir Next W00", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .AddressManager table th>div {
@@ -1583,7 +1588,7 @@ blockquote[lang] {
     margin-right: 4px;
     font-weight: bold;
     font-size: 14px;
-    font-family: Raleway, 'Avenir Light', Verdana, Geneva, sans-serif;
+    font-family: "Avenir Next W00", "Helvetica Neue", Helvetica, Arial, sans-serif;
     border: none;
     border-radius: 2px;
 }
@@ -1767,6 +1772,7 @@ AddressManager .dropdown-content li {
     margin-left: 4px;
     line-height: 10px;
     font-family: 'Roboto Condensed', sans-serif;
+    font-family: "Avenir Next W00", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .AddressManager .DropDownButton:hover {
@@ -2027,4 +2033,5 @@ AddressManager .dropdown-content li {
     min-height: 60px;
     background: white;
     font-family: 'Roboto Condensed', sans-serif;
+    font-family: "Avenir Next W00", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }

@@ -157,7 +157,7 @@ import { Geometry } from "esri/geometry";
 
     render() {
         return ( 
-        <div class="ClonePanel dropdown-content hide" style="width:300px;" afterCreate={this._addClonePanel}>
+        <div class="ClonePanel dropdown-content hide" style="width:340px;" afterCreate={this._addClonePanel}>
             <div class="toolbar">
                 <input type="image" src="../images/icons_transp/pickRoad2.bgwhite.24.png" class="button" afterCreate={this._addPickRoadBtn} title="Pick Road" aria-label="Pick Road"/>
                 <input type="image" src="../images/icons_transp/Cut.bgwhite.24.png" class="button" afterCreate={this._addCutBtn} title="Cut Line" aria-label="Cut Line"/>
