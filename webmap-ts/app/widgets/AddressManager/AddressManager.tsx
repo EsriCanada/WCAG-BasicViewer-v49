@@ -23,6 +23,7 @@ import Feature = require("esri/widgets/Feature");
 import Collection = require("esri/core/Collection");
 import query = require("dojo/query");
 import geometryEngine = require("esri/geometry/geometryEngine");
+import CursorToolTip = require("./CursorToolTip");
 import DropDownItemMenu = require("./DropDownItemMenu");
 import GraphicsLayer = require("esri/layers/GraphicsLayer");
 import { ApplicationConfig } from "ApplicationBase/interfaces";
@@ -265,7 +266,7 @@ import { rejects } from "assert";
                                 <div><label for="x_input">x</label>
                                     <div style="float:right;">
                                         <input type="image" src="../images/icons_transp/centroid.bgwhite.24.png" title="Centroid" aria-label="Place Address Point to Centroid" afterCreate={this._addCentroidBtn} class="rowImg"/>
-                                        <input type="image" src="../images/icons_transp/movePoint.bgwhite.24.png" title="Move" aria-label="Move Address Point" afterCreate={this._addMoveAddressPointBtn} data-dojo-attach-point="moveAddressPoint" class="rowImg"/>
+                                        <input type="image" src="../images/icons_transp/movePoint.bgwhite.24.png" title="Move" aria-label="Move Address Point" afterCreate={this._addMoveAddressPointBtn} class="rowImg"/>
                                     </div>
                                 </div>
                             </th>
@@ -985,39 +986,37 @@ import { rejects } from "assert";
         this.own(on(this.moveAddressPointBtn, "click", event => {
             if (!this.addressPointFeatures || this.addressPointFeatures.length == 0) return;
             html.addClass(event.target, "active");
-            require(["./CursorToolTip"], CursorToolTip => {
-                const cursorTooltip = CursorToolTip.getInstance(this.mapView, i18n.addressManager.clickEndMove);
 
-                const feature = this.selectedAddressPointFeature as any;
-                let g = feature.geometry;
-                if("originalValues" in feature && "geometry" in feature.originalValues) {
-                    g = feature.originalValues.geometry;
+            CursorToolTip.getInstance(this.mapView, i18n.addressManager.clickEndMove);
+
+            const feature = this.selectedAddressPointFeature as any;
+            let g = feature.geometry;
+            if("originalValues" in feature && "geometry" in feature.originalValues) {
+                g = feature.originalValues.geometry;
+            }
+
+            this.UtilsVM.MOVE_POINT([g]).then(
+                ([result]) => {
+                    const feature = this.selectedAddressPointFeature as any;
+                    // console.log("move result", result);
+                    html.removeClass(event.target, "active");
+                    CursorToolTip.Close();
+
+                    this.x.value = result.x.toString();
+                    this.y.value = result.y.toString();
+
+                    this._setDirty([this.x, this.y], feature, "geometry", result);
+                    const selectGraphic = new Graphic({geometry: feature.geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
+                    this.mapView.graphics.add(selectGraphic);
+                },
+                error =>  {
+                    console.log("move error", error);
+                    html.removeClass(event.target, "active");
+                    CursorToolTip.Close();
+                    const selectGraphic = new Graphic({geometry: feature.geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
+                    this.mapView.graphics.add(selectGraphic);
                 }
-
-                this.UtilsVM.MOVE_POINT([g]).then(
-                    ([result]) => {
-                        const feature = this.selectedAddressPointFeature as any;
-                        // console.log("move result", result);
-                        html.removeClass(event.target, "active");
-                        CursorToolTip.Close();
-
-                        this.x.value = result.x.toString();
-                        this.y.value = result.y.toString();
-
-                        this._setDirty([this.x, this.y], feature, "geometry", result);
-                        const selectGraphic = new Graphic({geometry: feature.geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
-                        this.mapView.graphics.add(selectGraphic);
-                    },
-                    error =>  {
-                        console.log("move error", error);
-                        html.removeClass(event.target, "active");
-                        CursorToolTip.Close();
-                        const selectGraphic = new Graphic({geometry: feature.geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
-                        this.mapView.graphics.add(selectGraphic);
-                    }
-                )
-            })
-
+            )
         }))
     }
 

@@ -788,8 +788,6 @@ class UtilsViewModel extends declared(Accessor) {
                     })
                 }
 
-                // this.mapView.graphics.removeAll();
-
                 const drawAction = this.movePoint_draw.create("point");
                 drawAction.on("draw-complete", (event) => {
                     this.movePoint_draw.reset();
@@ -814,15 +812,25 @@ class UtilsViewModel extends declared(Accessor) {
                 ], event => {
                     this.mapView.graphics.removeAll();
                     const p1 = new Point({x: event.coordinates[0], y: event.coordinates[1], spatialReference: this.mapView.spatialReference});
-                    this.SHOW_ARROW(points[0], p1);
+                    // this.SHOW_ARROW(points[0], p1);
+                    this.SHOW_POINT(new Point({
+                        x:p1.x, y:p1.y, 
+                        spatialReference: this.mapView.spatialReference}
+                    ),
+                    [255, 0 , 0], this.mapView as any);
                     if(points.length>1) {
                         const dx = p1.x - points[0].x;
                         const dy = p1.y - points[0].y;
                         for(let i=1; i<points.length; i++) {
-                            this.SHOW_ARROW(points[i], new Point({
-                                x:points[i].x+dx, y:points[i].y+dy, 
-                                spatialReference: this.mapView.spatialReference}
-                            ))
+                            this.SHOW_POINT(new Point({
+                                    x:points[i].x+dx, y:points[i].y+dy, 
+                                    spatialReference: this.mapView.spatialReference}
+                                ),
+                                [255, 0 , 0], this.mapView as any);
+                            // this.SHOW_ARROW(points[i], new Point({
+                            //     x:points[i].x+dx, y:points[i].y+dy, 
+                            //     spatialReference: this.mapView.spatialReference}
+                            // ))
                         }}
                     // console.log("move", event);
                 })
