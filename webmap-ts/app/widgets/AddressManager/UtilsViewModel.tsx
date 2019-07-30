@@ -844,9 +844,7 @@ class UtilsViewModel extends declared(Accessor) {
                     }
                     resolve(ps);
                 })
-                drawAction.on([
-                    "cursor-update",
-                ], event => {
+                drawAction.on(["cursor-update"], event => {
                     const p1 = new Point({x: event.coordinates[0], y: event.coordinates[1], spatialReference: this.mapView.spatialReference});
 
                     if(!allInside(p1)) return;

@@ -1029,7 +1029,7 @@ import { rejects } from "assert";
             require(["./CursorToolTip"], CursorToolTip => {
                 const cursorTooltip = CursorToolTip.getInstance(this.mapView, i18n.addressManager.clickEndMove);
 
-                const gs = this.addressPointFeatures.slice(this.addressPointFeaturesIndex).map(f => {
+                const gs = this.addressPointFeatures/*.slice(this.addressPointFeaturesIndex)*/.map(f => {
                     const feature = f as any;
                     let g = feature.geometry;
                     if("originalValues" in feature && "geometry" in feature.originalValues) {
