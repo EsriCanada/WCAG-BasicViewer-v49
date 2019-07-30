@@ -1027,7 +1027,7 @@ import { rejects } from "assert";
             
             html.addClass(event.target, "active");
             require(["./CursorToolTip"], CursorToolTip => {
-                const cursorTooltip = CursorToolTip.getInstance(this.mapView, i18n.addressManager.clickEndMove);
+                CursorToolTip.getInstance(this.mapView, i18n.addressManager.clickEndMove);
 
                 const gs = this.addressPointFeatures/*.slice(this.addressPointFeaturesIndex)*/.map(f => {
                     const feature = f as any;

@@ -796,6 +796,10 @@ class UtilsViewModel extends declared(Accessor) {
 
                 const extentParcelGeometries = this.parcelsGraphicLayer.graphics.map(g => g.geometry).toArray();
                 var startParcel = extentParcelGeometries.find(g => geometryEngine.intersects(g, points[0]));
+
+                const selfParcels = [];
+                points.forEach(point => selfParcels.push(extentParcelGeometries.find(g => geometryEngine.intersects(g, point))));
+
                 var allInside = (p1: Point) : boolean => {
                     if(!startParcel) return true;
 
@@ -810,7 +814,7 @@ class UtilsViewModel extends declared(Accessor) {
                     }
 
                     // this.mapView.graphics.removeAll();
-                    const isInside = ps.reduce((r, v) => r && geometryEngine.contains(startParcel, v), true);
+                    const isInside = ps.reduce((r, v, i) => r && geometryEngine.contains(selfParcels[i], v), true);
                     // this.SHOW_POINT(p1, isInside ? [255, 0, 0] : [0, 0, 255], 1);
                     return isInside;
                 }
