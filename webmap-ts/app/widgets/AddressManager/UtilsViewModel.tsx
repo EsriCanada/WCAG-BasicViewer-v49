@@ -855,8 +855,8 @@ class UtilsViewModel extends declared(Accessor) {
 
                     this.mapView.graphics.removeAll();
                     // this.SHOW_ARROW(points[0], p1);
+                    
                     this.SHOW_POINT(p1);
-
                     // const pg = this.SHOW_POINT(p1);
                     // pg.symbol = points[0].symbol;
 

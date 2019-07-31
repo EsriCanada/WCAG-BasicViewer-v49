@@ -33,6 +33,8 @@ import Draw = require("esri/views/draw/Draw");
 import { resolve } from "path";
 import { rejects } from "assert";
 
+import symbolPreview = require("esri/symbols/support/symbolPreview");
+
 @subclass("esri.widgets.AddressManager")
   class AddressManager extends declared(Widget) {
     @property()
@@ -249,6 +251,9 @@ import { rejects } from "assert";
                                 </div>
                             </div>
                             <input type="image" src="../images/icons_transp/arrow.right.bgwhite.24.png" class="button-right showNav" title="Next" afterCreate={this._addNextBtn}/>
+                        </div>
+                        <div style="display: inline-block; width: 24px; vertical-align: middle; text-align: -webkit-center; margin-top: -17px;">
+                            <div id="symbolPreview"></div>
                         </div>
                         <input type="image" src="../images/icons_transp/zoom.bgwhite.24.png" class="button-right showZoom" title="Zoom" style="display:none;" afterCreate={this._addZoomBtn}/>
                     </div>
@@ -928,7 +933,8 @@ import { rejects } from "assert";
                         const centroid = this.UtilsVM.GetCentroidCoordinates(geo) as Point;
 
                         if((feature as any).geometry.x != centroid.x || (feature as any).geometry.y != centroid.y) {
-                            this.UtilsVM.SHOW_ARROW((feature as any).geometry, centroid);
+                            // this.UtilsVM.SHOW_ARROW((feature as any).geometry, centroid);
+                            this.UtilsVM.SHOW_POINT(centroid);
 
                             this.x.value = centroid.x.toString();
                             this.y.value = centroid.y.toString();
@@ -970,7 +976,13 @@ import { rejects } from "assert";
                         const centroid = this.UtilsVM.GetCentroidCoordinates(geo) as Point;
 
                         if(address.geometry.x != centroid.x || address.geometry.y != centroid.y) {
-                            this.UtilsVM.SHOW_ARROW(address.geometry, centroid);
+                            // this.UtilsVM.SHOW_ARROW(address.geometry, centroid);
+                            // const pg = this.UtilsVM.SHOW_POINT(centroid);
+                            // pg.symbol = address.layer.renderer.defaultSymbol;
+                            const symbol = address.attributes.status  !== null ? address.layer.renderer.uniqueValueInfos[address.attributes.status].symbol : address.layer.renderer.defaultSymbol;
+                            const g = new Graphic({geometry: centroid, symbol:symbol});
+                            this.mapView.graphics.add(g);
+
                             this._setDirty([centroid.x, centroid.y], address, "geometry", centroid);
                         }
                     }
@@ -1115,6 +1127,15 @@ import { rejects } from "assert";
             this.addressPointIndexEl.innerHTML = (this.addressPointFeaturesIndex + 1) + "";
 
             if(feature) {
+                (html.byId("symbolPreview") as HTMLElement).innerHTML = null;
+                const symbol = feature.attributes.status !== null ? feature.layer.renderer._valueInfoMap[feature.attributes.status].symbol : feature.layer.renderer.defaultSymbol;
+                console.log("status, color", feature.attributes.status, symbol.color);
+                symbolPreview.renderPreviewHTML(symbol, {
+                    node: html.byId("symbolPreview") as any,
+                    opacity: 1,
+                    // size: 10
+                });
+
                 const graphic = new Graphic({geometry: feature.geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
                 this.mapView.graphics.add(graphic as any);
 
