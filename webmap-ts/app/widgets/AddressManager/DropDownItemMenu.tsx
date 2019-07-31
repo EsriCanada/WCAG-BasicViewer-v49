@@ -341,7 +341,7 @@ class DropDownItemMenu extends declared(Widget) {
     private getMenuItems() {
         this.labelItem.firstChild.textContent = DropDownItemMenu.LabelItemText;
         
-        const checkMenu = (value:string): boolean => ("menu" in this.specialAttributes && !(value in this.specialAttributes.menu) || this.specialAttributes.menu[value]);
+        const checkMenu = (value:string): boolean => (this.specialAttributes && "menu" in this.specialAttributes && !("menu" in this.specialAttributes && (value in this.specialAttributes.menu) || this.specialAttributes.menu[value]));
 
         if(Has(this.baseConfig, "filter") && checkMenu("filter"))
             html.removeClass(this.filterItem, "hide");
@@ -376,8 +376,9 @@ class DropDownItemMenu extends declared(Widget) {
         DropDownItemMenu.lastFieldName = this.fieldName;
         for (let i = 0; i < this.addressPointFeatures.length; i++) {
             const feature = (this.addressPointFeatures as any).items[i];
-            if(feature.attributes && (this.fieldName in feature.attributes && feature.attributes[this.fieldName])) {
-                const graphic = {geometry: feature.geometry, symbol: this.utilsVM.GET_LABEL_SYMBOL(feature.attributes[this.fieldName])};
+            if(feature.attributes && (this.fieldName in feature.attributes && feature.attributes[this.fieldName] !== null)) {
+                let attr = feature.attributes[this.fieldName];
+                const graphic = {geometry: feature.geometry, symbol: this.utilsVM.GET_LABEL_SYMBOL(attr)};
                 DropDownItemMenu.LabelsGraphicsLayer.add(graphic);
             }
         }
