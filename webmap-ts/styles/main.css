@@ -2035,3 +2035,11 @@ AddressManager .dropdown-content li {
     font-family: 'Roboto Condensed', sans-serif;
     font-family: "Avenir Next W00", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
+
+.AddressManager .symbolPreview {
+    display: inline-block;
+    width: 24px;
+    vertical-align: middle;
+    text-align: -webkit-center;
+    margin-top: -17px;
+}

@@ -141,6 +141,7 @@ import symbolPreview = require("esri/symbols/support/symbolPreview");
     private moveAddressPointBtn: HTMLElement;
     private moveAllItem: HTMLElement;
     private saveConfirmBox: SaveConfirmBox;
+    private _symbolPreview: HTMLElement;
 
     constructor() {
         super(); 
@@ -215,6 +216,13 @@ import symbolPreview = require("esri/symbols/support/symbolPreview");
 
             this.addressPointFeatures.watch("length", (newValue) => {
                 html.setStyle(this.zoomBtn, "display", newValue > 0 ? "": "none");
+                // html.setStyle(this._symbolPreview, "display", newValue > 0 ? "": "none");
+                if(newValue > 0) {
+                    html.removeClass(this._symbolPreview, "hide");
+                }
+                else {
+                    html.addClass(this._symbolPreview, "hide");
+                }
                 html.setStyle(this.addressPointNavigatorDiv, "display", newValue > 1 ? "": "none");
 
                 this.addressPointCountEl.innerHTML = this.addressPointFeatures.length+"";
@@ -252,8 +260,8 @@ import symbolPreview = require("esri/symbols/support/symbolPreview");
                             </div>
                             <input type="image" src="../images/icons_transp/arrow.right.bgwhite.24.png" class="button-right showNav" title="Next" afterCreate={this._addNextBtn}/>
                         </div>
-                        <div style="display: inline-block; width: 24px; vertical-align: middle; text-align: -webkit-center; margin-top: -17px;">
-                            <div id="symbolPreview"></div>
+                        <div class="symbolPreview hide" afterCreate={this._addSymbolPreview}>
+                            <div></div>
                         </div>
                         <input type="image" src="../images/icons_transp/zoom.bgwhite.24.png" class="button-right showZoom" title="Zoom" style="display:none;" afterCreate={this._addZoomBtn}/>
                     </div>
@@ -514,7 +522,7 @@ import symbolPreview = require("esri/symbols/support/symbolPreview");
                             html.removeClass(event.target, "active");
                         }, error => {
                             html.removeClass(event.target, "active");
-                            console.log("Pick parcels", error);
+                            console.error("Pick parcels", error);
                         })
                     }
                 else {
@@ -909,6 +917,10 @@ import symbolPreview = require("esri/symbols/support/symbolPreview");
         this.addressPointCountEl = element as HTMLElement;
     };
 
+    private _addSymbolPreview = (element: Element) => {
+        this._symbolPreview = element as HTMLElement;
+    };
+
     private _addCentroidBtn = (element: Element) => {
         this.centroidBtn = element as HTMLInputElement;
         this.own(on(this.centroidBtn, "click", event => {
@@ -949,7 +961,7 @@ import symbolPreview = require("esri/symbols/support/symbolPreview");
                 },
                 err => {
                     html.removeClass(btn, "active");
-                    console.log("Centroid Error", err);
+                    console.error("Centroid Error", err);
                 })
         }))
     };
@@ -1127,13 +1139,12 @@ import symbolPreview = require("esri/symbols/support/symbolPreview");
             this.addressPointIndexEl.innerHTML = (this.addressPointFeaturesIndex + 1) + "";
 
             if(feature) {
-                (html.byId("symbolPreview") as HTMLElement).innerHTML = null;
+                this._symbolPreview.children[0].innerHTML = null;
                 const symbol = feature.attributes.status !== null ? feature.layer.renderer._valueInfoMap[feature.attributes.status].symbol : feature.layer.renderer.defaultSymbol;
-                console.log("status, color", feature.attributes.status, symbol.color);
+                // console.log("status, color", feature.attributes.status, symbol.color);
                 symbolPreview.renderPreviewHTML(symbol, {
-                    node: html.byId("symbolPreview") as any,
-                    opacity: 1,
-                    // size: 10
+                    node: this._symbolPreview.children[0] as any,
+                    opacity: 1
                 });
 
                 const graphic = new Graphic({geometry: feature.geometry, symbol: this.UtilsVM.SELECTED_ADDRESS_SYMBOL});
@@ -1458,7 +1469,7 @@ import symbolPreview = require("esri/symbols/support/symbolPreview");
                                 html.removeClass(event.target, "active");
                         })
                         .catch(err => {
-                            console.log("PICK_ROAD", err);
+                            console.error("PICK_ROAD", err);
 
                             // this.mapView.popup.autoOpenEnabled = true; // ?
                             html.removeClass(event.target, "active");
@@ -1624,7 +1635,6 @@ import symbolPreview = require("esri/symbols/support/symbolPreview");
 
         // console.log("field", field.name, field.type, field.domain);
         if (("domain" in field) && field.domain) {
-            console.log()
             if (field.domain.type == "coded-value") {
                 input = html.create("select", {});
                 html.create("option", {
